@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - JegoDigital Marketing Digital Cancún</title>
+    <meta name="description" content="Servicios de marketing digital en Cancún: Diseño web, SEO local, Google Ads, redes sociales y e-commerce. Agencia especializada en negocios locales.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .services h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .service-card ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .service-card li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .service-card li:before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .cta-button {
+            background: #ffd700;
+            color: #333;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a:hover {
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">JegoDigital</div>
+            <ul class="nav-links">
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/servicios">Servicios</a></li>
+                <li><a href="/nosotros">Nosotros</a></li>
+                <li><a href="/contacto">Contacto</a></li>
+                <li><a href="/agents">Dashboard</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Nuestros Servicios</h1>
+            <p>Soluciones completas de marketing digital para hacer crecer tu negocio en Cancún</p>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container">
+            <h2>Servicios Especializados</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Diseño Web Profesional</h3>
+                    <p>Sitios web modernos y responsivos que convierten visitantes en clientes.</p>
+                    <ul>
+                        <li>Diseño responsivo para móviles</li>
+                        <li>Optimización para velocidad</li>
+                        <li>Integración con redes sociales</li>
+                        <li>Formularios de contacto</li>
+                        <li>Certificado SSL incluido</li>
+                    </ul>
+                    <a href="/contacto" class="cta-button">Solicitar Cotización</a>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>SEO Local Cancún</h3>
+                    <p>Aparece primero en Google cuando buscan tu negocio en Cancún.</p>
+                    <ul>
+                        <li>Optimización Google My Business</li>
+                        <li>SEO técnico completo</li>
+                        <li>Contenido optimizado</li>
+                        <li>Link building local</li>
+                        <li>Reportes mensuales</li>
+                    </ul>
+                    <a href="/contacto" class="cta-button">Comenzar SEO</a>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3>Marketing Digital</h3>
+                    <p>Campañas estratégicas que generan clientes reales para tu negocio.</p>
+                    <ul>
+                        <li>Google Ads y Facebook Ads</li>
+                        <li>Marketing en redes sociales</li>
+                        <li>Email marketing</li>
+                        <li>Remarketing</li>
+                        <li>Análisis y optimización</li>
+                    </ul>
+                    <a href="/contacto" class="cta-button">Estrategia Gratis</a>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>E-commerce</h3>
+                    <p>Tiendas online que venden las 24 horas del día.</p>
+                    <ul>
+                        <li>Diseño de tienda online</li>
+                        <li>Integración de pagos</li>
+                        <li>Gestión de inventario</li>
+                        <li>SEO para e-commerce</li>
+                        <li>Soporte técnico</li>
+                    </ul>
+                    <a href="/contacto" class="cta-button">Crear Tienda</a>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Analytics y Reportes</h3>
+                    <p>Mide el éxito de tus campañas con datos reales.</p>
+                    <ul>
+                        <li>Google Analytics 4</li>
+                        <li>Reportes personalizados</li>
+                        <li>Análisis de conversiones</li>
+                        <li>Dashboards en tiempo real</li>
+                        <li>Recomendaciones mensuales</li>
+                    </ul>
+                    <a href="/contacto" class="cta-button">Ver Demo</a>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Desarrollo Móvil</h3>
+                    <p>Aplicaciones móviles que conectan con tus clientes.</p>
+                    <ul>
+                        <li>Apps nativas iOS/Android</li>
+                        <li>Apps web progresivas</li>
+                        <li>Integración con sistemas</li>
+                        <li>Notificaciones push</li>
+                        <li>Mantenimiento incluido</li>
+                    </ul>
+                    <a href="/contacto" class="cta-button">Desarrollar App</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contacto</h3>
+                    <p>📍 Cancún, Quintana Roo</p>
+                    <p>📧 info@jegodigital.com</p>
+                    <p>📱 +52 998 202 3263</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Servicios</h3>
+                    <a href="/servicios">Diseño Web</a>
+                    <a href="/servicios">SEO Local</a>
+                    <a href="/servicios">Marketing Digital</a>
+                    <a href="/servicios">E-commerce</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Enlaces</h3>
+                    <a href="/agents">Dashboard</a>
+                    <a href="/">Inicio</a>
+                    <a href="/nosotros">Nosotros</a>
+                    <a href="/contacto">Contacto</a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #444; padding-top: 1rem; margin-top: 2rem;">
+                <p>&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

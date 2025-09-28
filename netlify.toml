@@ -13,6 +13,26 @@
   to = "/jegodigital-agents-dashboard.html"
   status = 200
 
+[[redirects]]
+  from = "/dashboard"
+  to = "/jegodigital-agents-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/servicios"
+  to = "/servicios.html"
+  status = 200
+
+[[redirects]]
+  from = "/contacto"
+  to = "/contacto.html"
+  status = 200
+
+[[redirects]]
+  from = "/nosotros"
+  to = "/nosotros.html"
+  status = 200
+
 # Headers for security
 [[headers]]
   for = "/*"

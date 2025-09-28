@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosotros - JegoDigital Marketing Digital Cancún</title>
+    <meta name="description" content="Conoce a JegoDigital, la agencia de marketing digital líder en Cancún. Nuestro equipo experto ayuda a negocios locales a dominar Google y crecer.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* About Section */
+        .about {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .about-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .team {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .team h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-member {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .member-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .member-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-role {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .member-bio {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .cta-button {
+            background: #ffd700;
+            color: #333;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 2rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a:hover {
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">JegoDigital</div>
+            <ul class="nav-links">
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/servicios">Servicios</a></li>
+                <li><a href="/nosotros">Nosotros</a></li>
+                <li><a href="/contacto">Contacto</a></li>
+                <li><a href="/agents">Dashboard</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Conoce a JegoDigital</h1>
+            <p>La agencia de marketing digital que está transformando negocios en Cancún</p>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Nuestra Historia</h2>
+                    <p>JegoDigital nació en Cancún con una misión clara: ayudar a los negocios locales a dominar el mundo digital y generar más clientes.</p>
+                    <p>Somos una agencia especializada en marketing digital que combina creatividad, tecnología y estrategia para crear campañas que realmente funcionan.</p>
+                    <p>Nuestro equipo está formado por expertos en diseño web, SEO local, marketing digital y desarrollo, todos con años de experiencia en el mercado de Cancún.</p>
+                </div>
+                <div class="about-image">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 300px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
+                        <i class="fas fa-rocket" style="font-size: 4rem; margin-right: 1rem;"></i>
+                        <div>
+                            <strong>Impulsando el Crecimiento</strong><br>
+                            Digital de Negocios Locales
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Proyectos Completados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">Clientes Satisfechos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3+</div>
+                    <div class="stat-label">Años de Experiencia</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Soporte Técnico</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="team">
+        <div class="container">
+            <h2>Nuestro Equipo</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="member-name">Alex Jego</div>
+                    <div class="member-role">CEO & Fundador</div>
+                    <div class="member-bio">Especialista en marketing digital con más de 5 años de experiencia ayudando a negocios locales a crecer en Cancún.</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="member-name">Equipo de Desarrollo</div>
+                    <div class="member-role">Desarrolladores Web</div>
+                    <div class="member-bio">Expertos en diseño web, desarrollo móvil y tecnologías modernas para crear sitios web que convierten.</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="member-name">Equipo de Marketing</div>
+                    <div class="member-role">Especialistas en SEO</div>
+                    <div class="member-bio">Profesionales certificados en Google Ads, SEO local y estrategias de marketing digital que generan resultados.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" style="text-align: center;">
+        <div class="container">
+            <h2>¿Por qué Elegirnos?</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #666;">Somos más que una agencia de marketing digital, somos tu socio estratégico para el crecimiento</p>
+            <a href="/contacto" class="cta-button">Trabajemos Juntos</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contacto</h3>
+                    <p>📍 Cancún, Quintana Roo</p>
+                    <p>📧 info@jegodigital.com</p>
+                    <p>📱 +52 998 202 3263</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Servicios</h3>
+                    <a href="/servicios">Diseño Web</a>
+                    <a href="/servicios">SEO Local</a>
+                    <a href="/servicios">Marketing Digital</a>
+                    <a href="/servicios">E-commerce</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Enlaces</h3>
+                    <a href="/agents">Dashboard</a>
+                    <a href="/">Inicio</a>
+                    <a href="/nosotros">Nosotros</a>
+                    <a href="/contacto">Contacto</a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #444; padding-top: 1rem; margin-top: 2rem;">
+                <p>&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
