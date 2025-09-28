@@ -4,8 +4,8 @@
 
 # Build settings
 [build]
-  publish = "."
-  command = "echo 'Static site - no build needed'"
+  publish = "/"
+  command = ""
 
 # Redirect rules for custom domain
 [[redirects]]
