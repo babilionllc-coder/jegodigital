@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://jegodigital.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin panel
+Disallow: /admin
+Disallow: /admin/
+
+# Allow all other content
+Allow: /services
+Allow: /portfolio
+Allow: /about
+Allow: /contact
+Allow: /web-design-cancun
+Allow: /seo-cancun
+Allow: /marketing-digital-cancun
+Allow: /ecommerce-cancun

@@ -1,10 +1,8 @@
-# Netlify Deployment Configuration for JegoDigital Agents Dashboard
-
-# This file tells Netlify how to deploy your dashboard
+# Netlify Deployment Configuration for JegoDigital
 
 # Build settings
 [build]
-  publish = "/"
+  publish = "public"
   command = ""
 
 # Redirect rules for custom domain
