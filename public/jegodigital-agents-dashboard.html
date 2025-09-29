@@ -1303,20 +1303,32 @@
                     const headers = data.values[0];
                     const rows = data.values.slice(1);
                     
+                    console.log('Headers:', headers);
+                    console.log('First few rows:', rows.slice(0, 3));
+                    
                     const phoneNumbers = rows.slice(0, 20).map((row) => {
                         const lead = {};
                         headers.forEach((header, i) => {
                             lead[header.toLowerCase().replace(/\s+/g, '_')] = row[i] || '';
                         });
-                        return lead.phone_number || lead.phone || lead.contact_number || '';
+                        return lead.phone || lead.phone_number || lead.contact_number || '';
                     }).filter(phone => phone && phone.startsWith('+52'));
+
+                    console.log('Found phone numbers:', phoneNumbers);
 
                     const container = document.getElementById('phone-numbers-display');
                     if (container) {
-                        container.innerHTML = `
-                            <strong>Números a agregar (${phoneNumbers.length} números reales):</strong><br>
-                            ${phoneNumbers.map(phone => phone).join(', ')}
-                        `;
+                        if (phoneNumbers.length > 0) {
+                            container.innerHTML = `
+                                <strong>Números a agregar (${phoneNumbers.length} números reales):</strong><br>
+                                ${phoneNumbers.map(phone => phone).join(', ')}
+                            `;
+                        } else {
+                            container.innerHTML = `
+                                <strong>No se encontraron números válidos.</strong><br>
+                                <small>Verificando estructura de datos...</small>
+                            `;
+                        }
                     }
                 } else {
                     throw new Error('No se pudieron cargar los números');
@@ -1669,7 +1681,7 @@
                         return {
                             id: index + 1,
                             name: lead.business_name || lead.company_name || `Lead ${index + 1}`,
-                            phone: lead.phone_number || lead.phone || lead.contact_number || '',
+                            phone: lead.phone || lead.phone_number || lead.contact_number || '',
                             email: lead.email || lead.contact_email || '',
                             website: lead.website || lead.web_site || '',
                             businessType: lead.industry || lead.business_type || 'Negocio',
@@ -2575,7 +2587,7 @@
                         return {
                             id: index + 1,
                             name: lead.business_name || lead.company_name || `Lead ${index + 1}`,
-                            phone: lead.phone_number || lead.phone || lead.contact_number || '',
+                            phone: lead.phone || lead.phone_number || lead.contact_number || '',
                             website: lead.website || lead.web_site || '',
                             industry: lead.industry || lead.business_type || '',
                             score: lead.ai_score || lead.score || Math.floor(Math.random() * 50) + 10
