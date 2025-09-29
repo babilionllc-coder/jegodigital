@@ -3,7 +3,7 @@
 
 class WhatsAppBusinessAPI {
     constructor() {
-        this.phoneNumberId = "780878615114928"; // From your API setup
+        this.phoneNumberId = "1006439764357143"; // From your API setup
         this.businessAccountId = "1796802194255827"; // From your API setup
         this.accessToken = null; // Will be set when user generates token
         this.certificate = "CmwKKAjVzJCHk9P9AhIGZW500ndhlg9KZWdvRGlnaXRhbFdoYXRQ3LTqxgYaQE5sIH7UJY4MKO0564JHUbyJmloEqvgshSJ6hfH/VEc619VaRlhF29W28Wg9nD84n/r4jFcT3C8h/GKVIkGIQgSLm0QBZ7/r9+L9lq1s5usaiuVWOHtXMXYwflmR06tPJAY4wo9Bd2QSJPWhkbg7NY=";
