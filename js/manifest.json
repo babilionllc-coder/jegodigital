@@ -1,0 +1,25 @@
+{
+  "name": "JegoDigital - Digital Marketing in Cancún",
+  "short_name": "JegoDigital",
+  "description": "Professional digital marketing services in Cancún, México. Web design, SEO optimization, local business marketing, and e-commerce solutions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["business", "marketing", "professional"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+}
