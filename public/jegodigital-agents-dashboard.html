@@ -488,6 +488,185 @@
             color: #e74c3c;
         }
 
+        /* Facebook Groups Styles */
+        .group-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .group-item:hover {
+            background: #e3f2fd;
+            border-color: #1877f2;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .group-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .group-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .group-members {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .group-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #e8f5e8;
+            color: #25D366;
+        }
+
+        .status-monitoring {
+            background: #fff3e0;
+            color: #f39c12;
+        }
+
+        .status-paused {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+
+        .group-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-number {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #1877f2;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-monitor {
+            background: #1877f2;
+            color: white;
+        }
+
+        .btn-monitor:hover {
+            background: #166fe5;
+        }
+
+        .btn-post {
+            background: #42b883;
+            color: white;
+        }
+
+        .btn-post:hover {
+            background: #369870;
+        }
+
+        .btn-leads {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-leads:hover {
+            background: #c0392b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -562,6 +741,12 @@
             <button class="btn btn-warning" onclick="testSystem()">
                 <i class="fas fa-flask"></i> Probar Sistema
             </button>
+            <button class="btn btn-primary" onclick="openBulkMessaging()">
+                <i class="fas fa-paper-plane"></i> Envío Masivo
+            </button>
+            <button class="btn btn-primary" onclick="openFacebookGroups()">
+                <i class="fab fa-facebook"></i> Grupos Facebook
+            </button>
         </div>
 
         <div class="main-content">
@@ -628,6 +813,43 @@
                 <button onclick="sendMessage()">
                     <i class="fas fa-paper-plane"></i> Enviar
                 </button>
+            </div>
+        </div>
+
+        <!-- Facebook Groups Modal -->
+        <div id="facebook-groups-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fab fa-facebook"></i> Gestión de Grupos Facebook</h3>
+                    <span class="close" onclick="closeFacebookGroups()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button class="btn btn-primary" onclick="addNewGroup()">
+                                <i class="fas fa-plus"></i> Agregar Grupo
+                            </button>
+                            <button class="btn btn-success" onclick="scanGroupsForLeads()">
+                                <i class="fas fa-search"></i> Buscar Leads
+                            </button>
+                            <button class="btn btn-warning" onclick="scheduleGroupPosts()">
+                                <i class="fas fa-clock"></i> Programar Posts
+                            </button>
+                        </div>
+                        
+                        <div id="groups-list">
+                            <!-- Groups will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="refreshGroups()">
+                        <i class="fas fa-sync"></i> Actualizar Grupos
+                    </button>
+                    <button class="btn btn-warning" onclick="closeFacebookGroups()">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1361,6 +1583,176 @@
                 sendMessage();
             }
         });
+
+        // Facebook Groups Functions
+        function openFacebookGroups() {
+            document.getElementById('facebook-groups-modal').style.display = 'block';
+            loadFacebookGroups();
+        }
+
+        function closeFacebookGroups() {
+            document.getElementById('facebook-groups-modal').style.display = 'none';
+        }
+
+        async function loadFacebookGroups() {
+            try {
+                const mockGroups = [
+                    {
+                        id: 1,
+                        name: 'Empresarios Cancún',
+                        url: 'https://facebook.com/groups/empresarioscancun',
+                        members: 15420,
+                        status: 'active',
+                        postsToday: 8,
+                        leadsFound: 3,
+                        lastActivity: new Date(Date.now() - 1800000),
+                        description: 'Grupo para empresarios de Cancún y Riviera Maya'
+                    },
+                    {
+                        id: 2,
+                        name: 'Marketing Digital México',
+                        url: 'https://facebook.com/groups/marketingdigitalmx',
+                        members: 28450,
+                        status: 'monitoring',
+                        postsToday: 15,
+                        leadsFound: 7,
+                        lastActivity: new Date(Date.now() - 3600000),
+                        description: 'Comunidad de marketing digital en México'
+                    },
+                    {
+                        id: 3,
+                        name: 'Negocios Quintana Roo',
+                        url: 'https://facebook.com/groups/negociosqr',
+                        members: 12300,
+                        status: 'active',
+                        postsToday: 12,
+                        leadsFound: 5,
+                        lastActivity: new Date(Date.now() - 900000),
+                        description: 'Red de negocios en Quintana Roo'
+                    },
+                    {
+                        id: 4,
+                        name: 'Turismo Cancún',
+                        url: 'https://facebook.com/groups/turismocancun',
+                        members: 18750,
+                        status: 'paused',
+                        postsToday: 0,
+                        leadsFound: 0,
+                        lastActivity: new Date(Date.now() - 86400000),
+                        description: 'Grupo de turismo y hotelería en Cancún'
+                    }
+                ];
+
+                displayFacebookGroups(mockGroups);
+            } catch (error) {
+                console.error('Error loading Facebook groups:', error);
+            }
+        }
+
+        function displayFacebookGroups(groups) {
+            const container = document.getElementById('groups-list');
+            
+            if (groups.length === 0) {
+                container.innerHTML = '<div class="loading">No hay grupos configurados</div>';
+                return;
+            }
+
+            container.innerHTML = groups.map(group => `
+                <div class="group-item">
+                    <div class="group-header">
+                        <div class="group-info">
+                            <div class="group-name">${group.name}</div>
+                            <div class="group-members">${group.members.toLocaleString()} miembros</div>
+                        </div>
+                        <span class="group-status status-${group.status}">${getGroupStatusText(group.status)}</span>
+                    </div>
+                    
+                    <div class="group-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">${group.postsToday}</div>
+                            <div class="stat-label">Posts Hoy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${group.leadsFound}</div>
+                            <div class="stat-label">Leads Encontrados</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${formatTime(group.lastActivity)}</div>
+                            <div class="stat-label">Última Actividad</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 8px; border-left: 3px solid #1877f2;">
+                        <div><strong>Descripción:</strong> ${group.description}</div>
+                        <div><strong>URL:</strong> <a href="${group.url}" target="_blank">${group.url}</a></div>
+                    </div>
+                    
+                    <div class="group-actions">
+                        <button class="action-btn btn-monitor" onclick="monitorGroup(${group.id})">
+                            <i class="fas fa-eye"></i> Monitorear
+                        </button>
+                        <button class="action-btn btn-post" onclick="postToGroup(${group.id})">
+                            <i class="fas fa-paper-plane"></i> Publicar
+                        </button>
+                        <button class="action-btn btn-leads" onclick="extractLeadsFromGroup(${group.id})">
+                            <i class="fas fa-users"></i> Extraer Leads
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getGroupStatusText(status) {
+            const statusMap = {
+                'active': 'ACTIVO',
+                'monitoring': 'MONITOREANDO',
+                'paused': 'PAUSADO'
+            };
+            return statusMap[status] || status.toUpperCase();
+        }
+
+        function monitorGroup(groupId) {
+            showSuccess(`Iniciando monitoreo del grupo ${groupId}...`);
+            // Here you would start monitoring the group for new posts and potential leads
+        }
+
+        function postToGroup(groupId) {
+            showSuccess(`Abriendo editor de posts para grupo ${groupId}...`);
+            // Here you would open a post editor for the group
+        }
+
+        function extractLeadsFromGroup(groupId) {
+            showSuccess(`Extrayendo leads del grupo ${groupId}...`);
+            // Here you would scan the group for potential leads
+        }
+
+        function addNewGroup() {
+            showSuccess('Abriendo formulario para agregar nuevo grupo...');
+            // Here you would open a form to add a new Facebook group
+        }
+
+        function scanGroupsForLeads() {
+            showSuccess('Escaneando todos los grupos en busca de leads...');
+            // Here you would scan all groups for potential leads
+        }
+
+        function scheduleGroupPosts() {
+            showSuccess('Abriendo programador de posts...');
+            // Here you would open a post scheduler
+        }
+
+        function refreshGroups() {
+            showSuccess('Actualizando información de grupos...');
+            loadFacebookGroups();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const facebookModal = document.getElementById('facebook-groups-modal');
+            if (event.target === facebookModal) {
+                facebookModal.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
