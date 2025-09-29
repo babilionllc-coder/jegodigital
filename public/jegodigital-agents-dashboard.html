@@ -1258,6 +1258,17 @@
             }
         }
 
+        // Message display functions
+        function showSuccess(message) {
+            console.log('SUCCESS:', message);
+            alert('✅ ' + message);
+        }
+
+        function showError(message) {
+            console.error('ERROR:', message);
+            alert('❌ ' + message);
+        }
+
         // Load dashboard data
         async function loadDashboardData() {
             try {
@@ -2430,6 +2441,203 @@
             showSuccess('Actualizando datos de campañas...');
             loadActiveCampaigns();
             loadABTests();
+        }
+
+        // Bulk Messaging Functions
+        function openBulkMessaging() {
+            document.getElementById('bulk-messaging-modal').style.display = 'block';
+            displayLeadsForBulkMessaging();
+        }
+
+        function closeBulkMessaging() {
+            document.getElementById('bulk-messaging-modal').style.display = 'none';
+        }
+
+        async function sendBulkMessages() {
+            const selectedLeads = Array.from(document.querySelectorAll('#leads-selection input[type="checkbox"]:checked'))
+                .map(checkbox => JSON.parse(checkbox.value));
+            
+            const message = document.getElementById('bulk-message-text').value;
+            const delay = parseInt(document.getElementById('bulk-delay').value);
+
+            if (selectedLeads.length === 0) {
+                showError('Por favor selecciona al menos un lead');
+                return;
+            }
+
+            if (!message.trim()) {
+                showError('Por favor escribe un mensaje');
+                return;
+            }
+
+            showSuccess(`Enviando mensajes a ${selectedLeads.length} leads...`);
+            
+            try {
+                const results = await whatsappAPI.sendBulkMessages(selectedLeads, message, delay);
+                const successful = results.filter(r => r.success).length;
+                const failed = results.filter(r => !r.success).length;
+                
+                showSuccess(`Enviados: ${successful}, Fallidos: ${failed}`);
+                closeBulkMessaging();
+            } catch (error) {
+                showError(`Error al enviar mensajes: ${error.message}`);
+            }
+        }
+
+        function displayLeadsForBulkMessaging() {
+            const container = document.getElementById('leads-selection');
+            const mockLeads = [
+                { id: 1, name: "Hotel Cancún", phone: "+52 998 3814458" },
+                { id: 2, name: "Restaurante Maya", phone: "+52 998 6796852" },
+                { id: 3, name: "Spa Relax", phone: "+52 998 1234567" }
+            ];
+
+            container.innerHTML = mockLeads.map(lead => `
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="checkbox" value='${JSON.stringify(lead)}' style="margin-right: 10px;">
+                    <span>${lead.name} - ${lead.phone}</span>
+                </div>
+            `).join('');
+        }
+
+        // Message Tab Functions
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const selectedContent = document.getElementById(`${tabName}-content`);
+            if (selectedContent) {
+                selectedContent.style.display = 'block';
+            }
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Load data for the selected tab
+            switch(tabName) {
+                case 'sent':
+                    loadSentMessages();
+                    break;
+                case 'replies':
+                    loadReplies();
+                    break;
+                case 'pending':
+                    loadPendingMessages();
+                    break;
+            }
+        }
+
+        async function loadSentMessages() {
+            try {
+                const mockMessages = [
+                    { id: 1, phone: "+52 998 3814458", message: "Hola! Soy Alex de JegoDigital...", time: new Date(), status: "delivered" },
+                    { id: 2, phone: "+52 998 6796852", message: "¡Buenos días! Te ayudo con marketing digital...", time: new Date(), status: "read" }
+                ];
+                displaySentMessages(mockMessages);
+            } catch (error) {
+                console.error('Error loading sent messages:', error);
+            }
+        }
+
+        function displaySentMessages(messages) {
+            const container = document.getElementById('sent-content');
+            if (!container) return;
+
+            container.innerHTML = messages.map(msg => `
+                <div class="message-item">
+                    <div class="message-header">
+                        <div class="message-lead-info">
+                            <div class="message-lead-name">${msg.phone}</div>
+                            <div class="message-lead-phone">${msg.time.toLocaleString()}</div>
+                        </div>
+                        <span class="message-status status-${msg.status}">${getMessageStatusText(msg.status)}</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${msg.message}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadReplies() {
+            try {
+                const mockReplies = [
+                    { id: 1, phone: "+52 998 3814458", message: "¡Hola Alex! Me interesa saber más...", time: new Date(), status: "replied" }
+                ];
+                displayReplies(mockReplies);
+            } catch (error) {
+                console.error('Error loading replies:', error);
+            }
+        }
+
+        function displayReplies(replies) {
+            const container = document.getElementById('replies-content');
+            if (!container) return;
+
+            container.innerHTML = replies.map(reply => `
+                <div class="message-item">
+                    <div class="message-header">
+                        <div class="message-lead-info">
+                            <div class="message-lead-name">${reply.phone}</div>
+                            <div class="message-lead-phone">${reply.time.toLocaleString()}</div>
+                        </div>
+                        <span class="message-status status-replied">RESPONDIDO</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${reply.message}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadPendingMessages() {
+            try {
+                const mockPending = [
+                    { id: 1, phone: "+52 998 1234567", message: "Hola! Soy Alex de JegoDigital...", time: new Date(), status: "pending" }
+                ];
+                displayPendingMessages(mockPending);
+            } catch (error) {
+                console.error('Error loading pending messages:', error);
+            }
+        }
+
+        function displayPendingMessages(pending) {
+            const container = document.getElementById('pending-content');
+            if (!container) return;
+
+            container.innerHTML = pending.map(msg => `
+                <div class="message-item">
+                    <div class="message-header">
+                        <div class="message-lead-info">
+                            <div class="message-lead-name">${msg.phone}</div>
+                            <div class="message-lead-phone">${msg.time.toLocaleString()}</div>
+                        </div>
+                        <span class="message-status status-pending">PENDIENTE</span>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${msg.message}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getMessageStatusText(status) {
+            const statusMap = {
+                'sent': 'ENVIADO',
+                'delivered': 'ENTREGADO',
+                'read': 'LEÍDO',
+                'replied': 'RESPONDIDO',
+                'pending': 'PENDIENTE'
+            };
+            return statusMap[status] || status.toUpperCase();
         }
 
         // WhatsApp Business API Functions
