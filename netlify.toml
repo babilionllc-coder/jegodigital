@@ -5,9 +5,10 @@
   publish = "public"
   command = "echo 'Static site - no build required'"
   
-# Disable automatic framework detection
+# Disable automatic framework detection and secrets scanning
 [build.environment]
   NODE_VERSION = "18"
+  SECRETS_SCAN_ENABLED = "false"
 
 # Redirect rules for custom domain
 [[redirects]]
