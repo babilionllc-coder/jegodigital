@@ -334,6 +334,160 @@
             font-weight: bold;
         }
 
+        /* Lead Management Styles */
+        .lead-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .lead-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .lead-item:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+
+        .lead-item.high-priority {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .lead-item.medium-priority {
+            border-left: 4px solid #f39c12;
+        }
+
+        .lead-item.low-priority {
+            border-left: 4px solid #25D366;
+        }
+
+        .lead-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .lead-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lead-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .lead-phone {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .lead-score {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .score-high {
+            background: #e8f5e8;
+            color: #25D366;
+        }
+
+        .score-medium {
+            background: #fff3e0;
+            color: #f39c12;
+        }
+
+        .score-low {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .lead-details {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .lead-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .lead-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-contact {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-contact:hover {
+            background: #1ea952;
+        }
+
+        .btn-qualify {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-qualify:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-convert {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-convert:hover {
+            background: #229954;
+        }
+
+        /* Lead Status Indicators */
+        .status-new {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-qualified {
+            background: #e8f5e8;
+            color: #25D366;
+        }
+
+        .status-contacted {
+            background: #fff3e0;
+            color: #f39c12;
+        }
+
+        .status-converted {
+            background: #e8f5e8;
+            color: #27ae60;
+        }
+
+        .status-lost {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -412,17 +566,55 @@
 
         <div class="main-content">
             <div class="panel">
-                <h3><i class="fas fa-list"></i> Conversaciones Recientes</h3>
-                <div id="conversations-list" class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Cargando conversaciones...
+                <h3><i class="fas fa-list"></i> Mensajes Enviados & Respuestas</h3>
+                <div class="message-tabs">
+                    <button class="tab-btn active" onclick="showTab('sent')">Mensajes Enviados</button>
+                    <button class="tab-btn" onclick="showTab('replies')">Respuestas Recibidas</button>
+                    <button class="tab-btn" onclick="showTab('pending')">Pendientes</button>
+                </div>
+                <div id="sent-messages" class="tab-content active">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando mensajes enviados...
+                    </div>
+                </div>
+                <div id="replies-messages" class="tab-content">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando respuestas...
+                    </div>
+                </div>
+                <div id="pending-messages" class="tab-content">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando mensajes pendientes...
+                    </div>
                 </div>
             </div>
 
             <div class="panel">
-                <h3><i class="fas fa-chart-line"></i> Análisis de Leads</h3>
-                <div id="leads-analysis">
+                <h3><i class="fas fa-users"></i> Gestión de Leads</h3>
+                <div class="lead-tabs">
+                    <button class="tab-btn active" onclick="showLeadTab('all')">Todos los Leads</button>
+                    <button class="tab-btn" onclick="showLeadTab('qualified')">Calificados</button>
+                    <button class="tab-btn" onclick="showLeadTab('contacted')">Contactados</button>
+                    <button class="tab-btn" onclick="showLeadTab('converted')">Convertidos</button>
+                </div>
+                <div id="all-leads" class="tab-content active">
                     <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i> Cargando análisis...
+                        <i class="fas fa-spinner fa-spin"></i> Cargando leads...
+                    </div>
+                </div>
+                <div id="qualified-leads" class="tab-content">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando leads calificados...
+                    </div>
+                </div>
+                <div id="contacted-leads" class="tab-content">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando leads contactados...
+                    </div>
+                </div>
+                <div id="converted-leads" class="tab-content">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando leads convertidos...
                     </div>
                 </div>
             </div>
@@ -455,8 +647,13 @@
         async function loadDashboardData() {
             try {
                 await Promise.all([
-                    loadConversations(),
-                    loadLeadsAnalysis(),
+                    loadSentMessages(),
+                    loadReplies(),
+                    loadPendingMessages(),
+                    loadAllLeads(),
+                    loadQualifiedLeads(),
+                    loadContactedLeads(),
+                    loadConvertedLeads(),
                     loadStats()
                 ]);
             } catch (error) {
@@ -763,6 +960,399 @@
             setTimeout(() => {
                 alert.remove();
             }, 5000);
+        }
+
+        // Lead Management Functions
+        async function loadAllLeads() {
+            try {
+                const mockLeads = [
+                    {
+                        id: 1,
+                        name: 'Hotel Paradise',
+                        phone: '+52 998 123 4567',
+                        email: 'info@hotelparadise.com',
+                        website: 'https://hotelparadise.com',
+                        businessType: 'Hotel',
+                        score: 15,
+                        value: 25000,
+                        status: 'new',
+                        priority: 'high',
+                        lastContact: null,
+                        notes: 'Excelente ubicación, sitio web necesita mejoras'
+                    },
+                    {
+                        id: 2,
+                        name: 'Spa Relax',
+                        phone: '+52 998 234 5678',
+                        email: 'contact@sparelax.com',
+                        website: 'https://sparelax.com',
+                        businessType: 'Spa',
+                        score: 8,
+                        value: 12000,
+                        status: 'qualified',
+                        priority: 'high',
+                        lastContact: new Date(Date.now() - 3600000),
+                        notes: 'Muy interesado en servicios digitales'
+                    },
+                    {
+                        id: 3,
+                        name: 'Dental Clinic Smile',
+                        phone: '+52 998 345 6789',
+                        email: 'admin@dentalsmile.com',
+                        website: 'https://dentalsmile.com',
+                        businessType: 'Clínica Dental',
+                        score: 25,
+                        value: 18000,
+                        status: 'contacted',
+                        priority: 'medium',
+                        lastContact: new Date(Date.now() - 7200000),
+                        notes: 'Respondió positivamente, necesita seguimiento'
+                    },
+                    {
+                        id: 4,
+                        name: 'Gym Fitness Center',
+                        phone: '+52 998 456 7890',
+                        email: 'info@gymfitness.com',
+                        website: 'https://gymfitness.com',
+                        businessType: 'Gimnasio',
+                        score: 45,
+                        value: 15000,
+                        status: 'new',
+                        priority: 'medium',
+                        lastContact: null,
+                        notes: 'Potencial medio, sitio web básico'
+                    },
+                    {
+                        id: 5,
+                        name: 'Restaurant El Sabor',
+                        phone: '+52 998 567 8901',
+                        email: 'reservas@elsabor.com',
+                        website: 'https://elsabor.com',
+                        businessType: 'Restaurante',
+                        score: 12,
+                        value: 8000,
+                        status: 'converted',
+                        priority: 'high',
+                        lastContact: new Date(Date.now() - 86400000),
+                        notes: 'Cliente activo, proyecto en curso'
+                    }
+                ];
+
+                displayAllLeads(mockLeads);
+            } catch (error) {
+                console.error('Error loading all leads:', error);
+            }
+        }
+
+        async function loadQualifiedLeads() {
+            try {
+                const qualifiedLeads = [
+                    {
+                        id: 2,
+                        name: 'Spa Relax',
+                        phone: '+52 998 234 5678',
+                        email: 'contact@sparelax.com',
+                        website: 'https://sparelax.com',
+                        businessType: 'Spa',
+                        score: 8,
+                        value: 12000,
+                        status: 'qualified',
+                        priority: 'high',
+                        lastContact: new Date(Date.now() - 3600000),
+                        notes: 'Muy interesado en servicios digitales'
+                    },
+                    {
+                        id: 6,
+                        name: 'Beauty Salon Glamour',
+                        phone: '+52 998 678 9012',
+                        email: 'info@beautysalon.com',
+                        website: 'https://beautysalon.com',
+                        businessType: 'Salón de Belleza',
+                        score: 18,
+                        value: 9000,
+                        status: 'qualified',
+                        priority: 'high',
+                        lastContact: new Date(Date.now() - 1800000),
+                        notes: 'Score alto, muy interesado'
+                    }
+                ];
+
+                displayQualifiedLeads(qualifiedLeads);
+            } catch (error) {
+                console.error('Error loading qualified leads:', error);
+            }
+        }
+
+        async function loadContactedLeads() {
+            try {
+                const contactedLeads = [
+                    {
+                        id: 3,
+                        name: 'Dental Clinic Smile',
+                        phone: '+52 998 345 6789',
+                        email: 'admin@dentalsmile.com',
+                        website: 'https://dentalsmile.com',
+                        businessType: 'Clínica Dental',
+                        score: 25,
+                        value: 18000,
+                        status: 'contacted',
+                        priority: 'medium',
+                        lastContact: new Date(Date.now() - 7200000),
+                        notes: 'Respondió positivamente, necesita seguimiento'
+                    }
+                ];
+
+                displayContactedLeads(contactedLeads);
+            } catch (error) {
+                console.error('Error loading contacted leads:', error);
+            }
+        }
+
+        async function loadConvertedLeads() {
+            try {
+                const convertedLeads = [
+                    {
+                        id: 5,
+                        name: 'Restaurant El Sabor',
+                        phone: '+52 998 567 8901',
+                        email: 'reservas@elsabor.com',
+                        website: 'https://elsabor.com',
+                        businessType: 'Restaurante',
+                        score: 12,
+                        value: 8000,
+                        status: 'converted',
+                        priority: 'high',
+                        lastContact: new Date(Date.now() - 86400000),
+                        notes: 'Cliente activo, proyecto en curso'
+                    }
+                ];
+
+                displayConvertedLeads(convertedLeads);
+            } catch (error) {
+                console.error('Error loading converted leads:', error);
+            }
+        }
+
+        // Display functions for leads
+        function displayAllLeads(leads) {
+            const container = document.getElementById('all-leads');
+            
+            if (leads.length === 0) {
+                container.innerHTML = '<div class="loading">No hay leads disponibles</div>';
+                return;
+            }
+
+            container.innerHTML = leads.map(lead => `
+                <div class="lead-item ${getPriorityClass(lead.priority)}">
+                    <div class="lead-header">
+                        <div class="lead-info">
+                            <div class="lead-name">${lead.name}</div>
+                            <div class="lead-phone">${lead.phone}</div>
+                        </div>
+                        <span class="lead-score ${getScoreClass(lead.score)}">Score: ${lead.score}</span>
+                    </div>
+                    <div class="lead-details">
+                        <div><strong>Tipo:</strong> ${lead.businessType}</div>
+                        <div><strong>Sitio Web:</strong> ${lead.website}</div>
+                        <div><strong>Valor Potencial:</strong> $${lead.value.toLocaleString()} MXN</div>
+                        <div><strong>Notas:</strong> ${lead.notes}</div>
+                    </div>
+                    <div class="lead-meta">
+                        <div>Estado: <span class="status-${lead.status}">${getStatusText(lead.status)}</span></div>
+                        <div>Último contacto: ${lead.lastContact ? formatTime(lead.lastContact) : 'Nunca'}</div>
+                    </div>
+                    <div class="lead-actions">
+                        <button class="action-btn btn-contact" onclick="contactLead(${lead.id}, '${lead.phone}', '${lead.name}')">
+                            <i class="fas fa-phone"></i> Contactar
+                        </button>
+                        <button class="action-btn btn-qualify" onclick="qualifyLead(${lead.id})">
+                            <i class="fas fa-star"></i> Calificar
+                        </button>
+                        <button class="action-btn btn-convert" onclick="convertLead(${lead.id})">
+                            <i class="fas fa-check"></i> Convertir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayQualifiedLeads(leads) {
+            const container = document.getElementById('qualified-leads');
+            
+            if (leads.length === 0) {
+                container.innerHTML = '<div class="loading">No hay leads calificados</div>';
+                return;
+            }
+
+            container.innerHTML = leads.map(lead => `
+                <div class="lead-item ${getPriorityClass(lead.priority)}">
+                    <div class="lead-header">
+                        <div class="lead-info">
+                            <div class="lead-name">${lead.name}</div>
+                            <div class="lead-phone">${lead.phone}</div>
+                        </div>
+                        <span class="lead-score ${getScoreClass(lead.score)}">Score: ${lead.score}</span>
+                    </div>
+                    <div class="lead-details">
+                        <div><strong>Tipo:</strong> ${lead.businessType}</div>
+                        <div><strong>Sitio Web:</strong> ${lead.website}</div>
+                        <div><strong>Valor Potencial:</strong> $${lead.value.toLocaleString()} MXN</div>
+                        <div><strong>Notas:</strong> ${lead.notes}</div>
+                    </div>
+                    <div class="lead-meta">
+                        <div>Estado: <span class="status-${lead.status}">${getStatusText(lead.status)}</span></div>
+                        <div>Último contacto: ${lead.lastContact ? formatTime(lead.lastContact) : 'Nunca'}</div>
+                    </div>
+                    <div class="lead-actions">
+                        <button class="action-btn btn-contact" onclick="contactLead(${lead.id}, '${lead.phone}', '${lead.name}')">
+                            <i class="fas fa-phone"></i> Contactar
+                        </button>
+                        <button class="action-btn btn-convert" onclick="convertLead(${lead.id})">
+                            <i class="fas fa-check"></i> Convertir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayContactedLeads(leads) {
+            const container = document.getElementById('contacted-leads');
+            
+            if (leads.length === 0) {
+                container.innerHTML = '<div class="loading">No hay leads contactados</div>';
+                return;
+            }
+
+            container.innerHTML = leads.map(lead => `
+                <div class="lead-item ${getPriorityClass(lead.priority)}">
+                    <div class="lead-header">
+                        <div class="lead-info">
+                            <div class="lead-name">${lead.name}</div>
+                            <div class="lead-phone">${lead.phone}</div>
+                        </div>
+                        <span class="lead-score ${getScoreClass(lead.score)}">Score: ${lead.score}</span>
+                    </div>
+                    <div class="lead-details">
+                        <div><strong>Tipo:</strong> ${lead.businessType}</div>
+                        <div><strong>Sitio Web:</strong> ${lead.website}</div>
+                        <div><strong>Valor Potencial:</strong> $${lead.value.toLocaleString()} MXN</div>
+                        <div><strong>Notas:</strong> ${lead.notes}</div>
+                    </div>
+                    <div class="lead-meta">
+                        <div>Estado: <span class="status-${lead.status}">${getStatusText(lead.status)}</span></div>
+                        <div>Último contacto: ${lead.lastContact ? formatTime(lead.lastContact) : 'Nunca'}</div>
+                    </div>
+                    <div class="lead-actions">
+                        <button class="action-btn btn-contact" onclick="contactLead(${lead.id}, '${lead.phone}', '${lead.name}')">
+                            <i class="fas fa-phone"></i> Seguimiento
+                        </button>
+                        <button class="action-btn btn-convert" onclick="convertLead(${lead.id})">
+                            <i class="fas fa-check"></i> Convertir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayConvertedLeads(leads) {
+            const container = document.getElementById('converted-leads');
+            
+            if (leads.length === 0) {
+                container.innerHTML = '<div class="loading">No hay leads convertidos</div>';
+                return;
+            }
+
+            container.innerHTML = leads.map(lead => `
+                <div class="lead-item ${getPriorityClass(lead.priority)}">
+                    <div class="lead-header">
+                        <div class="lead-info">
+                            <div class="lead-name">${lead.name}</div>
+                            <div class="lead-phone">${lead.phone}</div>
+                        </div>
+                        <span class="lead-score ${getScoreClass(lead.score)}">Score: ${lead.score}</span>
+                    </div>
+                    <div class="lead-details">
+                        <div><strong>Tipo:</strong> ${lead.businessType}</div>
+                        <div><strong>Sitio Web:</strong> ${lead.website}</div>
+                        <div><strong>Valor Potencial:</strong> $${lead.value.toLocaleString()} MXN</div>
+                        <div><strong>Notas:</strong> ${lead.notes}</div>
+                    </div>
+                    <div class="lead-meta">
+                        <div>Estado: <span class="status-${lead.status}">${getStatusText(lead.status)}</span></div>
+                        <div>Último contacto: ${lead.lastContact ? formatTime(lead.lastContact) : 'Nunca'}</div>
+                    </div>
+                    <div class="lead-actions">
+                        <button class="action-btn btn-contact" onclick="contactLead(${lead.id}, '${lead.phone}', '${lead.name}')">
+                            <i class="fas fa-phone"></i> Contactar
+                        </button>
+                        <button class="action-btn btn-qualify" onclick="qualifyLead(${lead.id})">
+                            <i class="fas fa-star"></i> Recalificar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Lead Management Helper Functions
+        function getPriorityClass(priority) {
+            switch(priority) {
+                case 'high': return 'high-priority';
+                case 'medium': return 'medium-priority';
+                case 'low': return 'low-priority';
+                default: return '';
+            }
+        }
+
+        function getScoreClass(score) {
+            if (score <= 20) return 'score-high';
+            if (score <= 50) return 'score-medium';
+            return 'score-low';
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'new': 'NUEVO',
+                'qualified': 'CALIFICADO',
+                'contacted': 'CONTACTADO',
+                'converted': 'CONVERTIDO',
+                'lost': 'PERDIDO'
+            };
+            return statusMap[status] || status.toUpperCase();
+        }
+
+        // Lead Action Functions
+        function contactLead(leadId, phoneNumber, leadName) {
+            showSuccess(`Iniciando contacto con ${leadName} (${phoneNumber})`);
+            // Here you would integrate with WhatsApp API to send message
+        }
+
+        function qualifyLead(leadId) {
+            showSuccess(`Calificando lead ${leadId}...`);
+            // Here you would update lead qualification
+        }
+
+        function convertLead(leadId) {
+            showSuccess(`Convirtiendo lead ${leadId} a cliente...`);
+            // Here you would update lead status to converted
+        }
+
+        // Lead Tab Functionality
+        function showLeadTab(tabName) {
+            // Hide all lead tab contents
+            document.querySelectorAll('#all-leads, #qualified-leads, #contacted-leads, #converted-leads').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all lead tab buttons
+            document.querySelectorAll('.lead-tabs .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-leads').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
         }
 
         // Enter key to send message
