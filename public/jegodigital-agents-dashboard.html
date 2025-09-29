@@ -667,6 +667,263 @@
             justify-content: flex-end;
         }
 
+        /* Campaign Management Styles */
+        .campaign-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .campaign-item:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+
+        .campaign-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .campaign-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .campaign-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .campaign-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-running {
+            background: #e8f5e8;
+            color: #25D366;
+        }
+
+        .status-paused {
+            background: #fff3e0;
+            color: #f39c12;
+        }
+
+        .status-completed {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .campaign-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .campaign-stat {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .campaign-progress {
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .campaign-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-start {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #1ea952;
+        }
+
+        .btn-pause {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background: #e67e22;
+        }
+
+        .btn-analytics {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-analytics:hover {
+            background: #5a6fd8;
+        }
+
+        /* Analytics Charts */
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .metric-change {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .metric-change.positive {
+            color: #25D366;
+        }
+
+        .metric-change.negative {
+            color: #e74c3c;
+        }
+
+        /* A/B Testing Styles */
+        .ab-test-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .test-variants {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .variant {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .variant-a {
+            border-left: 4px solid #667eea;
+        }
+
+        .variant-b {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .variant-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .variant-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .winner-badge {
+            background: #25D366;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -746,6 +1003,9 @@
             </button>
             <button class="btn btn-primary" onclick="openFacebookGroups()">
                 <i class="fab fa-facebook"></i> Grupos Facebook
+            </button>
+            <button class="btn btn-primary" onclick="openCampaignManagement()">
+                <i class="fas fa-chart-line"></i> Campañas & Analytics
             </button>
         </div>
 
@@ -847,6 +1107,87 @@
                         <i class="fas fa-sync"></i> Actualizar Grupos
                     </button>
                     <button class="btn btn-warning" onclick="closeFacebookGroups()">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaign Management Modal -->
+        <div id="campaign-management-modal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 1200px;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-chart-line"></i> Campañas & Analytics</h3>
+                    <span class="close" onclick="closeCampaignManagement()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button class="btn btn-primary" onclick="createNewCampaign()">
+                                <i class="fas fa-plus"></i> Nueva Campaña
+                            </button>
+                            <button class="btn btn-success" onclick="startABTest()">
+                                <i class="fas fa-flask"></i> A/B Test
+                            </button>
+                            <button class="btn btn-warning" onclick="exportAnalytics()">
+                                <i class="fas fa-download"></i> Exportar Reporte
+                            </button>
+                        </div>
+                        
+                        <!-- Analytics Overview -->
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value">24.5%</div>
+                                <div class="metric-label">Tasa de Respuesta</div>
+                                <div class="metric-change positive">+3.2% vs mes anterior</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">156</div>
+                                <div class="metric-label">Leads Generados</div>
+                                <div class="metric-change positive">+28 vs mes anterior</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">$45,200</div>
+                                <div class="metric-label">Valor Generado</div>
+                                <div class="metric-change positive">+$8,500 vs mes anterior</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">18.7%</div>
+                                <div class="metric-label">Tasa de Conversión</div>
+                                <div class="metric-change negative">-1.2% vs mes anterior</div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Section -->
+                        <div class="chart-container">
+                            <div class="chart-title">Rendimiento de Campañas</div>
+                            <div class="chart-placeholder">
+                                📊 Gráfico de rendimiento de campañas (Integración con Chart.js)
+                            </div>
+                        </div>
+
+                        <!-- Active Campaigns -->
+                        <div style="margin-bottom: 20px;">
+                            <h4><i class="fas fa-play-circle"></i> Campañas Activas</h4>
+                            <div id="active-campaigns">
+                                <!-- Campaigns will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- A/B Tests -->
+                        <div style="margin-bottom: 20px;">
+                            <h4><i class="fas fa-flask"></i> Tests A/B Activos</h4>
+                            <div id="ab-tests">
+                                <!-- A/B tests will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="refreshCampaigns()">
+                        <i class="fas fa-sync"></i> Actualizar Datos
+                    </button>
+                    <button class="btn btn-warning" onclick="closeCampaignManagement()">
                         <i class="fas fa-times"></i> Cerrar
                     </button>
                 </div>
@@ -1749,9 +2090,294 @@
         // Close modal when clicking outside
         window.onclick = function(event) {
             const facebookModal = document.getElementById('facebook-groups-modal');
+            const campaignModal = document.getElementById('campaign-management-modal');
             if (event.target === facebookModal) {
                 facebookModal.style.display = 'none';
             }
+            if (event.target === campaignModal) {
+                campaignModal.style.display = 'none';
+            }
+        }
+
+        // Campaign Management Functions
+        function openCampaignManagement() {
+            document.getElementById('campaign-management-modal').style.display = 'block';
+            loadActiveCampaigns();
+            loadABTests();
+        }
+
+        function closeCampaignManagement() {
+            document.getElementById('campaign-management-modal').style.display = 'none';
+        }
+
+        async function loadActiveCampaigns() {
+            try {
+                const mockCampaigns = [
+                    {
+                        id: 1,
+                        name: 'Campaña Hoteles Cancún',
+                        status: 'running',
+                        startDate: new Date(Date.now() - 86400000 * 7),
+                        endDate: new Date(Date.now() + 86400000 * 7),
+                        messagesSent: 245,
+                        repliesReceived: 58,
+                        leadsGenerated: 23,
+                        conversionRate: 9.4,
+                        progress: 65
+                    },
+                    {
+                        id: 2,
+                        name: 'Outreach Restaurantes',
+                        status: 'running',
+                        startDate: new Date(Date.now() - 86400000 * 3),
+                        endDate: new Date(Date.now() + 86400000 * 11),
+                        messagesSent: 180,
+                        repliesReceived: 42,
+                        leadsGenerated: 15,
+                        conversionRate: 8.3,
+                        progress: 25
+                    },
+                    {
+                        id: 3,
+                        name: 'Campaña Spas & Wellness',
+                        status: 'paused',
+                        startDate: new Date(Date.now() - 86400000 * 14),
+                        endDate: new Date(Date.now() + 86400000 * 7),
+                        messagesSent: 320,
+                        repliesReceived: 89,
+                        leadsGenerated: 31,
+                        conversionRate: 9.7,
+                        progress: 80
+                    }
+                ];
+
+                displayActiveCampaigns(mockCampaigns);
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+            }
+        }
+
+        function displayActiveCampaigns(campaigns) {
+            const container = document.getElementById('active-campaigns');
+            
+            if (campaigns.length === 0) {
+                container.innerHTML = '<div class="loading">No hay campañas activas</div>';
+                return;
+            }
+
+            container.innerHTML = campaigns.map(campaign => `
+                <div class="campaign-item">
+                    <div class="campaign-header">
+                        <div class="campaign-info">
+                            <div class="campaign-name">${campaign.name}</div>
+                        </div>
+                        <span class="campaign-status status-${campaign.status}">${getCampaignStatusText(campaign.status)}</span>
+                    </div>
+                    
+                    <div class="campaign-stats">
+                        <div class="campaign-stat">
+                            <div class="stat-value">${campaign.messagesSent}</div>
+                            <div class="stat-label">Mensajes Enviados</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="stat-value">${campaign.repliesReceived}</div>
+                            <div class="stat-label">Respuestas</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="stat-value">${campaign.leadsGenerated}</div>
+                            <div class="stat-label">Leads Generados</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="stat-value">${campaign.conversionRate}%</div>
+                            <div class="stat-label">Tasa Conversión</div>
+                        </div>
+                    </div>
+                    
+                    <div class="campaign-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${campaign.progress}%"></div>
+                        </div>
+                        <div class="progress-text">Progreso: ${campaign.progress}% completado</div>
+                    </div>
+                    
+                    <div class="campaign-actions">
+                        <button class="action-btn btn-start" onclick="startCampaign(${campaign.id})">
+                            <i class="fas fa-play"></i> Iniciar
+                        </button>
+                        <button class="action-btn btn-pause" onclick="pauseCampaign(${campaign.id})">
+                            <i class="fas fa-pause"></i> Pausar
+                        </button>
+                        <button class="action-btn btn-analytics" onclick="viewCampaignAnalytics(${campaign.id})">
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadABTests() {
+            try {
+                const mockABTests = [
+                    {
+                        id: 1,
+                        name: 'Test Mensaje de Apertura',
+                        status: 'running',
+                        variantA: {
+                            name: 'Mensaje Formal',
+                            message: '¡Hola! Soy Alex Jego de JegoDigital...',
+                            sent: 150,
+                            replies: 32,
+                            conversionRate: 21.3
+                        },
+                        variantB: {
+                            name: 'Mensaje Casual',
+                            message: 'Hola! Vi tu negocio y está increíble...',
+                            sent: 148,
+                            replies: 41,
+                            conversionRate: 27.7,
+                            winner: true
+                        }
+                    },
+                    {
+                        id: 2,
+                        name: 'Test Horario de Envío',
+                        status: 'completed',
+                        variantA: {
+                            name: 'Horario Mañana (9-11 AM)',
+                            message: 'Envío en horario matutino',
+                            sent: 200,
+                            replies: 45,
+                            conversionRate: 22.5
+                        },
+                        variantB: {
+                            name: 'Horario Tarde (2-4 PM)',
+                            message: 'Envío en horario vespertino',
+                            sent: 195,
+                            replies: 38,
+                            conversionRate: 19.5,
+                            winner: false
+                        }
+                    }
+                ];
+
+                displayABTests(mockABTests);
+            } catch (error) {
+                console.error('Error loading A/B tests:', error);
+            }
+        }
+
+        function displayABTests(tests) {
+            const container = document.getElementById('ab-tests');
+            
+            if (tests.length === 0) {
+                container.innerHTML = '<div class="loading">No hay tests A/B activos</div>';
+                return;
+            }
+
+            container.innerHTML = tests.map(test => `
+                <div class="ab-test-item">
+                    <div class="campaign-header">
+                        <div class="campaign-info">
+                            <div class="campaign-name">${test.name}</div>
+                        </div>
+                        <span class="campaign-status status-${test.status}">${getCampaignStatusText(test.status)}</span>
+                    </div>
+                    
+                    <div class="test-variants">
+                        <div class="variant variant-a">
+                            <div class="variant-title">Variante A: ${test.variantA.name}</div>
+                            <div style="margin-bottom: 10px; font-size: 0.9rem; color: #666;">
+                                "${test.variantA.message}"
+                            </div>
+                            <div class="variant-stats">
+                                <span>Enviados: ${test.variantA.sent}</span>
+                                <span>Respuestas: ${test.variantA.replies}</span>
+                                <span>Conversión: ${test.variantA.conversionRate}%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="variant variant-b">
+                            <div class="variant-title">
+                                Variante B: ${test.variantB.name}
+                                ${test.variantB.winner ? '<span class="winner-badge">GANADOR</span>' : ''}
+                            </div>
+                            <div style="margin-bottom: 10px; font-size: 0.9rem; color: #666;">
+                                "${test.variantB.message}"
+                            </div>
+                            <div class="variant-stats">
+                                <span>Enviados: ${test.variantB.sent}</span>
+                                <span>Respuestas: ${test.variantB.replies}</span>
+                                <span>Conversión: ${test.variantB.conversionRate}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="campaign-actions">
+                        <button class="action-btn btn-analytics" onclick="viewABTestResults(${test.id})">
+                            <i class="fas fa-chart-bar"></i> Ver Resultados
+                        </button>
+                        <button class="action-btn btn-start" onclick="applyWinningVariant(${test.id})">
+                            <i class="fas fa-check"></i> Aplicar Ganador
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCampaignStatusText(status) {
+            const statusMap = {
+                'running': 'EJECUTÁNDOSE',
+                'paused': 'PAUSADA',
+                'completed': 'COMPLETADA'
+            };
+            return statusMap[status] || status.toUpperCase();
+        }
+
+        // Campaign Action Functions
+        function createNewCampaign() {
+            showSuccess('Abriendo formulario para nueva campaña...');
+            // Here you would open a campaign creation form
+        }
+
+        function startABTest() {
+            showSuccess('Iniciando nuevo test A/B...');
+            // Here you would open an A/B test creation form
+        }
+
+        function exportAnalytics() {
+            showSuccess('Generando reporte de analytics...');
+            // Here you would generate and download analytics report
+        }
+
+        function startCampaign(campaignId) {
+            showSuccess(`Iniciando campaña ${campaignId}...`);
+            // Here you would start the campaign
+        }
+
+        function pauseCampaign(campaignId) {
+            showSuccess(`Pausando campaña ${campaignId}...`);
+            // Here you would pause the campaign
+        }
+
+        function viewCampaignAnalytics(campaignId) {
+            showSuccess(`Abriendo analytics de campaña ${campaignId}...`);
+            // Here you would show detailed campaign analytics
+        }
+
+        function viewABTestResults(testId) {
+            showSuccess(`Mostrando resultados del test A/B ${testId}...`);
+            // Here you would show detailed A/B test results
+        }
+
+        function applyWinningVariant(testId) {
+            showSuccess(`Aplicando variante ganadora del test ${testId}...`);
+            // Here you would apply the winning variant to all future campaigns
+        }
+
+        function refreshCampaigns() {
+            showSuccess('Actualizando datos de campañas...');
+            loadActiveCampaigns();
+            loadABTests();
         }
     </script>
 </body>
