@@ -2407,6 +2407,70 @@
             loadActiveCampaigns();
             loadABTests();
         }
+
+        // WhatsApp Business API Functions
+        function saveAccessToken() {
+            const token = document.getElementById('whatsapp-token').value;
+            if (!token) {
+                showError('Por favor ingresa tu Access Token');
+                return;
+            }
+            
+            if (whatsappAPI) {
+                whatsappAPI.setAccessToken(token);
+                localStorage.setItem('whatsapp_access_token', token);
+                showSuccess('Access Token guardado exitosamente');
+                updateConnectionStatus();
+            } else {
+                showError('WhatsApp API no está inicializada');
+            }
+        }
+
+        function clearAccessToken() {
+            if (whatsappAPI) {
+                whatsappAPI.setAccessToken(null);
+                localStorage.removeItem('whatsapp_access_token');
+                document.getElementById('whatsapp-token').value = '';
+                showSuccess('Access Token eliminado');
+                updateConnectionStatus();
+            }
+        }
+
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connection-status');
+            const token = localStorage.getItem('whatsapp_access_token');
+            
+            if (token) {
+                statusElement.textContent = 'Configurado';
+                statusElement.style.background = '#e8f5e8';
+                statusElement.style.color = '#25D366';
+            } else {
+                statusElement.textContent = 'No configurado';
+                statusElement.style.background = '#ffebee';
+                statusElement.style.color = '#e74c3c';
+            }
+        }
+
+        async function testWhatsAppConnection() {
+            if (!whatsappAPI) {
+                showError('WhatsApp API no está inicializada');
+                return;
+            }
+
+            showSuccess('Probando conexión...');
+            
+            try {
+                const result = await whatsappAPI.testConnection();
+                if (result.success) {
+                    showSuccess('¡Conexión exitosa! WhatsApp API está funcionando');
+                    updateConnectionStatus();
+                } else {
+                    showError(`Error de conexión: ${result.error}`);
+                }
+            } catch (error) {
+                showError(`Error al probar conexión: ${error.message}`);
+            }
+        }
     </script>
 </body>
 </html>
