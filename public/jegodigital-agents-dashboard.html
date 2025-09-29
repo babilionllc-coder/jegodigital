@@ -1223,16 +1223,40 @@
         </div>
     </div>
 
+    <!-- WhatsApp Business API Script -->
+    <script src="whatsapp-business-api.js"></script>
+    
     <script>
         let currentPhone = null;
         let conversations = [];
         let leads = [];
+        let whatsappAPI = null;
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             loadDashboardData();
             setInterval(loadDashboardData, 30000); // Refresh every 30 seconds
+            initializeWhatsAppAPI();
         });
+
+        // Initialize WhatsApp API
+        function initializeWhatsAppAPI() {
+            try {
+                whatsappAPI = new WhatsAppBusinessAPI();
+                console.log('WhatsApp API initialized successfully');
+                
+                // Load saved token if exists
+                const savedToken = localStorage.getItem('whatsapp_access_token');
+                if (savedToken) {
+                    whatsappAPI.setAccessToken(savedToken);
+                    document.getElementById('whatsapp-token').value = savedToken;
+                    updateConnectionStatus();
+                }
+            } catch (error) {
+                console.error('Error initializing WhatsApp API:', error);
+                showError('Error al inicializar WhatsApp API: ' + error.message);
+            }
+        }
 
         // Load dashboard data
         async function loadDashboardData() {
