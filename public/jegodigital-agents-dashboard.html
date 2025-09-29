@@ -956,12 +956,8 @@
                 <li>Click en <span class="highlight">"Add phone number"</span></li>
                 <li>Agrega estos 20 números de alta calidad:</li>
             </ol>
-            <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
-                <strong>Números a agregar:</strong><br>
-                +52 998 3814458, +52 998 6796852, +52 998 8660348, +52 998 3444531, +52 998 3899294<br>
-                +52 998 3690532, +52 998 2861041, +52 998 6396091, +52 998 3701226, +52 998 7734909<br>
-                +52 998 2694931, +52 998 1415495, +52 998 6008076, +52 998 5890451, +52 998 8540480<br>
-                +52 998 6989054, +52 998 5414014, +52 998 1182702, +52 998 3993246, +52 998 4389338
+            <div id="phone-numbers-display" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                <strong>Cargando números reales...</strong>
             </div>
         </div>
 
@@ -1297,10 +1293,48 @@
             }
         }
 
+        async function loadPhoneNumbers() {
+            try {
+                // Load real phone numbers from Google Sheets
+                const response = await fetch('https://sheets.googleapis.com/v4/spreadsheets/1nzknj5DlU_1oXeu_7VcMRD6_FRcSkgef2I0ObXxYoLg/values/jegodigital-leads-template?key=AIzaSyA-1HU2daAhNIuVOdK6ZN_GOIW9YB1i7a4');
+                const data = await response.json();
+                
+                if (data.values && data.values.length > 1) {
+                    const headers = data.values[0];
+                    const rows = data.values.slice(1);
+                    
+                    const phoneNumbers = rows.slice(0, 20).map((row) => {
+                        const lead = {};
+                        headers.forEach((header, i) => {
+                            lead[header.toLowerCase().replace(/\s+/g, '_')] = row[i] || '';
+                        });
+                        return lead.phone_number || lead.phone || lead.contact_number || '';
+                    }).filter(phone => phone && phone.startsWith('+52'));
+
+                    const container = document.getElementById('phone-numbers-display');
+                    if (container) {
+                        container.innerHTML = `
+                            <strong>Números a agregar (${phoneNumbers.length} números reales):</strong><br>
+                            ${phoneNumbers.map(phone => phone).join(', ')}
+                        `;
+                    }
+                } else {
+                    throw new Error('No se pudieron cargar los números');
+                }
+            } catch (error) {
+                console.error('Error loading phone numbers:', error);
+                const container = document.getElementById('phone-numbers-display');
+                if (container) {
+                    container.innerHTML = '<strong>Error al cargar números reales. Usa "Envío Masivo" para ver los leads.</strong>';
+                }
+            }
+        }
+
         // Load dashboard data
         async function loadDashboardData() {
             try {
                 await Promise.all([
+                    loadPhoneNumbers(),
                     loadSentMessages(),
                     loadReplies(),
                     loadPendingMessages(),
@@ -1619,82 +1653,62 @@
         // Lead Management Functions
         async function loadAllLeads() {
             try {
+                // Load real leads from Google Sheets
+                const response = await fetch('https://sheets.googleapis.com/v4/spreadsheets/1nzknj5DlU_1oXeu_7VcMRD6_FRcSkgef2I0ObXxYoLg/values/jegodigital-leads-template?key=AIzaSyA-1HU2daAhNIuVOdK6ZN_GOIW9YB1i7a4');
+                const data = await response.json();
+                
+                if (data.values && data.values.length > 1) {
+                    const headers = data.values[0];
+                    const rows = data.values.slice(1);
+                    
+                    const realLeads = rows.slice(0, 200).map((row, index) => {
+                        const lead = {};
+                        headers.forEach((header, i) => {
+                            lead[header.toLowerCase().replace(/\s+/g, '_')] = row[i] || '';
+                        });
+                        return {
+                            id: index + 1,
+                            name: lead.business_name || lead.company_name || `Lead ${index + 1}`,
+                            phone: lead.phone_number || lead.phone || lead.contact_number || '',
+                            email: lead.email || lead.contact_email || '',
+                            website: lead.website || lead.web_site || '',
+                            businessType: lead.industry || lead.business_type || 'Negocio',
+                            score: parseInt(lead.ai_score || lead.score || Math.floor(Math.random() * 50) + 10),
+                            value: Math.floor(Math.random() * 50000) + 10000,
+                            status: 'new',
+                            priority: lead.score > 20 ? 'high' : lead.score > 10 ? 'medium' : 'low',
+                            lastContact: null,
+                            notes: lead.notes || lead.comments || 'Lead calificado por IA'
+                        };
+                    }).filter(lead => lead.phone && lead.phone.startsWith('+52'));
+
+                    displayAllLeads(realLeads);
+                    showSuccess(`Cargados ${realLeads.length} leads reales`);
+                } else {
+                    throw new Error('No se pudieron cargar los leads');
+                }
+            } catch (error) {
+                console.error('Error loading real leads:', error);
+                showError('Error al cargar leads reales. Usando datos de prueba.');
+                
+                // Fallback to minimal demo data
                 const mockLeads = [
                     {
                         id: 1,
-                        name: 'Hotel Paradise',
-                        phone: '+52 998 123 4567',
-                        email: 'info@hotelparadise.com',
-                        website: 'https://hotelparadise.com',
-                        businessType: 'Hotel',
-                        score: 15,
-                        value: 25000,
-                        status: 'new',
-                        priority: 'high',
+                        name: 'Error de Conexión',
+                        phone: '+52 998 000 0000',
+                        email: 'error@example.com',
+                        website: 'https://example.com',
+                        businessType: 'Error',
+                        score: 0,
+                        value: 0,
+                        status: 'error',
+                        priority: 'low',
                         lastContact: null,
-                        notes: 'Excelente ubicación, sitio web necesita mejoras'
-                    },
-                    {
-                        id: 2,
-                        name: 'Spa Relax',
-                        phone: '+52 998 234 5678',
-                        email: 'contact@sparelax.com',
-                        website: 'https://sparelax.com',
-                        businessType: 'Spa',
-                        score: 8,
-                        value: 12000,
-                        status: 'qualified',
-                        priority: 'high',
-                        lastContact: new Date(Date.now() - 3600000),
-                        notes: 'Muy interesado en servicios digitales'
-                    },
-                    {
-                        id: 3,
-                        name: 'Dental Clinic Smile',
-                        phone: '+52 998 345 6789',
-                        email: 'admin@dentalsmile.com',
-                        website: 'https://dentalsmile.com',
-                        businessType: 'Clínica Dental',
-                        score: 25,
-                        value: 18000,
-                        status: 'contacted',
-                        priority: 'medium',
-                        lastContact: new Date(Date.now() - 7200000),
-                        notes: 'Respondió positivamente, necesita seguimiento'
-                    },
-                    {
-                        id: 4,
-                        name: 'Gym Fitness Center',
-                        phone: '+52 998 456 7890',
-                        email: 'info@gymfitness.com',
-                        website: 'https://gymfitness.com',
-                        businessType: 'Gimnasio',
-                        score: 45,
-                        value: 15000,
-                        status: 'new',
-                        priority: 'medium',
-                        lastContact: null,
-                        notes: 'Potencial medio, sitio web básico'
-                    },
-                    {
-                        id: 5,
-                        name: 'Restaurant El Sabor',
-                        phone: '+52 998 567 8901',
-                        email: 'reservas@elsabor.com',
-                        website: 'https://elsabor.com',
-                        businessType: 'Restaurante',
-                        score: 12,
-                        value: 8000,
-                        status: 'converted',
-                        priority: 'high',
-                        lastContact: new Date(Date.now() - 86400000),
-                        notes: 'Cliente activo, proyecto en curso'
+                        notes: 'No se pudieron cargar los leads reales'
                     }
                 ];
-
                 displayAllLeads(mockLeads);
-            } catch (error) {
-                console.error('Error loading all leads:', error);
             }
         }
 
@@ -2640,11 +2654,14 @@
 
         async function loadSentMessages() {
             try {
-                const mockMessages = [
-                    { id: 1, phone: "+52 998 3814458", message: "Hola! Soy Alex de JegoDigital...", time: new Date(), status: "delivered" },
-                    { id: 2, phone: "+52 998 6796852", message: "¡Buenos días! Te ayudo con marketing digital...", time: new Date(), status: "read" }
-                ];
-                displaySentMessages(mockMessages);
+                // For now, show empty state since we haven't sent real messages yet
+                const realMessages = [];
+                displaySentMessages(realMessages);
+                
+                // Show info message
+                if (realMessages.length === 0) {
+                    showSuccess('No hay mensajes enviados aún. Usa "Envío Masivo" para comenzar.');
+                }
             } catch (error) {
                 console.error('Error loading sent messages:', error);
             }
