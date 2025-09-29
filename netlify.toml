@@ -1,9 +1,13 @@
 # Netlify Deployment Configuration for JegoDigital
 
-# Build settings
+# Build settings - Static site, no build needed
 [build]
   publish = "public"
-  command = ""
+  command = "echo 'Static site - no build required'"
+  
+# Disable automatic framework detection
+[build.environment]
+  NODE_VERSION = "18"
 
 # Redirect rules for custom domain
 [[redirects]]
