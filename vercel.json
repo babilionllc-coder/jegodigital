@@ -3,6 +3,10 @@
     {
       "source": "/agents",
       "destination": "/jegodigital-agents-dashboard.html"
+    },
+    {
+      "source": "/webhook",
+      "destination": "/api/whatsapp"
     }
   ],
   "headers": [

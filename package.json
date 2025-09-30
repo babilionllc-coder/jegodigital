@@ -8,6 +8,6 @@
     "test": "curl 'http://localhost:3000/webhook?hub.mode=subscribe&hub.verify_token=jegodigital_webhook_2024_secure_token&hub.challenge=test123'"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.21.2"
   }
 }
