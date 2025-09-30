@@ -56,6 +56,11 @@ class AIConsoleMonitor {
         console.log('🤖 AI Console Monitor Agent initialized');
         this.startMonitoring();
         this.createMonitorUI();
+        
+        // Auto-fix common issues on startup
+        setTimeout(() => {
+            this.performStartupFixes();
+        }, 2000);
     }
     
     startMonitoring() {
@@ -157,6 +162,170 @@ class AIConsoleMonitor {
                 }
             }
         }
+    }
+    
+    performStartupFixes() {
+        console.log('🔧 AI Agent performing startup fixes...');
+        
+        // Fix 1: Check for fake phone numbers
+        this.fixPhoneNumberData();
+        
+        // Fix 2: Validate WhatsApp API connection
+        this.validateWhatsAppAPI();
+        
+        // Fix 3: Check Google Sheets connection
+        this.validateGoogleSheetsConnection();
+        
+        // Fix 4: Fix any DOM issues
+        this.fixDOMIssues();
+        
+        // Fix 5: Optimize performance
+        this.optimizePerformance();
+        
+        console.log('✅ AI Agent startup fixes completed');
+    }
+    
+    validateWhatsAppAPI() {
+        console.log('🔍 Validating WhatsApp API...');
+        
+        if (window.whatsappAPI) {
+            const token = localStorage.getItem('whatsapp_access_token');
+            if (token) {
+                console.log('✅ WhatsApp API token found');
+                window.whatsappAPI.testConnection().then(result => {
+                    if (result.success) {
+                        console.log('✅ WhatsApp API connection validated');
+                    } else {
+                        console.warn('⚠️ WhatsApp API connection issue:', result.error);
+                        this.showFixNotification('WhatsApp API connection issue detected. Please check your access token.');
+                    }
+                });
+            } else {
+                console.warn('⚠️ No WhatsApp API token found');
+                this.showFixNotification('WhatsApp API token not configured. Please add your access token.');
+            }
+        } else {
+            console.error('❌ WhatsApp API not initialized');
+            this.showFixNotification('WhatsApp API not initialized. Please refresh the page.');
+        }
+    }
+    
+    validateGoogleSheetsConnection() {
+        console.log('🔍 Validating Google Sheets connection...');
+        
+        fetch('https://sheets.googleapis.com/v4/spreadsheets/1nzknj5DlU_1oXeu_7VcMRD6_FRcSkgef2I0ObXxYoLg/values/jegodigital-leads-template?key=AIzaSyA-1HU2daAhNIuVOdK6ZN_GOIW9YB1i7a4')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Google Sheets connection validated');
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            })
+            .then(data => {
+                if (data.values && data.values.length > 1) {
+                    const phoneNumbers = data.values.slice(1, 6).map(row => row[2]);
+                    console.log('📱 Phone numbers in sheet:', phoneNumbers);
+                    
+                    if (phoneNumbers.includes('+52 998 123 4567')) {
+                        console.warn('⚠️ FAKE DATA DETECTED! Sheet contains test data.');
+                        this.showFixNotification('🚨 CRITICAL: Your Google Sheet contains fake test data! Please update with real leads from your AI qualification agent.');
+                        this.autoFixFakeData();
+                    } else {
+                        console.log('✅ Real phone numbers detected');
+                    }
+                } else {
+                    console.warn('⚠️ No data found in Google Sheet');
+                    this.showFixNotification('No data found in Google Sheet. Please check your sheet configuration.');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Google Sheets connection failed:', error);
+                this.showFixNotification('Google Sheets connection failed. Please check your API key and sheet permissions.');
+            });
+    }
+    
+    autoFixFakeData() {
+        console.log('🔧 Attempting to auto-fix fake data...');
+        
+        // Try to load real data from a different source or suggest manual fix
+        this.showFixNotification(`
+            <div style="background: #ff6b6b; color: white; padding: 15px; border-radius: 8px;">
+                <h4>🚨 FAKE DATA DETECTED</h4>
+                <p><strong>Problem:</strong> Your Google Sheet contains test data instead of real leads.</p>
+                <p><strong>Solution:</strong> Run your AI lead qualification agent to populate the sheet with real leads.</p>
+                <button onclick="this.parentElement.parentElement.remove(); runLeadQualification();" style="background: white; color: #ff6b6b; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                    Run AI Lead Qualification
+                </button>
+            </div>
+        `);
+    }
+    
+    fixDOMIssues() {
+        console.log('🔍 Checking for DOM issues...');
+        
+        // Check for missing elements
+        const criticalElements = [
+            'phone-numbers-display',
+            'whatsapp-token',
+            'leads-selection',
+            'bulk-message-text'
+        ];
+        
+        criticalElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.warn(`⚠️ Missing critical element: ${id}`);
+                this.showFixNotification(`Missing critical element: ${id}. This may cause functionality issues.`);
+            } else {
+                console.log(`✅ Element found: ${id}`);
+            }
+        });
+        
+        // Check for event listeners
+        const buttons = document.querySelectorAll('button[onclick]');
+        console.log(`✅ Found ${buttons.length} interactive buttons`);
+        
+        // Check for API scripts
+        if (!window.WhatsAppBusinessAPI) {
+            console.error('❌ WhatsApp Business API script not loaded');
+            this.showFixNotification('WhatsApp Business API script not loaded. Please check script inclusion.');
+        } else {
+            console.log('✅ WhatsApp Business API script loaded');
+        }
+    }
+    
+    optimizePerformance() {
+        console.log('🔍 Optimizing performance...');
+        
+        // Check for memory leaks
+        if (window.performance && window.performance.memory) {
+            const memory = window.performance.memory;
+            const usedMB = Math.round(memory.usedJSHeapSize / 1048576);
+            const totalMB = Math.round(memory.totalJSHeapSize / 1048576);
+            
+            console.log(`📊 Memory usage: ${usedMB}MB / ${totalMB}MB`);
+            
+            if (usedMB > totalMB * 0.8) {
+                console.warn('⚠️ High memory usage detected');
+                this.showFixNotification('High memory usage detected. Consider refreshing the page.');
+            }
+        }
+        
+        // Check for slow API calls
+        const startTime = performance.now();
+        fetch('https://sheets.googleapis.com/v4/spreadsheets/1nzknj5DlU_1oXeu_7VcMRD6_FRcSkgef2I0ObXxYoLg/values/jegodigital-leads-template?key=AIzaSyA-1HU2daAhNIuVOdK6ZN_GOIW9YB1i7a4')
+            .then(() => {
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                
+                if (duration > 3000) {
+                    console.warn(`⚠️ Slow API response: ${Math.round(duration)}ms`);
+                    this.showFixNotification('Slow API response detected. Consider optimizing your Google Sheets or using caching.');
+                } else {
+                    console.log(`✅ API response time: ${Math.round(duration)}ms`);
+                }
+            });
     }
     
     // Fix Strategies
