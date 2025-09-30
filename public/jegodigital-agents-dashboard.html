@@ -1287,13 +1287,20 @@
                 whatsappAPI = new WhatsAppBusinessAPI();
                 console.log('WhatsApp API initialized successfully');
                 
-                // Load saved token if exists
+                // Load saved token if exists, or use default token
                 const savedToken = localStorage.getItem('whatsapp_access_token');
+                const defaultToken = "EAAJ7bvfnUoUBPrZCiZCfAPvZAo08ZCRWa4nbTVrN8PuEdoWjBrMyTkYMD0CJiHkirtuh8gXwgtaWfDFRwjQLKtRpJqrcWLYKXPi3hb7ZAow5jzxhZAhOxrvSMxkj9I1XUU7RDvAgBazYQIZCSCZA8TUAHxfXI8TxuZCED57ctEBz5K8hUYAYGx5EYZCr97GpXPWk7rzhNZAgCqyPyWU9yYRyWrDM4NprgZB109BRxXjOIM7kdQJNPAZDZD";
+                
                 if (savedToken) {
                     whatsappAPI.setAccessToken(savedToken);
                     document.getElementById('whatsapp-token').value = savedToken;
-                    updateConnectionStatus();
+                } else {
+                    whatsappAPI.setAccessToken(defaultToken);
+                    document.getElementById('whatsapp-token').value = defaultToken;
+                    localStorage.setItem('whatsapp_access_token', defaultToken);
                 }
+                
+                updateConnectionStatus();
             } catch (error) {
                 console.error('Error initializing WhatsApp API:', error);
                 showError('Error al inicializar WhatsApp API: ' + error.message);

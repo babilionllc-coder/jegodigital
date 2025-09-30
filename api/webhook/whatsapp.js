@@ -10,6 +10,9 @@ export default function handler(req, res) {
 
         // Your verify token (same as in Meta App Dashboard)
         const VERIFY_TOKEN = 'jegodigital_webhook_2024_secure_token';
+        
+        // Your access token for API calls
+        const ACCESS_TOKEN = 'EAAJ7bvfnUoUBPrZCiZCfAPvZAo08ZCRWa4nbTVrN8PuEdoWjBrMyTkYMD0CJiHkirtuh8gXwgtaWfDFRwjQLKtRpJqrcWLYKXPi3hb7ZAow5jzxhZAhOxrvSMxkj9I1XUU7RDvAgBazYQIZCSCZA8TUAHxfXI8TxuZCED57ctEBz5K8hUYAYGx5EYZCr97GpXPWk7rzhNZAgCqyPyWU9yYRyWrDM4NprgZB109BRxXjOIM7kdQJNPAZDZD';
 
         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
             console.log('✅ Webhook verified successfully');

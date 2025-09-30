@@ -5,7 +5,7 @@ class WhatsAppBusinessAPI {
     constructor() {
         this.phoneNumberId = "1006439764357143"; // From your API setup
         this.businessAccountId = "1796802194255827"; // From your API setup
-        this.accessToken = null; // Will be set when user generates token
+        this.accessToken = "EAAJ7bvfnUoUBPrZCiZCfAPvZAo08ZCRWa4nbTVrN8PuEdoWjBrMyTkYMD0CJiHkirtuh8gXwgtaWfDFRwjQLKtRpJqrcWLYKXPi3hb7ZAow5jzxhZAhOxrvSMxkj9I1XUU7RDvAgBazYQIZCSCZA8TUAHxfXI8TxuZCED57ctEBz5K8hUYAYGx5EYZCr97GpXPWk7rzhNZAgCqyPyWU9yYRyWrDM4NprgZB109BRxXjOIM7kdQJNPAZDZD"; // New access token from Meta App Dashboard
         this.certificate = "CmwKKAjVzJCHk9P9AhIGZW500ndhlg9KZWdvRGlnaXRhbFdoYXRQ3LTqxgYaQE5sIH7UJY4MKO0564JHUbyJmloEqvgshSJ6hfH/VEc619VaRlhF29W28Wg9nD84n/r4jFcT3C8h/GKVIkGIQgSLm0QBZ7/r9+L9lq1s5usaiuVWOHtXMXYwflmR06tPJAY4wo9Bd2QSJPWhkbg7NY=";
         this.apiUrl = `https://graph.facebook.com/v18.0/${this.phoneNumberId}/messages`;
         this.webhookUrl = null; // Will be set for receiving messages
