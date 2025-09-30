@@ -1649,6 +1649,69 @@
             showSuccess('Datos actualizados');
         }
 
+        // Webhook Integration
+        window.dashboardAPI = {
+            saveIncomingMessage: function(messageData) {
+                console.log('💬 Saving incoming message:', messageData);
+                
+                // Add to replies list
+                const replies = JSON.parse(localStorage.getItem('whatsapp_replies') || '[]');
+                replies.push({
+                    id: messageData.id,
+                    phone: messageData.from,
+                    message: messageData.text,
+                    time: new Date(parseInt(messageData.timestamp) * 1000),
+                    status: 'received'
+                });
+                
+                localStorage.setItem('whatsapp_replies', JSON.stringify(replies));
+                
+                // Update UI
+                loadReplies();
+                showSuccess(`Nueva respuesta recibida de ${messageData.from}`);
+            },
+            
+            updateMessageStatus: function(statusData) {
+                console.log('📊 Updating message status:', statusData);
+                
+                // Update sent messages
+                const sentMessages = JSON.parse(localStorage.getItem('whatsapp_sent_messages') || '[]');
+                const messageIndex = sentMessages.findIndex(msg => msg.id === statusData.id);
+                
+                if (messageIndex !== -1) {
+                    sentMessages[messageIndex].status = statusData.status;
+                    sentMessages[messageIndex].statusTime = new Date(parseInt(statusData.timestamp) * 1000);
+                    
+                    localStorage.setItem('whatsapp_sent_messages', JSON.stringify(sentMessages));
+                    
+                    // Update UI
+                    loadSentMessages();
+                    
+                    const statusText = {
+                        'sent': 'Enviado',
+                        'delivered': 'Entregado',
+                        'read': 'Leído',
+                        'failed': 'Fallido'
+                    };
+                    
+                    showSuccess(`Mensaje ${statusText[statusData.status] || statusData.status}`);
+                }
+            },
+            
+            handleWebhookEvent: function(eventType, data) {
+                console.log(`🔔 Webhook event: ${eventType}`, data);
+                
+                switch (eventType) {
+                    case 'new_message':
+                        this.saveIncomingMessage(data);
+                        break;
+                    case 'status_update':
+                        this.updateMessageStatus(data);
+                        break;
+                }
+            }
+        };
+
         // AI Console Monitor Functions
         function toggleAIMonitor() {
             const monitor = document.getElementById('ai-console-monitor');
