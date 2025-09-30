@@ -1,13 +1,14 @@
-// Simple WhatsApp Webhook Handler
+// Simple WhatsApp Webhook Handler - Fixed Version
 export default function handler(req, res) {
     console.log('🔗 Webhook called:', req.method, req.url);
     
     if (req.method === 'GET') {
+        // Webhook verification
         const mode = req.query['hub.mode'];
         const token = req.query['hub.verify_token'];
         const challenge = req.query['hub.challenge'];
 
-        console.log('🔍 Verification:', { mode, token, challenge });
+        console.log('🔍 Verification params:', { mode, token, challenge });
 
         const VERIFY_TOKEN = 'jegodigital_webhook_2024_secure_token';
 
@@ -21,7 +22,8 @@ export default function handler(req, res) {
     }
     
     if (req.method === 'POST') {
-        console.log('📨 Webhook event:', JSON.stringify(req.body, null, 2));
+        console.log('📨 Webhook event received');
+        console.log('Body:', JSON.stringify(req.body, null, 2));
         return res.status(200).send('OK');
     }
     
