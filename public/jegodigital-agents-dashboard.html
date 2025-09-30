@@ -1003,6 +1003,9 @@
             <button class="btn btn-primary" onclick="openCampaignManagement()">
                 <i class="fas fa-chart-line"></i> Campañas & Analytics
             </button>
+            <button class="btn btn-info" onclick="toggleAIMonitor()">
+                <i class="fas fa-robot"></i> AI Monitor
+            </button>
         </div>
 
         <!-- WhatsApp Business API Configuration -->
@@ -1260,6 +1263,7 @@
 
     <!-- WhatsApp Business API Script -->
     <script src="whatsapp-business-api.js"></script>
+    <script src="ai-console-monitor.js"></script>
     
     <script>
         let currentPhone = null;
@@ -1630,6 +1634,29 @@
         function refreshData() {
             loadDashboardData();
             showSuccess('Datos actualizados');
+        }
+
+        // AI Console Monitor Functions
+        function toggleAIMonitor() {
+            const monitor = document.getElementById('ai-console-monitor');
+            if (monitor) {
+                monitor.style.display = monitor.style.display === 'none' ? 'block' : 'none';
+            } else {
+                showError('AI Console Monitor not loaded. Please refresh the page.');
+            }
+        }
+
+        function getAIMonitorStatus() {
+            if (window.aiConsoleMonitor) {
+                return window.aiConsoleMonitor.getStatus();
+            }
+            return null;
+        }
+
+        function applyAIFix(fixId) {
+            if (window.aiConsoleMonitor) {
+                window.aiConsoleMonitor.applyFixById(fixId);
+            }
         }
 
         // Utility functions
