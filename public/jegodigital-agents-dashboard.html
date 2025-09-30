@@ -1313,7 +1313,7 @@
                     console.log('Headers:', headers);
                     console.log('First few rows:', rows.slice(0, 3));
                     
-                    const phoneNumbers = rows.slice(0, 20).map((row) => {
+                    const phoneNumbers = rows.slice(0, 200).map((row) => {
                         const lead = {};
                         headers.forEach((header, i) => {
                             lead[header.toLowerCase().replace(/\s+/g, '_')] = row[i] || '';
@@ -1326,9 +1326,19 @@
                     const container = document.getElementById('phone-numbers-display');
                     if (container) {
                         if (phoneNumbers.length > 0) {
+                            // Display first 20 numbers, then show count
+                            const displayNumbers = phoneNumbers.slice(0, 20);
+                            const remainingCount = phoneNumbers.length - 20;
+                            
                             container.innerHTML = `
                                 <strong>Números a agregar (${phoneNumbers.length} números reales):</strong><br>
-                                ${phoneNumbers.map(phone => phone).join(', ')}
+                                <div style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                    ${displayNumbers.map(phone => `<div style="padding: 2px 0; font-family: monospace;">${phone}</div>`).join('')}
+                                    ${remainingCount > 0 ? `<div style="padding: 5px 0; font-weight: bold; color: #667eea;">... y ${remainingCount} números más</div>` : ''}
+                                </div>
+                                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                    ✅ Todos los números son reales de tu Google Sheet
+                                </div>
                             `;
                         } else {
                             container.innerHTML = `
