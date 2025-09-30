@@ -2,6 +2,16 @@
 // This handles incoming messages and status updates from WhatsApp Business API
 
 export default function handler(req, res) {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
     if (req.method === 'GET') {
         // Webhook verification
         const mode = req.query['hub.mode'];
@@ -16,9 +26,13 @@ export default function handler(req, res) {
 
         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
             console.log('✅ Webhook verified successfully');
+            console.log('Challenge:', challenge);
             res.status(200).send(challenge);
         } else {
             console.log('❌ Webhook verification failed');
+            console.log('Mode:', mode);
+            console.log('Token:', token);
+            console.log('Expected token:', VERIFY_TOKEN);
             res.status(403).send('Forbidden');
         }
     } else if (req.method === 'POST') {
