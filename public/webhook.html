@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WhatsApp Webhook</title>
+</head>
+<body>
+    <h1>WhatsApp Webhook Endpoint</h1>
+    <p>This endpoint handles WhatsApp webhook verification and events.</p>
+    
+    <script>
+        // Handle webhook verification
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('hub.mode');
+        const token = urlParams.get('hub.verify_token');
+        const challenge = urlParams.get('hub.challenge');
+        
+        if (mode === 'subscribe' && token === 'jegodigital_webhook_2024_secure_token') {
+            document.body.innerHTML = '<h1>✅ Webhook Verified!</h1><p>Challenge: ' + challenge + '</p>';
+        } else {
+            document.body.innerHTML = '<h1>❌ Verification Failed</h1>';
+        }
+    </script>
+</body>
+</html>
