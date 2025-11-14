@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+🌐 Multi-market messaging rule
+- Whenever copy references a region (Cancún, Mexico, USA), scan hero text, SEO metadata, and structured data to ensure all locales stay consistent.
+- If messaging should differ by market, call it out explicitly and note which assets need tailored updates.
+- Keep a short checklist so no surface (hero, footer, schema, social previews) gets missed.

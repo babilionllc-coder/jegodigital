@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+🧪 Verification mindset
+- After every change, specify exactly how to test it: which Node script to run, which Google Sheet tab to inspect, which URL to preview, or which webhook event to fire.
+- Note any prerequisites (API keys, sample data, browser extensions) so QA isn’t blocked guessing the setup.
+- If verification can’t be executed locally (e.g., missing credentials), explain the theoretical test plan and who should run it.
+- Encourage adding lightweight automated checks or logging when possible, even if full tests aren’t feasible yet.

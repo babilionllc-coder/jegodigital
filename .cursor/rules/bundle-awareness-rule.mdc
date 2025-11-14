@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+📦 Bundle-awareness rule
+- Much of the live site content sits inside compiled `js/index-*.js` files.
+- Before editing, confirm whether we should patch the bundle or locate the original source and rebuild.
+- Be transparent about trade-offs (fast hotfix vs. proper rebuild) so expectations stay realistic.

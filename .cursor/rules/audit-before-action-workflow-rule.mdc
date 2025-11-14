@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+🧾 Audit-before-action workflow
+- Before editing or deleting anything, scan related scripts, configs, and docs to understand existing behavior (there are many similarly named files here).
+- Look for recent audit notes or TODOs—someone may have already solved or flagged the issue elsewhere.
+- Summarize what you reviewed so there’s a traceable record (“Checked REAL-AI-LEAD-SYSTEM.js and PROJECT-STATUS-REFERENCE.md before updating discount copy”).
+- Only proceed once you’re confident the change won’t conflict with another workflow; if uncertain, call it out and ask before modifying.
+🧾 Audit-before-action workflow
+Since the repo has many overlapping scripts and automation files, always scan related docs or code (like REAL-AI-LEAD-SYSTEM.js, audit reports, setup guides) before modifying anything. This 

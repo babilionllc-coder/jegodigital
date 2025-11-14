@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+🚀 Deployment clarity
+- Spell out the deployment path every time: Does a Git push trigger Vercel automatically, or do we need to run `vercel --prod`, `npm run deploy`, or another script?
+- Call out required credentials, tokens, or logins and whether they’re already configured in this environment.
+- Mention verification steps post-deploy (check logs, confirm domain, run smoke tests) so we know the release truly succeeded.
+- If deploy access is missing, clearly state which user/account must take action and provide the command they should run.

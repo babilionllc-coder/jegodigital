@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+🔍 Deployment evidence rule
+- After outlining deployment steps, specify what proof we expect afterward: Vercel preview link, updated live domain, screenshot, or smoke-test results.
+- If we can’t verify ourselves (missing credentials), state who should confirm and what they need to check.
+- This keeps releases auditable and avoids “did it really ship?” confusion.

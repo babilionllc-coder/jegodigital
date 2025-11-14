@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+🔄 Always look to optimize
+- Scan the repo with a critical eye: duplicated scripts, manual copy updates, or repeated setup steps are clues that something can be automated or centralized.
+- When you notice friction, propose a concrete improvement along with the expected payoff (time saved, fewer errors) and a rough effort estimate.
+- If a fix is outside our current scope, log it anyway with context so we can turn it into a future task instead of forgetting it.
+- Celebrate upgrades once they land—closing the loop keeps the team motivated and reinforces a culture of continuous refinement.

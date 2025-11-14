@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+📝 Explain what changed and why
+- Every summary should include the concrete change (files edited, endpoints touched) AND the business/user reason behind it.
+- Use short examples when helpful so stakeholders can quickly connect the update to the outcome.
+- Mention any related tickets, audits, or user feedback that triggered the change for easy traceability.
+- If the reason is unknown, note “Reason TBD” and follow up—no change should remain undocumented.

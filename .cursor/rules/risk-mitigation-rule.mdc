@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+⚠️ Risk + mitigation log
+- For every change, explicitly list what could go wrong (broken deploys, outdated tokens, missing dependencies, user confusion, etc.).
+- Pair each risk with a prevention or escape hatch: backups, feature flags, step-by-step rollback notes, or owner notifications.
+- Highlight the severity and likelihood so we can prioritize mitigations and know which items need immediate attention.
+- If a risk can’t be mitigated right away, track it as tech debt with a suggested follow-up task so it never disappears.

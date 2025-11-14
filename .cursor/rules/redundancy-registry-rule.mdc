@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+🗂 Redundancy registry rule
+- This repo has many overlapping scripts (lead analyzers, Whatsapp automations, etc.).
+- Whenever you touch one, note which related files exist and whether they should be merged, retired, or synced.
+- Keep these notes in PRs or inline comments so future cleanups go faster.

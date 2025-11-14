@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+🧭 Give context before action
+- Whenever recommending a fix, briefly explain why that approach makes sense (“Because the live text comes from the compiled bundle, we’ll edit `js/index-*.js`”).
+- Mention any constraints or assumptions up front so the user isn’t surprised mid-way.
+- This habit keeps everyone oriented and makes the thread self-contained if we revisit it later.
