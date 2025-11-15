@@ -233,7 +233,7 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <script id="vite-plugin-pwa:register-sw" src="/registerSW.js?v=20241115"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    const ensureHeadlineContrast = () => {
       const headline = Array.from(document.querySelectorAll('h1')).find((node) => {
         if (!node || !node.textContent) return false;
         const text = node.textContent.toLowerCase();
@@ -242,6 +242,15 @@
       if (headline) {
         headline.style.setProperty('color', '#ffffff', 'important');
       }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      ensureHeadlineContrast();
+      const root = document.getElementById('root');
+      if (!root) return;
+      const observer = new MutationObserver(() => ensureHeadlineContrast());
+      observer.observe(root, { childList: true, subtree: true });
+      window.addEventListener('beforeunload', () => observer.disconnect());
     });
   </script>
   </head>
