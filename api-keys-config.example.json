@@ -1,0 +1,13 @@
+{
+  "google_maps_api_key": "env:GOOGLE_MAPS_API_KEY",
+  "facebook_app_id": "env:FACEBOOK_APP_ID",
+  "facebook_app_secret": "env:FACEBOOK_APP_SECRET",
+  "instagram_app_id": "env:INSTAGRAM_APP_ID",
+  "instagram_app_secret": "env:INSTAGRAM_APP_SECRET",
+  "status": {
+    "google_maps": "active",
+    "facebook": "active",
+    "instagram": "active"
+  }
+}
+

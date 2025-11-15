@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel
+
+# Sensitive runtime artifacts
+.wwebjs_auth/
+whatsapp-profile/
+google-service-account-config.json
+openai-config.json
+api-keys-config.json

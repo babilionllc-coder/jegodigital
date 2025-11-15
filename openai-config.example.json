@@ -1,0 +1,8 @@
+{
+  "openai_api_key": "env:OPENAI_API_KEY",
+  "status": "active",
+  "purpose": "Generate unique personalized emails for JegoDigital leads",
+  "model": "gpt-4o-mini",
+  "max_tokens": 500
+}
+

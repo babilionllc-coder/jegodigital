@@ -1,0 +1,25 @@
+{
+  "leads": [
+    {
+      "id": "lead_001",
+      "name": "Lead Name",
+      "phone": "+1234567890",
+      "email": "lead@example.com",
+      "source": "website_form",
+      "interest": "web_design",
+      "status": "not_contacted",
+      "priority": "high",
+      "notes": "Interested in e-commerce website",
+      "contacted_date": null,
+      "response": null,
+      "follow_up_date": null,
+      "tags": ["hot_lead", "cancun", "ecommerce"]
+    }
+  ],
+  "stats": {
+    "total_leads": 0,
+    "contacted": 0,
+    "responded": 0,
+    "converted": 0
+  }
+}
