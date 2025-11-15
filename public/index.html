@@ -223,14 +223,28 @@
         min-height: 100vh;
       }
     </style>
-    <script type="module" crossorigin src="/js/index-CG7-YbQk.js"></script>
+    <script type="module" crossorigin src="/js/index-CG7-YbQk.js?v=20241115"></script>
     <link rel="modulepreload" crossorigin href="/js/react-vendor-CS5rvS73.js">
     <link rel="modulepreload" crossorigin href="/js/router-8KAMq1_-.js">
     <link rel="modulepreload" crossorigin href="/js/seo-BjU_Fkz9.js">
     <link rel="modulepreload" crossorigin href="/js/firebase-D4DDZ3OS.js">
     <link rel="modulepreload" crossorigin href="/js/animations-BG1-c0LH.js">
     <link rel="stylesheet" crossorigin href="/assets/index-DcHfjoXt.css">
-  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <script id="vite-plugin-pwa:register-sw" src="/registerSW.js?v=20241115"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const headline = Array.from(document.querySelectorAll('h1')).find((node) => {
+        if (!node || !node.textContent) return false;
+        const text = node.textContent.toLowerCase();
+        return text.includes('digital marketing agency') || text.includes('agencia de marketing digital');
+      });
+      if (headline) {
+        headline.style.setProperty('color', '#ffffff', 'important');
+      }
+    });
+  </script>
+  </head>
   <body>
     <div id="root"></div>
   </body>
