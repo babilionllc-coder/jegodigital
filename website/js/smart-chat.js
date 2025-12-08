@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fileInput = document.getElementById('chat-file-input');
 
     // Add Welcome Message
-    addMessage("Hello! I am Lumière, your AI concierge. I can see, hear, and help you reserve services. How can I assist you today?", 'bot');
+    addMessage("¡Hola! Soy tu Agente IA de JegoDigital. Puedo ver, escuchar y ayudarte a reservar servicios. ¿En qué puedo ayudarte hoy?", 'bot');
 
     // Event Listeners
     toggleBtn.addEventListener('click', toggleChat);
@@ -53,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if ('webkitSpeechRecognition' in window) {
         recognition = new webkitSpeechRecognition();
         recognition.continuous = false;
-        recognition.lang = 'en-US'; // Or 'es-MX' depending on preference, default to English/Spanish bilingual context? User site is Spanish 'es'.
         recognition.lang = 'es-MX'; // Switch to Spanish as site is Spanish
 
         recognition.onstart = () => {
@@ -164,7 +163,7 @@ async function handleImageUpload(e) {
 async function generateGeminiResponse(userText) {
     // Construct prompt with context
     const context = `
-    Eres Lumière, el asistente IA de JegoDigital, una agencia de marketing premium en Cancún.
+    Eres el Agente IA de JegoDigital, una agencia de marketing premium en México.
     Tu tono es: Sofisticado, profesional, pero accesible y moderno (estilo 'concierge de lujo').
     Servicios: Diseño Web, SEO Local, Campañas de Google/FB Ads.
     
@@ -191,8 +190,8 @@ function addMessage(text, sender) {
     const isUser = sender === 'user';
 
     bubble.className = `max-w-[80%] rounded-2xl p-3 px-4 text-sm ${isUser
-            ? 'bg-primary text-white rounded-br-none'
-            : 'bg-surface border border-white/10 text-slate-200 rounded-bl-none'
+        ? 'bg-primary text-white rounded-br-none'
+        : 'bg-surface border border-white/10 text-slate-200 rounded-bl-none'
         }`;
 
     // Markdown-ish parsing (basic)
