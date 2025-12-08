@@ -195,8 +195,26 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <a href="index.html" class="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
-                    <img src="images/logo/jegologo1.png" alt="JegoDigital Logo"
-                        class="logo-glow w-10 h-10 object-contain transform group-hover:scale-110 transition-transform duration-300">
+                    <div
+                        class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-white/10 group-hover:border-primary/50 transition-all duration-300 logo-glow overflow-hidden">
+                        <div class="absolute inset-0 bg-primary/20 blur-md group-hover:bg-primary/40 transition-all">
+                        </div>
+                        <!-- Abstract J Logo SVG -->
+                        <svg class="w-6 h-6 text-white relative z-10 drop-shadow-md" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 4V20M12 20H8C6.89543 20 6 19.1046 6 18C6 16.8954 6.89543 16 8 16H12M12 4H16M12 4H8"
+                                stroke="url(#logo-gradient)" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <defs>
+                                <linearGradient id="logo-gradient" x1="6" y1="4" x2="16" y2="20"
+                                    gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#fff" />
+                                    <stop offset="1" stop-color="#a5b4fc" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
                     <span
                         class="font-bold text-xl tracking-tight text-white group-hover:text-primary transition-colors">JegoDigital</span>
                 </a>
@@ -468,9 +486,10 @@
         <!-- Header -->
         <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-2xl">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 p-0.5">
-                    <img src="/images/logo/jegologo1.png" alt="AI Agent"
-                        class="w-full h-full object-cover rounded-full bg-slate-900">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30 relative">
+                    <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
+                    <i class="fas fa-robot text-white text-lg relative z-10"></i>
                 </div>
                 <div>
                     <h3 class="font-bold text-white text-sm">JegoDigital AI Agent</h3>
