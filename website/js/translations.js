@@ -43,49 +43,48 @@ export const translations = {
         chat_analyzing: "(Analizando imagen...)",
         chat_image_error: "No pude procesar la imagen. Asegúrate que sea PNG o JPG.",
         chat_system_prompt: "Eres el Agente IA de JegoDigital, una agencia de marketing premium en México. Tu tono es: Sofisticado, profesional, pero accesible y moderno. Servicios: Diseño Web, SEO Local, Campañas de Google/FB Ads. Responde en Español.",
+        // Servicios Page
+        serv_hero_tag: "Lo Que Hacemos Mejor",
+        serv_hero_title: "Soluciones Digitales <br> <span class='hero-gradient-text'>De Alto Impacto</span>",
+        serv_hero_desc: "Combinamos tecnología y estrategia para escalar tu negocio en México y el mundo.",
+        serv_card_web_title: "Diseño Web Premium",
+        serv_card_web_desc: "Sitios web ultra-rápidos que convierten visitantes en clientes.",
+        serv_card_seo_title: "SEO & Posicionamiento",
+        serv_card_seo_desc: "Estrategias para dominar Google y aparecer primero.",
+        serv_card_ads_title: "Campañas Publicitarias",
+        serv_card_ads_desc: "Ads en Meta y Google con alto retorno de inversión.",
+
+        // Settings / Nosotros Page
+        about_hero_tag: "Nuestra Esencia",
+        about_hero_title: "Impulsando el <span class='hero-gradient-text text-glow'>Futuro Digital</span><br>de Cancún.",
+        about_hero_desc: "Nacimos con una misión clara: ayudar a los negocios locales a dominar el mundo digital. Combinamos creatividad, datos y tecnología para crear estrategias que no solo se ven bien, sino que venden.",
+        about_stat_projects: "Proyectos Exitosos",
+        about_stat_clients: "Clientes Felices",
+        about_stat_years: "Años de Experiencia",
+        about_stat_support: "Soporte Premium",
+
+        // Portfolio Page
+        port_hero_tag: "Nuestros Trabajos",
+        port_hero_title: "Portafolio de <span class='hero-gradient-text text-glow'>Alto Impacto</span>",
+        port_hero_desc: "Explora cómo hemos transformado la presencia digital de negocios en Cancún.",
+        port_filter_all: "Todos",
+        port_filter_web: "Diseño Web",
+        port_filter_seo: "Resultados SEO",
+
+        // Contact Page
+        contact_hero_tag: "Contáctanos",
+        contact_hero_title: "Hablemos de tu <br><span class='text-transparent bg-clip-text bg-gradient-to-r from-white to-primary'>Siguiente Éxito</span>",
+        contact_hero_desc: "Estamos listos para escuchar tus ideas y transformarlas en resultados digitales medibles.",
+        contact_info_loc: "Ubicación",
+        contact_info_phone: "Teléfono / WhatsApp",
+        contact_info_email: "Email",
+        contact_form_name: "Tu Nombre",
+        contact_form_email_label: "Tu Correo",
+        contact_form_phone: "Tu Teléfono",
+        contact_form_msg: "Cuéntanos sobre tu proyecto...",
+        contact_form_btn: "Enviar Mensaje",
+
     },
-    // Servicios Page
-    serv_hero_tag: "Lo Que Hacemos Mejor",
-    serv_hero_title: "Soluciones Digitales <br> <span class='hero-gradient-text'>De Alto Impacto</span>",
-    serv_hero_desc: "Combinamos tecnología y estrategia para escalar tu negocio en México y el mundo.",
-    serv_card_web_title: "Diseño Web Premium",
-    serv_card_web_desc: "Sitios web ultra-rápidos que convierten visitantes en clientes.",
-    serv_card_seo_title: "SEO & Posicionamiento",
-    serv_card_seo_desc: "Estrategias para dominar Google y aparecer primero.",
-    serv_card_ads_title: "Campañas Publicitarias",
-    serv_card_ads_desc: "Ads en Meta y Google con alto retorno de inversión.",
-
-    // Settings / Nosotros Page
-    about_hero_tag: "Nuestra Esencia",
-    about_hero_title: "Impulsando el <span class='hero-gradient-text text-glow'>Futuro Digital</span><br>de Cancún.",
-    about_hero_desc: "Nacimos con una misión clara: ayudar a los negocios locales a dominar el mundo digital. Combinamos creatividad, datos y tecnología para crear estrategias que no solo se ven bien, sino que venden.",
-    about_stat_projects: "Proyectos Exitosos",
-    about_stat_clients: "Clientes Felices",
-    about_stat_years: "Años de Experiencia",
-    about_stat_support: "Soporte Premium",
-
-    // Portfolio Page
-    port_hero_tag: "Nuestros Trabajos",
-    port_hero_title: "Portafolio de <span class='hero-gradient-text text-glow'>Alto Impacto</span>",
-    port_hero_desc: "Explora cómo hemos transformado la presencia digital de negocios en Cancún.",
-    port_filter_all: "Todos",
-    port_filter_web: "Diseño Web",
-    port_filter_seo: "Resultados SEO",
-
-    // Contact Page
-    contact_hero_tag: "Contáctanos",
-    contact_hero_title: "Hablemos de tu <br><span class='text-transparent bg-clip-text bg-gradient-to-r from-white to-primary'>Siguiente Éxito</span>",
-    contact_hero_desc: "Estamos listos para escuchar tus ideas y transformarlas en resultados digitales medibles.",
-    contact_info_loc: "Ubicación",
-    contact_info_phone: "Teléfono / WhatsApp",
-    contact_info_email: "Email",
-    contact_form_name: "Tu Nombre",
-    contact_form_email_label: "Tu Correo",
-    contact_form_phone: "Tu Teléfono",
-    contact_form_msg: "Cuéntanos sobre tu proyecto...",
-    contact_form_btn: "Enviar Mensaje",
-
-},
     en: {
         // Nav
         nav_home: "Home",
