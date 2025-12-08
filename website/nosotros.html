@@ -130,16 +130,27 @@
                     class="font-bold text-xl tracking-tight text-white group-hover:text-primary transition-colors">JegoDigital</span>
                 </a>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html"
-                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Inicio</a>
+                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_home">Inicio</a>
                     <a href="servicios.html"
-                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Servicios</a>
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_services">Servicios</a>
                     <a href="portfolio.html"
-                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Portafolio</a>
-                    <a href="nosotros.html"
-                        class="text-white text-sm font-medium border-b-2 border-primary pb-1">Nosotros</a>
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_portfolio">Portafolio</a>
+                    <a href="nosotros.html" class="text-white text-sm font-medium border-b-2 border-primary pb-1"
+                        data-i18n="nav_about">Nosotros</a>
+
+                    <!-- Language Toggle -->
+                    <button id="lang-toggle" onclick="window.toggleLanguage()"
+                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                        <span class="text-lg" id="lang-flag">🇺🇸</span>
+                        <span class="text-xs font-bold text-slate-300 group-hover:text-white" id="lang-text">EN</span>
+                    </button>
+
                     <a href="contacto.html"
-                        class="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 backdrop-blur-md">Contacto</a>
+                        class="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 backdrop-blur-md"
+                        data-i18n="nav_contact">Contacto</a>
                 </div>
                 <div class="md:hidden flex items-center">
                     <button id="mobile-menu-btn" class="text-white hover:text-primary focus:outline-none p-2">
@@ -169,12 +180,13 @@
     <!-- Hero Section -->
     <section class="pt-32 pb-16 relative z-10">
         <div class="container mx-auto px-4 text-center">
-            <span class="text-accent text-sm font-bold tracking-wider uppercase mb-4 block animate-float">Nuestra
+            <span class="text-accent text-sm font-bold tracking-wider uppercase mb-4 block animate-float"
+                data-i18n="about_hero_tag">Nuestra
                 Esencia</span>
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-6">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6" data-i18n="about_hero_title">
                 Impulsando el <span class="hero-gradient-text text-glow">Futuro Digital</span><br>de Cancún.
             </h1>
-            <p class="text-slate-400 max-w-3xl mx-auto text-lg leading-relaxed">
+            <p class="text-slate-400 max-w-3xl mx-auto text-lg leading-relaxed" data-i18n="about_hero_desc">
                 Nacimos con una misión clara: ayudar a los negocios locales a dominar el mundo digital. Combinamos
                 creatividad, datos y tecnología para crear estrategias que no solo se ven bien, sino que venden.
             </p>
@@ -428,6 +440,8 @@
     </div>
 
     <!-- Script Import -->
+    <!-- Smart Chat Widget & Language Manager -->
+    <script type="module" src="js/language-manager.js"></script>
     <script type="module" src="js/smart-chat.js"></script>
 </body>
 
