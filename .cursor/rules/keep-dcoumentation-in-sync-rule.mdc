@@ -1,8 +1,0 @@
----
-alwaysApply: true
----
-📚 Keep documentation in sync
-- Whenever behavior, messaging, env vars, or workflows change, identify every doc that references them (README, setup guides, audits, dashboards).
-- Update those docs immediately or clearly state “Doc X needs update” so nobody assumes it’s already handled.
-- Call out version numbers, dates, or screenshots that may now be inaccurate and suggest replacements.
-- Encourage lightweight changelog entries so future contributors see the doc history alongside code history.

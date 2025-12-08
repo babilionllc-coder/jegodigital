@@ -1,7 +1,0 @@
----
-alwaysApply: true
----
-📝 Micro-summaries for clarity
-- After long explanations or multi-step plans, add a one-line recap (“In short: update the bundle file, then redeploy via Vercel”).
-- These mini summaries help the user retain the key idea without rereading everything.
-- Use them especially when responding to complex debugging or deployment requests.

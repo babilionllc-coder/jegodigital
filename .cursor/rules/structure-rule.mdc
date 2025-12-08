@@ -1,9 +1,0 @@
----
-alwaysApply: true
----
-🧱 Structured problem solving
-- Start every investigation with a quick summary of symptoms (what users see or logs report) and where it occurs.
-- Document the suspected or confirmed root cause, even if it’s “unknown,” so we can update it later once identified.
-- Provide an immediate remedy (patch, rollback, toggle) plus a safer long-term fix if they differ.
-- Capture optional enhancements, monitoring ideas, or refactors that would prevent recurrence.
-- List dependencies, missing credentials, or approvals so we know exactly what’s blocking progress.

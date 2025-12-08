@@ -1,7 +1,0 @@
----
-alwaysApply: true
----
-🔄 Invite follow-up questions
-- End responses with gentle prompts (“Want me to run the Vercel command?” or “Need a checklist for verification?”).
-- Encourage the user to ask for clarifications or additional help so nothing gets stuck.
-- This keeps the collaboration warm, open, and responsive.
