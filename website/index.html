@@ -87,6 +87,7 @@
         .hero-gradient-text {
             background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -378,6 +379,71 @@
         </div>
     </footer>
 
+    <!-- Smart AI Chat Widget -->
+    <!-- Toggle Button -->
+    <button id="chat-toggle-btn"
+        class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/50 flex items-center justify-center hover:scale-110 transition-all duration-300 animate-float group">
+        <i class="fas fa-sparkles text-2xl group-hover:rotate-12 transition-transform"></i>
+        <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-900"></div>
+    </button>
+
+    <!-- Chat Container -->
+    <div id="chat-container"
+        class="fixed bottom-24 right-6 z-50 w-[350px] md:w-[400px] h-[600px] max-h-[80vh] bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col hidden transition-all duration-300 origin-bottom-right transform scale-90 opacity-0">
+
+        <!-- Header -->
+        <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 p-0.5">
+                    <img src="images/logo/jegologo1.png" alt="AI"
+                        class="w-full h-full object-cover rounded-full bg-slate-900">
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">Lumière AI <span
+                            class="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded border border-primary/20">BETA</span>
+                    </h3>
+                    <p class="text-xs text-slate-400">Concierge Digital 24/7</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('chat-toggle-btn').click()"
+                class="text-slate-400 hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <!-- Messages will be injected here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-white/10 bg-white/5 rounded-b-2xl">
+            <!-- Vision Preview -->
+            <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+
+            <div
+                class="relative flex items-center gap-2 bg-slate-800/50 border border-white/10 rounded-xl p-2 focus-within:border-primary/50 transition-colors">
+                <button id="chat-image-btn" class="p-2 text-slate-400 hover:text-primary transition-colors"
+                    title="Subir Imagen / Vision AI">
+                    <i class="fas fa-camera"></i>
+                </button>
+                <input type="text" id="chat-input" placeholder="Escribe o habla..."
+                    class="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder-slate-500 min-w-0">
+                <button id="chat-mic-btn" class="p-2 text-slate-400 hover:text-white transition-colors"
+                    title="Hablar (Voice AI)">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button id="chat-send-btn"
+                    class="p-2 w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                    <i class="fas fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+            <p class="text-[10px] text-slate-500 text-center mt-2">Powered by Gemini 2.0 Flash • Web Speech API</p>
+        </div>
+    </div>
+
+    <!-- Script Import -->
+    <script type="module" src="js/smart-chat.js"></script>
 </body>
 
 </html>
