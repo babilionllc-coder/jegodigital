@@ -10,7 +10,9 @@ let chatHistory = [];
 let isListening = false;
 let isOpen = false;
 let recognition = null;
-let generatedUiForReserve = false;
+let currentLang = 'es'; // Default
+let systemPrompt = `Eres el Agente IA de JegoDigital, una agencia de marketing premium en México.
+    Tu tono es: Sofisticado, profesional, pero accesible y moderno (estilo 'concierge de lujo').`;
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(API_KEY);
@@ -22,12 +24,25 @@ let chatContainer, messagesContainer, inputField, sendBtn, micBtn, imageBtn, fil
 // --- UI Rendering & Event Listeners ---
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Inject the Chat Widget HTML if not present (or assume it's added to index.html)
-    // For this implementation, we assume the HTML structure is added to index.html as per plan.
-    // But to be safe and "Widget-like", we can strictly enforce it or select it.
 
-    // Let's rely on the elements being in index.html for better styling control there.
-    // We will attach listeners here.
+    // Listen for Language Changes from language-manager.js
+    window.addEventListener('languageChanged', (e) => {
+        const { lang, translations } = e.detail;
+        currentLang = lang;
+
+        // Update Static Text
+        document.querySelector('#chat-container h3').innerText = translations.chat_agent_name;
+        document.querySelector('#chat-container p.text-xs').innerText = translations.chat_agent_role;
+        document.getElementById('chat-input').placeholder = translations.chat_placeholder;
+
+        // Update System Prompt
+        systemPrompt = translations.chat_system_prompt;
+
+        // Update Recognition Language
+        if (recognition) {
+            recognition.lang = lang === 'en' ? 'en-US' : 'es-MX';
+        }
+    });
 
     toggleBtn = document.getElementById('chat-toggle-btn');
     chatContainer = document.getElementById('chat-container');
@@ -38,8 +53,18 @@ document.addEventListener("DOMContentLoaded", () => {
     imageBtn = document.getElementById('chat-image-btn');
     fileInput = document.getElementById('chat-file-input');
 
-    // Add Welcome Message
-    addMessage("¡Hola! Soy tu Agente IA de JegoDigital. Puedo ver, escuchar y ayudarte a reservar servicios. ¿En qué puedo ayudarte hoy?", 'bot');
+    // Add Welcome Message (Check localStorage for lang or default to Spanish)
+    const savedLang = localStorage.getItem('site_lang') || 'es';
+    // We might need to fetch translations if we want immediate sync on load, 
+    // but for now hardcoded Spanish default is fine, logic updates on event.
+    // Ideally we import translations here too or wait for manager.
+
+    // Simple check:
+    const initialWelcome = savedLang === 'en'
+        ? "Hello! I am your JegoDigital AI Agent. I can see, hear, and help you reserve services. How can I assist you today?"
+        : "¡Hola! Soy tu Agente IA de JegoDigital. Puedo ver, escuchar y ayudarte a reservar servicios. ¿En qué puedo ayudarte hoy?";
+
+    addMessage(initialWelcome, 'bot');
 
     // Event Listeners
     toggleBtn.addEventListener('click', toggleChat);
@@ -53,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if ('webkitSpeechRecognition' in window) {
         recognition = new webkitSpeechRecognition();
         recognition.continuous = false;
-        recognition.lang = 'es-MX'; // Switch to Spanish as site is Spanish
+        recognition.lang = savedLang === 'en' ? 'en-US' : 'es-MX';
 
         recognition.onstart = () => {
             isListening = true;
@@ -163,15 +188,7 @@ async function handleImageUpload(e) {
 async function generateGeminiResponse(userText) {
     // Construct prompt with context
     const context = `
-    Eres el Agente IA de JegoDigital, una agencia de marketing premium en México.
-    Tu tono es: Sofisticado, profesional, pero accesible y moderno (estilo 'concierge de lujo').
-    Servicios: Diseño Web, SEO Local, Campañas de Google/FB Ads.
-    
-    Regla Especial:
-    Si el usuario muestra interés claro en contratar o dice "Reservar", "Reserve", "Quiero comprar" o similar, 
-    debes incluir la palabra mágica "RESERVE_CONFIRMED" en tu respuesta para que yo pueda generar su pase VIP.
-    
-    Responde en Español (o Inglés si te hablan en Inglés). Sé conciso.
+    ${systemPrompt}
     Usuario dice: "${userText}"
     `;
 

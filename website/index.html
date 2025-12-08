@@ -203,15 +203,22 @@
 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html"
+                    <a href="index.html" data-i18n="nav_home"
                         class="text-white text-sm font-medium border-b-2 border-primary pb-1">Inicio</a>
-                    <a href="servicios.html"
+                    <a href="servicios.html" data-i18n="nav_services"
                         class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Servicios</a>
-                    <a href="portfolio.html"
+                    <a href="portfolio.html" data-i18n="nav_portfolio"
                         class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Portafolio</a>
-                    <a href="nosotros.html"
+                    <a href="nosotros.html" data-i18n="nav_about"
                         class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Nosotros</a>
-                    <a href="contacto.html"
+
+                    <!-- Language Toggle -->
+                    <button id="lang-toggle" onclick="window.toggleLanguage()"
+                        class="flex items-center gap-1 text-sm font-medium text-slate-300 hover:text-white transition-colors border border-white/10 rounded-full px-3 py-1 hover:bg-white/5">
+                        <span class="mr-1">🇺🇸</span> EN
+                    </button>
+
+                    <a href="contacto.html" data-i18n="nav_contact"
                         class="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 backdrop-blur-md">Contacto</a>
                 </div>
 
@@ -265,35 +272,30 @@
         <div class="container mx-auto px-4 z-10 relative text-center">
 
             <div
-                class="inline-block mb-6 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 backdrop-blur-sm animate-float">
-                <span class="text-accent text-xs font-bold tracking-wider uppercase">🚀 #1 Agencia Digital en
-                    Cancún</span>
+                class="inline-block mb-4 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-md">
+                <span class="text-primary text-xs font-bold uppercase tracking-wider" data-i18n="hero_tag">🚀 #1 AGENCIA
+                    DIGITAL EN CANCÚN</span>
             </div>
 
-            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight animate-fade-in-up">
-                El Futuro Digital de <br>
-                <span class="hero-gradient-text text-glow">México y Q. Roo</span>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight hero-gradient-text" data-i18n="hero_title">
+                Impulsa tu <span class="text-primary">Negocio Digital</span>
             </h1>
-            <p class="text-slate-400 text-xl mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-100">
-                Agencia Premium en Cancún, Tulum y Playa del Carmen. Elevamos marcas con estrategias de alto impacto y
-                tecnología de vanguardia para todo México.
+
+            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed" data-i18n="hero_desc">
+                Diseño Web Premium, SEO Estratégico y Marketing que convierte.
+                Transformamos visitantes en clientes leales para tu negocio en México y Quintana Roo.
             </p>
 
-            <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <a href="contacto.html"
-                    class="group relative px-8 py-4 bg-primary hover:bg-indigo-600 rounded-full text-white font-semibold text-lg shadow-lg shadow-primary/30 transition-all hover:-translate-y-1 hover:shadow-primary/50 overflow-hidden">
-                    <span class="relative z-10">Iniciar Proyecto</span>
-                    <div
-                        class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]">
-                    </div>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="contacto.html" data-i18n="hero_btn_primary"
+                    class="px-8 py-4 bg-primary hover:bg-primary/90 text-white rounded-full font-bold text-lg transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1">
+                    Iniciar Proyecto
                 </a>
-
-                <a href="#services"
-                    class="px-8 py-4 rounded-full border border-white/20 hover:bg-white/5 text-white font-medium transition-all hover:-translate-y-1 backdrop-blur-sm">
+                <a href="servicios.html" data-i18n="hero_btn_secondary"
+                    class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-bold text-lg transition-all hover:-translate-y-1 backdrop-blur-md">
                     Ver Servicios
                 </a>
             </div>
-
             <!-- Stats -->
             <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto border-t border-white/10 pt-12">
                 <div>
@@ -335,8 +337,9 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-3 text-white">Diseño Web</h3>
                     <p class="text-slate-400 leading-relaxed">
-                        Sitios web modernos, rápidos y adaptables a móviles. Diseñados para capturar la esencia de tu
-                        marca y convertir visitas en ventas.
+                    <h3 class="text-2xl font-bold mb-3 text-white" data-i18n="feat_web_title">Diseño Web</h3>
+                    <p class="text-slate-400 leading-relaxed" data-i18n="feat_web_desc">
+                        Sitios web rápidos, modernos y optimizados para ventas. Tu mejor vendedor 24/7.
                     </p>
                 </div>
 
@@ -350,10 +353,10 @@
                         class="w-14 h-14 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
                         <i class="fas fa-search"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 text-white">SEO Local</h3>
-                    <p class="text-slate-400 leading-relaxed">
-                        Domina las búsquedas en Google Maps y resultados locales en Cancún. Haz que tus clientes te
-                        encuentren antes que a tu competencia.
+                    <h3 class="text-2xl font-bold mb-3 text-white" data-i18n="feat_seo_title">SEO Local</h3>
+                    <p class="text-slate-400 leading-relaxed" data-i18n="feat_seo_desc">
+                        Domina las búsquedas en Google Maps y resultados locales. Haz que te encuentren antes que a tu
+                        competencia.
                     </p>
                 </div>
 
@@ -364,10 +367,9 @@
                         class="w-14 h-14 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
                         <i class="fas fa-bullhorn"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3 text-white">Marketing Digital</h3>
-                    <p class="text-slate-400 leading-relaxed">
-                        Campañas estratégicas en redes sociales y Google Ads. Mensajes persuasivos que conectan con tu
-                        audiencia ideal.
+                    <h3 class="text-2xl font-bold mb-3 text-white" data-i18n="feat_mkt_title">Marketing Digital</h3>
+                    <p class="text-slate-400 leading-relaxed" data-i18n="feat_mkt_desc">
+                        Campañas estratégicas en redes sociales y Ads. Mensajes persuasivos que conectan.
                     </p>
                 </div>
             </div>
@@ -378,11 +380,12 @@
     <section class="py-24 relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 backdrop-blur-3xl"></div>
         <div class="container mx-auto px-4 relative z-10 text-center">
-            <h2 class="text-4xl md:text-5xl font-bold mb-8">¿Listo para transformar tu negocio?</h2>
-            <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8" data-i18n="cta_title">¿Listo para transformar tu negocio?
+            </h2>
+            <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto" data-i18n="cta_desc">
                 No dejes que tu competencia se lleve a tus clientes. Agenda una consulta gratuita hoy mismo.
             </p>
-            <a href="https://wa.me/529982023263" target="_blank"
+            <a href="https://wa.me/529982023263" target="_blank" data-i18n="cta_btn_whatsapp"
                 class="inline-flex items-center gap-3 px-8 py-4 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-green-500/30 hover:-translate-y-1">
                 <i class="fab fa-whatsapp text-2xl"></i>
                 Contactar por WhatsApp
@@ -396,8 +399,8 @@
             <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <div class="col-span-1 md:col-span-2">
                     <h4 class="text-2xl font-bold text-white mb-6">JegoDigital</h4>
-                    <p class="text-slate-400 max-w-xs leading-relaxed">
-                        Agencia de marketing digital líder en Cancún. Ayudamos a empresas visionarias a construir su
+                    <p class="text-slate-400 max-w-xs leading-relaxed" data-i18n="footer_desc">
+                        Agencia de marketing digital líder en México. Ayudamos a empresas visionarias a construir su
                         futuro digital.
                     </p>
                     <div class="flex gap-4 mt-6">
@@ -414,20 +417,22 @@
                 </div>
 
                 <div>
-                    <h4 class="font-bold text-white mb-6">Enlaces</h4>
+                    <h4 class="font-bold text-white mb-6" data-i18n="footer_links_title">Enlaces</h4>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-slate-400 hover:text-primary transition-colors">Inicio</a></li>
-                        <li><a href="#services"
-                                class="text-slate-400 hover:text-primary transition-colors">Servicios</a></li>
-                        <li><a href="#about" class="text-slate-400 hover:text-primary transition-colors">Nosotros</a>
+                        <li><a href="#" class="text-slate-400 hover:text-primary transition-colors"
+                                data-i18n="nav_home">Inicio</a></li>
+                        <li><a href="#services" class="text-slate-400 hover:text-primary transition-colors"
+                                data-i18n="nav_services">Servicios</a></li>
+                        <li><a href="#about" class="text-slate-400 hover:text-primary transition-colors"
+                                data-i18n="nav_about">Nosotros</a>
                         </li>
-                        <li><a href="contacto.html"
-                                class="text-slate-400 hover:text-primary transition-colors">Contacto</a></li>
+                        <li><a href="contacto.html" class="text-slate-400 hover:text-primary transition-colors"
+                                data-i18n="nav_contact">Contacto</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="font-bold text-white mb-6">Contacto</h4>
+                    <h4 class="font-bold text-white mb-6" data-i18n="footer_contact_title">Contacto</h4>
                     <ul class="space-y-3">
                         <li class="flex items-start gap-3 text-slate-400">
                             <i class="fas fa-map-marker-alt mt-1.5 text-primary"></i>
@@ -443,7 +448,7 @@
             </div>
 
             <div class="border-t border-white/5 pt-8 text-center text-slate-500 text-sm">
-                <p>&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
+                <p data-i18n="footer_rights">&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
@@ -510,6 +515,7 @@
     </div>
 
     <!-- Script Import -->
+    <script type="module" src="js/language-manager.js"></script>
     <script type="module" src="js/smart-chat.js"></script>
 </body>
 
