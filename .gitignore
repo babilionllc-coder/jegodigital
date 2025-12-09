@@ -2,3 +2,4 @@ automation/
 *.env
 .DS_Store
 node_modules/
+.vercel

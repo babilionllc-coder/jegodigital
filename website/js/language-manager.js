@@ -13,9 +13,17 @@ class LanguageManager {
     }
 
     setupListeners() {
-        // We will attach the toggle listener in the main script or inline HTML onclick
-        // But for cleaner code, let's listen for a custom event or expose a global function
+        // Expose global for inline (backup)
         window.toggleLanguage = () => this.toggleLanguage();
+
+        // Attach event listener directly (Robust way)
+        const btn = document.getElementById('lang-toggle');
+        if (btn) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                this.toggleLanguage();
+            };
+        }
     }
 
     toggleLanguage() {
