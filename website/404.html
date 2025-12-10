@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Página no encontrada.">
+    <meta name="robots" content="noindex">
+    <title>404 - Página no encontrada | JegoDigital</title>
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        background: '#0f172a', // Slate 900
+                        primary: '#6366f1',    // Indigo 500
+                        accent: '#f472b6',     // Pink 400
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '40%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 red;
+            background: #0f172a;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 blue;
+            background: #0f172a;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(12px, 9999px, 86px, 0);
+                transform: skew(0.6deg);
+            }
+
+            5% {
+                clip: rect(74px, 9999px, 21px, 0);
+                transform: skew(-0.3deg);
+            }
+
+            10% {
+                clip: rect(54px, 9999px, 83px, 0);
+                transform: skew(0.5deg);
+            }
+
+            100% {
+                clip: rect(33px, 9999px, 14px, 0);
+                transform: skew(0.1deg);
+            }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% {
+                clip: rect(65px, 9999px, 100px, 0);
+                transform: skew(0.4deg);
+            }
+
+            5% {
+                clip: rect(2px, 9999px, 3px, 0);
+                transform: skew(0.9deg);
+            }
+
+            10% {
+                clip: rect(44px, 9999px, 66px, 0);
+                transform: skew(-0.5deg);
+            }
+
+            100% {
+                clip: rect(98px, 9999px, 12px, 0);
+                transform: skew(0.2deg);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-white antialiased flex flex-col justify-center items-center h-screen overflow-hidden relative">
+
+    <!-- Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-[20%] left-[15%] w-[300px] h-[300px] bg-primary/20 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[20%] right-[15%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="text-center z-10 glass-panel p-12 rounded-[3rem] border border-white/10 max-w-2xl mx-4 shadow-2xl">
+        <h1 class="text-9xl font-black mb-4 text-white relative inline-block glitch" data-text="404">404</h1>
+
+        <h2 class="text-3xl md:text-4xl font-bold mb-6 text-slate-200">Perdido en el Ciberespacio</h2>
+
+        <p class="text-lg text-slate-400 mb-10 leading-relaxed max-w-md mx-auto">
+            Ups! Parece que la página que buscas se ha desvanecido en la red neuronal. No te preocupes, el camino a casa
+            sigue iluminado.
+        </p>
+
+        <a href="index.html"
+            class="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary/90 text-white rounded-full font-bold text-lg transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 group">
+            <i class="fas fa-home"></i>
+            <span>Regresar al Inicio</span>
+        </a>
+    </div>
+
+</body>
+
+</html>

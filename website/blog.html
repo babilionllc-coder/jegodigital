@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Insights, tendencias y estrategias de Marketing Digital, SEO y Diseño Web para negocios en México y Quintana Roo. Blog oficial de JegoDigital.">
+    <meta name="author" content="JegoDigital Team">
+    <title>Insights & Blog | JegoDigital - Estrategias de Crecimiento</title>
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Structured Data (Schema.org) for Blog -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "JegoDigital Insights",
+      "description": "Expert digital marketing advice, SEO tips, and web design trends.",
+      "url": "https://jegodigital.com/blog.html",
+      "publisher": {
+        "@type": "Organization",
+        "name": "JegoDigital",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://jegodigital.com/images/logo/logo1.png"
+        }
+      }
+    }
+    </script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        background: '#0f172a', // Slate 900
+                        surface: '#1e293b',    // Slate 800
+                        primary: '#6366f1',    // Indigo 500
+                        accent: '#8b5cf6',     // Violet 500
+                        highlight: '#f472b6',  // Pink 400
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-gradient-text {
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .category-pill {
+            transition: all 0.3s ease;
+        }
+
+        .category-pill.active {
+            background-color: #6366f1;
+            /* primary */
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .article-card:hover .article-image {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body class="bg-background text-white antialiased selection:bg-accent selection:text-white">
+
+    <!-- Navigation (Same as Global) -->
+    <nav class="fixed w-full z-50 transition-all duration-300 glass-panel border-b border-white/5" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-28">
+                <!-- Logo -->
+                <a href="index.html" class="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
+                    <img src="images/logo/logo1.png" alt="JegoDigital"
+                        class="h-24 w-auto hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Inicio</a>
+                    <a href="servicios.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Servicios</a>
+                    <a href="portfolio.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Portafolio</a>
+                    <a href="blog.html"
+                        class="text-white text-sm font-medium border-b-2 border-primary pb-1">Insights</a>
+                    <!-- Active -->
+                    <a href="nosotros.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Nosotros</a>
+
+                    <a href="contacto.html"
+                        class="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 backdrop-blur-md">Contacto</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-white hover:text-primary focus:outline-none p-2">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu"
+                class="hidden md:hidden glass-panel border-b border-white/5 absolute w-full left-0 top-28 bg-slate-900/95 backdrop-blur-xl">
+                <div class="px-4 pt-2 pb-6 space-y-2">
+                    <a href="index.html"
+                        class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Inicio</a>
+                    <a href="servicios.html"
+                        class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Servicios</a>
+                    <a href="blog.html"
+                        class="block px-3 py-3 rounded-md text-base font-medium text-white bg-primary/10 border-l-4 border-primary">Insights</a>
+                    <a href="contacto.html"
+                        class="block px-3 py-3 rounded-md text-base font-bold text-primary mt-4 text-center border border-primary/30 bg-primary/10">Contacto</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-40 pb-20 overflow-hidden">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0">
+            <img src="images/blog/hero-main.png" alt="Future of Digital Marketing" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background"></div>
+        </div>
+
+        <div class="container mx-auto px-4 relative z-10 text-center">
+            <span
+                class="inline-block py-1 px-3 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-bold tracking-widest uppercase mb-6 animate-float">
+                Knowledge Hub
+            </span>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 hero-gradient-text tracking-tight">
+                JegoDigital <span class="italic font-serif">Insights</span>
+            </h1>
+            <p class="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+                Descubre cómo la tecnología, el diseño y la estrategia colisionan para crear crecimiento explosivo.
+            </p>
+
+            <!-- Categories -->
+            <div class="flex flex-wrap justify-center gap-4 mt-10" id="category-filters">
+                <button data-category="all"
+                    class="category-pill active px-6 py-2 rounded-full border border-white/10 text-sm font-medium hover:bg-white/10 hover:border-white/30 transition-all">Todo</button>
+                <button data-category="ia"
+                    class="category-pill px-6 py-2 rounded-full border border-white/10 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all">Inteligencia
+                    Artificial</button>
+                <button data-category="seo"
+                    class="category-pill px-6 py-2 rounded-full border border-white/10 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all">SEO
+                    & Growth</button>
+                <button data-category="design"
+                    class="category-pill px-6 py-2 rounded-full border border-white/10 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all">Diseño
+                    Web</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Articles Grid -->
+    <section class="py-16 relative z-10">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- Article 1 (Featured) -->
+                <article data-category="ia"
+                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 border border-white/5 flex flex-col h-full">
+                    <div class="relative h-64 overflow-hidden">
+                        <!-- Using CSS gradient fallback if image missed, but we aim to replace with tool generated one -->
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-indigo-900 to-slate-900 flex items-center justify-center">
+                            <i class="fas fa-robot text-6xl text-white/20"></i>
+                        </div>
+                        <!-- Placeholder for when we generate the specific thumb -->
+                        <!-- <img src="images/blog/article1.jpg" class="article-image w-full h-full object-cover transition-transform duration-700" alt="AI in Business"> -->
+                        <div
+                            class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            IA & Tech
+                        </div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 text-slate-400 text-xs mb-4">
+                            <span><i class="far fa-calendar mr-1"></i> Dic 8, 2024</span>
+                            <span>•</span>
+                            <span>5 min lectura</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">
+                            Por qué tu negocio necesita IA en 2025 (y no es opción)
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                            La inteligencia artificial dejó de ser ciencia ficción. Descubre cómo los chatbots y la
+                            automatización están redefiniendo las ventas en México.
+                        </p>
+                        <a href="blog-post-1.html"
+                            class="inline-flex items-center text-primary font-bold hover:gap-2 transition-all">
+                            Leer Artículo <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Article 2 -->
+                <article data-category="seo"
+                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-accent/20 transition-all duration-300 border border-white/5 flex flex-col h-full opacity-75 hover:opacity-100">
+                    <div class="relative h-64 overflow-hidden bg-slate-800">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-purple-900 to-slate-900 flex items-center justify-center">
+                            <i class="fas fa-search text-6xl text-white/20"></i>
+                        </div>
+                        <div
+                            class="absolute top-4 left-4 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            SEO Local
+                        </div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 text-slate-400 text-xs mb-4">
+                            <span><i class="far fa-calendar mr-1"></i> Nov 25, 2024</span>
+                            <span>•</span>
+                            <span>4 min lectura</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 group-hover:text-accent transition-colors">
+                            Google Maps: El secreto para vencer a tu competencia local
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                            No necesitas ser una multinacional para rankear #1. Estrategias tácticas para dominar Cancún
+                            y Tulum.
+                        </p>
+                        <a href="#"
+                            class="inline-flex items-center text-accent font-bold hover:gap-2 transition-all cursor-not-allowed opacity-50">
+                            Próximamente <i class="fas fa-clock ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Article 3 -->
+                <article data-category="design"
+                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-highlight/20 transition-all duration-300 border border-white/5 flex flex-col h-full opacity-75 hover:opacity-100">
+                    <div class="relative h-64 overflow-hidden bg-slate-800">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-pink-900 to-slate-900 flex items-center justify-center">
+                            <i class="fas fa-paint-brush text-6xl text-white/20"></i>
+                        </div>
+                        <div
+                            class="absolute top-4 left-4 bg-highlight text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            Diseño Web
+                        </div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 text-slate-400 text-xs mb-4">
+                            <span><i class="far fa-calendar mr-1"></i> Nov 10, 2024</span>
+                            <span>•</span>
+                            <span>3 min lectura</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 group-hover:text-highlight transition-colors">
+                            Psicología del Color: Cómo vender más con tu diseño
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                            Los colores no son solo decoración. Aprende cómo influyen en la decisión de compra de tus
+                            clientes.
+                        </p>
+                        <a href="#"
+                            class="inline-flex items-center text-highlight font-bold hover:gap-2 transition-all cursor-not-allowed opacity-50">
+                            Próximamente <i class="fas fa-clock ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter / Lead Magnet CTA -->
+    <section class="py-20 bg-surface/30 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent">
+        </div>
+        <div class="container mx-auto px-4 relative z-10 text-center max-w-2xl">
+            <i class="far fa-envelope text-4xl text-primary mb-6 animate-bounce"></i>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Mantente a la vanguardia</h2>
+            <p class="text-slate-400 mb-8">
+                Recibe semanalmente estrategias probadas para escalar tu negocio. Sin spam, solo valor puro.
+            </p>
+            <form class="flex flex-col sm:flex-row gap-4">
+                <input type="email" placeholder="Tu mejor correo electrónico"
+                    class="flex-grow px-6 py-4 rounded-full bg-slate-900/50 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-primary transition-colors">
+                <button type="button"
+                    class="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-full shadow-lg shadow-primary/25 transition-all hover:scale-105">
+                    Suscribirme
+                </button>
+            </form>
+            <p class="text-xs text-slate-600 mt-4">
+                Al suscribirte aceptas nuestra <a href="privacy.html" class="underline hover:text-white">Política de
+                    Privacidad</a>.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer (Standard) -->
+    <footer class="border-t border-white/10 bg-slate-950 pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div
+                class="border-t border-white/5 pt-8 text-center text-slate-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <p>&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
+                <div class="flex gap-6">
+                    <a href="privacy.html" class="hover:text-primary transition-colors">Privacidad</a>
+                    <a href="terms.html" class="hover:text-primary transition-colors">Términos</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
+
+        // Category Filtering
+        const filterButtons = document.querySelectorAll('.category-pill');
+        const articles = document.querySelectorAll('.article-card');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active state
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('active', 'bg-primary', 'text-white', 'border-primary');
+                    btn.classList.add('text-slate-400', 'border-white/10');
+                });
+
+                button.classList.add('active');
+                // Note: The .active class in CSS handles the styling, but we ensure cleanliness
+                // If .active is just color, we rely on CSS:
+                // .category-pill.active { background-color: #6366f1; color: white; border-color: #6366f1; }
+
+                button.classList.remove('text-slate-400', 'border-white/10');
+
+                const category = button.dataset.category;
+
+                // Filter articles
+                articles.forEach(article => {
+                    if (category === 'all' || article.dataset.category === category) {
+                        article.classList.remove('hidden');
+                        article.classList.add('flex'); // Restore flex
+                        // Add fade in animation if desired
+                        article.style.animation = 'fadeIn 0.5s ease forwards';
+                    } else {
+                        article.classList.add('hidden');
+                        article.classList.remove('flex');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

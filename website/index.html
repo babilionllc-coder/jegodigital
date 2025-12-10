@@ -192,31 +192,12 @@
     <!-- Navigation -->
     <nav class="fixed w-full z-50 transition-all duration-300 glass-panel border-b border-white/5" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
+            <div class="flex justify-between items-center h-28">
                 <!-- Logo -->
                 <a href="index.html" class="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
-                    <div
-                        class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-white/10 group-hover:border-primary/50 transition-all duration-300 logo-glow overflow-hidden">
-                        <div class="absolute inset-0 bg-primary/20 blur-md group-hover:bg-primary/40 transition-all">
-                        </div>
-                        <!-- Abstract J Logo SVG -->
-                        <svg class="w-6 h-6 text-white relative z-10 drop-shadow-md" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12 4V20M12 20H8C6.89543 20 6 19.1046 6 18C6 16.8954 6.89543 16 8 16H12M12 4H16M12 4H8"
-                                stroke="url(#logo-gradient)" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <defs>
-                                <linearGradient id="logo-gradient" x1="6" y1="4" x2="16" y2="20"
-                                    gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#fff" />
-                                    <stop offset="1" stop-color="#a5b4fc" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
-                    <span
-                        class="font-bold text-xl tracking-tight text-white group-hover:text-primary transition-colors">JegoDigital</span>
+                    <img src="images/logo/logo1.png" alt="JegoDigital"
+                        class="h-24 w-auto hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+
                 </a>
 
                 <!-- Desktop Menu -->
@@ -227,12 +208,15 @@
                         class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Servicios</a>
                     <a href="portfolio.html" data-i18n="nav_portfolio"
                         class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Portafolio</a>
+                    <a href="blog.html" class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_blog">Insights</a>
                     <a href="nosotros.html" data-i18n="nav_about"
                         class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Nosotros</a>
 
                     <!-- Language Toggle -->
-                    <button id="lang-toggle" onclick="window.toggleLanguage()"
-                        class="flex items-center gap-1 text-sm font-medium text-slate-300 hover:text-white transition-colors border border-white/10 rounded-full px-3 py-1 hover:bg-white/5">
+                    <button
+                        class="lang-toggle-btn flex items-center gap-1 text-sm font-medium text-slate-300 hover:text-white transition-colors border border-white/10 rounded-full px-3 py-1 hover:bg-white/5"
+                        onclick="window.toggleLanguage()">
                         <span class="mr-1">🇺🇸</span> EN
                     </button>
 
@@ -253,15 +237,25 @@
         <div id="mobile-menu"
             class="hidden md:hidden glass-panel border-b border-white/5 absolute w-full left-0 top-20 bg-slate-900/95 backdrop-blur-xl">
             <div class="px-4 pt-2 pb-6 space-y-2">
-                <a href="index.html"
+                <a href="index.html" data-i18n="nav_home"
                     class="block px-3 py-3 rounded-md text-base font-medium text-white bg-primary/10 border-l-4 border-primary">Inicio</a>
-                <a href="servicios.html"
+                <a href="servicios.html" data-i18n="nav_services"
                     class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Servicios</a>
-                <a href="portfolio.html"
+                <a href="portfolio.html" data-i18n="nav_portfolio"
                     class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Portafolio</a>
-                <a href="nosotros.html"
+                <a href="blog.html" data-i18n="nav_blog"
+                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Insights</a>
+                <a href="nosotros.html" data-i18n="nav_about"
                     class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Nosotros</a>
-                <a href="contacto.html"
+
+                <!-- Mobile Language Toggle -->
+                <button
+                    class="lang-toggle-btn w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2"
+                    onclick="window.toggleLanguage()">
+                    <span class="mr-1">🇺🇸</span> EN
+                </button>
+
+                <a href="contacto.html" data-i18n="nav_contact"
                     class="block px-3 py-3 rounded-md text-base font-bold text-primary mt-4 text-center border border-primary/30 bg-primary/10">Contáctanos</a>
             </div>
         </div>
@@ -465,8 +459,13 @@
                 </div>
             </div>
 
-            <div class="border-t border-white/5 pt-8 text-center text-slate-500 text-sm">
+            <div
+                class="border-t border-white/5 pt-8 text-center text-slate-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
                 <p data-i18n="footer_rights">&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
+                <div class="flex gap-6">
+                    <a href="privacy.html" class="hover:text-primary transition-colors">Privacidad</a>
+                    <a href="terms.html" class="hover:text-primary transition-colors">Términos</a>
+                </div>
             </div>
         </div>
     </footer>
@@ -486,11 +485,8 @@
         <!-- Header -->
         <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-2xl">
             <div class="flex items-center gap-3">
-                <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30 relative">
-                    <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
-                    <i class="fas fa-robot text-white text-lg relative z-10"></i>
-                </div>
+                <img src="images/avatar-bot.svg" alt="AI Agent"
+                    class="h-24 w-auto rounded-full shadow-lg shadow-primary/50 border border-white/20 bg-slate-900 object-cover">
                 <div>
                     <h3 class="font-bold text-white text-sm">JegoDigital AI Agent</h3>
                     <p class="text-xs text-slate-400">Concierge Digital 24/7</p>
@@ -525,7 +521,7 @@
                     <i class="fas fa-microphone"></i>
                 </button>
                 <button id="chat-send-btn"
-                    class="p-2 w-8 h-8 flex items-center justify-center bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                    class="p-2 h-8 w-auto flex items-center justify-center bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
                     <i class="fas fa-paper-plane text-xs"></i>
                 </button>
             </div>

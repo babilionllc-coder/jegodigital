@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora ROI Marketing | JegoDigital</title>
+    <!-- Fonts & Scripts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        background: '#0f172a',
+                        surface: '#1e293b',
+                        primary: '#6366f1',
+                        accent: '#8b5cf6',
+                        success: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-white antialiased min-h-screen flex flex-col">
+
+    <!-- Nav -->
+    <nav class="fixed w-full z-50 glass-panel border-b border-white/5 h-20 flex items-center">
+        <div class="max-w-7xl w-full mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2">
+                <img src="images/logo/logo1.png" alt="JegoDigital" class="h-12 w-auto">
+                <span class="font-bold text-lg">JegoDigital</span>
+            </a>
+            <a href="index.html" class="text-sm text-slate-300 hover:text-white"><i class="fas fa-times"></i> Cerrar
+                Herramienta</a>
+        </div>
+    </nav>
+
+    <div class="flex-grow pt-32 pb-12 px-4 container mx-auto">
+        <div class="max-w-4xl mx-auto text-center mb-12">
+            <span class="text-success font-bold tracking-widest uppercase text-xs mb-2 block">Herramienta
+                Gratuita</span>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Calculadora de Impacto Digital</h1>
+            <p class="text-slate-400">Descubre cuánto dinero estás dejando sobre la mesa por no optimizar tu conversión
+                online.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 items-start">
+            <!-- Inputs -->
+            <div class="glass-panel p-8 rounded-3xl space-y-8">
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="font-bold text-slate-300">Visitantes Mensuales (Web)</label>
+                        <span class="text-primary font-mono" id="val-traffic">1,000</span>
+                    </div>
+                    <input type="range" id="in-traffic" min="100" max="50000" step="100" value="1000">
+                    <p class="text-xs text-slate-500 mt-2">Cuántas personas entran a tu sitio al mes.</p>
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="font-bold text-slate-300">Tasa de Conversión Actual (%)</label>
+                        <span class="text-primary font-mono" id="val-conv">1.0%</span>
+                    </div>
+                    <input type="range" id="in-conv" min="0.1" max="5.0" step="0.1" value="1.0">
+                    <p class="text-xs text-slate-500 mt-2">Qué porcentaje te contacta o compra (Promedio industria:
+                        1-2%).</p>
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="font-bold text-slate-300">Valor Promedio por Cliente (MXN)</label>
+                        <span class="text-primary font-mono" id="val-ticket">$1,000</span>
+                    </div>
+                    <input type="range" id="in-ticket" min="500" max="50000" step="500" value="1000">
+                    <p class="text-xs text-slate-500 mt-2">Cuánto gasta un cliente promedio en una compra.</p>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="glass-panel p-8 rounded-3xl border border-primary/20 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+
+                <h3 class="text-xl font-bold mb-6 text-center">Proyección Mensual</h3>
+
+                <div class="space-y-6">
+                    <div class="flex justify-between items-end pb-4 border-b border-white/10">
+                        <span class="text-slate-400">Ingresos Actuales</span>
+                        <span class="text-2xl font-bold text-slate-300" id="res-current">$10,000</span>
+                    </div>
+
+                    <div class="flex justify-between items-end pb-4 border-b border-white/10">
+                        <div class="text-left">
+                            <span class="text-success font-bold block">Ingresos Optimizados</span>
+                            <span class="text-xs text-slate-500">Con Estrategia JegoDigital (+150% Conv)</span>
+                        </div>
+                        <span class="text-4xl font-bold text-success" id="res-optimized">$25,000</span>
+                    </div>
+
+                    <div class="bg-white/5 p-4 rounded-xl text-center mt-6">
+                        <p class="text-sm text-slate-400 mb-1">Potencial Anual Extra</p>
+                        <p class="text-3xl font-extrabold text-white" id="res-diff">$180,000</p>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <button
+                        class="w-full py-4 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-bold rounded-xl shadow-lg shadow-primary/25 transition-all transform hover:scale-[1.02]">
+                        Obtener Plan de Acción Gratis
+                    </button>
+                    <p class="text-xs text-center text-slate-500 mt-3">Te enviaremos un reporte personalizado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Logic
+        const trafficIn = document.getElementById('in-traffic');
+        const convIn = document.getElementById('in-conv');
+        const ticketIn = document.getElementById('in-ticket');
+
+        const trafficVal = document.getElementById('val-traffic');
+        const convVal = document.getElementById('val-conv');
+        const ticketVal = document.getElementById('val-ticket');
+
+        const resCurrent = document.getElementById('res-current');
+        const resOptimized = document.getElementById('res-optimized');
+        const resDiff = document.getElementById('res-diff');
+
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(num);
+        }
+
+        function calculate() {
+            const traffic = parseInt(trafficIn.value);
+            const conv = parseFloat(convIn.value);
+            const ticket = parseInt(ticketIn.value);
+
+            // Update UI Labels
+            trafficVal.innerText = traffic.toLocaleString();
+            convVal.innerText = conv.toFixed(1) + '%';
+            ticketVal.innerText = formatCurrency(ticket);
+
+            // Calc
+            const currentRevenue = traffic * (conv / 100) * ticket;
+            // Assumption: JegoDigital optimizes conversion by 2.5x (conservative for bad sites) or +50% for good ones.
+            // Let's use a dynamic multiplier based on base conversion. If low (0.5), we can do 2.0. If high (3.0), we do 4.5.
+            // Let's simplified: Target Conversion = Current + 1.5% (E.g. 1% -> 2.5%)
+            const targetConv = conv + 1.5;
+            const optimizedRevenue = traffic * (targetConv / 100) * ticket;
+
+            const extraMonthly = optimizedRevenue - currentRevenue;
+            const extraYearly = extraMonthly * 12;
+
+            resCurrent.innerText = formatCurrency(currentRevenue);
+            resOptimized.innerText = formatCurrency(optimizedRevenue);
+            resDiff.innerText = formatCurrency(extraYearly);
+        }
+
+        // Listeners
+        [trafficIn, convIn, ticketIn].forEach(el => el.addEventListener('input', calculate));
+
+        // Init
+        calculate();
+    </script>
+</body>
+
+</html>

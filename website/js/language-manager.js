@@ -17,13 +17,14 @@ class LanguageManager {
         window.toggleLanguage = () => this.toggleLanguage();
 
         // Attach event listener directly (Robust way)
-        const btn = document.getElementById('lang-toggle');
-        if (btn) {
+        // Attach event listener to ALL toggle buttons (Desktop & Mobile)
+        const btns = document.querySelectorAll('.lang-toggle-btn');
+        btns.forEach(btn => {
             btn.onclick = (e) => {
                 e.preventDefault();
                 this.toggleLanguage();
             };
-        }
+        });
     }
 
     toggleLanguage() {
@@ -50,16 +51,13 @@ class LanguageManager {
         });
 
         // Update Toggle Button Icon/Text if it exists
-        const toggleBtn = document.getElementById('lang-toggle');
-        if (toggleBtn) {
-            // Simple approach: Show the flag of the OTHER language (to switch to)
-            // Or show current. Let's show Current for clarity.
-            // Actually standard is usually: Show the flag of the language you will switch TO, or both.
-            // Let's settle on: Show [FLAG] EN  / [FLAG] ES
-            toggleBtn.innerHTML = lang === 'es'
+        // Update Toggle Button Icon/Text (Handle Multiple Buttons)
+        const toggleBtns = document.querySelectorAll('.lang-toggle-btn');
+        toggleBtns.forEach(btn => {
+            btn.innerHTML = lang === 'es'
                 ? '<span class="mr-1">🇺🇸</span> EN'
                 : '<span class="mr-1">🇲🇽</span> ES';
-        }
+        });
 
         // Dispatch Event for other components (like Chat Widget)
         window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang, translations: this.translations[lang] } }));

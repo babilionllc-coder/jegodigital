@@ -11,6 +11,7 @@ let isListening = false;
 let isOpen = false;
 let recognition = null;
 let currentLang = 'es'; // Default
+let currentTranslations = {}; // Store translations
 let systemPrompt = `Eres el Agente IA de JegoDigital, una agencia de marketing premium en México.
     Tu tono es: Sofisticado, profesional, pero accesible y moderno (estilo 'concierge de lujo').`;
 
@@ -29,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener('languageChanged', (e) => {
         const { lang, translations } = e.detail;
         currentLang = lang;
+        currentTranslations = translations;
 
         // Update Static Text
         document.querySelector('#chat-container h3').innerText = translations.chat_agent_name;
@@ -129,7 +131,7 @@ async function handleSend() {
         checkForActions(responseText);
     } catch (error) {
         removeTypingIndicator();
-        addMessage("Lo siento, tuve un problema conectando con mi cerebro digital. Intenta de nuevo.", 'bot');
+        addMessage(currentTranslations.chat_error || "Error connecting.", 'bot');
         console.error(error);
     }
 }
