@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière Command Center | Global Overview</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        black: '#0a0a0a',
+                        surface: '#111111',
+                        gold: '#D4AF37',
+                        success: '#10B981',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hacker-text {
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+        }
+
+        .grid-bg {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Terminal Scrollbar */
+        .terminal-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white font-sans h-screen flex overflow-hidden selection:bg-gold/20">
+
+    <!-- Sidebar -->
+    <aside class="w-20 lg:w-64 border-r border-white/5 flex flex-col items-center lg:items-start py-8 bg-surface z-20">
+        <div class="px-6 mb-12 flex items-center gap-3">
+            <i class="fas fa-cube text-gold text-2xl"></i>
+            <span class="text-lg font-bold tracking-widest hidden lg:block">JEGODIGITAL</span>
+        </div>
+
+        <nav class="flex-1 w-full space-y-2 px-2 lg:px-4">
+            <a href="#"
+                class="flex items-center gap-4 px-4 py-3 bg-white/5 rounded-lg text-gold border border-gold/20 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+                <i class="fas fa-chart-line"></i>
+                <span class="hidden lg:block font-mono text-sm">Dashboard</span>
+            </a>
+            <a href="#"
+                class="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                <i class="fas fa-comments"></i>
+                <span class="hidden lg:block font-mono text-sm">Conversations</span>
+            </a>
+            <a href="#"
+                class="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                <i class="fas fa-users"></i>
+                <span class="hidden lg:block font-mono text-sm">Leads CRM</span>
+            </a>
+            <a href="#"
+                class="flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                <i class="fas fa-cog"></i>
+                <span class="hidden lg:block font-mono text-sm">Settings</span>
+            </a>
+        </nav>
+
+        <div class="px-6 w-full hidden lg:block">
+            <div class="p-4 rounded-xl border border-white/5 bg-gradient-to-br from-white/5 to-transparent">
+                <div class="text-[10px] text-slate-400 uppercase mb-2">System Status</div>
+                <div class="flex items-center gap-2 text-success font-mono text-xs">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    OPERATIONAL
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col relative">
+        <div class="absolute inset-0 grid-bg opacity-20 pointer-events-none"></div>
+
+        <!-- Header -->
+        <header
+            class="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-black/50 backdrop-blur-md sticky top-0 z-10">
+            <div>
+                <h1 class="text-xl font-bold text-white">Lumière Global Overview</h1>
+                <div class="flex items-center gap-2 text-xs text-slate-400 font-mono mt-1">
+                    <i class="fas fa-clock"></i>
+                    <span id="clock">12:00:00 UTC</span>
+                    <span class="text-gold">•</span>
+                    <span>Client: La Isla Maison</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button
+                    class="px-4 py-2 bg-gold/10 text-gold border border-gold/30 rounded text-xs font-mono hover:bg-gold hover:text-black transition-colors">
+                    <i class="fas fa-file-export mr-2"></i>EXPORT REPORT
+                </button>
+                <div class="w-10 h-10 rounded-full bg-slate-800 border border-white/10 overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random" class="w-full h-full">
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-8 overflow-y-auto flex-1">
+
+            <!-- Top Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <!-- Stat 1 -->
+                <div class="glass p-6 rounded-2xl border-l-2 border-gold relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-coins text-6xl text-gold"></i>
+                    </div>
+                    <div class="text-slate-400 text-xs font-mono uppercase tracking-widest mb-2">Total Revenue (24h)
+                    </div>
+                    <div class="text-3xl font-bold font-mono text-white">$12,450.00</div>
+                    <div class="text-xs text-success mt-2 flex items-center gap-1">
+                        <i class="fas fa-arrow-up"></i> +32.5% vs yesterday
+                    </div>
+                </div>
+
+                <!-- Stat 2 -->
+                <div class="glass p-6 rounded-2xl border-l-2 border-purple-500 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-comment-dots text-6xl text-purple-500"></i>
+                    </div>
+                    <div class="text-slate-400 text-xs font-mono uppercase tracking-widest mb-2">Active Conversations
+                    </div>
+                    <div class="text-3xl font-bold font-mono text-white">142</div>
+                    <div class="text-xs text-purple-400 mt-2 flex items-center gap-1">
+                        <i class="fas fa-robot"></i> 138 handled by AI
+                    </div>
+                </div>
+
+                <!-- Stat 3 -->
+                <div class="glass p-6 rounded-2xl border-l-2 border-blue-500 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-ticket-alt text-6xl text-blue-500"></i>
+                    </div>
+                    <div class="text-slate-400 text-xs font-mono uppercase tracking-widest mb-2">VIP Passes Issued</div>
+                    <div class="text-3xl font-bold font-mono text-white">28</div>
+                    <div class="text-xs text-blue-400 mt-2 flex items-center gap-1">
+                        <i class="fas fa-check"></i> 12 Visited Store
+                    </div>
+                </div>
+
+                <!-- Stat 4 -->
+                <div class="glass p-6 rounded-2xl border-l-2 border-green-500 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-bolt text-6xl text-green-500"></i>
+                    </div>
+                    <div class="text-slate-400 text-xs font-mono uppercase tracking-widest mb-2">Conversion Rate</div>
+                    <div class="text-3xl font-bold font-mono text-white">8.4%</div>
+                    <div class="text-xs text-slate-500 mt-2">Industry avg: 2.1%</div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="grid lg:grid-cols-3 gap-8 h-[500px]">
+
+                <!-- Chart Area -->
+                <div class="lg:col-span-2 glass rounded-2xl p-6 flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-chart-area text-gold"></i> Live Sales Velocity
+                        </h3>
+                        <div class="flex gap-2">
+                            <span class="px-2 py-1 bg-white/5 rounded text-[10px] text-slate-400">1H</span>
+                            <span class="px-2 py-1 bg-gold/20 text-gold rounded text-[10px]">24H</span>
+                            <span class="px-2 py-1 bg-white/5 rounded text-[10px] text-slate-400">7D</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative w-full h-full">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Hacker Terminal -->
+                <div
+                    class="glass rounded-2xl p-0 flex flex-col overflow-hidden border border-green-500/20 shadow-[0_0_20px_rgba(16,185,129,0.05)]">
+                    <div class="bg-black/50 p-3 border-b border-white/5 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        </div>
+                        <div class="font-mono text-[10px] text-slate-500">IP: 192.168.X.X // NODE_LUMIERE_01</div>
+                    </div>
+                    <div id="terminal-logs"
+                        class="flex-1 bg-black p-4 font-mono text-xs text-green-500 overflow-y-auto terminal-scroll space-y-2">
+                        <!-- Logs injected via JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Dashboard Configuration Data
+        const DASHBOARD_DATA = {
+            'default': {
+                name: "Lumière Analytics",
+                color: "text-blue-400",
+                bg: "bg-blue-500",
+                revenue: "$124,500",
+                leads: "42",
+                conversion: "18%",
+                logs: [
+                    { time: "10:42 AM", msg: "AI scheduled appointment for tomorrow at 2 PM." },
+                    { time: "10:30 AM", msg: "Lead qualified: High Budget ($5k+)." },
+                    { time: "10:15 AM", msg: "Answered generic inquiry about pricing." }
+                ]
+            },
+            'jewelry': {
+                name: "La Isla Maison",
+                color: "text-amber-400",
+                bg: "bg-amber-500",
+                revenue: "$842,000",
+                leads: "18",
+                conversion: "24%",
+                logs: [
+                    { time: "12:15 PM", msg: "AI showcased 'Diamond Tennis Bracelet' (Ref: 9928)." },
+                    { time: "11:45 AM", msg: "Captured VIP Client details for private viewing." },
+                    { time: "11:10 AM", msg: "Sent catalog for 'Summer Collection'." }
+                ]
+            },
+            'realestate': {
+                name: "Lumière Estates",
+                color: "text-blue-400",
+                bg: "bg-blue-600",
+                revenue: "$12.5M",
+                leads: "8",
+                conversion: "12%",
+                logs: [
+                    { time: "09:30 AM", msg: "Viewing scheduled: Penthouse B (Ocean View)." },
+                    { time: "09:15 AM", msg: "Lead qualified: Investment Buyer ($2M+)." },
+                    { time: "08:50 AM", msg: "Provided details on HOA fees and amenities." }
+                ]
+            },
+            'medspa': {
+                name: "Aura MedSpa",
+                color: "text-teal-400",
+                bg: "bg-teal-500",
+                revenue: "$48,200",
+                leads: "35",
+                conversion: "42%",
+                logs: [
+                    { time: "02:10 PM", msg: "Booked: Botox Consultation (New Patient)." },
+                    { time: "01:45 PM", msg: "Answered query about post-treatment recovery." },
+                    { time: "01:20 PM", msg: "Sent reminder for upcoming Hydrafacial." }
+                ]
+            },
+            'auto': {
+                name: "Velocity Motors",
+                color: "text-red-500",
+                bg: "bg-red-600",
+                revenue: "$1.2M",
+                leads: "14",
+                conversion: "9%",
+                logs: [
+                    { time: "03:45 PM", msg: "Test Drive Scheduled: McLaren 720S." },
+                    { time: "03:10 PM", msg: "Provided lease terms for Ferrari Roma." },
+                    { time: "02:30 PM", msg: "Lead Detection: Interested in 'Track Pack'." }
+                ]
+            },
+            'hotel': {
+                name: "The Grand Onyx",
+                color: "text-amber-200",
+                bg: "bg-amber-600",
+                revenue: "$320,500",
+                leads: "56",
+                conversion: "38%",
+                logs: [
+                    { time: "06:20 PM", msg: "Room Service: Champagne & Caviar ordered." },
+                    { time: "06:05 PM", msg: "Concierge: Booked table at 'Le Ciel'." },
+                    { time: "05:45 PM", msg: "Guest checked in online via AI link." }
+                ]
+            },
+            'yacht': {
+                name: "Azure Charters",
+                color: "text-cyan-400",
+                bg: "bg-cyan-500",
+                revenue: "$180,000",
+                leads: "12",
+                conversion: "15%",
+                logs: [
+                    { time: "11:20 AM", msg: "Charter Booked: 4hr Sunset Cruise (Tulum)." },
+                    { time: "10:50 AM", msg: "AI confirmed catering: Sushi Platter + Champagne." },
+                    { time: "10:15 AM", msg: "Inquiry: 'Azimut 55' availability for Saturday." }
+                ]
+            },
+            'wedding': {
+                name: "Eternal Vows",
+                color: "text-rose-300",
+                bg: "bg-rose-400",
+                revenue: "$550,000",
+                leads: "45",
+                conversion: "22%",
+                logs: [
+                    { time: "04:15 PM", msg: "Venue Tour Sccheduled: Beachfront Gazebo." },
+                    { time: "03:30 PM", msg: "AI answered FAQs about guest capacity (150+)." },
+                    { time: "02:45 PM", msg: "Sent Catering Menu PDF to bride." }
+                ]
+            },
+            'nightlife': {
+                name: "Nocturne VIP",
+                color: "text-purple-500",
+                bg: "bg-purple-600",
+                revenue: "$35,000",
+                leads: "88",
+                conversion: "65%",
+                logs: [
+                    { time: "11:55 PM", msg: "Table Confirmed: Zone A (Bottle Service)." },
+                    { time: "11:30 PM", msg: "Guest List: Added 'Mike + 4'." },
+                    { time: "11:15 PM", msg: "AI handled promoter inquiry." }
+                ]
+            },
+            'dental': {
+                name: "Smile Riviera",
+                color: "text-sky-300",
+                bg: "bg-sky-500",
+                revenue: "$210,000",
+                leads: "28",
+                conversion: "30%",
+                logs: [
+                    { time: "09:45 AM", msg: "Consultation Booked: Full Arch Implant." },
+                    { time: "09:30 AM", msg: "AI explained 'All-on-4' recovery process." },
+                    { time: "09:10 AM", msg: "Patient transport arranged from Hotel Zone." }
+                ]
+            },
+            'ecotourism': {
+                name: "Maya Adventures",
+                color: "text-emerald-400",
+                bg: "bg-emerald-600",
+                revenue: "$42,500",
+                leads: "60",
+                conversion: "45%",
+                logs: [
+                    { time: "08:15 AM", msg: "Tour Booked: Private Cenote Dive." },
+                    { time: "08:00 AM", msg: "AI confirmed pickup location: Playacar." },
+                    { time: "07:45 AM", msg: "Sent packing list (Biodegradable sunscreen)." }
+                ]
+            }
+        };
+
+        // Initialize
+        const urlParams = new URLSearchParams(window.location.search);
+        const industry = urlParams.get('industry') || 'default';
+        const config = DASHBOARD_DATA[industry] || DASHBOARD_DATA['default'];
+
+        // Apply Configuration
+        document.getElementById('brand-name').innerText = config.name;
+        document.getElementById('stat-revenue').innerText = config.revenue;
+        document.getElementById('stat-leads').innerText = config.leads;
+        document.getElementById('stat-conversion').innerText = config.conversion;
+
+        // Apply dynamic log rendering
+        const logContainer = document.getElementById('terminal-logs');
+        logContainer.innerHTML = ''; // Clear defaults
+        config.logs.forEach(log => {
+            const div = document.createElement('div');
+            div.className = "flex items-start space-x-3 mb-3 border-b border-gray-800 pb-2";
+            div.innerHTML = `
+                <span class="${config.color} font-mono text-xs whitespace-nowrap">[${log.time}]</span>
+                <span class="text-gray-300 text-sm">${log.msg}</span>
+            `;
+            logContainer.appendChild(div);
+        });
+
+        // Set Back Link to correct demo
+        // (Optional: Logic to guess previous demo or just go to hub)
+
+        // Clock Update
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toISOString().slice(11, 19) + " UTC";
+        }, 1000);
+
+        // Chart.js Setup
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(212, 175, 55, 0.5)'); // Gold
+        gradient.addColorStop(1, 'rgba(212, 175, 55, 0)');
+
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', 'Now'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [1200, 1900, 3500, 8400, 9200, 11000, 12450],
+                    borderColor: '#D4AF37',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#000',
+                    pointBorderColor: '#D4AF37',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#666', callback: (val) => '$' + val }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#666' }
+                    }
+                }
+            }
+        });
+
+        // Hacker Terminal Simulation
+        const terminal = document.getElementById('terminal');
+        const logs = [
+            "Initializing Neural Core v2.1...",
+            "Connected to Shopify Store: La Isla Maison",
+            "Listening on port 8080...",
+            "[INFO] Visitor #8921 detected from Miami, FL",
+            "[AI] Analyzing session behavior: High intent",
+            "[CHAT] Sofia engaged with Visitor #8921",
+            "[VOICE] Generating speech packet (Paulina_ES)...",
+            "[VISION] Analyzing image upload: IMG_4421.jpg",
+            "[VISION] Match found: Tahitian Pearl (98% confidence)",
+            "[SALES] Product recommended: SKU-8821",
+            "[CONVERSION] User clicked 'Reserve'",
+            "[SUCCESS] VIP Pass generated for Visitor #8921",
+            "[REVENUE] Potential value: $2,200",
+            "[INFO] Visitor #8922 detected from Madrid, ES"
+        ];
+
+        let logIndex = 0;
+
+        function addLog() {
+            const div = document.createElement('div');
+            const timestamp = new Date().toISOString().slice(11, 19);
+            div.innerHTML = `<span class="opacity-50">[${timestamp}]</span> ${logs[logIndex % logs.length]}`;
+            if (div.innerText.includes("[SUCCESS]")) div.classList.add("text-gold", "font-bold");
+            if (div.innerText.includes("[REVENUE]")) div.classList.add("text-white");
+
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+            logIndex++;
+
+            // Random delay for next log
+            setTimeout(addLog, Math.random() * 2000 + 500);
+        }
+
+        // Add detailed logs
+        const specificLogs = [
+            "System check complete.",
+            "Memory usage: 14%",
+            "Latency: 24ms",
+            "Google Gemini API: Connected"
+        ];
+
+        specificLogs.forEach(log => {
+            const div = document.createElement('div');
+            div.innerHTML = `<span class="opacity-50">[INIT]</span> ${log}`;
+            terminal.appendChild(div);
+        });
+
+        // Start loop
+        setTimeout(addLog, 1000);
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura MedSpa | Wellness & Beauty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], serif: ['Playfair Display', 'serif'] },
+                    colors: { primary: '#14b8a6', surface: '#f0fdfa' }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-white text-slate-800 antialiased">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-40 bg-white/90 backdrop-blur-md border-b border-teal-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-teal-600">
+                <i class="fas fa-spa text-2xl"></i>
+                <div class="font-serif text-2xl tracking-wide text-slate-800">Aura <span
+                        class="italic text-teal-500">MedSpa</span></div>
+            </div>
+            <div class="hidden md:flex gap-8 text-xs tracking-widest font-bold text-slate-500">
+                <a href="#" class="hover:text-teal-600 transition-colors">TREATMENTS</a>
+                <a href="#" class="hover:text-teal-600 transition-colors">MEMBERSHIP</a>
+                <a href="#" class="hover:text-teal-600 transition-colors">ABOUT</a>
+            </div>
+            <button
+                class="px-6 py-2 bg-teal-600 text-white rounded-full text-xs font-bold tracking-widest hover:bg-teal-700 transition-all shadow-lg shadow-teal-200">BOOK
+                NOW</button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="h-[90vh] relative flex items-center justify-center overflow-hidden bg-teal-50">
+        <div class="absolute inset-0">
+            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=2670&auto=format&fit=crop"
+                class="w-full h-full object-cover opacity-80">
+        </div>
+        <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+
+        <div class="relative z-10 text-center max-w-3xl px-4">
+            <h1 class="text-5xl md:text-7xl font-serif mb-6 text-slate-900">Rediscover Your <br><span
+                    class="italic text-teal-600">Radiance</span></h1>
+            <p class="text-slate-600 text-lg mb-8 max-w-lg mx-auto">Luxury aesthetic treatments tailored to your unique
+                beauty profile.</p>
+        </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="py-24 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <div class="text-teal-500 text-xs font-bold tracking-widest uppercase mb-2">Our Menu</div>
+                <h2 class="text-3xl font-serif text-slate-900">Signature Treatments</h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="group bg-teal-50 rounded-2xl overflow-hidden hover:shadow-xl transition-all cursor-pointer">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=crop"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-serif text-2xl mb-2 text-slate-800">HydraFacial Elite</h3>
+                        <p class="text-slate-500 text-sm mb-4">Deep cleansing, exfoliation, and hydration for an instant
+                            glow.</p>
+                        <div class="text-teal-600 font-bold">$199 / Session</div>
+                    </div>
+                </div>
+                <!-- Service 2 -->
+                <div class="group bg-teal-50 rounded-2xl overflow-hidden hover:shadow-xl transition-all cursor-pointer">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=2670&auto=format&fit=crop"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-serif text-2xl mb-2 text-slate-800">Botox & Fillers</h3>
+                        <p class="text-slate-500 text-sm mb-4">Minimize fine lines and restore volume with expert
+                            precision.</p>
+                        <div class="text-teal-600 font-bold">From $12 / Unit</div>
+                    </div>
+                </div>
+                <!-- Service 3 -->
+                <div class="group bg-teal-50 rounded-2xl overflow-hidden hover:shadow-xl transition-all cursor-pointer">
+                    <div class="h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=2535&auto=format&fit=crop"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-serif text-2xl mb-2 text-slate-800">Laser Rejuvenation</h3>
+                        <p class="text-slate-500 text-sm mb-4">Target sun damage, redness, and uneven texture.</p>
+                        <div class="text-teal-600 font-bold">$350 / Area</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Widget Integration -->
+    <div id="lumiere-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div id="chat-container"
+            class="hidden w-[350px] md:w-[400px] h-[600px] bg-white/95 backdrop-blur-xl border border-teal-100 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 transform origin-bottom-right scale-90 opacity-0 mb-4">
+            <div class="h-16 bg-teal-50 border-b border-teal-100 flex items-center px-6 gap-4">
+                <div class="relative">
+                    <div
+                        class="w-10 h-10 rounded-full border border-teal-200 flex items-center justify-center overflow-hidden bg-white">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Aura&backgroundColor=transparent"
+                            class="w-full h-full">
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
+                    </div>
+                </div>
+                <div>
+                    <div class="font-serif font-medium text-slate-800">Aura AI</div>
+                    <div class="text-[10px] text-teal-600 tracking-widest uppercase">Wellness Guide</div>
+                </div>
+            </div>
+            <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50"></div>
+            <div class="p-4 bg-white border-t border-slate-100">
+                <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+                <div
+                    class="relative flex items-center bg-slate-50 border border-slate-200 rounded-full px-4 py-2 focus-within:border-teal-400 transition-colors">
+                    <input type="text" id="chat-input" placeholder="Ask about treatments..."
+                        class="bg-transparent border-none outline-none text-sm text-slate-700 w-full mr-2 placeholder:text-slate-400">
+                    <div class="flex gap-2">
+                        <button id="chat-image-btn" class="text-slate-400 hover:text-teal-600 transition-colors p-1"><i
+                                class="fas fa-camera"></i></button>
+                        <button id="chat-mic-btn" class="text-slate-400 hover:text-teal-600 transition-colors p-1"><i
+                                class="fas fa-microphone"></i></button>
+                        <button id="chat-send-btn"
+                            class="text-teal-500 hover:text-teal-700 transition-colors p-1 transform rotate-45"><i
+                                class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="chat-toggle-btn"
+            class="group relative w-16 h-16 bg-teal-600 text-white rounded-full shadow-[0_10px_30px_rgba(20,184,166,0.3)] flex items-center justify-center hover:scale-110 transition-transform duration-300">
+            <i class="fas fa-spa text-2xl"></i>
+            <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-4 w-4 bg-teal-500"></span>
+            </span>
+        </button>
+    </div>
+
+    <!-- Lumière Config -->
+    <script>
+        window.LUMIERE_CONFIG = {
+            name: "Aura",
+            role: "Wellness Assistant",
+            identity: "You are Aura, the AI Wellness Assistant for 'Aura Medical Spa'. You are calming, knowledgeable about dermatology and aesthetics, and organized.",
+            personality: "Calm, empathetic, professional, reassuring. Uses terms like 'glow', 'radiance', 'rejuvenation'.",
+            goal: "Book a consultation or treatment appointment.",
+            inventory: `
+            - HydraFacial Elite ($199) - 30 min. Best for immediate glow, events.
+            - Botox ($12/unit) - Wrinkle reduction. Requires consultation.
+            - Laser Genesis ($350) - Collagen stimulation, redness reduction. Minimal downtime.
+            - CoolSculpting ($600/cycle) - Fat freezing.
+            `,
+            color: "#14b8a6", // Teal
+            welcome: "🌿 Welcome to Aura MedSpa. I'm here to help you begin your journey to radiance. How can I assist you today?"
+        };
+    </script>
+    <script type="module" src="js/demo-chat.js"></script>
+</body>
+
+</html>

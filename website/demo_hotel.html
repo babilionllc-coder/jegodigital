@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Grand Onyx | Luxury Hospitality</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Lato', 'sans-serif'], serif: ['Cormorant Garamond', 'serif'] },
+                    colors: { gold: '#bf9b30', surface: '#0f0f0f' }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-[#050505] text-white antialiased">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-40 bg-black/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="font-serif text-3xl tracking-widest uppercase">The Grand <span class="text-gold">Onyx</span>
+            </div>
+            <div class="hidden md:flex gap-10 text-xs tracking-[0.2em] uppercase text-slate-400">
+                <a href="#" class="hover:text-gold transition-colors">Suites</a>
+                <a href="#" class="hover:text-gold transition-colors">Dining</a>
+                <a href="#" class="hover:text-gold transition-colors">Wellness</a>
+            </div>
+            <button
+                class="px-6 py-2 border border-gold text-gold hover:bg-gold hover:text-black transition-all text-xs tracking-widest uppercase">Reserve</button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="h-screen relative flex items-center justify-center overflow-hidden">
+        <div
+            class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-50">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-black/30"></div>
+
+        <div class="relative z-10 text-center max-w-4xl px-4">
+            <div class="text-gold text-sm tracking-[0.3em] uppercase mb-4">Five Star Experience</div>
+            <h1 class="text-6xl md:text-8xl font-serif mb-8 italic">Unparalleled <br> <span
+                    class="text-gold">Service</span></h1>
+        </div>
+    </section>
+
+    <!-- Amenities Grid -->
+    <section class="py-24 bg-[#050505] relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-serif text-white italic">Curated Experiences</h2>
+                <div class="h-px w-24 bg-gold mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-0">
+                <!-- 1 -->
+                <div class="group relative aspect-[3/4] overflow-hidden cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=2574&auto=format&fit=crop"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-70 group-hover:opacity-100">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    <div class="absolute bottom-8 left-8">
+                        <div class="text-gold text-xs uppercase tracking-widest mb-2">Suites</div>
+                        <h3 class="font-serif text-3xl">Presidential View</h3>
+                    </div>
+                </div>
+                <!-- 2 -->
+                <div class="group relative aspect-[3/4] overflow-hidden cursor-pointer border-x border-white/5">
+                    <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2670&auto=format&fit=crop"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-70 group-hover:opacity-100">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    <div class="absolute bottom-8 left-8">
+                        <div class="text-gold text-xs uppercase tracking-widest mb-2">Dining</div>
+                        <h3 class="font-serif text-3xl">Chef's Table</h3>
+                    </div>
+                </div>
+                <!-- 3 -->
+                <div class="group relative aspect-[3/4] overflow-hidden cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2670&auto=format&fit=crop"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-70 group-hover:opacity-100">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    <div class="absolute bottom-8 left-8">
+                        <div class="text-gold text-xs uppercase tracking-widest mb-2">Wellness</div>
+                        <h3 class="font-serif text-3xl">The Onyx Spa</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Widget Integration -->
+    <div id="lumiere-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div id="chat-container"
+            class="hidden w-[350px] md:w-[400px] h-[600px] bg-[#0a0a0a]/95 backdrop-blur-xl border border-gold/20 rounded-t-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 transform origin-bottom-right scale-90 opacity-0 mb-4">
+            <div class="h-16 bg-[#111] border-b border-gold/10 flex items-center px-6 gap-4">
+                <div class="relative">
+                    <div
+                        class="w-10 h-10 rounded-full border border-gold/50 flex items-center justify-center overflow-hidden bg-black">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Pierre&backgroundColor=transparent"
+                            class="w-full h-full">
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-black rounded-full">
+                    </div>
+                </div>
+                <div>
+                    <div class="font-serif font-medium text-white italic">Pierre</div>
+                    <div class="text-[10px] text-gold tracking-widest uppercase">Head Concierge</div>
+                </div>
+            </div>
+            <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4 bg-black/50 custom-scrollbar"></div>
+            <div class="p-4 bg-[#111] border-t border-white/5">
+                <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+                <div
+                    class="relative flex items-center bg-black border border-white/10 rounded-none px-4 py-2 focus-within:border-gold/50 transition-colors">
+                    <input type="text" id="chat-input" placeholder="Room Service, Towels, Booking..."
+                        class="bg-transparent border-none outline-none text-sm text-white w-full mr-2 placeholder:text-slate-600 font-serif italic">
+                    <div class="flex gap-2">
+                        <button id="chat-image-btn" class="text-slate-400 hover:text-white transition-colors p-1"><i
+                                class="fas fa-camera"></i></button>
+                        <button id="chat-mic-btn" class="text-slate-400 hover:text-gold transition-colors p-1"><i
+                                class="fas fa-microphone"></i></button>
+                        <button id="chat-send-btn"
+                            class="text-gold hover:text-white transition-colors p-1 transform rotate-45"><i
+                                class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="chat-toggle-btn"
+            class="group relative w-16 h-16 bg-[#0a0a0a] border border-gold text-gold rounded-full shadow-[0_0_30px_rgba(191,155,48,0.3)] flex items-center justify-center hover:scale-110 transition-transform duration-300">
+            <i class="fas fa-bell text-xl"></i>
+            <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-4 w-4 bg-gold"></span>
+            </span>
+        </button>
+    </div>
+
+    <!-- Lumière Config -->
+    <script>
+        window.LUMIERE_CONFIG = {
+            name: "Pierre",
+            role: "Head Concierge",
+            identity: "You are PIERRE, the Head Concierge at 'The Grand Onyx' hotel. You are formal, impeccably polite, and anticipate guest needs. You have a slight French formality.",
+            personality: "Formal, service-oriented, uses phrases like 'Certainly', 'Right away', 'My pleasure'.",
+            goal: "Fulfill guest requests or book hotel amenities.",
+            inventory: `
+            - Presidential Suite ($5,000/night) - Top floor, panoramic view.
+            - Chef's Table Dinner ($350/person) - 7 course tasting menu.
+            - Onyx Spa Package ($400) - Massage + facial + pool access.
+            - Room Service: Champagne, Caviar service, Club Sandwich.
+            `,
+            color: "#bf9b30", // Gold
+            welcome: "Good evening. Welcome to The Grand Onyx. I am Pierre. How may I be of service to you today?",
+            voice_keywords: ["Google Français", "French", "Thomas", "Male"] // Prefer French Accent/Male
+        };
+    </script>
+    <script type="module" src="js/demo-chat.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière Estates | Luxury Real Estate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Playfair Display', 'serif'] },
+                    colors: { primary: '#3b82f6', surface: '#0f172a' }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white antialiased">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-40 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="font-serif text-2xl tracking-widest uppercase">Lumière <span
+                    class="text-blue-500 italic">Estates</span></div>
+            <div class="hidden md:flex gap-8 text-xs tracking-[0.2em] font-medium text-slate-400">
+                <a href="#" class="hover:text-blue-400 transition-colors">BUY</a>
+                <a href="#" class="hover:text-blue-400 transition-colors">SELL</a>
+                <a href="#" class="hover:text-blue-400 transition-colors">AGENTS</a>
+            </div>
+            <button
+                class="px-4 py-2 border border-blue-500/50 text-blue-400 rounded text-xs tracking-widest hover:bg-blue-500 hover:text-white transition-all">SIGN
+                IN</button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="h-screen relative flex items-center justify-center overflow-hidden">
+        <div
+            class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-500765eb123e?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-40">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
+        <div class="relative z-10 text-center max-w-4xl px-4">
+            <div class="text-blue-500 text-xs tracking-[0.4em] uppercase mb-6">Exclusive Listings</div>
+            <h1 class="text-5xl md:text-8xl font-serif mb-8 leading-tight">Find Your <br><span
+                    class="italic text-blue-400">Sanctuary</span></h1>
+        </div>
+    </section>
+
+    <!-- Properties Grid -->
+    <section class="py-24 bg-gray-900 relative">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-serif mb-12 border-l-4 border-blue-500 pl-4">Featured Properties</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Prop 1 -->
+                <div
+                    class="group cursor-pointer bg-slate-800 rounded-xl overflow-hidden shadow-xl border border-white/5 hover:border-blue-500/50 transition-all">
+                    <div class="aspect-video relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2671&auto=format&fit=crop"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div
+                            class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
+                            $12,500,000</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-serif text-xl mb-2">The Oynx Penthouse</h3>
+                        <div class="text-slate-400 text-xs mb-4">Downtown Skyline • 4 Bed • 5 Bath</div>
+                    </div>
+                </div>
+                <!-- Prop 2 -->
+                <div
+                    class="group cursor-pointer bg-slate-800 rounded-xl overflow-hidden shadow-xl border border-white/5 hover:border-blue-500/50 transition-all">
+                    <div class="aspect-video relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2670&auto=format&fit=crop"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div
+                            class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
+                            $5,200,000</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-serif text-xl mb-2">Coastal Villa</h3>
+                        <div class="text-slate-400 text-xs mb-4">Malibu Coast • 5 Bed • 4 Bath</div>
+                    </div>
+                </div>
+                <!-- Prop 3 -->
+                <div
+                    class="group cursor-pointer bg-slate-800 rounded-xl overflow-hidden shadow-xl border border-white/5 hover:border-blue-500/50 transition-all">
+                    <div class="aspect-video relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2653&auto=format&fit=crop"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div
+                            class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
+                            $2,800,000</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-serif text-xl mb-2">Modern Loft</h3>
+                        <div class="text-slate-400 text-xs mb-4">Arts District • 2 Bed • 2 Bath</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Widget Integration -->
+    <div id="lumiere-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div id="chat-container"
+            class="hidden w-[350px] md:w-[400px] h-[600px] bg-slate-900/95 backdrop-blur-xl border border-blue-500/30 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 transform origin-bottom-right scale-90 opacity-0 mb-4">
+            <div class="h-16 bg-slate-800 border-b border-white/10 flex items-center px-6 gap-4">
+                <div class="relative">
+                    <div
+                        class="w-10 h-10 rounded-full border border-blue-500/50 flex items-center justify-center overflow-hidden bg-slate-700">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Elena&backgroundColor=transparent"
+                            class="w-full h-full">
+                    </div>
+                    <div
+                        class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-slate-800 rounded-full">
+                    </div>
+                </div>
+                <div>
+                    <div class="font-serif font-medium text-white">Elena</div>
+                    <div class="text-[10px] text-blue-400 tracking-widest uppercase">Senior Agent</div>
+                </div>
+            </div>
+            <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4"></div>
+            <div class="p-4 bg-slate-800 border-t border-white/10">
+                <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+                <div
+                    class="relative flex items-center bg-slate-900 border border-white/10 rounded-full px-4 py-2 focus-within:border-blue-500/50 transition-colors">
+                    <input type="text" id="chat-input" placeholder="Ask about a property..."
+                        class="bg-transparent border-none outline-none text-sm text-white w-full mr-2 placeholder:text-slate-500">
+                    <div class="flex gap-2">
+                        <button id="chat-image-btn" class="text-slate-400 hover:text-white transition-colors p-1"><i
+                                class="fas fa-camera"></i></button>
+                        <button id="chat-mic-btn" class="text-slate-400 hover:text-blue-400 transition-colors p-1"><i
+                                class="fas fa-microphone"></i></button>
+                        <button id="chat-send-btn"
+                            class="text-blue-500 hover:text-white transition-colors p-1 transform rotate-45"><i
+                                class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="chat-toggle-btn"
+            class="group relative w-16 h-16 bg-blue-600 border border-blue-400 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] flex items-center justify-center hover:scale-110 transition-transform duration-300">
+            <i class="fas fa-home text-white text-2xl"></i>
+            <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-500"></span>
+            </span>
+        </button>
+    </div>
+
+    <!-- Lumière Config -->
+    <script>
+        window.LUMIERE_CONFIG = {
+            name: "Elena",
+            role: "Senior Real Estate Agent",
+            identity: "You are ELENA, a top-tier luxury real estate agent for 'Lumière Estates'. You specialize in penthouses and coastal villas.",
+            personality: "Professional, knowledgeable, trustworthy, uses real estate terminology (sq ft, amenities, zoning).",
+            goal: "Schedule a private viewing for high-net-worth individuals.",
+            inventory: `
+            - The Onyx Penthouse ($12.5M) - Downtown, 360 views, private elevator, helicopter pad access.
+            - Coastal Villa ($5.2M) - Malibu, direct beach access, infinity pool, 5 bed/4 bath.
+            - Modern Loft ($2.8M) - Arts District, high ceilings, exposed brick, chef's kitchen.
+            `,
+            color: "#3b82f6", // Blue
+            welcome: "👋 Welcome to Lumière Estates. I'm Elena, your dedicated property consultant. Are you looking for an investment or a new home?"
+        };
+    </script>
+    <script type="module" src="js/demo-chat.js"></script>
+</body>
+
+</html>

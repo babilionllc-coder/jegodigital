@@ -17,6 +17,11 @@ export const translations = {
         hero_btn_primary: "Iniciar Proyecto",
         hero_btn_secondary: "Ver Servicios",
 
+        // Industry Demos Section
+        demos_tag: "Experiencia en Vivo",
+        demos_title: "Lumière en Acción",
+        demos_desc: "Explora cómo nuestra IA transforma diferentes industrias. Prueba los demos interactivos ahora.",
+
         // Features (Index)
         feat_web_title: "Diseño Web",
         feat_web_desc: "Sitios web rápidos, modernos y optimizados para ventas. Tu mejor vendedor 24/7.",
@@ -307,6 +312,11 @@ export const translations = {
         hero_desc: "Premium Web Design, Strategic SEO, and High-Conversion Marketing. We turn visitors into loyal customers for your business in Mexico & Quintana Roo.",
         hero_btn_primary: "Start Project",
         hero_btn_secondary: "View Services",
+
+        // Industry Demos Section
+        demos_tag: "Live Experience",
+        demos_title: "Lumière in Action",
+        demos_desc: "Explore how our AI transforms different industries. Try the interactive demos now.",
 
         // Features (Index)
         feat_web_title: "Web Design",
