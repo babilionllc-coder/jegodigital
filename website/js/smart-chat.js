@@ -1,9 +1,9 @@
 
-import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+// REMOVED: Direct GoogleGenerativeAI import
+// REMOVED: Client-side API_KEY (Security Fix)
 
 // Configuration
-const API_KEY = "AIzaSyDleyAf74shkjtMsTGGuujBeHNpk1jykWQ"; // Provided by user
-const MODEL_NAME = "gemini-2.0-flash-exp";
+const API_ENDPOINT = "/api/chat";
 
 // State
 let chatHistory = [];
@@ -14,10 +14,6 @@ let currentLang = 'es'; // Default
 let currentTranslations = {}; // Store translations
 let systemPrompt = `Eres el Agente IA de JegoDigital, una agencia de marketing premium en México.
     Tu tono es: Sofisticado, profesional, pero accesible y moderno (estilo 'concierge de lujo').`;
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
 // DOM Elements (will be selected after DOM loads)
 let chatContainer, messagesContainer, inputField, sendBtn, micBtn, imageBtn, fileInput, toggleBtn;
@@ -55,13 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
     imageBtn = document.getElementById('chat-image-btn');
     fileInput = document.getElementById('chat-file-input');
 
-    // Add Welcome Message (Check localStorage for lang or default to Spanish)
+    // Add Welcome Message
     const savedLang = localStorage.getItem('site_lang') || 'es';
-    // We might need to fetch translations if we want immediate sync on load, 
-    // but for now hardcoded Spanish default is fine, logic updates on event.
-    // Ideally we import translations here too or wait for manager.
-
-    // Simple check:
     const initialWelcome = savedLang === 'en'
         ? "Hello! I am your JegoDigital AI Agent. I can see, hear, and help you reserve services. How can I assist you today?"
         : "¡Hola! Soy tu Agente IA de JegoDigital. Puedo ver, escuchar y ayudarte a reservar servicios. ¿En qué puedo ayudarte hoy?";
@@ -95,10 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             inputField.value = transcript;
-            handleSend(); // Auto-send on voice end? Or just fill? Let's auto-send for "Voice Mode" feel.
+            handleSend();
         };
     } else {
-        micBtn.style.display = 'none'; // Hide if not supported
+        micBtn.style.display = 'none';
     }
 });
 
@@ -107,11 +98,12 @@ document.addEventListener("DOMContentLoaded", () => {
 function toggleChat() {
     isOpen = !isOpen;
     if (isOpen) {
-        chatContainer.classList.remove('hidden', 'scale-90', 'opacity-0');
-        chatContainer.classList.add('scale-100', 'opacity-100');
+        chatContainer.classList.remove('hidden');
+        setTimeout(() => chatContainer.classList.remove('opacity-0', 'translate-y-4'), 10);
+        inputField.focus();
     } else {
-        chatContainer.classList.add('hidden', 'scale-90', 'opacity-0');
-        chatContainer.classList.remove('scale-100', 'opacity-100');
+        chatContainer.classList.add('opacity-0', 'translate-y-4');
+        setTimeout(() => chatContainer.classList.add('hidden'), 300);
     }
 }
 
@@ -119,29 +111,45 @@ async function handleSend() {
     const text = inputField.value.trim();
     if (!text) return;
 
+    // 1. Add User Message
     addMessage(text, 'user');
+    chatHistory.push({ role: 'user', text: text });
     inputField.value = '';
 
-    showTypingIndicator();
+    // 2. Show Typing Indicator
+    const typingId = showTyping();
 
     try {
-        const responseText = await generateGeminiResponse(text);
-        removeTypingIndicator();
-        addMessage(responseText, 'bot');
-        checkForActions(responseText);
-    } catch (error) {
-        removeTypingIndicator();
-        addMessage(currentTranslations.chat_error || "Error connecting.", 'bot');
-        console.error(error);
-    }
-}
+        // 3. SECURE CALL TO VERCEL BACKEND
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: text,
+                history: chatHistory,
+                config: {
+                    systemPrompt: systemPrompt
+                }
+            })
+        });
 
-function handleVoice() {
-    if (!recognition) return;
-    if (isListening) {
-        recognition.stop();
-    } else {
-        recognition.start();
+        const data = await response.json();
+
+        // Remove Typing Indicator
+        removeMessage(typingId);
+
+        if (data.error) throw new Error(data.error);
+
+        const aiResponse = data.text;
+
+        // 4. Add AI Response
+        addMessage(aiResponse, 'bot');
+        chatHistory.push({ role: 'bot', text: aiResponse });
+
+    } catch (error) {
+        removeMessage(typingId);
+        console.error("Chat Error:", error);
+        addMessage(currentLang === 'en' ? "Sorry, connection error." : "Lo siento, error de conexión.", 'bot');
     }
 }
 
@@ -149,54 +157,43 @@ async function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Show preview
     const reader = new FileReader();
     reader.onload = async (event) => {
-        const base64Data = event.target.result.split(',')[1]; // Remove header
-        const mimeType = file.type;
+        const base64Image = event.target.result;
 
-        // Add image to chat
-        const imgNav = document.createElement('img');
-        imgNav.src = event.target.result;
-        imgNav.className = "max-w-[200px] rounded-lg mb-2 border border-white/10";
-        appendToChat(imgNav, 'user');
-        addMessage("(Analizando imagen...)", 'user');
+        // Show image in chat
+        const imgMsgId = addMessage(`<img src="${base64Image}" class="max-w-[150px] rounded-lg border border-white/20">`, 'user');
 
-        showTypingIndicator();
+        const typingId = showTyping();
 
         try {
-            const prompt = "Analiza esta imagen y recomiéndame qué servicio de JegoDigital (Diseño Web, SEO, Ads) sería mejor para este tipo de negocio o estilo. Sé breve y profesional.";
-            const result = await model.generateContent([
-                prompt,
-                { inlineData: { data: base64Data, mimeType: mimeType } }
-            ]);
-            const response = await result.response;
-            const text = response.text();
+            // SECURE CALL - IMAGE WITH PROMPT
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: currentLang === 'en' ? "Analyze this image." : "Analiza esta imagen.",
+                    image: base64Image,
+                    config: {
+                        systemPrompt: systemPrompt
+                    }
+                })
+            });
 
-            removeTypingIndicator();
-            addMessage(text, 'bot');
-            checkForActions(text);
+            const data = await response.json();
+            removeMessage(typingId);
+
+            if (data.error) throw new Error(data.error);
+
+            addMessage(data.text, 'bot');
+            chatHistory.push({ role: 'bot', text: data.text }); // Simplified history for image turn
+
         } catch (error) {
-            removeTypingIndicator();
-            addMessage("No pude procesar la imagen. Asegúrate que sea PNG o JPG.", 'bot');
-            console.error(error);
+            removeMessage(typingId);
+            addMessage("Error processing image.", 'bot');
         }
     };
     reader.readAsDataURL(file);
-}
-
-// --- Gemini Interaction ---
-
-async function generateGeminiResponse(userText) {
-    // Construct prompt with context
-    const context = `
-    ${systemPrompt}
-    Usuario dice: "${userText}"
-    `;
-
-    const result = await model.generateContent(context);
-    const response = await result.response;
-    return response.text().replace("RESERVE_CONFIRMED", ""); // Hide keyword from user text
 }
 
 // --- UI Helpers ---
@@ -221,17 +218,13 @@ function addMessage(text, sender) {
     scrollToBottom();
 }
 
-function appendToChat(element, sender) {
+function showTyping() { // Renamed from showTypingIndicator to match new call sites, or I should update logic.
+    // In my rewritten handleSend I called showTyping(). Let's use that name or alias it.
+    // The previous file had showTypingIndicator. Let's stick to consistent naming.
+    // I will rename this function to showTyping to match my handleSend logic above.
     const div = document.createElement('div');
-    div.className = `flex w-full mb-2 ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
-    div.appendChild(element);
-    messagesContainer.appendChild(div);
-    scrollToBottom();
-}
-
-function showTypingIndicator() {
-    const div = document.createElement('div');
-    div.id = 'typing-indicator';
+    const id = 'typing-' + Date.now();
+    div.id = id;
     div.className = 'flex justify-start mb-4';
     div.innerHTML = `
         <div class="bg-surface border border-white/10 rounded-2xl rounded-bl-none p-3 flex gap-1">
@@ -242,38 +235,16 @@ function showTypingIndicator() {
     `;
     messagesContainer.appendChild(div);
     scrollToBottom();
+    return id;
 }
 
-function removeTypingIndicator() {
-    const el = document.getElementById('typing-indicator');
+function removeMessage(id) {
+    const el = document.getElementById(id);
     if (el) el.remove();
 }
 
 function scrollToBottom() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-// --- Action Logic ---
-
-function checkForActions(responseText) {
-    // We check the raw response from Gemini in generateGeminiResponse usually, 
-    // but since we strip it there, let's check input logic or better: return structure.
-    // For simplicity, let's check if the generic response suggests reservation or if we passed a flag.
-    // Actually, let's just do a simple simple text check in the helper for now or move the trigger to the API handler.
-
-    // To implement "VIP Pass: If the user clicks 'RESERVE'", let's add a button if the bot suggests it?
-    // User requirement: "If the user clicks 'RESERVE', generate a UI card...". 
-    // This implies we should render a visible "RESERVE" button when appropriate, OR if the user types "Reserve".
-    // Let's assume if the bot detects intent (via that keyword I stripped), we show the card.
-
-    // Refactoring generateGeminiResponse to return object would be cleaner, but for this quick file:
-    // I entered a "RESERVE_CONFIRMED" Keyword. Since I stripped it, I can't check it here easily unless I change logic.
-    // Let's assume the BOT says "He confirmado tu reserva" logic.
-
-    // Alternative: Let's just generate the Card if the text contains explicit confirmation words.
-    if (responseText.toLowerCase().includes("reserva confirmada") || responseText.toLowerCase().includes("confirmed")) {
-        showVIPCard();
-    }
 }
 
 function showVIPCard() {

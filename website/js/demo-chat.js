@@ -1,9 +1,9 @@
 
-import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+// REMOVED: Direct GoogleGenerativeAI import
+// REMOVED: Client-side API_KEY (Security Fix)
 
 // Configuration
-const API_KEY = "AIzaSyDleyAf74shkjtMsTGGuujBeHNpk1jykWQ"; // Provided by user
-const MODEL_NAME = "gemini-2.0-flash-exp";
+const API_ENDPOINT = "/api/chat";
 
 // State
 let isListening = false;
@@ -38,10 +38,6 @@ Instructions:
 2. Keep responses concise (under 3 sentences).
 3. Try to close with a reservation request.
 `;
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
 // DOM Elements
 let chatContainer, messagesContainer, inputField, sendBtn, micBtn, imageBtn, fileInput, toggleBtn;
@@ -112,25 +108,47 @@ async function handleSend() {
     const text = inputField.value.trim();
     if (!text) return;
 
+    // 1. User Message
     addMessage(text, 'user');
     inputField.value = '';
 
-    showTypingIndicator();
+    // 2. Typing Indicator
+    const typingId = showTyping();
 
     try {
-        const responseText = await generateGeminiResponse(text);
-        removeTypingIndicator();
-        addMessage(responseText, 'bot');
-        speak(responseText); // Voice Output
+        // 3. SECURE CALL TO VERCEL BACKEND
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: text,
+                // We could send full history here if we tracked it in a simpler array structure, 
+                // but for this demo script we often just send the message or a small context.
+                // Let's assume stateless for this simple demo OR send message + systemPrompt.
+                config: {
+                    systemPrompt: systemPrompt
+                }
+            })
+        });
 
-        // Simulate "Sale" event for Dashboard if user says "buy" or "reserve"
-        if (responseText.toLowerCase().includes("reserve") || responseText.toLowerCase().includes("reserva") || responseText.toLowerCase().includes("book")) {
-            // In a real app we'd emit an event. For the demo video, we just show the card.
+        const data = await response.json();
+        removeMessage(typingId);
+
+        if (data.error) throw new Error(data.error);
+
+        const aiResponse = data.text;
+
+        // 4. Bot Response
+        addMessage(aiResponse, 'bot');
+        speak(aiResponse);
+
+        // Simulate "Sale" event
+        if (aiResponse.toLowerCase().includes("reserve") || aiResponse.toLowerCase().includes("reserva") || aiResponse.toLowerCase().includes("book")) {
             showVIPCard();
         }
 
     } catch (error) {
-        removeTypingIndicator();
+        removeMessage(typingId);
         addMessage("One moment please.", 'bot');
         console.error(error);
     }
@@ -150,15 +168,9 @@ function speak(text) {
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-
-        // 1. Get all available voices
         const voices = window.speechSynthesis.getVoices();
-
-        // 2. Define search keywords based on Config or default to Paulina/Female
-        // e.g. CONFIG.voice_keywords = ["Google US English", "Male"]
         const keywords = CONFIG.voice_keywords || ['Paulina', 'Google español', 'Samantha'];
 
-        // 3. Find the first voice that matches ANY of the keywords (in order of preference)
         let preferredVoice = null;
         for (const keyword of keywords) {
             preferredVoice = voices.find(v => v.name.includes(keyword));
@@ -179,53 +191,48 @@ async function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Show preview
     const reader = new FileReader();
     reader.onload = async (event) => {
-        const base64Data = event.target.result.split(',')[1];
-        const mimeType = file.type;
+        const base64Image = event.target.result;
 
         const imgNav = document.createElement('img');
-        imgNav.src = event.target.result;
+        imgNav.src = base64Image;
         imgNav.className = "max-w-[200px] rounded-lg mb-2 border border-white/10";
         appendToChat(imgNav, 'user');
         addMessage("(Showing item...)", 'user');
 
-        showTypingIndicator();
+        const typingId = showTyping();
 
         try {
             const prompt = `Act as ${CONFIG.name}. Analyze this image. Cross-reference it with the Inventory Context. Recommend the ONE item that best matches. Be persuasive.`;
 
-            const result = await model.generateContent([
-                { text: systemPrompt + "\n" + prompt },
-                { inlineData: { data: base64Data, mimeType: mimeType } }
-            ]);
-            const response = await result.response;
-            const text = response.text();
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: prompt,
+                    image: base64Image,
+                    config: {
+                        systemPrompt: systemPrompt
+                    }
+                })
+            });
 
-            removeTypingIndicator();
-            addMessage(text, 'bot');
-            speak(text);
+            const data = await response.json();
+            removeMessage(typingId);
+
+            if (data.error) throw new Error(data.error);
+
+            addMessage(data.text, 'bot');
+            speak(data.text);
+
         } catch (error) {
-            removeTypingIndicator();
+            removeMessage(typingId);
             addMessage("Could you describe it for me?", 'bot');
             console.error(error);
         }
     };
     reader.readAsDataURL(file);
-}
-
-// --- Gemini Interaction ---
-
-async function generateGeminiResponse(userText) {
-    const context = `
-    ${systemPrompt}
-    User says: "${userText}"
-    `;
-
-    const result = await model.generateContent(context);
-    const response = await result.response;
-    return response.text();
 }
 
 // --- UI Helpers ---
@@ -259,9 +266,10 @@ function appendToChat(element, sender) {
     scrollToBottom();
 }
 
-function showTypingIndicator() {
+function showTyping() {
     const div = document.createElement('div');
-    div.id = 'typing-indicator';
+    const id = 'typing-' + Date.now();
+    div.id = id;
     div.className = 'flex justify-start mb-4';
     div.innerHTML = `
         <div class="bg-white/10 border border-white/20 rounded-2xl rounded-bl-none p-3 flex gap-1 backdrop-blur-md">
@@ -272,10 +280,11 @@ function showTypingIndicator() {
     `;
     messagesContainer.appendChild(div);
     scrollToBottom();
+    return id;
 }
 
-function removeTypingIndicator() {
-    const el = document.getElementById('typing-indicator');
+function removeMessage(id) {
+    const el = document.getElementById(id);
     if (el) el.remove();
 }
 
@@ -297,4 +306,11 @@ function showVIPCard() {
     `;
     const div = document.createElement('div');
     div.innerHTML = html;
+    // Note: This logic previously just modified innerHTML. It's safer to append, 
+    // but the original showVIPCode often just appended.
+    // However, showVIPCard in this file was appending to innerHTML of the container? 
+    // No, it was creating a div but the helper in the previous file wrote directly to messagesContainer.
+    // Here I will append.
+    messagesContainer.appendChild(div);
+    scrollToBottom();
 }

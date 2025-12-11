@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savoria | Fine Dining Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Lumiere Config -->
+    <script>
+        window.LUMIERE_CONFIG = {
+            agent: {
+                name: "Isabella",
+                role: "Maître d'",
+                identity: "expert sommelier and dining coordinator for Savoria",
+                personality: "warm, sophisticated, attentive, and passionate about culinary arts",
+                goal: "secure reservations, recommend wine pairings, and arrange special occasions",
+                inventory: [
+                    { id: 'tasting_menu', name: 'Chef’s Tasting Menu', price: '$180 pp', description: '7-course journey through local flavors' },
+                    { id: 'wine_pairing', name: 'Sommelier Reserve Pairing', price: '$95 pp', description: 'Curated vintage wines for each course' },
+                    { id: 'private_room', name: 'The Onyx Room', price: '$500 min spend', description: 'Private dining for up to 12 guests' }
+                ],
+                color: '#9f1239', // Rose 800
+                welcome: "Buona sera. Welcome to Savoria. I am Isabella. May I arrange a table for you, or perhaps share our seasonal specials?",
+                voice_keywords: ["elegant", "culinary", "warm", "inviting"]
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-widget-open {
+            box-shadow: 0 0 50px rgba(159, 18, 57, 0.3);
+            /* Rose shadow */
+        }
+    </style>
+</head>
+
+<body class="bg-stone-900 text-stone-100 selection:bg-rose-900 selection:text-white">
+
+    <!-- Nav -->
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-stone-950/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-utensils text-rose-500 text-xl"></i>
+                    <span
+                        class="text-2xl font-serif tracking-in-expand font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-200 to-amber-200">Savoria</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-sm font-light hover:text-rose-400 transition">Menu</a>
+                    <a href="#" class="text-sm font-light hover:text-rose-400 transition">Experience</a>
+                    <a href="#" class="text-sm font-light hover:text-rose-400 transition">Private Dining</a>
+                    <a href="dashboard.html?industry=restaurant" target="_blank"
+                        class="px-5 py-2 glass-panel rounded-full text-xs font-medium hover:bg-white/10 transition border border-rose-500/30 text-rose-300">
+                        <i class="fas fa-chart-line mr-2"></i>Owner Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 z-0">
+            <!-- Warm, moody restaurant lighting -->
+            <img src="https://images.unsplash.com/photo-1514362545857-3bc16549766b?q=80&w=2070&auto=format&fit=crop"
+                alt="Fine Dining" class="w-full h-full object-cover opacity-60">
+            <div class="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/60 to-stone-950/30"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto mt-20">
+            <span
+                class="inline-block py-1 px-3 rounded-full bg-rose-900/40 border border-rose-500/20 text-rose-200 text-xs tracking-[0.2em] uppercase mb-6 backdrop-blur-sm">
+                Fine Dining Redefined
+            </span>
+            <h1 class="text-5xl md:text-7xl font-serif text-white mb-8 leading-tight">
+                A Symphony of <br>
+                <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-rose-300 to-amber-200 font-light italic">Taste
+                    & Elegance</span>
+            </h1>
+            <p class="text-xl text-stone-300 font-light mb-12 max-w-2xl mx-auto">
+                Experience culinary mastery where every dish tells a story.
+            </p>
+
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
+                <!-- Trigger AI -->
+                <button onclick="document.querySelector('.chat-trigger-btn').click()"
+                    class="px-8 py-4 bg-gradient-to-r from-rose-700 to-rose-900 rounded-full text-white font-medium hover:scale-105 transition-all shadow-[0_0_30px_rgba(159,18,57,0.4)] flex items-center group">
+                    <span>Reserve Table</span>
+                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+
+                <a href="#menu"
+                    class="px-8 py-4 glass-panel rounded-full text-white hover:bg-white/10 transition-all flex items-center">
+                    <i class="fas fa-wine-glass mr-2 text-rose-300"></i> View Wine List
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Interface -->
+    <div id="lumiere-root"></div>
+    <script src="js/demo-chat.js"></script>
+
+    <!-- Footer -->
+    <footer class="bg-stone-950 border-t border-white/5 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-stone-500 text-sm">Powered by Lumière AI Concierge</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

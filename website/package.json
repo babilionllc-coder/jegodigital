@@ -1,0 +1,9 @@
+{
+    "name": "lumiere-website",
+    "version": "1.0.0",
+    "description": "JegoDigital Website with AI Agents",
+    "main": "index.html",
+    "dependencies": {
+        "@google/generative-ai": "^0.1.3"
+    }
+}

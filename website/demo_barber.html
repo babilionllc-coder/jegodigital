@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gentry | Premium Grooming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Lumiere Config -->
+    <script>
+        window.LUMIERE_CONFIG = {
+            agent: {
+                name: "Rocco",
+                role: "Master Barber",
+                identity: "expert stylist and grooming consultant for The Gentry",
+                personality: "cool, professional, knowledgeable, and sharp",
+                goal: "schedule cuts, recommend styles, and advise on grooming products",
+                inventory: [
+                    { id: 'master_cut', name: 'Master Cut & Style', price: '$65', description: 'Precision cut with hot towel finish' },
+                    { id: 'royal_shave', name: 'Royal Hot Shave', price: '$55', description: 'Straight razor shave with pre-shave oil' },
+                    { id: 'beard_sculpt', name: 'Beard Sculpting', price: '$40', description: 'Detailed trim and conditioning' }
+                ],
+                color: '#ea580c', // Orange 600 (Leather/Vintage vibe)
+                welcome: "Welcome to The Gentry. I'm Rocco. Ready to look your sharpest? Let's get you in the chair.",
+                voice_keywords: ["sharp", "classic", "style", "confident"]
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .glass-panel {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-widget-open {
+            box-shadow: 0 0 50px rgba(234, 88, 12, 0.2);
+            /* Orange shadow */
+        }
+    </style>
+</head>
+
+<body class="bg-neutral-900 text-neutral-100 selection:bg-orange-900 selection:text-white">
+
+    <!-- Nav -->
+    <nav
+        class="fixed w-full z-50 transition-all duration-300 bg-neutral-950/90 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-scissors text-orange-600 text-xl"></i>
+                    <span
+                        class="text-2xl font-serif tracking-in-expand font-bold text-white tracking-widest uppercase">The
+                        Gentry</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#"
+                        class="text-sm font-bold uppercase tracking-widest hover:text-orange-500 transition">Services</a>
+                    <a href="#"
+                        class="text-sm font-bold uppercase tracking-widest hover:text-orange-500 transition">Barbers</a>
+                    <a href="#"
+                        class="text-sm font-bold uppercase tracking-widest hover:text-orange-500 transition">Products</a>
+                    <a href="dashboard.html?industry=barber" target="_blank"
+                        class="px-5 py-2 glass-panel rounded-none text-xs font-bold uppercase hover:bg-white/10 transition border border-orange-600/50 text-orange-500">
+                        <i class="fas fa-chart-line mr-2"></i>Owner Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 z-0">
+            <!-- Vintage Barbershop -->
+            <img src="https://images.unsplash.com/photo-1503951914875-befbb7135952?q=80&w=2070&auto=format&fit=crop"
+                alt="Barbershop" class="w-full h-full object-cover opacity-50 grayscale">
+            <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/40 to-neutral-950/20"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto mt-20">
+            <span
+                class="inline-block py-1 px-3 border-y-2 border-orange-600 text-orange-500 text-xs tracking-[0.3em] uppercase mb-6 font-bold bg-black/50">
+                Est. 2024
+            </span>
+            <h1 class="text-5xl md:text-8xl font-serif text-white mb-8 leading-none uppercase tracking-tighter">
+                Stay <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-orange-700">Sharp</span>
+            </h1>
+            <p class="text-xl text-neutral-400 font-light mb-12 max-w-xl mx-auto">
+                Modern grooming for the modern gentleman. Experience the art of the perfect cut.
+            </p>
+
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
+                <!-- Trigger AI -->
+                <button onclick="document.querySelector('.chat-trigger-btn').click()"
+                    class="px-10 py-5 bg-orange-700 rounded-none transform skew-x-[-10deg] text-white font-bold uppercase tracking-wider hover:bg-orange-600 transition-all flex items-center group">
+                    <span class="transform skew-x-[10deg]">Book Appointment</span>
+                    <i
+                        class="fas fa-chevron-right ml-3 group-hover:translate-x-1 transition-transform transform skew-x-[10deg]"></i>
+                </button>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Interface -->
+    <div id="lumiere-root"></div>
+    <script src="js/demo-chat.js"></script>
+
+    <!-- Footer -->
+    <footer class="bg-neutral-950 border-t border-white/5 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-neutral-600 text-xs uppercase tracking-widest">Powered by Lumière AI Concierge</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

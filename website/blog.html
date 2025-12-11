@@ -200,19 +200,163 @@
         <div class="container mx-auto px-4">
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-                <!-- Article 1 (Featured) -->
-                <article data-category="ia"
-                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 border border-white/5 flex flex-col h-full">
-                    <div class="relative h-64 overflow-hidden">
-                        <!-- Using CSS gradient fallback if image missed, but we aim to replace with tool generated one -->
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-indigo-900 to-slate-900 flex items-center justify-center">
-                            <i class="fas fa-robot text-6xl text-white/20"></i>
+                <!-- Article Card: Real Estate Marketing -->
+                <article data-category="real-estate"
+                    class="group relative bg-white/5 rounded-2xl border border-white/10 overflow-hidden hover:border-emerald-500/30 transition-all duration-300"
+                    data-aos="fade-up">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1600596542815-40c5f0c52d18?auto=format&fit=crop&q=80&w=2068"
+                            alt="Marketing Inmobiliario Cancún"
+                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+                        <div class="absolute top-4 left-4">
+                            <span
+                                class="px-3 py-1 rounded-full bg-emerald-600/90 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                                Nuevo
+                            </span>
                         </div>
-                        <!-- Placeholder for when we generate the specific thumb -->
-                        <!-- <img src="images/blog/article1.jpg" class="article-image w-full h-full object-cover transition-transform duration-700" alt="AI in Business"> -->
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-3 text-sm text-slate-400 mb-4">
+                            <span class="text-emerald-400"><i class="fas fa-home mr-1"></i> Real Estate</span>
+                            <span>•</span>
+                            <span>6 min lectura</span>
+                        </div>
+                        <h3
+                            class="text-xl font-bold text-white mb-3 group-hover:text-emerald-400 transition-colors line-clamp-2">
+                            Marketing Inmobiliario: Cómo Vender Desarrollos en Dólares
+                        </h3>
+                        <p class="text-slate-400 text-sm mb-6 line-clamp-3">
+                            Estrategia para Desarrolladores en Tulum y Cancún: Sitios Web de Alto Lujo, Recorridos
+                            Virtuales y Lead Gen Internacional.
+                        </p>
+                        <a href="marketing-realestate.html"
+                            class="inline-flex items-center text-sm font-bold text-white hover:text-emerald-400 transition-colors">
+                            Leer Estrategia <i
+                                class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Article Card: Marketing Médico -->
+                <article data-category="medical"
+                    class="group relative bg-white/5 rounded-2xl border border-white/10 overflow-hidden hover:border-blue-500/30 transition-all duration-300"
+                    data-aos="fade-up">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=2070"
+                            alt="Marketing Médico Cancún"
+                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+                        <div class="absolute top-4 left-4">
+                            <span
+                                class="px-3 py-1 rounded-full bg-blue-600/90 text-white text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                                Nuevo
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-3 text-sm text-slate-400 mb-4">
+                            <span class="text-blue-400"><i class="fas fa-tag mr-1"></i> Medical</span>
+                            <span>•</span>
+                            <span>5 min lectura</span>
+                        </div>
+                        <h3
+                            class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors line-clamp-2">
+                            Marketing Médico: Cómo Atraer Pacientes de EE.UU. y Canadá
+                        </h3>
+                        <p class="text-slate-400 text-sm mb-6 line-clamp-3">
+                            Guía para Doctores y Clínicas en Cancún: SEO para Turismo Médico, Diseño Web de Alta
+                            Confianza y Automatización de Citas con IA.
+                        </p>
+                        <a href="marketing-medico.html"
+                            class="inline-flex items-center text-sm font-bold text-white hover:text-blue-400 transition-colors">
+                            Leer Estrategia <i
+                                class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Article Card: Real Estate AI -->
+                <article data-category="ia"
+                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 border border-white/5 flex flex-col h-full transform hover:-translate-y-2">
+                    <div class="relative h-64 overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-emerald-900 to-slate-900 flex items-center justify-center">
+                            <i class="fas fa-home text-6xl text-white/20"></i>
+                        </div>
+                        <!-- Overlay Image -->
+                        <img src="https://images.unsplash.com/photo-1600596542815-40c5f0c52d18?q=80&w=2670"
+                            class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500 mix-blend-overlay">
+
+                        <div
+                            class="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            Real Estate & IA
+                        </div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 text-slate-400 text-xs mb-4">
+                            <span><i class="far fa-calendar mr-1"></i> Dic 12, 2025</span>
+                            <span>•</span>
+                            <span>6 min lectura</span>
+                        </div>
+                        <h3
+                            class="text-2xl font-bold mb-4 group-hover:text-emerald-400 transition-colors leading-tight">
+                            IA para Bienes Raíces en Tulum: Cómo Vender Más en 2025
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                            El mercado está saturado. Descubre cómo los desarrolladores top usan Chatbots y
+                            Automatización para captar leads internacionales mientras duermen.
+                        </p>
+                        <a href="ia-bienes-raices-tulum.html"
+                            class="inline-flex items-center text-emerald-400 font-bold hover:gap-2 transition-all">
+                            Leer Guía Inmobiliaria <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Article 1 (Pillar Content - SEO Cancún) -->
+                <article data-category="seo"
+                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 border border-white/5 flex flex-col h-full transform hover:-translate-y-2">
+                    <div class="relative h-64 overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-blue-900 to-slate-900 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-6xl text-white/20"></i>
+                        </div>
                         <div
                             class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            SEO & Growth
+                        </div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 text-slate-400 text-xs mb-4">
+                            <span><i class="far fa-calendar mr-1"></i> Dic 10, 2025</span>
+                            <span>•</span>
+                            <span>8 min lectura</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">
+                            Agencia de Marketing Digital en Cancún: Guía 2025 para Dominar Google
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                            No tires tu dinero en anuncios sin estrategia. Descubre por qué el SEO Local en Cancún y
+                            Tulum es la inversión con mayor ROI para tu negocio este año.
+                        </p>
+                        <a href="agencia-marketing-digital-cancun.html"
+                            class="inline-flex items-center text-primary font-bold hover:gap-2 transition-all">
+                            Leer Estrategia <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Article 2 (AI Integration) -->
+                <article data-category="ia"
+                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-accent/20 transition-all duration-300 border border-white/5 flex flex-col h-full opacity-90 hover:opacity-100">
+                    <div class="relative h-64 overflow-hidden bg-slate-800">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-purple-900 to-slate-900 flex items-center justify-center">
+                            <i class="fas fa-robot text-6xl text-white/20"></i>
+                        </div>
+                        <div
+                            class="absolute top-4 left-4 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                             IA & Tech
                         </div>
                     </div>
@@ -222,7 +366,7 @@
                             <span>•</span>
                             <span>5 min lectura</span>
                         </div>
-                        <h3 class="text-2xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">
+                        <h3 class="text-xl font-bold mb-4 group-hover:text-accent transition-colors">
                             Por qué tu negocio necesita IA en 2025 (y no es opción)
                         </h3>
                         <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
@@ -230,74 +374,42 @@
                             automatización están redefiniendo las ventas en México.
                         </p>
                         <a href="blog-post-1.html"
-                            class="inline-flex items-center text-primary font-bold hover:gap-2 transition-all">
+                            class="inline-flex items-center text-accent font-bold hover:gap-2 transition-all">
                             Leer Artículo <i class="fas fa-arrow-right ml-2"></i>
                         </a>
                     </div>
                 </article>
 
-                <!-- Article 2 -->
-                <article data-category="seo"
-                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-accent/20 transition-all duration-300 border border-white/5 flex flex-col h-full opacity-75 hover:opacity-100">
-                    <div class="relative h-64 overflow-hidden bg-slate-800">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-purple-900 to-slate-900 flex items-center justify-center">
-                            <i class="fas fa-search text-6xl text-white/20"></i>
-                        </div>
-                        <div
-                            class="absolute top-4 left-4 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                            SEO Local
-                        </div>
-                    </div>
-                    <div class="p-8 flex flex-col flex-grow">
-                        <div class="flex items-center gap-2 text-slate-400 text-xs mb-4">
-                            <span><i class="far fa-calendar mr-1"></i> Nov 25, 2024</span>
-                            <span>•</span>
-                            <span>4 min lectura</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-4 group-hover:text-accent transition-colors">
-                            Google Maps: El secreto para vencer a tu competencia local
-                        </h3>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
-                            No necesitas ser una multinacional para rankear #1. Estrategias tácticas para dominar Cancún
-                            y Tulum.
-                        </p>
-                        <a href="#"
-                            class="inline-flex items-center text-accent font-bold hover:gap-2 transition-all cursor-not-allowed opacity-50">
-                            Próximamente <i class="fas fa-clock ml-2"></i>
-                        </a>
-                    </div>
-                </article>
-
                 <!-- Article 3 -->
-                <article data-category="design"
-                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-highlight/20 transition-all duration-300 border border-white/5 flex flex-col h-full opacity-75 hover:opacity-100">
+                <!-- Article 3 (Local SEO Guide) -->
+                <article data-category="seo"
+                    class="article-card group glass-panel rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-highlight/20 transition-all duration-300 border border-white/5 flex flex-col h-full opacity-90 hover:opacity-100">
                     <div class="relative h-64 overflow-hidden bg-slate-800">
                         <div
-                            class="absolute inset-0 bg-gradient-to-br from-pink-900 to-slate-900 flex items-center justify-center">
-                            <i class="fas fa-paint-brush text-6xl text-white/20"></i>
+                            class="absolute inset-0 bg-gradient-to-br from-green-900 to-slate-900 flex items-center justify-center">
+                            <i class="fas fa-map-marked-alt text-6xl text-white/20"></i>
                         </div>
                         <div
                             class="absolute top-4 left-4 bg-highlight text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                            Diseño Web
+                            Local SEO
                         </div>
                     </div>
                     <div class="p-8 flex flex-col flex-grow">
                         <div class="flex items-center gap-2 text-slate-400 text-xs mb-4">
-                            <span><i class="far fa-calendar mr-1"></i> Nov 10, 2024</span>
+                            <span><i class="far fa-calendar mr-1"></i> Dic 11, 2025</span>
                             <span>•</span>
-                            <span>3 min lectura</span>
+                            <span>4 min lectura</span>
                         </div>
                         <h3 class="text-xl font-bold mb-4 group-hover:text-highlight transition-colors">
-                            Psicología del Color: Cómo vender más con tu diseño
+                            Posicionamiento Local: Tu negocio en el Mapa (Guía Rápida)
                         </h3>
                         <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
-                            Los colores no son solo decoración. Aprende cómo influyen en la decisión de compra de tus
-                            clientes.
+                            ¿Nadie te encuentra en Google Maps? Aprende 5 pasos críticos para aparecer cuando tus
+                            clientes te buscan en Cancún.
                         </p>
-                        <a href="#"
-                            class="inline-flex items-center text-highlight font-bold hover:gap-2 transition-all cursor-not-allowed opacity-50">
-                            Próximamente <i class="fas fa-clock ml-2"></i>
+                        <a href="seo-local.html"
+                            class="inline-flex items-center text-highlight font-bold hover:gap-2 transition-all">
+                            Ver Estrategia <i class="fas fa-arrow-right ml-2"></i>
                         </a>
                     </div>
                 </article>

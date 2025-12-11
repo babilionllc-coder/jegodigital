@@ -5,8 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Diseño Web Premium en Cancún. Sitios web rápidos, responsivos y optimizados para SEO. Agencia JegoDigital.">
-    <title>Diseño Web Premium | JegoDigital</title>
+        content="Agencia de Diseño Web en Cancún y Playa del Carmen. Creamos páginas web premium y tiendas online que venden. Expertos en UX, SEO y Desarrollo Web para empresas en Riviera Maya.">
+    <title>Agencia de Diseño Web Cancún y Playa del Carmen | JegoDigital</title>
+    <!-- Canonical -->
+    <link rel="canonical" href="https://jegodigital.com/diseno-web.html" />
+    <!-- Schema.org for Software/Product -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "JegoDigital Agencia de Diseño Web",
+      "image": "https://jegodigital.com/images/logo/logo1.png",
+      "url": "https://jegodigital.com/diseno-web.html",
+      "priceRange": "$$$",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Cancún",
+        "addressRegion": "ROO",
+        "addressCountry": "MX"
+      },
+      "description": "Agencia de Diseño Web en Cancún y Tulum. Especialistas en desarrollo web, SEO y marketing digital para empresas."
+    }
+    </script>
 
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -154,15 +174,16 @@
         <div class="container mx-auto px-4 text-center">
             <div
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 fade-in-up">
-                <i class="fas fa-layer-group text-primary text-xs"></i>
-                <span class="text-primary text-xs font-bold tracking-[0.2em] uppercase">Web Design</span>
+                <span class="text-primary text-xs font-bold tracking-[0.2em] uppercase">Agencia de Diseño Web
+                    Cancún</span>
             </div>
             <h1 class="text-5xl md:text-7xl font-serif font-bold mb-8 leading-tight fade-in-up delay-100"
                 data-i18n="web_hero_title">
-                Diseño Web que <span class="hero-gradient-text">Vende 24/7</span>
+                Tu Agencia de Diseño Web <br> <span class="hero-gradient-text">en Cancún y Playa.</span>
             </h1>
             <p class="text-slate-400 text-lg max-w-2xl mx-auto mb-12 fade-in-up delay-200" data-i18n="web_hero_desc">
-                No solo diseñamos sitios bonitos. Creamos máquinas de ventas digitales optimizadas.
+                Diseño web estratégico que posiciona tu marca. No empezamos de cero: tenemos arquitecturas premium
+                pre-diseñadas para Hoteles, Inmobiliarias y Servicios.
             </p>
             <div class="flex justify-center fade-in-up delay-300">
                 <a href="contacto.html"
@@ -176,40 +197,157 @@
         </div>
     </section>
 
-    <!-- Features -->
-    <section class="py-24 relative z-10">
+    <!-- Dynamic Portfolio Grid -->
+    <section class="py-24 relative z-10" id="portfolio">
         <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="glass-card p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-serif font-bold mb-4">La Colección Maestra</h2>
+                <p class="text-slate-400">Selecciona tu industria para ver la demo en vivo.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- 1. Jewelry -->
+                <a href="demo_jewelry.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <!-- Using verification screenshot as placeholder if available -->
+                    <img src="https://images.unsplash.com/photo-1599643478518-17488fbbcd75?q=80&w=2574"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                     <div
-                        class="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center border border-white/10 mb-6">
-                        <i class="fas fa-bolt text-2xl text-primary"></i>
+                        class="absolute top-4 right-4 bg-black/80 backdrop-blur text-gold border border-gold/30 px-3 py-1 rounded-full text-xs font-bold z-20">
+                        PREMIUM
                     </div>
-                    <h3 class="text-xl font-bold mb-4 font-serif text-white" data-i18n="web_feat1_title">Velocidad
-                        Extrema</h3>
-                    <p class="text-slate-400 leading-relaxed text-sm" data-i18n="web_feat1_desc">...</p>
-                </div>
-                <!-- Feature 2 -->
-                <div class="glass-card p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300">
                     <div
-                        class="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center border border-white/10 mb-6">
-                        <i class="fas fa-drafting-compass text-2xl text-primary"></i>
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-amber-400 font-bold uppercase mb-1">Luxury Retail</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-amber-400 transition">Jewelry Maison
+                        </h3>
                     </div>
-                    <h3 class="text-xl font-bold mb-4 font-serif text-white" data-i18n="web_feat2_title">Diseño UX/UI
-                    </h3>
-                    <p class="text-slate-400 leading-relaxed text-sm" data-i18n="web_feat2_desc">...</p>
-                </div>
-                <!-- Feature 3 -->
-                <div class="glass-card p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300">
+                </a>
+
+                <!-- 2. Medical / MedSpa -->
+                <a href="demo_medspa.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2668"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                     <div
-                        class="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center border border-white/10 mb-6">
-                        <i class="fas fa-mobile-alt text-2xl text-primary"></i>
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-teal-400 font-bold uppercase mb-1">Medical</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-teal-400 transition">Aura MedSpa</h3>
                     </div>
-                    <h3 class="text-xl font-bold mb-4 font-serif text-white" data-i18n="web_feat3_title">100% Responsivo
-                    </h3>
-                    <p class="text-slate-400 leading-relaxed text-sm" data-i18n="web_feat3_desc">...</p>
-                </div>
+                </a>
+
+                <!-- 3. Nightlife -->
+                <a href="demo_nightlife.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=2670"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-purple-400 font-bold uppercase mb-1">Entertainment</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-purple-400 transition">Nocturne VIP
+                        </h3>
+                    </div>
+                </a>
+
+                <!-- 4. Real Estate -->
+                <a href="demo_realestate.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1600596542815-40c5f0c52d18?q=80&w=2670"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div
+                        class="absolute top-4 right-4 bg-blue-600 px-3 py-1 rounded-full text-white text-xs font-bold z-20 shadow-lg">
+                        BESTSELLER
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-blue-400 font-bold uppercase mb-1">Real Estate</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-blue-400 transition">Lumière Estates
+                        </h3>
+                    </div>
+                </a>
+
+                <!-- 5. Dental -->
+                <a href="demo_dental.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=2670"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-sky-400 font-bold uppercase mb-1">Dental</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-sky-400 transition">Smile Riviera
+                        </h3>
+                    </div>
+                </a>
+
+                <!-- 6. Eco-Tourism -->
+                <a href="demo_ecotourism.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2670"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-green-400 font-bold uppercase mb-1">Tours</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-green-400 transition">Maya Adventures
+                        </h3>
+                    </div>
+                </a>
+
+                <!-- 7. Yacht -->
+                <a href="demo_yacht.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?q=80&w=2670"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-cyan-400 font-bold uppercase mb-1">Luxury Travel</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-cyan-400 transition">Azure Charters
+                        </h3>
+                    </div>
+                </a>
+
+                <!-- 8. Wedding -->
+                <a href="demo_wedding.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1519225448526-0cbc99b4114c?q=80&w=2678"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-rose-400 font-bold uppercase mb-1">Events</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-rose-400 transition">Eternal Vows
+                        </h3>
+                    </div>
+                </a>
+
+                <!-- 9. Automotive -->
+                <a href="demo_auto.html" target="_blank"
+                    class="block group relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition duration-500 z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2670"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div
+                        class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-20">
+                        <div class="text-xs text-red-500 font-bold uppercase mb-1">Automotive</div>
+                        <h3 class="text-2xl font-serif text-white group-hover:text-red-500 transition">Velocity Motors
+                        </h3>
+                    </div>
+                </a>
+            </div>
+
+            <div class="mt-16 text-center">
+                <p class="text-slate-500 mb-6">...y muchas más industrias (Restaurantes, Hoteles, Barberías, Spas).</p>
+                <a href="#contact"
+                    class="inline-block px-8 py-4 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white">
+                    <i class="fas fa-hammer mr-2"></i> Solicitar Demo Personalizada
+                </a>
             </div>
         </div>
     </section>
