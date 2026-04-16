@@ -1,0 +1,88 @@
+name: Auto-Index URLs
+
+# Fires on every push to main (website content changes).
+# Regenerates sitemap, submits URLs to Google Indexing API v3 + IndexNow.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - '.github/workflows/auto-index.yml'
+  workflow_dispatch:  # allow manual trigger from Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install googleapis@^144.0.0 node-fetch@^3.3.2
+
+      - name: Verify Google service account secret
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_KEY" ]; then
+            echo "::warning::GOOGLE_SERVICE_ACCOUNT_KEY secret is EMPTY — Google Indexing API will be skipped"
+            exit 0
+          fi
+          echo "Secret length: $(echo -n "$GOOGLE_SERVICE_ACCOUNT_KEY" | wc -c) chars"
+          echo "$GOOGLE_SERVICE_ACCOUNT_KEY" | python3 -c "
+          import sys, json
+          try:
+              d = json.load(sys.stdin)
+              print('client_email:', d.get('client_email','MISSING'))
+              print('project_id :', d.get('project_id','MISSING'))
+              has_pk = bool(d.get('private_key'))
+              print('private_key:', 'present' if has_pk else 'MISSING')
+          except Exception as e:
+              print('ERROR parsing JSON:', e)
+              sys.exit(1)
+          "
+
+      - name: Regenerate sitemap.xml
+        env:
+          DOMAIN: jegodigital.com
+          SOURCE_DIR: website
+        run: node .agents/scripts/auto_sitemap.js
+
+      - name: Submit URLs to Google + IndexNow
+        id: submit
+        continue-on-error: true
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+          DOMAIN: jegodigital.com
+        run: node .agents/scripts/force_index.js 2>&1 | tee /tmp/indexing-output.log
+
+      - name: Print log output
+        if: always()
+        run: |
+          echo "::group::Indexing script output"
+          cat /tmp/indexing-output.log 2>/dev/null || echo "No output file"
+          echo "::endgroup::"
+
+      - name: Write summary
+        if: always()
+        run: |
+          echo "## Auto-Indexing Run" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/indexing-output.log 2>/dev/null | tail -50 >> $GITHUB_STEP_SUMMARY || echo "no output" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail job if submit failed
+        if: steps.submit.outcome == 'failure'
+        run: exit 1
