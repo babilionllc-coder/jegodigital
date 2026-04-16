@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Audit reports are publicly readable
+    match /audit-reports/{reportId} {
+      allow read: if true;
+      allow write: if false; // Only Cloud Functions can write
+    }
+    // Default: deny all
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

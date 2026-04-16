@@ -1,0 +1,629 @@
+{
+    "functions": {
+        "source": "website/functions"
+    },
+    "storage": {
+        "rules": "storage.rules"
+    },
+    "hosting": {
+        "public": "website",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**",
+            "website/videos/**",
+            "!website/videos/*.webm",
+            "videos/**",
+            "!videos/*.webm",
+            "website/tiktok vids/**",
+            "tiktok vids/**",
+            "website/tools/**",
+            "tools/**",
+            "website/functions/**",
+            "functions/**",
+            "website/assets/video/**",
+            "assets/video/**"
+        ],
+        "cleanUrls": true,
+        "trailingSlash": false,
+        "headers": [
+            {
+                "source": "**",
+                "headers": [
+                    {
+                        "key": "X-Content-Type-Options",
+                        "value": "nosniff"
+                    },
+                    {
+                        "key": "X-Frame-Options",
+                        "value": "SAMEORIGIN"
+                    },
+                    {
+                        "key": "Strict-Transport-Security",
+                        "value": "max-age=31536000; includeSubDomains"
+                    },
+                    {
+                        "key": "Content-Security-Policy",
+                        "value": "default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:; img-src 'self' data: https: blob:; font-src 'self' https: data:;"
+                    }
+                ]
+            },
+            {
+                "source": "**/*.@(jpg|jpeg|gif|png|webp|svg|css|js)",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "public, max-age=3600"
+                    }
+                ]
+            },
+            {
+                "source": "**/*.html",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "no-cache, no-store, must-revalidate"
+                    }
+                ]
+            }
+        ],
+        "redirects": [
+            {
+                "source": "/airbnb-automation-tulum-ai.html",
+                "destination": "/blog/airbnb-automation-tulum-ai",
+                "type": 301
+            },
+            {
+                "source": "/seo-local.html",
+                "destination": "/posicionamiento-google-maps-cancun.html",
+                "type": 301
+            },
+            {
+                "source": "/seo-local",
+                "destination": "/posicionamiento-google-maps-cancun.html",
+                "type": 301
+            },
+            {
+                "source": "/blog/ejemplos-campanas-publicitarias.html",
+                "destination": "/ejemplos-campanas-publicitarias.html",
+                "type": 301
+            },
+            {
+                "source": "/blog/ejemplos-campanas-publicitarias",
+                "destination": "/ejemplos-campanas-publicitarias.html",
+                "type": 301
+            },
+            {
+                "source": "/airbnb-automation-tulum-ai",
+                "destination": "/blog/airbnb-automation-tulum-ai",
+                "type": 301
+            },
+            {
+                "source": "/automatizacion-restaurantes-cancun.html",
+                "destination": "/blog/automatizacion-restaurantes-cancun",
+                "type": 301
+            },
+            {
+                "source": "/automatizacion-restaurantes-cancun",
+                "destination": "/blog/automatizacion-restaurantes-cancun",
+                "type": 301
+            },
+            {
+                "source": "/e-commerce-artesanos-riviera-maya.html",
+                "destination": "/blog/e-commerce-artesanos-riviera-maya",
+                "type": 301
+            },
+            {
+                "source": "/e-commerce-artesanos-riviera-maya",
+                "destination": "/blog/e-commerce-artesanos-riviera-maya",
+                "type": 301
+            },
+            {
+                "source": "/ai-real-estate-tulum.html",
+                "destination": "/blog/ai-real-estate-tulum",
+                "type": 301
+            },
+            {
+                "source": "/ai-real-estate-tulum",
+                "destination": "/blog/ai-real-estate-tulum",
+                "type": 301
+            },
+            {
+                "source": "/como-aparecer-google-maps-cancun.html",
+                "destination": "/blog/como-aparecer-google-maps-cancun",
+                "type": 301
+            },
+            {
+                "source": "/como-aparecer-google-maps-cancun",
+                "destination": "/blog/como-aparecer-google-maps-cancun",
+                "type": 301
+            },
+            {
+                "source": "/dev-whatsapp-ai-tutorial.html",
+                "destination": "/blog/dev-whatsapp-ai-tutorial",
+                "type": 301
+            },
+            {
+                "source": "/dev-whatsapp-ai-tutorial",
+                "destination": "/blog/dev-whatsapp-ai-tutorial",
+                "type": 301
+            },
+            {
+                "source": "/diseno-web-hoteles-cancun.html",
+                "destination": "/blog/diseno-web-hoteles-cancun",
+                "type": 301
+            },
+            {
+                "source": "/diseno-web-hoteles-cancun",
+                "destination": "/blog/diseno-web-hoteles-cancun",
+                "type": 301
+            },
+            {
+                "source": "/guia-nomadas-digitales-tulum-2025.html",
+                "destination": "/blog/guia-nomadas-digitales-tulum-2025",
+                "type": 301
+            },
+            {
+                "source": "/guia-nomadas-digitales-tulum-2025",
+                "destination": "/blog/guia-nomadas-digitales-tulum-2025",
+                "type": 301
+            },
+            {
+                "source": "/ia-inmobiliaria-cancun.html",
+                "destination": "/blog/ia-inmobiliaria-cancun",
+                "type": 301
+            },
+            {
+                "source": "/ia-inmobiliaria-cancun",
+                "destination": "/blog/ia-inmobiliaria-cancun",
+                "type": 301
+            },
+            {
+                "source": "/medical-tourism-seo-cancun-dentists.html",
+                "destination": "/blog/medical-tourism-seo-cancun-dentists",
+                "type": 301
+            },
+            {
+                "source": "/medical-tourism-seo-cancun-dentists",
+                "destination": "/blog/medical-tourism-seo-cancun-dentists",
+                "type": 301
+            },
+            {
+                "source": "/real-estate-marketing-trends-2026-riviera-maya.html",
+                "destination": "/blog/real-estate-marketing-trends-2026-riviera-maya",
+                "type": 301
+            },
+            {
+                "source": "/real-estate-marketing-trends-2026-riviera-maya",
+                "destination": "/blog/real-estate-marketing-trends-2026-riviera-maya",
+                "type": 301
+            },
+            {
+                "source": "/reporte-digital-riviera-maya-2025.html",
+                "destination": "/blog/reporte-digital-riviera-maya-2025",
+                "type": 301
+            },
+            {
+                "source": "/reporte-digital-riviera-maya-2025",
+                "destination": "/blog/reporte-digital-riviera-maya-2025",
+                "type": 301
+            },
+            {
+                "source": "/restaurant-digital-menu-local-seo-cancun.html",
+                "destination": "/blog/restaurant-digital-menu-local-seo-cancun",
+                "type": 301
+            },
+            {
+                "source": "/restaurant-digital-menu-local-seo-cancun",
+                "destination": "/blog/restaurant-digital-menu-local-seo-cancun",
+                "type": 301
+            },
+            {
+                "source": "/campanas-publicitarias.htm",
+                "destination": "/campanas-publicitarias.html",
+                "type": 301
+            },
+            {
+                "source": "/campanas-publicitarias",
+                "destination": "/campanas-publicitarias.html",
+                "type": 301
+            },
+            {
+                "source": "/agencia-marketing-digital-cancun.html",
+                "destination": "/servicios.html",
+                "type": 301
+            },
+            {
+                "source": "/agencia-marketing-digital-cancun",
+                "destination": "/servicios.html",
+                "type": 301
+            },
+            {
+                "source": "/terrenos-en-venta-tulum-desarrolladores.html",
+                "destination": "/blog/terrenos-en-venta-tulum-desarrolladores",
+                "type": 301
+            },
+            {
+                "source": "/terrenos-en-venta-tulum-desarrolladores",
+                "destination": "/blog/terrenos-en-venta-tulum-desarrolladores",
+                "type": 301
+            },
+            {
+                "source": "/real-estate-marketing-tulum.html",
+                "destination": "/blog/real-estate-marketing-tulum",
+                "type": 301
+            },
+            {
+                "source": "/real-estate-marketing-tulum",
+                "destination": "/blog/real-estate-marketing-tulum",
+                "type": 301
+            },
+            {
+                "source": "/real-estate-agencies-mexico-city.html",
+                "destination": "/blog/real-estate-agencies-mexico-city",
+                "type": 301
+            },
+            {
+                "source": "/real-estate-agencies-mexico-city",
+                "destination": "/blog/real-estate-agencies-mexico-city",
+                "type": 301
+            },
+            {
+                "source": "/mejores-inmobiliarias-en-polanco.html",
+                "destination": "/blog/mejores-inmobiliarias-en-polanco",
+                "type": 301
+            },
+            {
+                "source": "/mejores-inmobiliarias-en-polanco",
+                "destination": "/blog/mejores-inmobiliarias-en-polanco",
+                "type": 301
+            },
+            {
+                "source": "/mejores-hoteles-eco-tulum-2025.html",
+                "destination": "/blog/mejores-hoteles-eco-tulum-2025",
+                "type": 301
+            },
+            {
+                "source": "/mejores-hoteles-eco-tulum-2025",
+                "destination": "/blog/mejores-hoteles-eco-tulum-2025",
+                "type": 301
+            },
+            {
+                "source": "/marketing-yates-cancun-luxury.html",
+                "destination": "/blog/marketing-yates-cancun-luxury",
+                "type": 301
+            },
+            {
+                "source": "/marketing-yates-cancun-luxury",
+                "destination": "/blog/marketing-yates-cancun-luxury",
+                "type": 301
+            },
+            {
+                "source": "/marketing-medico-cancun-v2.html",
+                "destination": "/blog/marketing-medico-cancun-v2",
+                "type": 301
+            },
+            {
+                "source": "/marketing-medico-cancun-v2",
+                "destination": "/blog/marketing-medico-cancun-v2",
+                "type": 301
+            },
+            {
+                "source": "/marketing-medico-cancun-seo.html",
+                "destination": "/blog/marketing-medico-cancun-seo",
+                "type": 301
+            },
+            {
+                "source": "/marketing-medico-cancun-seo",
+                "destination": "/blog/marketing-medico-cancun-seo",
+                "type": 301
+            },
+            {
+                "source": "/marketing-dental-cancun.html",
+                "destination": "/blog/marketing-dental-cancun",
+                "type": 301
+            },
+            {
+                "source": "/marketing-dental-cancun",
+                "destination": "/blog/marketing-dental-cancun",
+                "type": 301
+            },
+            {
+                "source": "/luxury-real-estate-san-miguel-de-allende.html",
+                "destination": "/blog/luxury-real-estate-san-miguel-de-allende",
+                "type": 301
+            },
+            {
+                "source": "/luxury-real-estate-san-miguel-de-allende",
+                "destination": "/blog/luxury-real-estate-san-miguel-de-allende",
+                "type": 301
+            },
+            {
+                "source": "/inversiones-inmobiliarias-merida-yucatan.html",
+                "destination": "/blog/inversiones-inmobiliarias-merida-yucatan",
+                "type": 301
+            },
+            {
+                "source": "/inversiones-inmobiliarias-merida-yucatan",
+                "destination": "/blog/inversiones-inmobiliarias-merida-yucatan",
+                "type": 301
+            },
+            {
+                "source": "/guia-seo-local-cancun-2026.html",
+                "destination": "/blog/guia-seo-local-cancun-2026",
+                "type": 301
+            },
+            {
+                "source": "/guia-seo-local-cancun-2026",
+                "destination": "/blog/guia-seo-local-cancun-2026",
+                "type": 301
+            },
+            {
+                "source": "/guia-feed-instagram.html",
+                "destination": "/blog/guia-feed-instagram",
+                "type": 301
+            },
+            {
+                "source": "/guia-feed-instagram",
+                "destination": "/blog/guia-feed-instagram",
+                "type": 301
+            },
+            {
+                "source": "/freelancer-vs-agencia-marketing-cancun.html",
+                "destination": "/blog/freelancer-vs-agencia-marketing-cancun",
+                "type": 301
+            },
+            {
+                "source": "/freelancer-vs-agencia-marketing-cancun",
+                "destination": "/blog/freelancer-vs-agencia-marketing-cancun",
+                "type": 301
+            },
+            {
+                "source": "/diseno-web-playa-del-carmen.html",
+                "destination": "/blog/diseno-web-playa-del-carmen",
+                "type": 301
+            },
+            {
+                "source": "/diseno-web-playa-del-carmen",
+                "destination": "/blog/diseno-web-playa-del-carmen",
+                "type": 301
+            },
+            {
+                "source": "/digital-marketing-agency-cancun.html",
+                "destination": "/blog/digital-marketing-agency-cancun",
+                "type": 301
+            },
+            {
+                "source": "/digital-marketing-agency-cancun",
+                "destination": "/blog/digital-marketing-agency-cancun",
+                "type": 301
+            },
+            {
+                "source": "/desarrollos-inmobiliarios-guadalajara.html",
+                "destination": "/blog/desarrollos-inmobiliarios-guadalajara",
+                "type": 301
+            },
+            {
+                "source": "/desarrollos-inmobiliarios-guadalajara",
+                "destination": "/blog/desarrollos-inmobiliarios-guadalajara",
+                "type": 301
+            },
+            {
+                "source": "/departamentos-en-preventa-valle-de-bravo.html",
+                "destination": "/blog/departamentos-en-preventa-valle-de-bravo",
+                "type": 301
+            },
+            {
+                "source": "/departamentos-en-preventa-valle-de-bravo",
+                "destination": "/blog/departamentos-en-preventa-valle-de-bravo",
+                "type": 301
+            },
+            {
+                "source": "/bienes-raices-de-lujo-los-cabos.html",
+                "destination": "/blog/bienes-raices-de-lujo-los-cabos",
+                "type": 301
+            },
+            {
+                "source": "/bienes-raices-de-lujo-los-cabos",
+                "destination": "/blog/bienes-raices-de-lujo-los-cabos",
+                "type": 301
+            },
+            {
+                "source": "/aleksander-jegorotsev-2026-global-growth.html",
+                "destination": "/blog/aleksander-jegorotsev-2026-global-growth",
+                "type": 301
+            },
+            {
+                "source": "/aleksander-jegorotsev-2026-global-growth",
+                "destination": "/blog/aleksander-jegorotsev-2026-global-growth",
+                "type": 301
+            },
+            {
+                "source": "/agencias-marketing-digital-cancun-guia-honesta-2026.html",
+                "destination": "/blog/agencias-marketing-digital-cancun-guia-honesta-2026",
+                "type": 301
+            },
+            {
+                "source": "/agencias-marketing-digital-cancun-guia-honesta-2026",
+                "destination": "/blog/agencias-marketing-digital-cancun-guia-honesta-2026",
+                "type": 301
+            },
+            {
+                "source": "/agencias-inmobiliarias-san-pedro-garza-garcia.html",
+                "destination": "/blog/agencias-inmobiliarias-san-pedro-garza-garcia",
+                "type": 301
+            },
+            {
+                "source": "/agencias-inmobiliarias-san-pedro-garza-garcia",
+                "destination": "/blog/agencias-inmobiliarias-san-pedro-garza-garcia",
+                "type": 301
+            },
+            {
+                "source": "/agencias-de-bienes-raices-puerto-vallarta.html",
+                "destination": "/blog/agencias-de-bienes-raices-puerto-vallarta",
+                "type": 301
+            },
+            {
+                "source": "/agencias-de-bienes-raices-puerto-vallarta",
+                "destination": "/blog/agencias-de-bienes-raices-puerto-vallarta",
+                "type": 301
+            },
+            {
+                "source": "/agencia-seo-cancun.html",
+                "destination": "/blog/agencia-seo-cancun",
+                "type": 301
+            },
+            {
+                "source": "/agencia-seo-cancun",
+                "destination": "/blog/agencia-seo-cancun",
+                "type": 301
+            },
+            {
+                "source": "/agencia-marketing-digital-cancun-v2.html",
+                "destination": "/blog/agencia-marketing-digital-cancun-v2",
+                "type": 301
+            },
+            {
+                "source": "/agencia-marketing-digital-cancun-v2",
+                "destination": "/blog/agencia-marketing-digital-cancun-v2",
+                "type": 301
+            },
+            {
+                "source": "/agencia-de-marketing-digital-cancun.html",
+                "destination": "/blog/agencia-de-marketing-digital-cancun",
+                "type": 301
+            },
+            {
+                "source": "/agencia-de-marketing-digital-cancun",
+                "destination": "/blog/agencia-de-marketing-digital-cancun",
+                "type": 301
+            },
+            {
+                "source": "/abogado-inmobiliario-cancun-trust.html",
+                "destination": "/blog/abogado-inmobiliario-cancun-trust",
+                "type": 301
+            },
+            {
+                "source": "/abogado-inmobiliario-cancun-trust",
+                "destination": "/blog/abogado-inmobiliario-cancun-trust",
+                "type": 301
+            }
+        ],
+        "rewrites": [
+            {
+                "source": "/landing/index.html",
+                "destination": "/index.html"
+            },
+            {
+                "source": "/landing",
+                "destination": "/index.html"
+            },
+            {
+                "source": "/marketing-digital-cancun.html",
+                "destination": "/index.html"
+            },
+            {
+                "source": "/marketing-digital-cancun",
+                "destination": "/index.html"
+            },
+            {
+                "source": "/runSiteAudit",
+                "function": "runSiteAudit"
+            },
+            {
+                "source": "/chat",
+                "function": "chat"
+            },
+            {
+                "source": "/api/chat",
+                "function": "chat"
+            },
+            {
+                "source": "/sendContactEmail",
+                "function": "sendContactEmail"
+            },
+            {
+                "source": "/voiceAgentCall",
+                "function": "voiceAgentCall"
+            },
+            {
+                "source": "/submitLead",
+                "function": "submitLead"
+            },
+            {
+                "source": "/getSeoMetrics",
+                "function": "getSeoMetrics"
+            },
+            {
+                "source": "/getCompetitorSpy",
+                "function": "getCompetitorSpy"
+            },
+            {
+                "source": "/sendLiveEmail",
+                "function": "sendLiveEmail"
+            },
+            {
+                "source": "/sendCalendlyLink",
+                "function": "sendCalendlyLink"
+            },
+            {
+                "source": "/getCalendlySlots",
+                "function": "getCalendlySlots"
+            },
+            {
+                "source": "/access-agency-os",
+                "destination": "/us/access-portal.html"
+            },
+            {
+                "source": "/us/flash-launch",
+                "destination": "/us/flash-launch.html"
+            },
+            {
+                "source": "/agentic-ai-business-guide",
+                "destination": "/agentic-ai-business-guide.html"
+            },
+            {
+                "source": "/data-pack",
+                "destination": "/data-pack.html"
+            },
+            {
+                "source": "/verification",
+                "destination": "/privacy.html",
+                "type": 301
+            },
+            {
+                "source": "/privacy",
+                "destination": "/privacy.html"
+            },
+            {
+                "source": "/dashboard",
+                "destination": "/dashboard.html"
+            },
+            {
+                "source": "/ai-voice",
+                "destination": "/ai-voice.html"
+            },
+            {
+                "source": "/blog/terrenos-en-venta-tulum-desarrolladores",
+                "destination": "/blog/terrenos-en-venta-tulum-desarrolladores.html"
+            },
+            {
+                "source": "/blog/real-estate-marketing-tulum",
+                "destination": "/blog/real-estate-marketing-tulum.html"
+            },
+            {
+                "source": "/blog/agencia-seo-en-cancun",
+                "destination": "/blog/agencia-seo-en-cancun.html"
+            },
+            {
+                "source": "/blog/**",
+                "destination": "/blog.html"
+            }
+        ],
+        "predeploy": [
+            "bash scripts/verify-videos.sh",
+            "bash scripts/auto-backup-videos.sh",
+            "npm run build"
+        ]
+    }
+}
