@@ -21,7 +21,7 @@ jobs:
           node-version: '20'
 
       - name: Install function dependencies
-        run: cd website/functions && npm ci
+        run: cd website/functions && npm install
 
       - name: Create .env file
         run: |
@@ -42,7 +42,7 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
   deploy-hosting:
-    name: Deploy Hosting
+    name: Deploy Hosting (manual only)
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
@@ -53,7 +53,6 @@ jobs:
 
       - name: Deploy Hosting
         run: |
-          # Skip predeploy hooks in CI (video scripts are local-only)
           sed -i '/"predeploy"/,/\]/d' firebase.json
           firebase deploy --only hosting --token "$FIREBASE_TOKEN"
         env:
