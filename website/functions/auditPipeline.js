@@ -485,15 +485,17 @@ async function runFullAudit(websiteUrl, leadCity) {
         wins.push("Certificado SSL activo");
     }
 
-    // PageSpeed
-    const psiPerformance = psiData?.performance || 0;
-    const psiSeo = psiData?.seo || 0;
-    if (psiPerformance < 50) {
-        score -= 15; issues.push({ area: "Velocidad", issue: `PageSpeed muy bajo: ${psiPerformance}/100`, detail: "Cada segundo de carga pierde 53% de visitantes", impact: "critico" });
-    } else if (psiPerformance < 80) {
-        score -= 7; issues.push({ area: "Velocidad", issue: `PageSpeed mejorable: ${psiPerformance}/100`, detail: "Objetivo: 90+ para maximo rendimiento", impact: "medio" });
-    } else {
-        wins.push(`Buen PageSpeed: ${psiPerformance}/100`);
+    // PageSpeed — distinguish null (API failed) from genuine score
+    const psiPerformance = psiData?.performance ?? null;
+    const psiSeo = psiData?.seo ?? null;
+    if (psiPerformance !== null) {
+        if (psiPerformance < 50) {
+            score -= 15; issues.push({ area: "Velocidad", issue: `PageSpeed muy bajo: ${psiPerformance}/100${psiData?.estimated ? ' (estimado)' : ''}`, detail: "Cada segundo de carga pierde 53% de visitantes", impact: "critico" });
+        } else if (psiPerformance < 80) {
+            score -= 7; issues.push({ area: "Velocidad", issue: `PageSpeed mejorable: ${psiPerformance}/100${psiData?.estimated ? ' (estimado)' : ''}`, detail: "Objetivo: 90+ para maximo rendimiento", impact: "medio" });
+        } else {
+            wins.push(`Buen PageSpeed: ${psiPerformance}/100${psiData?.estimated ? ' (estimado)' : ''}`);
+        }
     }
 
     // Content depth
@@ -503,10 +505,14 @@ async function runFullAudit(websiteUrl, leadCity) {
         score -= 3; issues.push({ area: "Contenido", issue: `Contenido limitado: ${wordCount} palabras`, detail: "Recomendado: 1000-2000 palabras", impact: "medio" });
     }
 
-    // Domain authority
-    const domainAuthority = backlinkData?.domain_rank || 0;
-    if (domainAuthority < 10) {
-        score -= 8; issues.push({ area: "Autoridad", issue: `Autoridad de dominio baja: ${domainAuthority}`, detail: "Necesitas backlinks de calidad para crecer", impact: "alto" });
+    // Domain authority — only penalize when DataForSEO confirms low rank (not when API returns nothing)
+    const domainAuthority = backlinkData?.domain_rank ?? null;
+    const hasAuthorityData = backlinkData && (backlinkData.total_backlinks > 0 || backlinkData.domain_rank > 0 || backlinkData.referring_domains > 0);
+    if (domainAuthority !== null && domainAuthority < 10 && hasAuthorityData) {
+        score -= 5; issues.push({ area: "Autoridad", issue: `Autoridad de dominio baja: ${domainAuthority}`, detail: "Necesitas backlinks de calidad para crecer", impact: "medio" });
+    } else if (domainAuthority !== null && domainAuthority < 10 && !hasAuthorityData) {
+        // New/tiny domain — lighter penalty, different message
+        score -= 3; issues.push({ area: "Autoridad", issue: "Sin datos historicos de autoridad", detail: "Sitio nuevo o con minimo trafico — necesita estrategia de backlinks", impact: "bajo" });
     }
 
     // WhatsApp
@@ -709,13 +715,16 @@ async function runFullAudit(websiteUrl, leadCity) {
         speed: {
             performance: psiPerformance,
             seo: psiSeo,
-            accessibility: psiData?.accessibility || 0,
-            bestPractices: psiData?.best_practices || 0
+            accessibility: psiData?.accessibility ?? null,
+            bestPractices: psiData?.best_practices ?? null,
+            estimated: psiData?.estimated || false,
+            ttfb: psiData?.ttfb || null,
+            sizeKb: psiData?.sizeKb || null
         },
         authority: {
             domainRank: domainAuthority,
-            totalBacklinks: backlinkData?.total_backlinks || 0,
-            totalKeywords: rankData?.total_keywords || 0,
+            totalBacklinks: backlinkData?.total_backlinks ?? null,
+            totalKeywords: rankData?.total_keywords ?? null,
             topKeywords: (rankData?.top_keywords || []).slice(0, 8)
         },
         competitors: {
@@ -882,7 +891,7 @@ function generateReportHTML(audit, leadName, leadCity) {
         </tr>`).join("");
 
     // Speed gauge visual
-    const speedArc = Math.round((audit.speed.performance / 100) * 283);
+    const speedArc = Math.round(((audit.score || 0) / 100) * 283);
 
     // Build business-snapshot HTML (from Firecrawl extract)
     const biz = audit.business;
@@ -1019,23 +1028,23 @@ ${crawlCard}
     <h2 class="section-title">Metricas Clave</h2>
     <div class="metric-grid">
         <div class="metric-box">
-            <div class="metric-value" style="color:${audit.speed.performance >= 80 ? '#22c55e' : audit.speed.performance >= 50 ? '#C5A059' : '#ef4444'};">${audit.speed.performance}${audit.speed.estimated ? '*' : ''}</div>
+            <div class="metric-value" style="color:${audit.speed.performance !== null ? (audit.speed.performance >= 80 ? '#22c55e' : audit.speed.performance >= 50 ? '#C5A059' : '#ef4444') : 'rgba(255,255,255,0.3)'};">${audit.speed.performance !== null ? audit.speed.performance : 'N/D'}${audit.speed.performance !== null && audit.speed.estimated ? '*' : ''}</div>
             <div class="metric-label">PageSpeed (Movil)${audit.speed.estimated ? ' *estimado' : ''}</div>
         </div>
         <div class="metric-box">
-            <div class="metric-value gold">${audit.authority.domainRank || '—'}</div>
+            <div class="metric-value" style="color:${audit.authority.domainRank !== null && audit.authority.domainRank > 0 ? '#C5A059' : 'rgba(255,255,255,0.3)'};">${audit.authority.domainRank !== null ? audit.authority.domainRank : 'N/D'}</div>
             <div class="metric-label">Autoridad de Dominio</div>
         </div>
         <div class="metric-box">
-            <div class="metric-value gold">${audit.authority.totalKeywords || '—'}</div>
+            <div class="metric-value" style="color:${audit.authority.totalKeywords !== null && audit.authority.totalKeywords > 0 ? '#C5A059' : 'rgba(255,255,255,0.3)'};">${audit.authority.totalKeywords !== null ? audit.authority.totalKeywords : 'N/D'}</div>
             <div class="metric-label">Keywords Posicionadas</div>
         </div>
         <div class="metric-box">
-            <div class="metric-value gold">${audit.authority.totalBacklinks || '—'}</div>
+            <div class="metric-value" style="color:${audit.authority.totalBacklinks !== null && audit.authority.totalBacklinks > 0 ? '#C5A059' : 'rgba(255,255,255,0.3)'};">${audit.authority.totalBacklinks !== null ? audit.authority.totalBacklinks : 'N/D'}</div>
             <div class="metric-label">Backlinks</div>
         </div>
         <div class="metric-box">
-            <div class="metric-value" style="color:${(audit.speed.seo || 0) >= 80 ? '#22c55e' : '#C5A059'};">${audit.speed.seo !== null && audit.speed.seo !== undefined ? audit.speed.seo : '—'}</div>
+            <div class="metric-value" style="color:${audit.speed.seo !== null ? ((audit.speed.seo >= 80) ? '#22c55e' : '#C5A059') : 'rgba(255,255,255,0.3)'};">${audit.speed.seo !== null ? audit.speed.seo : 'N/D'}</div>
             <div class="metric-label">SEO Score (Google)</div>
         </div>
         <div class="metric-box">
@@ -1043,7 +1052,7 @@ ${crawlCard}
             <div class="metric-label">Visible en IA</div>
         </div>
     </div>
-    ${audit.authority.domainRank === 0 && audit.authority.totalKeywords === 0 ? `<p style="margin-top:16px;color:rgba(255,255,255,0.35);font-size:12px;text-align:center;">Sin datos historicos de autoridad — sitio nuevo o con minimo trafico organico.</p>` : ''}
+    ${(audit.authority.domainRank === null || audit.authority.domainRank === 0) && (audit.authority.totalKeywords === null || audit.authority.totalKeywords === 0) ? '<p style="margin-top:16px;color:rgba(255,255,255,0.35);font-size:12px;text-align:center;">Sin datos historicos de autoridad — sitio nuevo o con minimo trafico organico.</p>' : ''}
 </div>
 
 <!-- ISSUES FOUND -->
@@ -1078,19 +1087,19 @@ ${audit.wins.length > 0 ? `
     ${audit.speed.estimated ? `<p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:16px;">TTFB medido: <strong style="color:#C5A059;">${audit.speed.ttfb}ms</strong> · Peso de pagina: <strong style="color:#C5A059;">${audit.speed.sizeKb}KB</strong></p>` : ''}
     <div class="metric-grid">
         <div class="metric-box">
-            <div class="metric-value" style="color:${audit.speed.performance >= 80 ? '#22c55e' : audit.speed.performance >= 50 ? '#C5A059' : '#ef4444'};">${audit.speed.performance}</div>
+            <div class="metric-value" style="color:${audit.speed.performance !== null ? (audit.speed.performance >= 80 ? '#22c55e' : audit.speed.performance >= 50 ? '#C5A059' : '#ef4444') : 'rgba(255,255,255,0.3)'};">${audit.speed.performance !== null ? audit.speed.performance : 'N/D'}</div>
             <div class="metric-label">Rendimiento</div>
         </div>
         <div class="metric-box">
-            <div class="metric-value" style="color:${(audit.speed.accessibility || 0) >= 80 ? '#22c55e' : '#C5A059'};">${audit.speed.accessibility !== null && audit.speed.accessibility !== undefined ? audit.speed.accessibility : '—'}</div>
+            <div class="metric-value" style="color:${audit.speed.accessibility !== null ? (audit.speed.accessibility >= 80 ? '#22c55e' : '#C5A059') : 'rgba(255,255,255,0.3)'};">${audit.speed.accessibility !== null ? audit.speed.accessibility : 'N/D'}</div>
             <div class="metric-label">Accesibilidad</div>
         </div>
         <div class="metric-box">
-            <div class="metric-value" style="color:${(audit.speed.bestPractices || 0) >= 80 ? '#22c55e' : '#C5A059'};">${audit.speed.bestPractices !== null && audit.speed.bestPractices !== undefined ? audit.speed.bestPractices : '—'}</div>
+            <div class="metric-value" style="color:${audit.speed.bestPractices !== null ? (audit.speed.bestPractices >= 80 ? '#22c55e' : '#C5A059') : 'rgba(255,255,255,0.3)'};">${audit.speed.bestPractices !== null ? audit.speed.bestPractices : 'N/D'}</div>
             <div class="metric-label">Mejores Practicas</div>
         </div>
         <div class="metric-box">
-            <div class="metric-value" style="color:${(audit.speed.seo || 0) >= 80 ? '#22c55e' : '#C5A059'};">${audit.speed.seo !== null && audit.speed.seo !== undefined ? audit.speed.seo : '—'}</div>
+            <div class="metric-value" style="color:${audit.speed.seo !== null ? (audit.speed.seo >= 80 ? '#22c55e' : '#C5A059') : 'rgba(255,255,255,0.3)'};">${audit.speed.seo !== null ? audit.speed.seo : 'N/D'}</div>
             <div class="metric-label">SEO Tecnico</div>
         </div>
     </div>
