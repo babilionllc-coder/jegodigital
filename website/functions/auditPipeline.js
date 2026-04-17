@@ -34,66 +34,100 @@ async function firecrawlScrape(url) {
         fromFirecrawl: false, ttfbMs: null, sizeKb: 0
     };
 
+    // --- Firecrawl v2 primary (with retry + correct REST API format) ---
+    // CRITICAL FIX: Firecrawl REST API v2 expects `formats` as a STRING ARRAY only.
+    // Objects in formats (like {type:"screenshot"}) cause 400/422 errors.
+    // JSON extraction uses a separate `extract` parameter, NOT inside formats.
+    // Docs: https://docs.firecrawl.dev/api-reference/endpoint/scrape
     if (fcKey) {
-        try {
-            const t0 = Date.now();
-            const resp = await axios.post("https://api.firecrawl.dev/v2/scrape", {
-                url,
-                formats: [
-                    "markdown",
-                    "html",
-                    "links",
-                    { type: "screenshot", viewport: { width: 1280, height: 720 }, fullPage: false },
-                    {
-                        type: "json",
-                        prompt: "Extract these fields from this real estate agency website. Return null for anything not found. Fields: business_name (string), services_offered (string array), contact_phone (string), whatsapp_number (string), email (string), has_whatsapp_button (boolean), has_lead_form (boolean), has_property_listings (boolean), number_of_properties_visible (integer), social_links (array of full URLs), operates_in_cities (array of city names), languages_supported (array, e.g. ['es','en']), has_agent_bios (boolean), has_testimonials (boolean), has_blog (boolean), primary_cta_text (string)"
-                    }
-                ],
-                onlyMainContent: false,
-                waitFor: 1500,
-                timeout: 45000
-            }, {
-                headers: { Authorization: `Bearer ${fcKey}`, "Content-Type": "application/json" },
-                timeout: 55000
-            });
-            out.ttfbMs = Date.now() - t0;
-            if (resp.data?.success && resp.data?.data) {
-                const d = resp.data.data;
-                out.markdown = d.markdown || "";
-                out.html = d.html || "";
-                out.metadata = d.metadata || {};
-                out.links = d.links || [];
-                out.screenshotUrl = d.screenshot || null;
-                out.extracted = d.json || null;
-                out.statusCode = d.metadata?.statusCode || 200;
-                out.sizeKb = Math.round((out.html.length + out.markdown.length) / 1024);
-                out.fromFirecrawl = true;
-                console.log(`🔥 Firecrawl OK: ${out.html.length} html chars, ${out.markdown.length} md chars, extract=${!!out.extracted}, screenshot=${!!out.screenshotUrl}`);
-                return out;
-            } else {
-                console.warn("Firecrawl returned non-success:", JSON.stringify(resp.data).substring(0, 200));
+        const MAX_RETRIES = 2;
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                const t0 = Date.now();
+                console.log(`🔥 Firecrawl v2 scrape (attempt ${attempt}/${MAX_RETRIES}): ${url}`);
+                const resp = await axios.post("https://api.firecrawl.dev/v1/scrape", {
+                    url,
+                    formats: ["markdown", "html", "links", "screenshot"],
+                    onlyMainContent: false,
+                    waitFor: 2000,
+                    timeout: 60000,
+                    location: { country: "MX", languages: ["es", "en"] }
+                }, {
+                    headers: { Authorization: `Bearer ${fcKey}`, "Content-Type": "application/json" },
+                    timeout: 75000
+                });
+                out.ttfbMs = Date.now() - t0;
+                if (resp.data?.success && resp.data?.data) {
+                    const d = resp.data.data;
+                    out.markdown = d.markdown || "";
+                    out.html = d.html || "";
+                    out.metadata = d.metadata || {};
+                    out.links = d.links || [];
+                    out.screenshotUrl = d.screenshot || null;
+                    // Firecrawl v2 returns LLM extraction in `extract` field (not `json`)
+                    out.extracted = d.extract || d.json || null;
+                    out.statusCode = d.metadata?.statusCode || 200;
+                    out.sizeKb = Math.round((out.html.length + out.markdown.length) / 1024);
+                    out.fromFirecrawl = true;
+                    console.log(`🔥 Firecrawl OK (${out.ttfbMs}ms): ${out.html.length} html, ${out.markdown.length} md, extract=${!!out.extracted}, screenshot=${!!out.screenshotUrl}, status=${out.statusCode}`);
+                    return out;
+                } else {
+                    console.warn(`⚠️ Firecrawl attempt ${attempt} non-success:`, JSON.stringify(resp.data).substring(0, 300));
+                }
+            } catch (err) {
+                const status = err.response?.status;
+                const errBody = err.response?.data ? JSON.stringify(err.response.data).substring(0, 200) : "";
+                console.warn(`⚠️ Firecrawl attempt ${attempt} failed (HTTP ${status || "N/A"}): ${err.message} ${errBody}`);
+                // Retry on 429 (rate limit) or 5xx server errors
+                if (attempt < MAX_RETRIES && (!status || status === 429 || status >= 500)) {
+                    const backoff = status === 429 ? 10000 : 3000;
+                    console.log(`⏳ Retrying Firecrawl in ${backoff}ms...`);
+                    await new Promise(r => setTimeout(r, backoff));
+                } else if (status >= 400 && status < 500 && status !== 429) {
+                    console.error(`❌ Firecrawl client error ${status} — not retrying. Body: ${errBody}`);
+                    break;
+                }
             }
-        } catch (err) {
-            console.warn(`⚠️ Firecrawl failed (${err.response?.status || err.code || "err"}): ${err.message} — falling back to fetch()`);
         }
+        console.warn("⚠️ All Firecrawl attempts exhausted — falling back to fetch()");
     } else {
         console.warn("FIRECRAWL_API_KEY not set — falling back to fetch()");
     }
 
-    // Fallback: plain fetch
-    try {
-        const t0 = Date.now();
-        const res = await fetch(url, {
-            headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" },
-            redirect: "follow"
-        });
-        out.ttfbMs = Date.now() - t0;
-        out.statusCode = res.status;
-        const body = res.ok ? await res.text() : "";
-        out.html = body;
-        out.sizeKb = Math.round(body.length / 1024);
-    } catch (err) {
-        console.warn("Fallback fetch also failed:", err.message);
+    // Fallback: plain fetch with multiple User-Agent attempts
+    const userAgents = [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+        "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
+    ];
+    for (const ua of userAgents) {
+        try {
+            const t0 = Date.now();
+            const res = await fetch(url, {
+                headers: {
+                    "User-Agent": ua,
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "es-MX,es;q=0.9,en;q=0.8"
+                },
+                redirect: "follow",
+                signal: AbortSignal.timeout(20000)
+            });
+            out.ttfbMs = Date.now() - t0;
+            out.statusCode = res.status;
+            const body = res.ok ? await res.text() : "";
+            if (body.length > 500) {
+                out.html = body;
+                out.sizeKb = Math.round(body.length / 1024);
+                console.log(`✅ Fallback fetch OK (UA: ${ua.substring(0, 30)}...): ${body.length} chars`);
+                break;
+            }
+            console.warn(`⚠️ Fetch returned thin content (${body.length} chars) with UA: ${ua.substring(0, 30)}...`);
+        } catch (err) {
+            console.warn(`⚠️ Fetch failed with UA ${ua.substring(0, 30)}...: ${err.message}`);
+        }
+    }
+    if (!out.html || out.html.length < 100) {
+        console.warn("❌ All fetch attempts returned thin/empty content — site may block automated access");
     }
     return out;
 }
@@ -227,6 +261,7 @@ async function runFullAudit(websiteUrl, leadCity) {
     const cleanName = hostname.replace("www.", "").split(".")[0]; // e.g. "flamingorealestate"
 
     console.log(`🔍 Audit Pipeline starting for: ${url}`);
+    console.log(`🔑 ENV check: FIRECRAWL=${!!process.env.FIRECRAWL_API_KEY} DFS_LOGIN=${!!process.env.DATAFORSEO_LOGIN} DFS_PASS=${!!process.env.DATAFORSEO_PASS} SERPAPI=${!!process.env.SERPAPI_KEY} PERPLEXITY=${!!process.env.PERPLEXITY_API_KEY} BREVO=${!!process.env.BREVO_API_KEY} GEMINI=${!!process.env.GEMINI_API_KEY}`);
 
     // --- PARALLEL DATA FETCH (55s timeout) ---
     const controller = new AbortController();
@@ -254,12 +289,12 @@ async function runFullAudit(websiteUrl, leadCity) {
             // 5. Paid ads data
             getPaidData(hostname).catch(e => { console.warn(`⚠️ getPaidData failed: ${e.message}`); return { ad_count: 0 }; }),
 
-            // 6. PageSpeed Insights
+            // 6. PageSpeed Insights (no API key = public access, works fine for low volume)
             (async () => {
                 const apiKey = process.env.PSI_API_KEY || process.env.PAGESPEED_API_KEY || null;
                 console.log(`⚡ PSI starting for ${url} (key present: ${!!apiKey})`);
                 const result = await getPageSpeed(url, "mobile", apiKey);
-                console.log(`⚡ PSI result: ${JSON.stringify(result)}`);
+                console.log(`⚡ PSI result: ${result ? JSON.stringify(result) : "null (API failed)"}`);
                 return result;
             })().catch((e) => { console.warn(`⚠️ PSI call failed: ${e.message}`); return null; }),
 
@@ -1172,7 +1207,7 @@ ${audit.aiVerdict ? `
     </p>
     <a href="https://calendly.com/jegoalexdigital/30min" class="cta-btn">Agendar Llamada Gratuita</a>
     <p style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:16px;">
-        O escribenos por WhatsApp: <a href="https://wa.me/529982023263" style="color:#C5A059;">+52 998 202 3263</a>
+        O escribenos por WhatsApp: <a href="https://wa.me/529987875321" style="color:#C5A059;">+52 998 787 5321</a>
     </p>
 </div>
 
@@ -1248,22 +1283,26 @@ async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues)
         <!-- Footer -->
         <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.05);padding-top:24px;">
             <p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">JegoDigital — Marketing Digital para Inmobiliarias</p>
-            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 202 3263</p>
+            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 787 5321</p>
         </div>
     </div>`;
 
     console.log(`📧 Sending audit email to ${email} (BREVO_KEY present: ${!!BREVO_KEY}, sender: info@jegodigital.com)`);
+    // Schedule email 60 minutes from now so it feels like a real team analyzed the site
+    const sendAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
     const emailResp = await axios.post("https://api.brevo.com/v3/smtp/email", {
         sender: { name: "JegoDigital", email: process.env.BREVO_SENDER_EMAIL || "info@jegodigital.com" },
         to: [{ email, name: leadName }],
         subject: `${scoreEmoji} Tu Auditoria Digital: ${auditScore}/100 — ${(topIssues || [])[0]?.issue || "Resultados listos"}`,
-        htmlContent
+        htmlContent,
+        scheduledAt: sendAt
     }, {
         headers: { "api-key": BREVO_KEY, "Content-Type": "application/json", accept: "application/json" },
         timeout: 15000
     });
 
-    console.log(`📧 Audit email sent to ${email} — Brevo response: ${JSON.stringify(emailResp.data)}`);
+    console.log(`📧 Audit email SCHEDULED for ${email} at ${sendAt} (60min delay) — Brevo response: ${JSON.stringify(emailResp.data)}`);
 }
 
 
@@ -1314,7 +1353,7 @@ async function sendConfirmationEmail(email, leadName, websiteUrl) {
 
         <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.05);padding-top:24px;">
             <p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">JegoDigital — Marketing Digital para Inmobiliarias</p>
-            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 202 3263</p>
+            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 787 5321</p>
         </div>
     </div>`;
 
