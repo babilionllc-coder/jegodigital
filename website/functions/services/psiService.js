@@ -1,5 +1,6 @@
 // Google PageSpeed Insights Service
 // Documentation: https://developers.google.com/speed/docs/insights/v5/get-started
+const axios = require("axios");
 
 async function getPageSpeed(url, strategy = 'mobile', apiKey = null) {
     const maxRetries = 2;
@@ -12,35 +13,19 @@ async function getPageSpeed(url, strategy = 'mobile', apiKey = null) {
 
             let endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}&category=PERFORMANCE&category=SEO&category=ACCESSIBILITY&category=BEST_PRACTICES`;
 
-            // Add API Key if present (strongly recommended for Cloud Functions)
             if (useKey) {
                 endpoint += `&key=${useKey}`;
             }
 
-            // Use AbortController for 30s timeout (PSI can hang)
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 30000);
-
-            const response = await fetch(endpoint, { signal: controller.signal });
-            clearTimeout(timeout);
-
-            if (!response.ok) {
-                const status = response.status;
-                const text = await response.text().catch(() => "");
-                console.warn(`⚠️ PSI ${status}: ${response.statusText} — ${text.substring(0, 200)}`);
-                // 429 = rate limited, retry after short delay
-                if (status === 429 && attempt < maxRetries) {
-                    console.log(`⏳ PSI rate-limited, waiting 5s before retry...`);
-                    await new Promise(r => setTimeout(r, 5000));
-                    continue;
-                }
-                return null;
-            }
-
-            const data = await response.json();
+            const response = await axios.get(endpoint, { timeout: 45000 });
+            const data = response.data;
 
             if (!data.lighthouseResult || !data.lighthouseResult.categories) {
                 console.warn("⚠️ PSI returned OK but no lighthouse data:", JSON.stringify(data).substring(0, 300));
+                if (attempt < maxRetries) {
+                    await new Promise(r => setTimeout(r, 3000));
+                    continue;
+                }
                 return null;
             }
 
@@ -60,16 +45,20 @@ async function getPageSpeed(url, strategy = 'mobile', apiKey = null) {
             return result;
 
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.warn(`⚠️ PSI timed out (30s) on attempt ${attempt}`);
-            } else {
-                console.error(`❌ PSI Service Error (attempt ${attempt}):`, error.message);
+            const status = error.response?.status;
+            const errBody = error.response?.data ? JSON.stringify(error.response.data).substring(0, 300) : "";
+            console.error(`❌ PSI Error (attempt ${attempt}): HTTP ${status || "N/A"} — ${error.message} ${errBody}`);
+
+            if (status === 429 && attempt < maxRetries) {
+                console.log(`⏳ PSI rate-limited, waiting 5s before retry...`);
+                await new Promise(r => setTimeout(r, 5000));
+                continue;
             }
             if (attempt < maxRetries) {
                 await new Promise(r => setTimeout(r, 3000));
                 continue;
             }
-            return null; // Fail gracefully after all retries
+            return null;
         }
     }
     return null;
