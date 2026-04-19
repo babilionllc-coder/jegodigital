@@ -1,12 +1,14 @@
-node_modules/
-package-lock.json
+automation/
 *.env
-*.env.*
 .DS_Store
-.fuse_hidden*
-.genkit/
-__pycache__/
-*.pyc
-*.bak
-config_dump.json
-firebase-debug.log
+node_modules/
+.vercel
+
+# Secrets — NEVER commit. Added 2026-04-18 after env/ was created with
+# plaintext GitHub PAT + GCP service account key that were NOT previously ignored.
+env/
+env.txt
+*.json.key
+**/service-account*.json
+**/*-service-account*.json
+jegodigital-e02fb-*.json

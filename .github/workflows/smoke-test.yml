@@ -1,0 +1,95 @@
+name: Smoke Test - Production Pipelines
+
+# Runs daily at 08:00 UTC (02:00 CST / 03:00 EST) to verify all 3 pipelines are healthy.
+# If any check fails, the workflow fails and shows red in the Actions tab.
+# Also runnable on-demand via workflow_dispatch.
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Ping production endpoints
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Cloud Run - mockup-renderer /healthz
+        run: |
+          URL="https://mockup-renderer-wfmydylowa-uc.a.run.app/healthz"
+          echo "Testing $URL"
+          RESPONSE=$(curl -s -o /tmp/body -w "%{http_code}" "$URL")
+          echo "HTTP $RESPONSE"
+          cat /tmp/body
+          if [ "$RESPONSE" != "200" ]; then
+            echo "::error::Cloud Run mockup-renderer /healthz returned $RESPONSE"
+            exit 1
+          fi
+
+      - name: Firebase Functions - submitAuditRequest (OPTIONS preflight)
+        run: |
+          URL="https://us-central1-jegodigital-e02fb.cloudfunctions.net/submitAuditRequest"
+          echo "Testing $URL (OPTIONS)"
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X OPTIONS "$URL" \
+            -H "Origin: https://jegodigital.com" \
+            -H "Access-Control-Request-Method: POST")
+          echo "HTTP $RESPONSE"
+          # 204 or 200 both mean CORS preflight is alive
+          if [ "$RESPONSE" != "204" ] && [ "$RESPONSE" != "200" ]; then
+            echo "::error::submitAuditRequest preflight returned $RESPONSE"
+            exit 1
+          fi
+
+      - name: Firebase Hosting - jegodigital.com
+        run: |
+          URL="https://jegodigital.com"
+          echo "Testing $URL"
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -L "$URL")
+          echo "HTTP $RESPONSE"
+          if [ "$RESPONSE" != "200" ]; then
+            echo "::error::jegodigital.com returned $RESPONSE"
+            exit 1
+          fi
+
+      - name: Firebase Hosting - auditoria-gratis landing
+        run: |
+          URL="https://jegodigital.com/auditoria-gratis"
+          echo "Testing $URL"
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -L "$URL")
+          echo "HTTP $RESPONSE"
+          if [ "$RESPONSE" != "200" ]; then
+            echo "::error::auditoria-gratis page returned $RESPONSE"
+            exit 1
+          fi
+
+      - name: Sitemap availability
+        run: |
+          URL="https://jegodigital.com/sitemap.xml"
+          echo "Testing $URL"
+          RESPONSE=$(curl -s -o /tmp/sitemap -w "%{http_code}" "$URL")
+          echo "HTTP $RESPONSE"
+          COUNT=$(grep -c "<loc>" /tmp/sitemap || echo 0)
+          echo "URLs in sitemap: $COUNT"
+          if [ "$RESPONSE" != "200" ]; then
+            echo "::error::sitemap.xml returned $RESPONSE"
+            exit 1
+          fi
+          if [ "$COUNT" -lt 10 ]; then
+            echo "::error::sitemap.xml only has $COUNT URLs — expected 10+"
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Smoke Test — $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Cloud Run /healthz | ${{ steps.cloudrun.outcome || 'see above' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| submitAuditRequest preflight | see above |" >> $GITHUB_STEP_SUMMARY
+          echo "| jegodigital.com | see above |" >> $GITHUB_STEP_SUMMARY
+          echo "| /auditoria-gratis | see above |" >> $GITHUB_STEP_SUMMARY
+          echo "| sitemap.xml | see above |" >> $GITHUB_STEP_SUMMARY

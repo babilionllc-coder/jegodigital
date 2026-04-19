@@ -1,0 +1,95 @@
+name: Deploy Cloud Run - Mockup Renderer
+
+# Triggers on any push to main that touches the mockup-renderer service.
+# Builds the Docker image, deploys to Cloud Run, and forces public access
+# (fixes the Google 404 issue where --allow-unauthenticated silently skips).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/mockup-renderer/**'
+      - '.github/workflows/deploy-cloudrun.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: jegodigital-e02fb
+  REGION: us-central1
+  SERVICE: mockup-renderer
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        run: |
+          gcloud run deploy $SERVICE \
+            --source=./website/mockup-renderer \
+            --region=$REGION \
+            --memory=2Gi \
+            --cpu=2 \
+            --timeout=120s \
+            --concurrency=3 \
+            --min-instances=0 \
+            --max-instances=5 \
+            --allow-unauthenticated \
+            --project=$PROJECT_ID \
+            --quiet
+
+          URL=$(gcloud run services describe $SERVICE \
+            --region=$REGION \
+            --project=$PROJECT_ID \
+            --format="value(status.url)")
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Service URL: $URL"
+
+      - name: Force public access (fixes 404 when --allow-unauthenticated is silently blocked)
+        run: |
+          gcloud run services add-iam-policy-binding $SERVICE \
+            --region=$REGION \
+            --project=$PROJECT_ID \
+            --member="allUsers" \
+            --role="roles/run.invoker" \
+            --quiet || echo "IAM binding may already exist or org policy blocks it"
+
+      - name: Smoke test
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          echo "Testing $URL/healthz"
+          for i in 1 2 3 4 5; do
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$URL/healthz")
+            if [ "$RESPONSE" = "200" ]; then
+              echo "✓ Healthz returned 200"
+              curl -s "$URL/healthz"
+              exit 0
+            fi
+            echo "Attempt $i: got $RESPONSE, retrying in 5s..."
+            sleep 5
+          done
+          echo "::error::Healthz never returned 200 after 5 attempts"
+          exit 1
+
+      - name: Write summary
+        if: always()
+        run: |
+          echo "## Cloud Run Deploy — mockup-renderer" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service URL:** ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Region:** $REGION" >> $GITHUB_STEP_SUMMARY
+          echo "- **Project:** $PROJECT_ID" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Healthz endpoint: ${{ steps.deploy.outputs.url }}/healthz" >> $GITHUB_STEP_SUMMARY
