@@ -1,10 +1,10 @@
-name: Deploy Cloud Functions
+name: Deploy to Firebase
 
 on:
   push:
     branches: [main]
     paths:
-      - 'website/functions/**'
+      - 'website/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -24,32 +24,55 @@ jobs:
         run: cd website/functions && npm install
 
       - name: Create .env file
-        env:
-          DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
-          DATAFORSEO_PASS: ${{ secrets.DATAFORSEO_PASS }}
-          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-          HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          CALENDLY_PAT: ${{ secrets.CALENDLY_PAT }}
-          CALENDLY_EVENT_TYPE_URI: ${{ secrets.CALENDLY_EVENT_TYPE_URI }}
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
-          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
         run: |
           cd website/functions
-          env | grep -E '^(DATAFORSEO|PERPLEXITY|SERPAPI|HUNTER|GEMINI|PSI|ELEVENLABS|BREVO|CALENDLY|TWILIO|FIRECRAWL)' > .env
-          echo "BREVO_SENDER_EMAIL=info@jegodigital.com" >> .env
-          echo "ALEX_EMAIL=jegoalexdigital@gmail.com" >> .env
+          cat > .env << 'ENVEOF'
+          BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}
+          BREVO_SENDER_EMAIL=${{ secrets.BREVO_SENDER_EMAIL }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          PERPLEXITY_API_KEY=${{ secrets.PERPLEXITY_API_KEY }}
+          SERPAPI_KEY=${{ secrets.SERPAPI_KEY }}
+          FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }}
+          DATAFORSEO_LOGIN=${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASS=${{ secrets.DATAFORSEO_PASS }}
+          PSI_API_KEY=${{ secrets.PSI_API_KEY }}
+          HUNTER_API_KEY=${{ secrets.HUNTER_API_KEY }}
+          ELEVENLABS_API_KEY=${{ secrets.ELEVENLABS_API_KEY }}
+          CALENDLY_PAT=${{ secrets.CALENDLY_PAT }}
+          CALENDLY_EVENT_TYPE_URI=${{ secrets.CALENDLY_EVENT_TYPE_URI }}
+          ALEX_EMAIL=${{ secrets.ALEX_EMAIL }}
+          TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM=${{ secrets.TWILIO_FROM }}
+          MOCKUP_RENDERER_URL=${{ secrets.MOCKUP_RENDERER_URL }}
+          TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
+          BREVO_SENDER_NAME=${{ secrets.BREVO_SENDER_NAME }}
+          PAGESPEED_API_KEY=${{ secrets.PAGESPEED_API_KEY }}
+          ENVEOF
+          # Clean leading whitespace from heredoc
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
       - name: Deploy Functions to Firebase
         run: firebase deploy --only functions --force --token "$FIREBASE_TOKEN"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+  deploy-hosting:
+    name: Deploy Hosting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Hosting
+        run: |
+          sed -i '/"predeploy"/,/\]/d' firebase.json
+          firebase deploy --only hosting --token "$FIREBASE_TOKEN"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
