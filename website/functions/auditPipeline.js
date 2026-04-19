@@ -1288,8 +1288,9 @@ async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues)
     </div>`;
 
     console.log(`📧 Sending audit email to ${email} (BREVO_KEY present: ${!!BREVO_KEY}, sender: info@jegodigital.com)`);
-    // Schedule email 60 minutes from now so it feels like a real team analyzed the site
-    const sendAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    // Schedule email 45 minutes from now — honors the "menos de 1 hora" promise in the confirmation email
+    // with a 15-min safety buffer. 60min was cutting too close and triggered lead impatience.
+    const sendAt = new Date(Date.now() + 45 * 60 * 1000).toISOString();
 
     const emailResp = await axios.post("https://api.brevo.com/v3/smtp/email", {
         sender: { name: "JegoDigital", email: process.env.BREVO_SENDER_EMAIL || "info@jegodigital.com" },
@@ -1302,7 +1303,7 @@ async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues)
         timeout: 15000
     });
 
-    console.log(`📧 Audit email SCHEDULED for ${email} at ${sendAt} (60min delay) — Brevo response: ${JSON.stringify(emailResp.data)}`);
+    console.log(`📧 Audit email SCHEDULED for ${email} at ${sendAt} (45min delay) — Brevo response: ${JSON.stringify(emailResp.data)}`);
 }
 
 
