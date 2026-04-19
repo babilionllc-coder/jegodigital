@@ -26,75 +26,9 @@ const { getExecutiveVerdict } = require("./services/geminiService");
 // Returns: { markdown, html, metadata, links, screenshotUrl, extracted, statusCode, fromFirecrawl }
 // Falls back to plain fetch() if Firecrawl fails or key missing.
 // ============================================================
-async function firecrawlScrape(url) {
-    const fcKey = process.env.FIRECRAWL_API_KEY;
-    const out = {
-        markdown: "", html: "", metadata: {}, links: [],
-        screenshotUrl: null, extracted: null, statusCode: null,
-        fromFirecrawl: false, ttfbMs: null, sizeKb: 0
-    };
-
-    // --- Firecrawl v2 primary (with retry + correct REST API format) ---
-    // CRITICAL FIX: Firecrawl REST API v2 expects `formats` as a STRING ARRAY only.
-    // Objects in formats (like {type:"screenshot"}) cause 400/422 errors.
-    // JSON extraction uses a separate `extract` parameter, NOT inside formats.
-    // Docs: https://docs.firecrawl.dev/api-reference/endpoint/scrape
-    if (fcKey) {
-        const MAX_RETRIES = 2;
-        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-            try {
-                const t0 = Date.now();
-                console.log(`🔥 Firecrawl v2 scrape (attempt ${attempt}/${MAX_RETRIES}): ${url}`);
-                const resp = await axios.post("https://api.firecrawl.dev/v1/scrape", {
-                    url,
-                    formats: ["markdown", "html", "links", "screenshot"],
-                    onlyMainContent: false,
-                    waitFor: 2000,
-                    timeout: 60000,
-                    location: { country: "MX", languages: ["es", "en"] }
-                }, {
-                    headers: { Authorization: `Bearer ${fcKey}`, "Content-Type": "application/json" },
-                    timeout: 75000
-                });
-                out.ttfbMs = Date.now() - t0;
-                if (resp.data?.success && resp.data?.data) {
-                    const d = resp.data.data;
-                    out.markdown = d.markdown || "";
-                    out.html = d.html || "";
-                    out.metadata = d.metadata || {};
-                    out.links = d.links || [];
-                    out.screenshotUrl = d.screenshot || null;
-                    // Firecrawl v2 returns LLM extraction in `extract` field (not `json`)
-                    out.extracted = d.extract || d.json || null;
-                    out.statusCode = d.metadata?.statusCode || 200;
-                    out.sizeKb = Math.round((out.html.length + out.markdown.length) / 1024);
-                    out.fromFirecrawl = true;
-                    console.log(`🔥 Firecrawl OK (${out.ttfbMs}ms): ${out.html.length} html, ${out.markdown.length} md, extract=${!!out.extracted}, screenshot=${!!out.screenshotUrl}, status=${out.statusCode}`);
-                    return out;
-                } else {
-                    console.warn(`⚠️ Firecrawl attempt ${attempt} non-success:`, JSON.stringify(resp.data).substring(0, 300));
-                }
-            } catch (err) {
-                const status = err.response?.status;
-                const errBody = err.response?.data ? JSON.stringify(err.response.data).substring(0, 200) : "";
-                console.warn(`⚠️ Firecrawl attempt ${attempt} failed (HTTP ${status || "N/A"}): ${err.message} ${errBody}`);
-                // Retry on 429 (rate limit) or 5xx server errors
-                if (attempt < MAX_RETRIES && (!status || status === 429 || status >= 500)) {
-                    const backoff = status === 429 ? 10000 : 3000;
-                    console.log(`⏳ Retrying Firecrawl in ${backoff}ms...`);
-                    await new Promise(r => setTimeout(r, backoff));
-                } else if (status >= 400 && status < 500 && status !== 429) {
-                    console.error(`❌ Firecrawl client error ${status} — not retrying. Body: ${errBody}`);
-                    break;
-                }
-            }
-        }
-        console.warn("⚠️ All Firecrawl attempts exhausted — falling back to fetch()");
-    } else {
-        console.warn("FIRECRAWL_API_KEY not set — falling back to fetch()");
-    }
-
-    // Fallback: plain fetch with multiple User-Agent attempts
+// Raw-shell fetch — grabs SSR/static <head> (og, canonical, JSON-LD) BEFORE React strips it.
+// Always runs in parallel with Firecrawl so we never lose <head> signals, even on SPAs.
+async function fetchRawShell(url) {
     const userAgents = [
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
@@ -112,22 +46,162 @@ async function firecrawlScrape(url) {
                 redirect: "follow",
                 signal: AbortSignal.timeout(20000)
             });
-            out.ttfbMs = Date.now() - t0;
-            out.statusCode = res.status;
             const body = res.ok ? await res.text() : "";
             if (body.length > 500) {
-                out.html = body;
-                out.sizeKb = Math.round(body.length / 1024);
-                console.log(`✅ Fallback fetch OK (UA: ${ua.substring(0, 30)}...): ${body.length} chars`);
-                break;
+                return { html: body, statusCode: res.status, ttfbMs: Date.now() - t0, sizeKb: Math.round(body.length / 1024), ua };
             }
-            console.warn(`⚠️ Fetch returned thin content (${body.length} chars) with UA: ${ua.substring(0, 30)}...`);
         } catch (err) {
-            console.warn(`⚠️ Fetch failed with UA ${ua.substring(0, 30)}...: ${err.message}`);
+            console.warn(`⚠️ Shell fetch failed (UA ${ua.substring(0, 30)}...): ${err.message}`);
         }
     }
-    if (!out.html || out.html.length < 100) {
-        console.warn("❌ All fetch attempts returned thin/empty content — site may block automated access");
+    return { html: "", statusCode: null, ttfbMs: null, sizeKb: 0, ua: null };
+}
+
+// ============================================================
+// FIRECRAWL v2 — JS-rendered scrape of SPA body (WhatsApp widgets,
+// React-rendered forms, property cards, testimonials) with LLM extract.
+// ============================================================
+// CRITICAL ARCHITECTURE NOTE — read before touching:
+// React SPAs serve two DISJOINT HTML views:
+//   (a) The raw shell (~20KB) from `fetch(url)` — contains <head> tags
+//       (og:*, canonical, JSON-LD) but an empty <div id="root"/>.
+//   (b) The Firecrawl rendered DOM (~80KB) — contains all the body content
+//       React hydrates (WhatsApp buttons, forms, property listings,
+//       testimonials) BUT does NOT contain <head> meta tags because
+//       react-helmet / next/head mutations are stripped on serialization.
+//
+// If we only use (a), we miss body signals → "✗ WhatsApp / Forms / Props".
+// If we only use (b), we miss head signals → "✗ OG / Canonical / Schema".
+//
+// FIX: ALWAYS fetch BOTH in parallel, then concatenate. Detection runs on
+// combined HTML so every signal has a chance to fire. See `html` assignment
+// at the bottom of this function.
+async function firecrawlScrape(url) {
+    const fcKey = process.env.FIRECRAWL_API_KEY;
+    const out = {
+        markdown: "", html: "", shellHtml: "", renderedHtml: "", metadata: {}, links: [],
+        screenshotUrl: null, extracted: null, statusCode: null,
+        fromFirecrawl: false, ttfbMs: null, sizeKb: 0,
+        dataQuality: "failed" // "full" = shell+rendered, "shell" = shell-only, "rendered" = rendered-only, "failed" = nothing
+    };
+
+    // --- PARALLEL: raw shell + Firecrawl rendered ---
+    // Shell gives us <head> (meta/schema/canonical). Firecrawl gives us hydrated <body>.
+    const shellPromise = fetchRawShell(url);
+
+    const firecrawlPromise = (async () => {
+        if (!fcKey) {
+            console.warn("FIRECRAWL_API_KEY not set — skipping Firecrawl render, shell-only mode");
+            return null;
+        }
+        const MAX_RETRIES = 2;
+        // LLM extract schema — gives us structured signals as a redundant cross-check
+        // against regex-on-HTML. Firecrawl v1 uses the `json` format + `jsonOptions`.
+        const jsonOptions = {
+            schema: {
+                type: "object",
+                properties: {
+                    has_whatsapp_button: { type: "boolean", description: "Is there a visible WhatsApp button, widget, or floating CTA on the page?" },
+                    whatsapp_number: { type: "string", description: "The WhatsApp phone number if visible, else empty string" },
+                    has_lead_form: { type: "boolean", description: "Is there a contact or lead capture form (input fields for name/email/phone)?" },
+                    has_property_listings: { type: "boolean", description: "Are actual property listings (houses/apartments/condos) shown on this page?" },
+                    number_of_properties_visible: { type: "number", description: "Estimated count of property cards visible on the page" },
+                    has_testimonials: { type: "boolean", description: "Are client testimonials, reviews, or social proof quotes shown?" },
+                    has_agent_bios: { type: "boolean", description: "Are real estate agent profiles or bios shown?" },
+                    has_blog: { type: "boolean", description: "Is there a blog section, articles feed, or content hub?" },
+                    primary_cta_text: { type: "string", description: "The main call-to-action button text (e.g. 'Contáctanos', 'Agendar cita')" },
+                    business_name: { type: "string", description: "The business name displayed on the page" },
+                    services: { type: "array", items: { type: "string" }, description: "Services offered (e.g. 'venta', 'renta', 'preventa', 'fideicomiso')" },
+                    cities: { type: "array", items: { type: "string" }, description: "Cities or zones of operation mentioned" },
+                    languages: { type: "array", items: { type: "string" }, description: "Languages the site uses (es, en, etc)" }
+                }
+            },
+            prompt: "Extract structured signals from this real estate agency website. Be strict: only mark boolean fields true if there is clear visual evidence on the page."
+        };
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                const t0 = Date.now();
+                console.log(`🔥 Firecrawl scrape (attempt ${attempt}/${MAX_RETRIES}): ${url}`);
+                const resp = await axios.post("https://api.firecrawl.dev/v1/scrape", {
+                    url,
+                    formats: ["markdown", "html", "links", "screenshot", "json"],
+                    jsonOptions,
+                    onlyMainContent: false,
+                    waitFor: 5000,   // React/Vue hydration window — was 2000, too short for many SPAs
+                    timeout: 90000,  // Was 60000 — Flamingo + other SPAs consistently timed out
+                    location: { country: "MX", languages: ["es", "en"] }
+                }, {
+                    headers: { Authorization: `Bearer ${fcKey}`, "Content-Type": "application/json" },
+                    timeout: 100000
+                });
+                const ttfbMs = Date.now() - t0;
+                if (resp.data?.success && resp.data?.data) {
+                    const d = resp.data.data;
+                    console.log(`🔥 Firecrawl OK (${ttfbMs}ms): ${(d.html||"").length} html, ${(d.markdown||"").length} md, extract=${!!(d.json||d.extract)}, screenshot=${!!d.screenshot}`);
+                    return {
+                        markdown: d.markdown || "",
+                        renderedHtml: d.html || "",
+                        metadata: d.metadata || {},
+                        links: d.links || [],
+                        screenshotUrl: d.screenshot || null,
+                        extracted: d.json || d.extract || null,
+                        statusCode: d.metadata?.statusCode || 200,
+                        ttfbMs
+                    };
+                }
+                console.warn(`⚠️ Firecrawl attempt ${attempt} non-success:`, JSON.stringify(resp.data).substring(0, 300));
+            } catch (err) {
+                const status = err.response?.status;
+                const errBody = err.response?.data ? JSON.stringify(err.response.data).substring(0, 200) : "";
+                console.warn(`⚠️ Firecrawl attempt ${attempt} failed (HTTP ${status || "N/A"}): ${err.message} ${errBody}`);
+                if (attempt < MAX_RETRIES && (!status || status === 429 || status >= 500)) {
+                    const backoff = status === 429 ? 10000 : 3000;
+                    await new Promise(r => setTimeout(r, backoff));
+                } else if (status >= 400 && status < 500 && status !== 429) {
+                    break;
+                }
+            }
+        }
+        console.warn("⚠️ All Firecrawl attempts exhausted — shell-only mode");
+        return null;
+    })();
+
+    const [shellResult, fcResult] = await Promise.all([shellPromise, firecrawlPromise]);
+
+    out.shellHtml = shellResult?.html || "";
+    out.renderedHtml = fcResult?.renderedHtml || "";
+    out.markdown = fcResult?.markdown || "";
+    out.metadata = fcResult?.metadata || {};
+    out.links = fcResult?.links || [];
+    out.screenshotUrl = fcResult?.screenshotUrl || null;
+    out.extracted = fcResult?.extracted || null;
+    out.statusCode = fcResult?.statusCode || shellResult?.statusCode || null;
+    out.ttfbMs = fcResult?.ttfbMs ?? shellResult?.ttfbMs ?? null;
+    out.fromFirecrawl = !!fcResult;
+
+    // Combine shell (<head>) + rendered (<body>) so every signal has a chance to fire.
+    // Delimiter helps debugging without affecting regex/cheerio detection.
+    if (out.shellHtml && out.renderedHtml) {
+        out.html = out.shellHtml + "\n<!-- ===FIRECRAWL_RENDERED=== -->\n" + out.renderedHtml;
+        out.dataQuality = "full";
+    } else if (out.renderedHtml) {
+        out.html = out.renderedHtml;
+        out.dataQuality = "rendered";
+    } else if (out.shellHtml) {
+        out.html = out.shellHtml;
+        out.dataQuality = "shell";
+    } else {
+        out.html = "";
+        out.dataQuality = "failed";
+    }
+    out.sizeKb = Math.round((out.html.length + out.markdown.length) / 1024);
+
+    console.log(`📦 Scrape done: shell=${out.shellHtml.length}b rendered=${out.renderedHtml.length}b md=${out.markdown.length}b quality=${out.dataQuality} extract=${!!out.extracted}`);
+
+    if (out.dataQuality === "failed") {
+        console.error("❌ BOTH shell fetch AND Firecrawl failed — audit will be unreliable");
+    } else if (out.dataQuality === "shell") {
+        console.warn("⚠️ Shell-only mode — JS-rendered signals (WhatsApp/forms/testimonials) will be regex-only and may false-negative on SPAs");
     }
     return out;
 }
@@ -392,15 +466,23 @@ async function runFullAudit(websiteUrl, leadCity) {
         });
     }
 
-    // Tech stack
+    // Tech stack — scan both raw shell + rendered output for framework fingerprints.
+    // React/Vue detection matters because SPA frameworks affect how we interpret missing head tags
+    // (react-helmet strips og/canonical from the rendered DOM — so "missing og" on a React site
+    // usually means the shell had them and our renderer lost them, not that the client is missing OG).
     const techStack = [];
     if (htmlLower.includes("wp-content")) techStack.push("WordPress");
     if (htmlLower.includes("shopify")) techStack.push("Shopify");
     if (htmlLower.includes("wix.com")) techStack.push("Wix");
     if (htmlLower.includes("squarespace")) techStack.push("Squarespace");
-    if (htmlLower.includes("__next")) techStack.push("Next.js");
+    if (htmlLower.includes("__next") || htmlLower.includes("_next/static")) techStack.push("Next.js");
+    if (htmlLower.includes("id=\"root\"") || htmlLower.includes("id='root'") || htmlLower.includes("react-dom") || htmlLower.includes("__react")) techStack.push("React");
+    if (htmlLower.includes("id=\"app\"") && (htmlLower.includes("vue") || htmlLower.includes("v-app") || htmlLower.includes("data-v-"))) techStack.push("Vue");
+    if (htmlLower.includes("ng-version") || htmlLower.includes("ng-app")) techStack.push("Angular");
+    if (htmlLower.includes("astro-island") || htmlLower.includes("astro:")) techStack.push("Astro");
     if (htmlLower.includes("tailwind")) techStack.push("Tailwind CSS");
     if (techStack.length === 0) techStack.push("Custom / HTML");
+    const isSPA = techStack.some(t => ["React", "Vue", "Angular", "Next.js"].includes(t));
 
     // Tracking pixels
     const hasGTM = htmlLower.includes("googletagmanager.com/gtm.js");
@@ -452,9 +534,14 @@ async function runFullAudit(websiteUrl, leadCity) {
     // Blog / content marketing
     const hasBlog = extracted.has_blog === true || mdLower.includes("/blog") || htmlLower.includes("/blog");
 
-    // Testimonials / agent bios / CTAs
-    const hasTestimonials = extracted.has_testimonials === true;
-    const hasAgentBios = extracted.has_agent_bios === true;
+    // Testimonials / agent bios / CTAs — LLM-extracted with regex safety net.
+    // The LLM will miss testimonials when they're rendered inside carousel widgets or
+    // lazy-loaded. Regex over raw HTML + markdown catches Spanish/English review copy.
+    const testimonialRegex = /testimoni[oa]s?|opini[oó]n(es)?|rese[nñ]a|review[s]?|★★★|5 estrellas|lo que dicen|nuestros clientes|clientes felices|happy clients/i;
+    const hasTestimonials = extracted.has_testimonials === true ||
+        testimonialRegex.test(html) || testimonialRegex.test(fcData?.markdown || "");
+    const hasAgentBios = extracted.has_agent_bios === true ||
+        /nuestro equipo|our team|agente[s]?|asesor(es)? inmobiliario|meet the team/i.test(fcData?.markdown || "");
     const primaryCTA = extracted.primary_cta_text || "";
 
     // SSL check (simple — URL starts with https)
@@ -795,6 +882,14 @@ async function runFullAudit(websiteUrl, leadCity) {
         } : null,
         screenshotUrl: fcData?.screenshotUrl || null,
         dataSource: fcData?.fromFirecrawl ? "firecrawl" : "fetch",
+        // dataQuality surfaces which fetch paths succeeded. The caller uses this
+        // to decide whether to ship the report to the client or alert Alex to re-run.
+        // "full"     → shell + rendered (ideal — we have head tags AND body content)
+        // "rendered" → Firecrawl only (React SPA renders, but head meta may be stripped)
+        // "shell"    → raw fetch only (we have head tags, body may be empty — SPAs look blank)
+        // "failed"   → nothing — DO NOT ship this report to the client
+        dataQuality: fcData?.dataQuality || "failed",
+        isSPA,
         aeo: aeoResult,
         aiVerdict,
         aiFixes,
@@ -1426,16 +1521,55 @@ exports.processAuditRequest = functions
                 });
             }
 
-            // 5. Send email with report link
+            // 5. DATA-QUALITY GATE — don't ship false-negative reports to clients.
+            // If the fetch pipeline returned nothing usable (both shell + rendered failed),
+            // the audit score is meaningless. Flag it for manual review instead of sending.
+            // We still save the report + mark Firestore completed, but route the email
+            // to Alex (not the client) so he can re-run or investigate.
+            const quality = auditResults.dataQuality || "failed";
+            const qualityIsLow = quality === "failed" ||
+                (quality === "shell" && auditResults.seo.wordCount < 50); // SPA where only the shell responded
+            if (qualityIsLow) {
+                console.warn(`⛔ DATA-QUALITY GATE triggered for ${website_url} — quality=${quality}, words=${auditResults.seo.wordCount}. Alerting Alex instead of sending to client.`);
+                // Alert Alex via a transactional Brevo email — do NOT send the bogus report to the lead.
+                try {
+                    await axios.post("https://api.brevo.com/v3/smtp/email", {
+                        sender: { name: "JegoDigital Audit Pipeline", email: process.env.BREVO_SENDER_EMAIL || "info@jegodigital.com" },
+                        to: [{ email: "jegoalexdigital@gmail.com", name: "Alex" }],
+                        subject: `⚠️ Audit quality gate: ${website_url}`,
+                        htmlContent: `<p>Audit for <strong>${website_url}</strong> (lead: ${name} / ${email}) was blocked by the data-quality gate.</p>
+                            <p><strong>Quality:</strong> ${quality}<br>
+                            <strong>Word count:</strong> ${auditResults.seo.wordCount}<br>
+                            <strong>Is SPA:</strong> ${auditResults.isSPA}<br>
+                            <strong>Tech stack:</strong> ${(auditResults.tech?.stack || []).join(", ")}</p>
+                            <p>Review the report: <a href="${reportUrl}">${reportUrl}</a></p>
+                            <p>The client was NOT emailed. Re-run the audit manually if the site loads correctly in a browser, or mark the lead as unreachable.</p>`
+                    }, { headers: { "api-key": process.env.BREVO_API_KEY, "Content-Type": "application/json" }, timeout: 15000 });
+                } catch (alertErr) {
+                    console.error("Failed to alert Alex on quality gate:", alertErr.message);
+                }
+                await db.collection("audit_requests").doc(docId).update({
+                    status: "quality_gate_blocked",
+                    completedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    score: auditResults.score,
+                    dataQuality: quality,
+                    reportUrl,
+                    blockReason: `Data quality ${quality}, wordCount ${auditResults.seo.wordCount}`
+                });
+                return; // stop — do not send the bogus audit to the client
+            }
+
+            // 6. Send email with report link (quality gate passed)
             await sendAuditEmail(email, name, reportUrl, auditResults.score, auditResults.issues);
 
-            // 6. Update Firestore with results
+            // 7. Update Firestore with results
             await db.collection("audit_requests").doc(docId).update({
                 status: "completed",
                 completedAt: admin.firestore.FieldValue.serverTimestamp(),
                 score: auditResults.score,
                 issueCount: auditResults.issues.length,
                 reportUrl,
+                dataQuality: quality,
                 auditSummary: {
                     score: auditResults.score,
                     speed: auditResults.speed.performance,
