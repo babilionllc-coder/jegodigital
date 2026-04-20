@@ -1830,3 +1830,14 @@ exports.processAuditRequest = processAuditRequest;
 // See SYSTEM.md §2 for the full cron roadmap.
 // ============================================================
 exports.dailyDigest = require("./dailyDigest").dailyDigest;
+
+// ============================================================
+// SYSTEM HEALTH AUDIT (added 2026-04-20)
+// Every-48h watchdog. Runs 12 checks (hosting, audit endpoint,
+// Cloud Run, DataForSEO/PSI/Firecrawl/Perplexity/Brevo/Telegram,
+// daily_digest freshness, audit flow). Posts Telegram alert on
+// any red check. Monthly alive-ping on day 1 when all green.
+// NEVER auto-edits code — surface-only watchdog by design.
+// See SYSTEM.md §2.
+// ============================================================
+exports.systemHealthAudit = require("./systemHealthAudit").systemHealthAudit;
