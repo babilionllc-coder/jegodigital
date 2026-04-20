@@ -1841,3 +1841,17 @@ exports.dailyDigest = require("./dailyDigest").dailyDigest;
 // See SYSTEM.md §2.
 // ============================================================
 exports.systemHealthAudit = require("./systemHealthAudit").systemHealthAudit;
+
+// ============================================================
+// COLD CALL AUTOPILOT (added 2026-04-20)
+// 09:55/10:00/13:00 CDMX Mon-Fri trio. Preps 50 phone_leads,
+// fires Sofia calls via ElevenLabs + Twilio with A/B/C offer
+// rotation, then reports outcomes + auto-fires audits for
+// positives with email+website. NO approve gate — logs +
+// analytics surface problems after the fact (per Alex 2026-04-20).
+// See SYSTEM.md §1.1.
+// ============================================================
+const coldCall = require("./coldCallAutopilot");
+exports.coldCallPrep = coldCall.coldCallPrep;
+exports.coldCallRun = coldCall.coldCallRun;
+exports.coldCallReport = coldCall.coldCallReport;
