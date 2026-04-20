@@ -469,6 +469,60 @@
         const successState = document.getElementById('successState');
         const auditedUrl = document.getElementById('auditedUrl');
 
+        // ==================== QUERY-PARAM PREFILL ====================
+        // Enables one-click audit requests from cold-email reply links.
+        // Example: /auditoria-gratis?url=example.com&email=juan@x.com&firstName=Juan&city=Cancun
+        // The AI reply agent sends a pre-filled URL when a cold lead says "yes send me the audit".
+        // Lead lands on page with form already filled, just clicks "Solicitar" to fire the pipeline.
+        (function prefillFromQuery() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const url = params.get('url') || params.get('website') || params.get('website_url');
+                const email = params.get('email');
+                const name = params.get('name') || params.get('firstName') || params.get('first_name');
+                const city = params.get('city');
+                const source = params.get('source'); // e.g. "cold_email", "instantly_reply"
+
+                if (url) {
+                    const cleanUrl = url.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+                    const el = document.getElementById('website_url');
+                    if (el) el.value = cleanUrl;
+                }
+                if (name) {
+                    const el = document.getElementById('audit_name');
+                    if (el) el.value = name;
+                }
+                if (email) {
+                    const el = document.getElementById('audit_email');
+                    if (el) el.value = email;
+                }
+                if (city) {
+                    const el = document.getElementById('audit_city');
+                    if (el) el.value = city;
+                }
+
+                // Track prefilled visits in GA4 (lets us measure cold-email → audit conversion)
+                if ((url || email) && typeof gtag === 'function') {
+                    gtag('event', 'audit_prefill', {
+                        event_category: 'lead_generation',
+                        event_label: source || 'unknown',
+                        has_url: !!url, has_email: !!email, has_name: !!name
+                    });
+                }
+
+                // If all 4 fields + explicit ?autosubmit=1 flag → fire submission automatically.
+                // Default is NO auto-submit (safer; lead confirms by clicking button).
+                if (url && email && name && city && params.get('autosubmit') === '1') {
+                    setTimeout(() => {
+                        const btn = document.getElementById('submitBtn');
+                        if (btn) btn.click();
+                    }, 800);
+                }
+            } catch (e) {
+                console.warn('Prefill skipped:', e);
+            }
+        })();
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.disabled = true;
@@ -482,12 +536,16 @@
             const name = document.getElementById('audit_name').value.trim();
             const email = document.getElementById('audit_email').value.trim();
             const city = document.getElementById('audit_city').value.trim();
+            // Source tracking — carried from prefill query-param if present (e.g. "cold_email", "instantly_reply", "manychat_instagram")
+            const qp = new URLSearchParams(window.location.search);
+            const source = qp.get('source') || 'auditoria-gratis';
+            const campaign = qp.get('campaign') || null;
 
             try {
                 const res = await fetch(FUNCTION_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ website_url: websiteUrl, name, email, city })
+                    body: JSON.stringify({ website_url: websiteUrl, name, email, city, source, campaign })
                 });
 
                 if (!res.ok) {
