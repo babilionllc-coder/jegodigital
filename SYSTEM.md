@@ -28,6 +28,9 @@ a laptop — see `DEPLOY.md`.
 | `sendT10minReminders` | every 5 minutes | `calendlyWebhook.js` | Window-scans `calendly_events` for bookings starting in ≈10min from ManyChat-sourced leads. Fires the T-10 WhatsApp ping via ManyChat API. Sets `t10min_sent=true` so a booking is never pinged twice. | Telegram (planned) |
 | `dailyDigest` | every day 07:00 CDMX | `dailyDigest.js` | Pulls yesterday's Calendly / audit / Brevo-queue / call / Instantly numbers. Builds one-card Telegram Markdown summary. Snapshots to `daily_digests/{YYYY-MM-DD}`. Every metric wrapped in its own try/catch — partial data renders "—". | Telegram |
 | `systemHealthAudit` | every 48 hours | `systemHealthAudit.js` | 12-check watchdog: hosting · audit endpoint · Cloud Run mockup-renderer · DataForSEO · PageSpeed · Firecrawl · Perplexity · Brevo · Telegram · `daily_digest` freshness · audits flowing · `scheduled_email` failure rate. Any red → Telegram alert listing every broken check. All-green → silent except day-1-of-month alive-ping. Snapshot: `system_health/{runId}`. **Never auto-edits code** — surface-only. | Telegram |
+| `coldCallPrep` | 09:55 Mon–Fri CDMX | `coldCallAutopilot.js` | Queries `phone_leads` (phone_verified=true, do_not_call=false, last_called_at > 14d ago), ranks oldest-first, writes 50 into `call_queue/{YYYY-MM-DD}/leads/{leadId}` with round-robin A/B/C offer assignment. Snapshots to `call_queue_summaries/{YYYY-MM-DD}`. | Telegram |
+| `coldCallRun` | 10:00 Mon–Fri CDMX | `coldCallAutopilot.js` | Fires today's queue via ElevenLabs `/v1/convai/twilio/outbound-call` (Sofia MX, agent per offer). Throttles 12s between dials. Seeds `call_analysis/{conversationId}` to `outcome=pending` at dial time so the 13:00 report can reconcile even if `elevenLabsWebhook` is slow. Updates `phone_leads.last_called_at`. **No approve-gate** — fires directly (per Alex 2026-04-20). | Telegram |
+| `coldCallReport` | 13:00 Mon–Fri CDMX | `coldCallAutopilot.js` | Aggregates today's `call_analysis` (positive / negative / neutral / pending). Auto-fires `audit_requests` with `source: cold_call` for every positive that has email + website. Snapshots to `call_queue_summaries/{YYYY-MM-DD}`. | Telegram |
 
 ### 1.2 Firestore-triggered (onCreate)
 
@@ -76,13 +79,14 @@ a laptop — see `DEPLOY.md`.
 Built in small order so every addition lands green. Each one gets its own PR +
 update to this table.
 
-| Cron | Interval | Purpose | Notifies | Approve-gate |
-|---|---|---|---|---|
-| `coldCallPrep` | 09:55 Mon–Fri | Loads 50 phone-ready leads into Firestore `call_queue`, flags any without valid MX phone | Telegram | — |
-| `coldCallRun` | 10:00 Mon–Fri | Fires ElevenLabs+Twilio calls (Sofia, offer rotation A/B/C) against `call_queue`. For the first 2 weeks runs in **approve-before-fire** mode: posts the batch to Telegram, waits for 👍 reaction, then dials. | Telegram | ✅ (first 2 weeks) |
-| `coldCallReport` | 13:00 Mon–Fri | Reads `call_analysis` docs from the morning batch, summarises outcomes, flags positive replies, tops up `audit_requests` for any "yes, send audit" leads. | Telegram | — |
-| `instantlyReplyWatcher` | every 5 min | Polls Instantly Unibox for unreplied positive responses. For each: pulls `{{website}}` from the lead record, writes a fresh `audit_requests` doc (source `instantly_autofire`), which Brevo sends 45min later. | Telegram (per-lead) | — |
-| `notebookResearcher` | 02:00 daily | NotebookLM deep-research pass across the Ops Brain notebooks. Writes a 200-word digest + 3 concrete experiments to try. Posts to Telegram. | Telegram | — |
+**Design rule (per Alex 2026-04-20):** no approve-before-fire gates. Crons fire
+directly and learn from logs + Firestore analytics + dailyDigest when something
+goes wrong. See `.auto-memory/feedback_no_approve_gates.md`.
+
+| Cron | Interval | Purpose | Notifies |
+|---|---|---|---|
+| `instantlyReplyWatcher` | every 5 min | Polls Instantly Unibox for unreplied positive responses. For each: pulls `{{website}}` from the lead record, writes a fresh `audit_requests` doc (source `instantly_autofire`), which Brevo sends 45min later. Lower priority now that the Instantly AI reply agent offers the one-click audit link — close the gap for leads who reply "yes please" but don't click. | Telegram (per-lead) |
+| `notebookResearcher` | 02:00 daily | NotebookLM deep-research pass across the Ops Brain notebooks. Writes a 200-word digest + 3 concrete experiments to try. Posts to Telegram. Blocked on NotebookLM MCP auth. | Telegram |
 
 ---
 
@@ -91,12 +95,14 @@ update to this table.
 | Collection | Written by | Read by | Notes |
 |---|---|---|---|
 | `leads` | `submitLead`, ManyChat webhook | `onLeadCreated`, Brevo sync | Master lead store. |
-| `audit_requests` | `submitAuditRequest`, `instantlyReplyWatcher` (planned) | `processAuditRequest` | `source` field differentiates `manychat_instagram` / `auditoria-gratis` / `instantly_autofire` / `cold_call`. |
+| `audit_requests` | `submitAuditRequest`, `coldCallReport`, `instantlyReplyWatcher` (planned) | `processAuditRequest` | `source` field differentiates `manychat_instagram` / `auditoria-gratis` / `instantly_autofire` / `cold_call`. |
+| `phone_leads` | `lead-finder-v4` (phone-verified set), manual curation | `coldCallPrep`, `coldCallRun` | Master phone list. Required flags: `phone_verified:true`, `do_not_call:false`. `last_called_at` / `last_offer` / `last_conversation_id` updated by `coldCallRun`. |
 | `audits` | `processAuditRequest` | dashboard | Completed audit record + Storage URL. |
 | `calendly_events` | `calendlyWebhook` | `sendT10minReminders`, reporting | One doc per booked/canceled/no-show invitee. |
 | `scheduled_emails` | `calendlyWebhook` (no-show, +3d/+7d/+14d) | `processScheduledEmails` | Time-delayed transactional queue. |
-| `call_queue` | `coldCallPrep` (planned) | `coldCallRun` (planned) | Daily 50-lead dialer queue. |
-| `call_analysis` | `handleCallAnalysis`, `elevenLabsWebhook` | `coldCallReport` (planned), dashboard | Transcript + outcome per call. |
+| `call_queue` | `coldCallPrep` | `coldCallRun` | Daily 50-lead dialer queue — `call_queue/{YYYY-MM-DD}/leads/{leadId}`. Status transitions: `queued` → `dialed` / `failed`. |
+| `call_queue_summaries` | `coldCallPrep`, `coldCallRun`, `coldCallReport` | `dailyDigest`, dashboard | One doc per CDMX day with prep/run/report snapshots (total, offer_counts, fired, failed, positive/negative/neutral/pending, audits_queued). |
+| `call_analysis` | `coldCallRun` (seeds pending), `handleCallAnalysis`, `elevenLabsWebhook` | `coldCallReport`, `dailyDigest`, dashboard | Transcript + outcome per call, keyed by ElevenLabs `conversation_id`. |
 | `campaigns` / `campaign_logs` | `startCampaign`, `uploadCampaignLogs` | legacy dashboard | Old SEO campaign engine — low traffic. |
 | `instantly_activity` | `instantlyReplyWatcher` (planned) | dashboard | Rolling reply cache, avoids double-firing audits. |
 | `daily_digests` | `dailyDigest` | dashboard, history | One doc per CDMX day, `{YYYY-MM-DD}`. Full metric breakdown + rendered digest text. |
@@ -167,9 +173,12 @@ Calendly canceled     → Telegram
 Calendly no-show      → Brevo recovery sequence (+3d/+7d/+14d) + Telegram ping
 T-10 WhatsApp ping    → ManyChat API (only for ManyChat-sourced leads)
 Audit delivered       → Brevo transactional email (45min delay)
-Call completed        → Firestore `call_analysis` + Telegram (planned)
-System health fail    → Telegram + GitHub issue `health-check` (planned)
-Daily digest          → Telegram (planned)
+Cold-call queue prep  → Telegram (09:55 CDMX weekdays)
+Cold-call batch fired → Telegram (10:00 CDMX weekdays, fired/failed counts)
+Cold-call report      → Telegram (13:00 CDMX weekdays, positives + auto-audits)
+Call completed        → Firestore `call_analysis` (elevenLabsWebhook)
+System health fail    → Telegram
+Daily digest          → Telegram (07:00 CDMX)
 Notebook digest       → Telegram (planned)
 ```
 
@@ -198,8 +207,11 @@ Three guard-rails for every new cron:
   keyed by `audit_request_id`, not wall-clock).
 - **Telegram beats silent success.** Every cron posts at least one line to
   Telegram per run, even on `nothing_to_do`, for the first week. Mute later.
-- **Approve-before-fire for anything outbound.** Cold calls, bulk emails, DMs —
-  Telegram digest with 👍 reaction gate for the first 2 weeks, then let it rip.
+- **Fire directly, learn from logs.** No approve-before-fire gates — cron fires,
+  Firestore + dailyDigest + systemHealthAudit surface anomalies after the fact.
+  (per Alex 2026-04-20, `.auto-memory/feedback_no_approve_gates.md`). Only
+  escalate to an explicit gate for genuinely catastrophic actions (10k+ emails
+  in one shot, $1k+ API spend in one run, unreviewed content going to clients).
 
 ---
 
@@ -211,8 +223,10 @@ Three guard-rails for every new cron:
 - **Telegram sinks not yet wired into every scheduled function.** `processScheduledEmails`
   and `sendT10minReminders` currently only log to Functions logger. Need a shared
   `notifyTelegram(severity, msg)` helper.
-- **Phone-ready lead list.** Current `/leads/` CSVs are for Instantly email. Cold
-  call queue needs a separate ingestion with verified MX phone numbers.
+- **Phone-ready lead list at scale.** `phone_leads` seeded via `lead-finder-v4`
+  phone-verified pass; `coldCallPrep` draws from here. Need to monitor depletion
+  — at 50/day × 5 days × rotate every 14d, must maintain ≥ 700 phone-verified
+  leads in rotation. Top up weekly via `lead-finder-v4`.
 - **ElevenLabs plan capacity.** Current plan sufficient for ≤150 calls/day. Flag
   for Alex if Sofia batch sizes rise.
 - **Brevo list discipline.** Multiple lists exist (29 audit, 32 generic,
@@ -228,6 +242,8 @@ Three guard-rails for every new cron:
 | 2026-04-20 | Initial SYSTEM.md created. Inventory captured post-deploy-trap cleanup. Roadmap for 6 new crons scoped (daily digest, cold-call trio, Instantly watcher, health audit, notebook researcher). |
 | 2026-04-20 | **`dailyDigest` shipped** (commit `1df1d33`) — 07:00 CDMX Telegram brief + `daily_digests/{YYYY-MM-DD}` snapshot. |
 | 2026-04-20 | **`systemHealthAudit` shipped** (commit `971575a`) — every-48h 12-check watchdog + `system_health/{runId}` snapshot. |
+| 2026-04-20 | **Policy change:** dropped approve-before-fire gate from cron design rules (Alex feedback). Saved as `.auto-memory/feedback_no_approve_gates.md`. Updated §2 planned-cron schema + §7 guard-rails to match. |
+| 2026-04-20 | **Cold-call autopilot trio shipped** (commit `66ad86b`) — `coldCallPrep` 09:55, `coldCallRun` 10:00, `coldCallReport` 13:00 Mon–Fri CDMX. 50 dials/day with A/B/C offer rotation, positives auto-fire `audit_requests`. New collections: `phone_leads`, `call_queue`, `call_queue_summaries`. |
 
 ---
 
