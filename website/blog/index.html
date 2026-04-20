@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knowledge Hub | JegoDigital</title>
+    <meta name="description" content="Estrategias de Marketing Digital e Inteligencia Artificial para líderes inmobiliarios en México. Guías, casos de estudio y tendencias 2026.">
+    <link rel="canonical" href="https://jegodigital.com/blog">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -24,9 +26,29 @@
             background-image: radial-gradient(rgba(197,160,89,0.08) 1px, transparent 1px);
             background-size: 40px 40px;
         }
-        .card-hover:hover { border-color: rgba(197,160,89,0.3); }
+        .card-hover:hover { border-color: rgba(197,160,89,0.3); transform: translateY(-2px); }
+        .card-hover { transition: all 0.25s ease; }
         .gold-link { color: #C5A059; }
         .gold-link:hover { text-decoration: underline; }
+        .cover-img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid rgba(197,160,89,0.15);
+        }
+        .cat-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(197,160,89,0.3);
+            color: #C5A059;
+            background: rgba(197,160,89,0.05);
+        }
     </style>
 </head>
 
@@ -37,9 +59,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
             <a href="/" class="text-2xl font-black tracking-tighter"><span style="color:#C5A059">Jego</span><span class="text-white">Digital</span></a>
             <div class="hidden md:flex gap-8 text-sm font-medium">
-                <a href="/how-it-works.html" class="text-white/60 hover:text-[#C5A059] transition-colors">How It Works</a>
+                <a href="/how-it-works" class="text-white/60 hover:text-[#C5A059] transition-colors">How It Works</a>
                 <a href="/#services" class="text-white/60 hover:text-[#C5A059] transition-colors">Services</a>
-                <a href="/showcase.html" class="text-white/60 hover:text-[#C5A059] transition-colors">Case Studies</a>
+                <a href="/showcase" class="text-white/60 hover:text-[#C5A059] transition-colors">Case Studies</a>
                 <a href="/blog/" class="font-bold" style="color:#C5A059; border-bottom:1px solid #C5A059; padding-bottom:2px">Blog</a>
             </div>
             <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener noreferrer"
@@ -58,7 +80,7 @@
                 class="text-transparent bg-clip-text" style="background:linear-gradient(135deg,#C5A059,#fff,#C5A059);-webkit-background-clip:text">Insights</span></h1>
         <p class="text-xl text-gray-400 max-w-2xl mx-auto">
             Estrategias de <span style="color:#C5A059;font-weight:700">Marketing Digital</span> e Inteligencia Artificial
-            para líderes en el Caribe Mexicano.
+            para líderes inmobiliarios en México.
         </p>
     </header>
 
@@ -66,101 +88,163 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <!-- Post 1 -->
-            <article class="glass-panel card-hover p-6 rounded-2xl transition-all group relative overflow-hidden flex flex-col h-full">
-                <div class="absolute inset-0 bg-[#C5A059]/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                <div class="relative z-10 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold mb-3 text-white group-hover:text-[#C5A059] transition-colors leading-snug">
-                        <a href="chatgpt-marketing-inmobiliario-2026.html" class="focus:outline-none">
-                            <span class="absolute inset-0"></span>
+            <!-- Post 1: ChatGPT (8 images, deepest post) -->
+            <article class="glass-panel card-hover rounded-2xl overflow-hidden flex flex-col">
+                <a href="/blog/chatgpt-marketing-inmobiliario-2026" class="block">
+                    <img src="/blog/images/blog-hero-chatgpt-marketing.png" alt="ChatGPT para Marketing Inmobiliario" class="cover-img rounded-none" style="border-radius:0;border-left:0;border-right:0;border-top:0">
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="cat-badge mb-3 self-start">AI · ChatGPT</span>
+                    <h3 class="text-xl font-bold mb-3 text-white leading-snug">
+                        <a href="/blog/chatgpt-marketing-inmobiliario-2026" class="hover:text-[#C5A059] transition-colors">
                             ChatGPT para Marketing Inmobiliario
                         </a>
                     </h3>
                     <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
                         Cómo usar la inteligencia artificial para generar copys que venden propiedades en piloto automático. Estrategias comprobadas para bienes raíces.
                     </p>
-                    <div class="flex items-center text-[#C5A059] font-bold text-sm mt-auto w-full border-t border-white/10 pt-4">
-                        Leer Artículo <span class="group-hover:translate-x-1 transition-transform ml-2">→</span>
-                    </div>
+                    <a href="/blog/chatgpt-marketing-inmobiliario-2026" class="flex items-center text-[#C5A059] font-bold text-sm mt-auto border-t border-white/10 pt-4">
+                        Leer Artículo <span class="ml-2">→</span>
+                    </a>
                 </div>
             </article>
 
-            <!-- Post 2 -->
-            <article class="glass-panel card-hover p-6 rounded-2xl transition-all group relative overflow-hidden flex flex-col h-full">
-                <div class="absolute inset-0 bg-[#C5A059]/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                <div class="relative z-10 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold mb-3 text-white group-hover:text-[#C5A059] transition-colors leading-snug">
-                        <a href="seo-para-inmobiliarias-mexico-2026.html" class="focus:outline-none">
-                            <span class="absolute inset-0"></span>
+            <!-- Post 2: SEO Inmobiliarias (8 images, 10 H2s) -->
+            <article class="glass-panel card-hover rounded-2xl overflow-hidden flex flex-col">
+                <a href="/blog/seo-para-inmobiliarias-mexico-2026" class="block">
+                    <img src="/blog/images/blog-hero-seo-inmobiliarias.png" alt="SEO para Inmobiliarias 2026" class="cover-img rounded-none" style="border-radius:0;border-left:0;border-right:0;border-top:0">
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="cat-badge mb-3 self-start">SEO · Google Maps</span>
+                    <h3 class="text-xl font-bold mb-3 text-white leading-snug">
+                        <a href="/blog/seo-para-inmobiliarias-mexico-2026" class="hover:text-[#C5A059] transition-colors">
                             SEO para Inmobiliarias 2026
                         </a>
                     </h3>
                     <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
                         La guía definitiva para dominar Google Maps y posicionar desarrollos y agencias en Cancún, Tulum y Riviera Maya.
                     </p>
-                    <div class="flex items-center text-[#C5A059] font-bold text-sm mt-auto w-full border-t border-white/10 pt-4">
-                        Leer Artículo <span class="group-hover:translate-x-1 transition-transform ml-2">→</span>
-                    </div>
+                    <a href="/blog/seo-para-inmobiliarias-mexico-2026" class="flex items-center text-[#C5A059] font-bold text-sm mt-auto border-t border-white/10 pt-4">
+                        Leer Artículo <span class="ml-2">→</span>
+                    </a>
                 </div>
             </article>
 
-            <!-- Post 3 -->
-            <article class="glass-panel card-hover p-6 rounded-2xl transition-all group relative overflow-hidden flex flex-col h-full">
-                <div class="absolute inset-0 bg-[#C5A059]/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                <div class="relative z-10 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold mb-3 text-white group-hover:text-[#C5A059] transition-colors leading-snug">
-                        <a href="crm-inmobiliario-mexico-2026.html" class="focus:outline-none">
-                            <span class="absolute inset-0"></span>
+            <!-- Post 3: CRM Inmobiliario (4 images, 12 H2s — heaviest) -->
+            <article class="glass-panel card-hover rounded-2xl overflow-hidden flex flex-col">
+                <a href="/blog/crm-inmobiliario-mexico-2026" class="block">
+                    <img src="/blog/images/blog-hero-crm-inmobiliario.jpg" alt="CRM Inmobiliario en México" class="cover-img rounded-none" onerror="this.src='/blog/images/blog-hero-chatgpt-marketing.png'" style="border-radius:0;border-left:0;border-right:0;border-top:0">
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="cat-badge mb-3 self-start">CRM · Ventas</span>
+                    <h3 class="text-xl font-bold mb-3 text-white leading-snug">
+                        <a href="/blog/crm-inmobiliario-mexico-2026" class="hover:text-[#C5A059] transition-colors">
                             CRM Inmobiliario en México
                         </a>
                     </h3>
                     <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
                         Por qué Excel está matando tus ventas. Reseña de los mejores CRMs diseñados para cerrar tratos y organizar tu cartera de clientes y leads.
                     </p>
-                    <div class="flex items-center text-[#C5A059] font-bold text-sm mt-auto w-full border-t border-white/10 pt-4">
-                        Leer Artículo <span class="group-hover:translate-x-1 transition-transform ml-2">→</span>
-                    </div>
+                    <a href="/blog/crm-inmobiliario-mexico-2026" class="flex items-center text-[#C5A059] font-bold text-sm mt-auto border-t border-white/10 pt-4">
+                        Leer Artículo <span class="ml-2">→</span>
+                    </a>
                 </div>
             </article>
 
-            <!-- Post 4 -->
-            <article class="glass-panel card-hover p-6 rounded-2xl transition-all group relative overflow-hidden flex flex-col h-full">
-                <div class="absolute inset-0 bg-[#C5A059]/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                <div class="relative z-10 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold mb-3 text-white group-hover:text-[#C5A059] transition-colors leading-snug">
-                        <a href="captura-leads-inmobiliarias-2026.html" class="focus:outline-none">
-                            <span class="absolute inset-0"></span>
-                            Generación y Captura de Leads
-                        </a>
-                    </h3>
-                    <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
-                        Sistemas automatizados y funnels de conversión de alta gama. Deja de perder prospectos valiosos por lentitud en la atención y seguimiento nulo.
-                    </p>
-                    <div class="flex items-center text-[#C5A059] font-bold text-sm mt-auto w-full border-t border-white/10 pt-4">
-                        Leer Artículo <span class="group-hover:translate-x-1 transition-transform ml-2">→</span>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Post 5 -->
-            <article class="glass-panel card-hover p-6 rounded-2xl transition-all group relative overflow-hidden flex flex-col h-full">
-                <div class="absolute inset-0 bg-[#C5A059]/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                <div class="relative z-10 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold mb-3 text-white group-hover:text-[#C5A059] transition-colors leading-snug">
-                        <a href="publicidad-inmobiliaria-mexico-2026.html" class="focus:outline-none">
-                            <span class="absolute inset-0"></span>
+            <!-- Post 4: Publicidad 2026 (4 images, 11 H2s) -->
+            <article class="glass-panel card-hover rounded-2xl overflow-hidden flex flex-col">
+                <a href="/blog/publicidad-inmobiliaria-mexico-2026" class="block">
+                    <img src="/blog/images/blog-hero-publicidad-inmobiliaria.jpg" alt="Publicidad Inmobiliaria 2026" class="cover-img rounded-none" onerror="this.src='/blog/images/blog-hero-chatgpt-marketing.png'" style="border-radius:0;border-left:0;border-right:0;border-top:0">
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="cat-badge mb-3 self-start">Ads · Meta · Google</span>
+                    <h3 class="text-xl font-bold mb-3 text-white leading-snug">
+                        <a href="/blog/publicidad-inmobiliaria-mexico-2026" class="hover:text-[#C5A059] transition-colors">
                             Publicidad Inmobiliaria 2026
                         </a>
                     </h3>
                     <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
                         Estrategias de pauta publicitaria hiper-segmentada. Cómo invertir correctamente en Meta Ads y Google Ads para vender desarrollos AAA.
                     </p>
-                    <div class="flex items-center text-[#C5A059] font-bold text-sm mt-auto w-full border-t border-white/10 pt-4">
-                        Leer Artículo <span class="group-hover:translate-x-1 transition-transform ml-2">→</span>
-                    </div>
+                    <a href="/blog/publicidad-inmobiliaria-mexico-2026" class="flex items-center text-[#C5A059] font-bold text-sm mt-auto border-t border-white/10 pt-4">
+                        Leer Artículo <span class="ml-2">→</span>
+                    </a>
                 </div>
             </article>
 
+            <!-- Post 5: Captura de Leads (Trojan Horse service) -->
+            <article class="glass-panel card-hover rounded-2xl overflow-hidden flex flex-col">
+                <a href="/blog/captura-leads-inmobiliarias-2026" class="block">
+                    <img src="/blog/images/captura-leads-inmobiliarias-hero.png" alt="Generación y Captura de Leads" class="cover-img rounded-none" onerror="this.src='/blog/images/blog-hero-chatgpt-marketing.png'" style="border-radius:0;border-left:0;border-right:0;border-top:0">
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="cat-badge mb-3 self-start">Lead Gen · Trojan Horse</span>
+                    <h3 class="text-xl font-bold mb-3 text-white leading-snug">
+                        <a href="/blog/captura-leads-inmobiliarias-2026" class="hover:text-[#C5A059] transition-colors">
+                            Generación y Captura de Leads
+                        </a>
+                    </h3>
+                    <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
+                        Sistemas automatizados y funnels de conversión de alta gama. Deja de perder prospectos valiosos por lentitud en la atención y seguimiento nulo.
+                    </p>
+                    <a href="/blog/captura-leads-inmobiliarias-2026" class="flex items-center text-[#C5A059] font-bold text-sm mt-auto border-t border-white/10 pt-4">
+                        Leer Artículo <span class="ml-2">→</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Post 6: Agencia SEO Cancún -->
+            <article class="glass-panel card-hover rounded-2xl overflow-hidden flex flex-col">
+                <a href="/blog/agencia-seo-en-cancun" class="block">
+                    <img src="/blog/images/agencia-seo-cancun-2026.webp" alt="Agencia SEO en Cancún" class="cover-img rounded-none" onerror="this.src='/blog/images/blog-hero-seo-inmobiliarias.png'" style="border-radius:0;border-left:0;border-right:0;border-top:0">
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="cat-badge mb-3 self-start">SEO · Cancún</span>
+                    <h3 class="text-xl font-bold mb-3 text-white leading-snug">
+                        <a href="/blog/agencia-seo-en-cancun" class="hover:text-[#C5A059] transition-colors">
+                            Agencia SEO en Cancún: Guía 2026
+                        </a>
+                    </h3>
+                    <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
+                        Cómo elegir la agencia SEO correcta en Cancún para inmobiliarias, hoteles y desarrollos. Criterios técnicos, resultados medibles y casos reales.
+                    </p>
+                    <a href="/blog/agencia-seo-en-cancun" class="flex items-center text-[#C5A059] font-bold text-sm mt-auto border-t border-white/10 pt-4">
+                        Leer Artículo <span class="ml-2">→</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Post 7: Marketing Digital Cancún Inmobiliarias -->
+            <article class="glass-panel card-hover rounded-2xl overflow-hidden flex flex-col">
+                <a href="/blog/marketing-digital-cancun-inmobiliarias-2026" class="block">
+                    <img src="/blog/images/marketing-digital-cancun-hero.png" alt="Marketing Digital Cancún Inmobiliarias" class="cover-img rounded-none" onerror="this.src='/blog/images/blog-hero-chatgpt-marketing.png'" style="border-radius:0;border-left:0;border-right:0;border-top:0">
+                </a>
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="cat-badge mb-3 self-start">Marketing · Riviera Maya</span>
+                    <h3 class="text-xl font-bold mb-3 text-white leading-snug">
+                        <a href="/blog/marketing-digital-cancun-inmobiliarias-2026" class="hover:text-[#C5A059] transition-colors">
+                            Marketing Digital Cancún Inmobiliarias 2026
+                        </a>
+                    </h3>
+                    <p class="text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
+                        Plan integral 2026: AEO, Google Ads, WhatsApp automatizado y contenido que vende metros cuadrados en Cancún y la Riviera Maya.
+                    </p>
+                    <a href="/blog/marketing-digital-cancun-inmobiliarias-2026" class="flex items-center text-[#C5A059] font-bold text-sm mt-auto border-t border-white/10 pt-4">
+                        Leer Artículo <span class="ml-2">→</span>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+
+        <!-- CTA Strip -->
+        <div class="mt-20 glass-panel rounded-2xl p-10 text-center relative overflow-hidden">
+            <div class="absolute inset-0 -z-10" style="background:radial-gradient(circle at 50% 0%, rgba(197,160,89,0.12), transparent 70%)"></div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">¿Quieres ver tu inmobiliaria en <span style="color:#C5A059">Google Maps #1</span>?</h2>
+            <p class="text-gray-400 max-w-2xl mx-auto mb-8">Agenda una consultoría gratuita de 30 minutos. Auditamos tu visibilidad en Google, ChatGPT y Perplexity — sin costo.</p>
+            <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 font-bold text-sm px-8 py-3 rounded-full transition-all text-black"
+               style="background:#C5A059">AGENDAR AUDIT GRATIS →</a>
         </div>
     </main>
 
