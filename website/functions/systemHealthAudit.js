@@ -360,18 +360,15 @@ async function checkGithubActions() {
     const token = process.env.GITHUB_TOKEN;
     const repo = process.env.GITHUB_REPO || "babilionllc-coder/jegodigital";
     if (!token) return { name: "github_actions", ok: true, detail: "GITHUB_TOKEN not set · skipped" };
+    const ghHeaders = {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    };
     try {
         const r = await axios.get(
             `https://api.github.com/repos/${repo}/actions/runs?per_page=10`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/vnd.github+json",
-                    "X-GitHub-Api-Version": "2022-11-28",
-                },
-                timeout: 10000,
-                validateStatus: () => true,
-            }
+            { headers: ghHeaders, timeout: 10000, validateStatus: () => true }
         );
         if (r.status !== 200) {
             return { name: "github_actions", ok: false, detail: `status=${r.status}` };
@@ -380,11 +377,12 @@ async function checkGithubActions() {
         if (runs.length === 0) {
             return { name: "github_actions", ok: true, detail: "no runs in history" };
         }
-        // Count consecutive failures from the most-recent end
         let consecutive = 0;
+        let firstFailRun = null;
         for (const run of runs) {
             if (run.status === "in_progress" || run.status === "queued") continue;
             if (run.conclusion === "failure" || run.conclusion === "timed_out") {
+                if (!firstFailRun) firstFailRun = run;
                 consecutive++;
             } else if (run.conclusion === "success") {
                 break;
@@ -392,10 +390,31 @@ async function checkGithubActions() {
         }
         const failed = runs.filter((r) => r.conclusion === "failure").length;
         const ok = consecutive < 3;
+
+        // Grep failing run's logs for the actual error — only if RED
+        let failureGrep = "";
+        if (!ok && firstFailRun) {
+            try {
+                const jobsRes = await axios.get(
+                    `https://api.github.com/repos/${repo}/actions/runs/${firstFailRun.id}/jobs`,
+                    { headers: ghHeaders, timeout: 10000, validateStatus: () => true }
+                );
+                if (jobsRes.status === 200) {
+                    const failedJobs = (jobsRes.data?.jobs || []).filter((j) => j.conclusion === "failure");
+                    const failedStep = failedJobs[0]?.steps?.find((s) => s.conclusion === "failure");
+                    if (failedStep) {
+                        failureGrep = ` · failed step: "${failedStep.name}" in ${failedJobs[0].name}`;
+                    } else if (failedJobs[0]) {
+                        failureGrep = ` · failed job: ${failedJobs[0].name}`;
+                    }
+                }
+            } catch (err) { /* log grep is best-effort */ }
+        }
+
         return {
             name: "github_actions",
             ok,
-            detail: `last 10 runs · ${failed} failed · ${consecutive} consecutive (red at ≥3)`,
+            detail: `last 10 runs · ${failed} failed · ${consecutive} consecutive (red at ≥3)${failureGrep}`,
         };
     } catch (err) {
         return { name: "github_actions", ok: false, detail: err.message };

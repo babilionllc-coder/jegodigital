@@ -256,6 +256,79 @@ function rec(lines, observations) {
     return recs.slice(0, 3);
 }
 
+// ---- Optional LLM enrichment ----
+//
+// When ANTHROPIC_API_KEY is set, this asks Claude to spot non-obvious patterns
+// the deterministic rules miss (e.g. "Offer C books more Calendly but Offer A
+// gets 2x more audits — implies a speed-to-lead gap", "spam bounces on Thursdays
+// only → your Thursday batch template is cooking"). Returns a short array of
+// bullet strings, or null on any failure. Never blocks the Telegram send.
+//
+// Budget: 1 call per week, ~1000 input tokens → cost <$0.01. Cheap insurance.
+async function enrichWithLLM(observations, recommendations) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) return null;
+
+    // Only send condensed numeric observations — never raw contact data. Privacy
+    // by construction: LLM never sees emails, phone numbers, or lead PII.
+    const safePayload = {
+        totals: observations.totals,
+        offer_rows: observations.offerRows,
+        audits_by_source: observations.auditsBySource,
+        health_red_count: observations.healthPatterns?.redCount,
+        health_total_runs: observations.healthPatterns?.totalRuns,
+        cold_call_days_run: observations.coldCallDaysRun,
+        cold_call_days_expected: observations.coldCallDaysExpected,
+        phone_leads_count: observations.phoneLeadsCount,
+        digest_days_seen: observations.digestDaysSeen,
+        existing_recommendations: recommendations,
+    };
+
+    const prompt = `You are the Critical Auditor for JegoDigital, a 1-person AI-powered real estate marketing agency. Below is a JSON snapshot of the last 7 days of operational metrics (cold calls, cold email, Calendly bookings, audit funnel, Brevo, watchdog).
+
+The system already surfaced these programmatic recommendations:
+${(recommendations || []).map((r, i) => `${i + 1}. ${r}`).join("\n") || "(none)"}
+
+Your job: find 2-3 NON-OBVIOUS patterns or risks the programmatic rules missed. Look for:
+- Counter-intuitive correlations (e.g. more replies but fewer bookings = funnel leak)
+- Week-over-week trajectory implied by the totals
+- Cross-metric signals (e.g. low audits + high calls = audit pipeline broken)
+- Anything suggesting a structural issue vs a random bad week
+
+DO NOT restate obvious totals. DO NOT repeat the existing recommendations. Output 2-3 bullet lines, each under 160 chars, each starting with a concrete pattern then its implication. Zero preamble, zero markdown headers.
+
+Data:
+${JSON.stringify(safePayload, null, 2)}`;
+
+    try {
+        const r = await axios.post(
+            "https://api.anthropic.com/v1/messages",
+            {
+                model: "claude-haiku-4-5-20251001",
+                max_tokens: 500,
+                messages: [{ role: "user", content: prompt }],
+            },
+            {
+                headers: {
+                    "x-api-key": apiKey,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                timeout: 25000,
+            }
+        );
+        const text = r.data?.content?.[0]?.text || "";
+        const bullets = text
+            .split("\n")
+            .map((l) => l.replace(/^\s*[-•*]\s*/, "").trim())
+            .filter((l) => l.length > 0 && l.length < 400);
+        return bullets.slice(0, 3);
+    } catch (err) {
+        functions.logger.warn("enrichWithLLM failed:", err.response?.data || err.message);
+        return null;
+    }
+}
+
 // ---- Main ----
 exports.autopilotReviewer = functions
     .runWith({ timeoutSeconds: 240, memory: "512MB" })
@@ -385,6 +458,15 @@ exports.autopilotReviewer = functions
         lines.push(`*Recommended actions*`);
         recommendations.forEach((r, i) => lines.push(`   ${i + 1}. ${r}`));
 
+        // Optional LLM pass — additive, never replaces programmatic recs.
+        // Runs last so a flaky API call can't break the deterministic report.
+        const llmBullets = await enrichWithLLM(observations, recommendations);
+        if (llmBullets && llmBullets.length > 0) {
+            lines.push("");
+            lines.push(`*🧩 Pattern watch (LLM pass)*`);
+            llmBullets.forEach((b, i) => lines.push(`   ${i + 1}. ${b}`));
+        }
+
         const reportText = lines.join("\n");
 
         // ---- Persist snapshot ----
@@ -394,6 +476,8 @@ exports.autopilotReviewer = functions
                 generated_at: admin.firestore.FieldValue.serverTimestamp(),
                 observations,
                 recommendations,
+                llm_bullets: llmBullets || null,
+                llm_enabled: !!process.env.ANTHROPIC_API_KEY,
                 report_text: reportText,
             });
         } catch (err) {

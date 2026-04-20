@@ -99,6 +99,39 @@ async function countAudits(db, start, end) {
     }
 }
 
+// Classify a Brevo / scheduled-email failure into hard/soft/spam/unknown buckets.
+// Works off whatever reason string we have: `bounce_reason`, `error`, `failure_reason`,
+// or the Brevo response body fragment. The buckets map to how Alex should act:
+//   hard    → delete the contact from Brevo + Instantly (gone forever)
+//   soft    → retry in 24h, keep contact (temporary inbox state)
+//   spam    → investigate deliverability (our sending rep is getting flagged)
+//   unknown → neither pattern matched; leave for manual review
+function classifyBounce(raw) {
+    if (!raw) return "unknown";
+    const s = String(raw).toLowerCase();
+    // Hard bounce patterns (permanent failures)
+    if (
+        /\b5\d{2}\b/.test(s) || // 550, 551, 553, etc.
+        /user\s+unknown|no\s+such\s+user|recipient\s+(not\s+found|unknown|rejected)/.test(s) ||
+        /invalid\s+(recipient|mailbox|address|email)|mailbox\s+(not\s+found|unavailable|does\s+not\s+exist)/.test(s) ||
+        /address\s+rejected|domain\s+(not\s+found|invalid)|unrouteable|no\s+mx\s+record/.test(s) ||
+        /hard[\s_-]?bounce|permanent\s+failure|unknownuser|invalid_email/.test(s)
+    ) return "hard";
+    // Soft bounce patterns (temporary — mailbox full, quotas, greylisting)
+    if (
+        /\b4\d{2}\b/.test(s) ||
+        /mailbox\s+full|quota\s+exceeded|over\s+quota|storage\s+full/.test(s) ||
+        /temporarily\s+(unavailable|deferred|rejected)|try\s+again|greylist/.test(s) ||
+        /soft[\s_-]?bounce|throttl|rate[\s_-]?limit/.test(s)
+    ) return "soft";
+    // Spam / deliverability block (our reputation problem)
+    if (
+        /spam|blocked|blacklist|blocklist|abuse|policy|reputation|reject.*content/.test(s) ||
+        /spamhaus|barracuda|sorbs|spf|dkim|dmarc|suspicious/.test(s)
+    ) return "spam";
+    return "unknown";
+}
+
 async function countScheduledEmails(db, start, end) {
     try {
         // sent_at is the signal for sent, failed_at for failed
@@ -110,7 +143,29 @@ async function countScheduledEmails(db, start, end) {
             .where("failed_at", ">=", start)
             .where("failed_at", "<", end)
             .get();
-        return { sent: sentSnap.size, failed: failedSnap.size };
+
+        // Classify failure reasons — doc fields vary across call sites, so check several.
+        const reasons = { hard: 0, soft: 0, spam: 0, unknown: 0 };
+        const samples = { hard: null, soft: null, spam: null, unknown: null };
+        failedSnap.forEach((doc) => {
+            const d = doc.data() || {};
+            const raw =
+                d.bounce_reason ||
+                d.failure_reason ||
+                d.error ||
+                d.error_message ||
+                d.brevo_error ||
+                d.smtp_response ||
+                "";
+            const bucket = classifyBounce(raw);
+            reasons[bucket] = (reasons[bucket] || 0) + 1;
+            // Keep one short sample per bucket so Alex sees a concrete example in the digest.
+            if (!samples[bucket] && raw) {
+                samples[bucket] = String(raw).slice(0, 80);
+            }
+        });
+
+        return { sent: sentSnap.size, failed: failedSnap.size, reasons, samples };
     } catch (err) {
         functions.logger.warn("countScheduledEmails failed:", err.message);
         return null;
@@ -273,6 +328,23 @@ function buildDigest({ dateKey, calendly, audits, emails, calls, instantly, anom
     lines.push(`✉️ *Scheduled emails (Brevo queue)*`);
     if (emails) {
         lines.push(`   Sent ${fmt(emails.sent)} · Failed ${fmt(emails.failed)}`);
+        // Only break out the reason buckets when we actually had failures — saves noise.
+        if (emails.failed > 0 && emails.reasons) {
+            const r = emails.reasons;
+            const pieces = [];
+            if (r.hard) pieces.push(`💀 hard ${r.hard}`);
+            if (r.soft) pieces.push(`🔁 soft ${r.soft}`);
+            if (r.spam) pieces.push(`🛑 spam ${r.spam}`);
+            if (r.unknown) pieces.push(`❓ unknown ${r.unknown}`);
+            if (pieces.length) lines.push(`   ${pieces.join(" · ")}`);
+            // Surface one concrete example per bucket — helps Alex diagnose in 2 seconds.
+            if (emails.samples) {
+                if (emails.samples.spam) lines.push(`   _spam sample:_ \`${emails.samples.spam}\``);
+                if (emails.samples.hard && !emails.samples.spam) {
+                    lines.push(`   _hard sample:_ \`${emails.samples.hard}\``);
+                }
+            }
+        }
     } else {
         lines.push(`   —`);
     }
@@ -310,6 +382,10 @@ exports.dailyDigest = functions.pubsub
             "instantly.replies": instantly?.replies ?? 0,
             "instantly.bounces": instantly?.bounces ?? 0,
             "emails.failed": emails?.failed ?? 0,
+            // Bounce reason buckets — spam spikes mean our sending rep is cooking,
+            // hard spikes mean our list hygiene broke. Both are "wake Alex up" events.
+            "emails.reasons.hard": emails?.reasons?.hard ?? 0,
+            "emails.reasons.spam": emails?.reasons?.spam ?? 0,
         };
         const anomalies = [];
         for (const [path, todayVal] of Object.entries(todayMetrics)) {

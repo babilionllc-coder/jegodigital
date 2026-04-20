@@ -1910,7 +1910,8 @@ exports.coldCallReport = coldCall.coldCallReport;
 // call_analysis (by offer), audit_requests (by source).
 // Writes autopilot_reviews/{YYYY-WW} snapshot + posts
 // Telegram report with 3 concrete recommendations.
-// DETERMINISTIC — programmatic analysis, no LLM required.
+// Deterministic baseline + optional Claude enrichment when
+// ANTHROPIC_API_KEY is set (additive, never blocks the report).
 // This IS the self-improvement layer. See SYSTEM.md §1.2.
 // ============================================================
 exports.autopilotReviewer = require("./autopilotReviewer").autopilotReviewer;
