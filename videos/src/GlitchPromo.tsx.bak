@@ -1,0 +1,150 @@
+import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, Sequence } from "remotion";
+import React from "react";
+
+const GlitchText: React.FC<{ text: string; color: string; fontSize: number }> = ({ text, color, fontSize }) => {
+    const frame = useCurrentFrame();
+    const opacity = Math.random() > 0.8 ? 0.5 : 1;
+    const transform = `translate(${Math.random() * 5 - 2.5}px, ${Math.random() * 5 - 2.5}px)`;
+
+    return (
+        <h1 style={{
+            fontFamily: "Inter, sans-serif",
+            fontWeight: 900,
+            fontSize,
+            color,
+            textAlign: "center",
+            textTransform: "uppercase",
+            opacity,
+            transform,
+            textShadow: `${Math.random() * 5 - 2.5}px ${Math.random() * 5 - 2.5}px 0px rgba(255,0,0,0.5), ${Math.random() * 5 - 2.5}px ${Math.random() * 5 - 2.5}px 0px rgba(0,255,255,0.5)`
+        }}>
+            {text}
+        </h1>
+    );
+};
+
+const SearchResult: React.FC<{ title: string; url: string; delay: number }> = ({ title, url, delay }) => {
+    const frame = useCurrentFrame();
+    const opacity = interpolate(frame, [delay, delay + 10], [0, 1]);
+    const translateY = interpolate(frame, [delay, delay + 20], [20, 0]);
+
+    return (
+        <div style={{
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            marginBottom: "20px",
+            opacity,
+            transform: `translateY(${translateY}px)`,
+            boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+        }}>
+            <div style={{ fontSize: "14px", color: "#202124", marginBottom: "4px" }}>{url}</div>
+            <div style={{ fontSize: "24px", color: "#1a0dab", fontWeight: 600 }}>{title}</div>
+        </div>
+    );
+};
+
+export const GlitchPromo: React.FC = () => {
+    const frame = useCurrentFrame();
+    const { fps } = useVideoConfig();
+
+    // Scene timings
+    const startGlitch = fps * 3; // 3 seconds in
+
+    // Background flicker
+    const bg = frame > startGlitch && frame < startGlitch + 40
+        ? (Math.random() > 0.5 ? "black" : "#1a1a1a")
+        : (frame > startGlitch + 40 ? "black" : "#f1f3f4"); // Google gray then Black
+
+    return (
+        <AbsoluteFill style={{ backgroundColor: bg, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+
+            {/* SCENE 1: Google Search (0s - 3s) */}
+            <Sequence durationInFrames={startGlitch + 10}>
+                <div style={{ width: "90%", paddingTop: "200px" }}>
+                    {/* Fake Search Bar */}
+                    <div style={{
+                        backgroundColor: "white",
+                        borderRadius: "50px",
+                        padding: "20px 30px",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                        marginBottom: "40px",
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: "24px",
+                        color: "#5f6368"
+                    }}>
+                        <span style={{ marginRight: "15px" }}>🔍</span>
+                        Agencia Marketing Cancún
+                    </div>
+
+                    {/* Results */}
+                    <SearchResult title="Futurité - Marketing Digital" url="www.futurite.com > cancun" delay={10} />
+                    <SearchResult title="Neo E-Marketing" url="www.neoemarketing.com" delay={30} />
+                    <SearchResult title="Aloha! Marketing" url="www.aloha-marketing.com" delay={50} />
+                </div>
+            </Sequence>
+
+            {/* SCENE 2: The Glitch (3s - 5s) */}
+            <Sequence from={startGlitch} durationInFrames={60}>
+                <AbsoluteFill style={{
+                    backgroundColor: Math.random() > 0.8 ? "red" : "transparent",
+                    opacity: 0.8,
+                    mixBlendMode: "overlay"
+                }} />
+                <div style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "100%"
+                }}>
+                    <GlitchText text="WHERE ARE YOU?" color="white" fontSize={80} />
+                    <GlitchText text="INVISIBLE?" color="red" fontSize={120} />
+                </div>
+            </Sequence>
+
+            {/* SCENE 3: The Solution (5s - end) */}
+            <Sequence from={startGlitch + 60}>
+                <AbsoluteFill style={{
+                    background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}>
+                    <h2 style={{
+                        color: "#38bdf8",
+                        fontSize: "40px",
+                        fontWeight: 700,
+                        marginBottom: "20px",
+                        opacity: interpolate(frame, [startGlitch + 60, startGlitch + 80], [0, 1])
+                    }}>
+                        JegoDigital
+                    </h2>
+
+                    <div style={{
+                        border: "2px solid #38bdf8",
+                        padding: "20px 40px",
+                        borderRadius: "20px",
+                        backgroundColor: "rgba(56, 189, 248, 0.1)",
+                        backdropFilter: "blur(10px)",
+                        transform: `scale(${interpolate(frame, [startGlitch + 70, startGlitch + 90], [0.8, 1], { extrapolateRight: "clamp" })})`
+                    }}>
+                        <h1 style={{ color: "white", fontSize: "60px", fontWeight: 900, textAlign: "center", margin: 0 }}>
+                            OPTIMIZED<br />FOR AI
+                        </h1>
+                    </div>
+
+                    <h3 style={{
+                        color: "#94a3b8",
+                        marginTop: "40px",
+                        fontSize: "30px",
+                        opacity: interpolate(frame, [startGlitch + 90, startGlitch + 110], [0, 1])
+                    }}>
+                        Don't be invisible.
+                    </h3>
+                </AbsoluteFill>
+            </Sequence>
+
+        </AbsoluteFill>
+    );
+};

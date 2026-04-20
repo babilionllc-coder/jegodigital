@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JegoDigital — Custom Admin Panel + CRM para Tu Negocio</title>
+<meta name="description" content="Deja de manejar tu negocio con 5 apps diferentes. Un solo panel centralizado con CRM, calendario, analytics y alertas. Setup en 1 semana.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #C5A059;
+  --gold-light: #E5C585;
+  --gold-dim: rgba(197,160,89,0.15);
+  --gold-border: rgba(197,160,89,0.2);
+  --dark: #0f1115;
+  --surface: #1a1d24;
+  --surface2: #20242e;
+  --gray: #8b9bb4;
+  --text: #e8eaf0;
+  --red: #ff4d6d;
+  --green: #22c55e;
+  --blue: #4f8ef7;
+  --purple: #a78bfa;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* --- NAV --- */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(15,17,21,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-icon {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: var(--dark);
+}
+.nav-logo { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+.nav-logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 6px; }
+.nav-link {
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: var(--gray);
+  cursor: pointer; transition: all 0.2s; border: none; background: none;
+  text-decoration: none;
+}
+.nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.nav-link.active { color: var(--gold); background: var(--gold-dim); }
+.nav-badge {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); padding: 7px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; transition: opacity 0.2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav-badge:hover { opacity: 0.85; }
+
+/* --- SECTIONS --- */
+section { padding: 100px 40px 80px; max-width: 1200px; margin: 0 auto; }
+section:first-of-type { padding-top: 140px; }
+
+/* --- HERO --- */
+#hero {
+  text-align: center; padding-top: 140px; padding-bottom: 60px;
+  position: relative;
+}
+.hero-glow {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(197,160,89,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.client-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--gold-border);
+  padding: 6px 16px; border-radius: 30px;
+  font-size: 12px; font-weight: 600; color: var(--gold);
+  margin-bottom: 28px; letter-spacing: 0.5px;
+}
+.client-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.5; transform:scale(0.8); } }
+
+h1 {
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 900; line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+h1 .gold { color: var(--gold); }
+h1 .dim { color: var(--gray); }
+
+.hero-sub {
+  font-size: 18px; color: var(--gray); max-width: 640px; margin: 0 auto 40px;
+  font-weight: 400;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+.hero-stat strong { font-size: 32px; font-weight: 900; color: var(--gold); display: block; }
+.hero-stat span { font-size: 13px; color: var(--gray); font-weight: 500; }
+
+/* --- SECTION LABELS --- */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
+}
+.section-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+.section-sub { font-size: 16px; color: var(--gray); margin-bottom: 48px; }
+
+/* --- PAIN CARDS --- */
+.pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.pain-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  transition: all 0.25s;
+  border-left: 3px solid var(--red);
+}
+.pain-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(197,160,89,0.08);
+}
+.pain-icon { font-size: 28px; margin-bottom: 14px; }
+.pain-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.pain-desc { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+/* --- PIPELINE STAGES --- */
+.stage-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.stage-card {
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px 14px;
+  transition: all 0.25s;
+}
+.stage-card:hover {
+  border-color: var(--gold-border);
+  transform: translateY(-2px);
+}
+.stage-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.stage-name { font-size: 13px; font-weight: 700; }
+.stage-count {
+  font-size: 11px; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; background: var(--gold-dim); color: var(--gold);
+}
+.stage-desc { font-size: 11px; color: var(--gray); line-height: 1.4; }
+
+/* --- TWO COL --- */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+
+/* --- INFO CARDS --- */
+.info-panel { display: flex; flex-direction: column; gap: 20px; }
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 22px;
+}
+.info-card-title {
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+}
+.qual-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.qual-row:last-child { border-bottom: none; }
+.qual-label { font-size: 13px; color: var(--gray); }
+.qual-val { font-size: 13px; font-weight: 600; }
+
+/* --- FEATURE LIST --- */
+.feature-list {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.feature-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--gray);
+}
+.feature-item .check {
+  color: var(--green); font-weight: 700; flex-shrink: 0;
+}
+
+/* --- IMAGE SHOWCASE --- */
+.showcase-img {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--gold-border);
+  display: block;
+}
+.showcase-caption {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* --- RESULTS --- */
+.results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  text-align: center;
+  transition: all 0.25s;
+}
+.result-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(197,160,89,0.1);
+}
+.result-icon { font-size: 32px; margin-bottom: 12px; }
+.result-number {
+  font-size: 44px; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.result-label { font-size: 14px; color: var(--gray); margin-top: 8px; font-weight: 500; }
+.result-sub { font-size: 12px; color: rgba(139,155,180,0.6); margin-top: 4px; }
+
+/* --- CTA --- */
+#cta {
+  text-align: center;
+  padding: 100px 40px;
+  background: linear-gradient(180deg, transparent 0%, rgba(197,160,89,0.04) 50%, transparent 100%);
+  border-top: 1px solid var(--gold-border);
+}
+.cta-title { font-size: 40px; font-weight: 900; margin-bottom: 16px; }
+.cta-sub { font-size: 17px; color: var(--gray); max-width: 500px; margin: 0 auto 36px; }
+.cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 16px 36px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); font-size: 15px; font-weight: 800;
+  border: none; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.3px; text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(197,160,89,0.3); }
+.btn-secondary {
+  padding: 16px 36px; border-radius: 12px;
+  background: transparent;
+  color: var(--text); font-size: 15px; font-weight: 700;
+  border: 1px solid var(--gold-border); cursor: pointer; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* --- FOOTER --- */
+footer {
+  text-align: center; padding: 32px 40px;
+  border-top: 1px solid var(--gold-border);
+  font-size: 12px; color: var(--gray);
+}
+footer a { color: var(--gold); text-decoration: none; }
+
+/* --- SCROLL ANIMATIONS --- */
+.anim-section { opacity: 0; }
+.anim-section.visible { opacity: 1; }
+.anim-left { opacity: 0; transform: translateX(-60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-left { opacity: 1; transform: translateX(0); }
+.anim-right { opacity: 0; transform: translateX(60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-right { opacity: 1; transform: translateX(0); }
+.anim-up { opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-up { opacity: 1; transform: translateY(0); }
+.anim-scale { opacity: 0; transform: scale(0.85); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-scale { opacity: 1; transform: scale(1); }
+.anim-d1 { transition-delay: 0.1s !important; }
+.anim-d2 { transition-delay: 0.25s !important; }
+.anim-d3 { transition-delay: 0.4s !important; }
+.anim-d4 { transition-delay: 0.55s !important; }
+.anim-d5 { transition-delay: 0.7s !important; }
+.anim-d6 { transition-delay: 0.85s !important; }
+
+/* Result card pop */
+@keyframes resultPop {
+  0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.result-card-anim { opacity: 0; }
+.anim-section.visible .result-card-anim { animation: resultPop 0.5s ease forwards; }
+
+/* gold text */
+.gold-text { color: var(--gold); }
+
+/* responsive */
+@media (max-width: 900px) {
+  .two-col { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .pain-grid { grid-template-columns: 1fr; }
+  .stage-grid { grid-template-columns: repeat(2, 1fr); }
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  section { padding: 80px 20px 60px; }
+  .hero-stats { gap: 28px; }
+}
+@media (max-width: 600px) {
+  .results-grid { grid-template-columns: 1fr; }
+  .stage-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-icon">J</div>
+    <div class="nav-logo"><span>Jego</span>Digital</div>
+  </div>
+  <div class="nav-links">
+    <a href="#problem" class="nav-link active">Problema</a>
+    <a href="#video" class="nav-link">Video</a>
+    <a href="#pipeline" class="nav-link">Pipeline</a>
+    <a href="#panel" class="nav-link">Panel</a>
+    <a href="#analytics" class="nav-link">Analytics</a>
+    <a href="#results" class="nav-link">Resultados</a>
+  </div>
+  <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" class="nav-badge">Agendar Llamada</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="max-width:1200px;">
+  <div class="hero-glow"></div>
+  <div class="client-pill">
+    <div class="client-dot"></div>
+    PANEL PERSONALIZADO · SETUP EN 1 SEMANA
+  </div>
+  <h1>
+    5 Apps Para Gestionar Tu Negocio.<br>
+    <span class="gold">Nosotros Te Damos 1.</span>
+  </h1>
+  <p class="hero-sub">
+    Centraliza leads, clientes, calendario, propiedades y analytics en un solo panel hecho a la medida de tu negocio. Sin Excel, sin WhatsApp perdidos, sin caos.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <strong>1</strong>
+      <span>Panel Central<br>todo en un lugar</span>
+    </div>
+    <div class="hero-stat">
+      <strong>0</strong>
+      <span>Leads Perdidos<br>seguimiento automático</span>
+    </div>
+    <div class="hero-stat">
+      <strong>+60%</strong>
+      <span>Eficiencia<br>menos tiempo operativo</span>
+    </div>
+    <div class="hero-stat">
+      <strong>1 sem</strong>
+      <span>Setup<br>listo y funcionando</span>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO DEMO -->
+<section id="video" class="anim-section" style="padding-top:40px; padding-bottom:80px;">
+  <div style="text-align:center;">
+    <div class="section-label anim-up">Video Demo</div>
+    <div class="section-title anim-up anim-d1" style="margin-bottom:32px;">Mira tu <span class="gold">Panel Admin + CRM</span> en acción</div>
+    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;aspect-ratio:16/9;">
+      <video id="demo-video" src="/cf-videos/admin-crm-demo.mp4" style="width:100%;height:100%;display:block;" playsinline loop></video>
+      <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
+        </div>
+      </div>
+    </div>
+    <p style="color:var(--gray);margin-top:16px;font-size:13px;">CRM Pipeline · Panel Admin · Analytics · Integraciones · Resultados</p>
+  </div>
+</section>
+<script>
+function startVideo(){
+  const overlay=document.getElementById('video-overlay');
+  const video=document.getElementById('demo-video');
+  overlay.style.opacity='0';
+  setTimeout(()=>{overlay.style.display='none'},300);
+  video.play();
+}
+</script>
+
+<!-- PAIN POINTS -->
+<section id="problem" class="anim-section" style="padding-top:40px;">
+  <div class="section-label anim-up">El problema</div>
+  <div class="section-title anim-up anim-d1">El caos de gestionar tu negocio con 5 apps</div>
+  <div class="section-sub anim-up anim-d2">Excel para leads, WhatsApp para seguimiento, Google Calendar para citas, email para propuestas... y al final, nada se conecta.</div>
+
+  <div class="pain-grid">
+    <div class="pain-card anim-up anim-d2">
+      <div class="pain-icon">🤯</div>
+      <div class="pain-title">Caos de Múltiples Apps</div>
+      <div class="pain-desc">Saltas entre Excel, WhatsApp, Gmail, Calendly y 3 apps más. Cada una tiene su propia data. Nada se sincroniza. Pierdes 2+ horas al día solo buscando información que ya tienes en algún lado.</div>
+    </div>
+    <div class="pain-card anim-up anim-d3">
+      <div class="pain-icon">💀</div>
+      <div class="pain-title">Leads Perdidos</div>
+      <div class="pain-desc">Un prospecto te escribe por WhatsApp, otro por email, otro por formulario. Sin CRM centralizado, los leads se pierden entre conversaciones. Cuando los buscas, ya compraron con la competencia.</div>
+    </div>
+    <div class="pain-card anim-up anim-d4">
+      <div class="pain-icon">🔮</div>
+      <div class="pain-title">Cero Visibilidad</div>
+      <div class="pain-desc">No sabes cuántos leads tienes en cada etapa, cuántas citas agendaste este mes, ni cuál agente está cerrando más. Sin datos, tomas decisiones a ciegas. Sin analytics, no puedes escalar.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CRM PIPELINE -->
+<section id="pipeline" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">CRM Pipeline</div>
+  <div class="section-title anim-up anim-d1">Cada lead, en su etapa exacta</div>
+  <div class="section-sub anim-up anim-d2">Un pipeline visual donde ves exactamente dónde está cada prospecto. Mueve leads entre etapas con un click. Nunca pierdas seguimiento.</div>
+
+  <div class="two-col">
+    <!-- Left: info panel with stages -->
+    <div class="info-panel anim-left anim-d2">
+      <div class="info-card">
+        <div class="info-card-title">Etapas del Pipeline</div>
+        <div class="stage-grid">
+          <div class="stage-card">
+            <div class="stage-header">
+              <span class="stage-name" style="color:var(--blue);">Nuevo</span>
+              <span class="stage-count">12</span>
+            </div>
+            <div class="stage-desc">Leads que acaban de entrar por formulario, WhatsApp o referido.</div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-header">
+              <span class="stage-name" style="color:var(--purple);">Contactado</span>
+              <span class="stage-count">8</span>
+            </div>
+            <div class="stage-desc">Ya se hizo primer contacto. Esperando respuesta o llamada.</div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-header">
+              <span class="stage-name" style="color:var(--gold);">Calificado</span>
+              <span class="stage-count">6</span>
+            </div>
+            <div class="stage-desc">Prospecto con presupuesto y timeline confirmado. Listo para avanzar.</div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-header">
+              <span class="stage-name" style="color:var(--green);">Visita</span>
+              <span class="stage-count">4</span>
+            </div>
+            <div class="stage-desc">Tour agendado o completado. Feedback registrado en el CRM.</div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-header">
+              <span class="stage-name" style="color:#f59e0b;">Negociación</span>
+              <span class="stage-count">3</span>
+            </div>
+            <div class="stage-desc">Propuesta enviada. Negociando precio, condiciones o financiamiento.</div>
+          </div>
+          <div class="stage-card">
+            <div class="stage-header">
+              <span class="stage-name" style="color:var(--green);">Cerrado</span>
+              <span class="stage-count">2</span>
+            </div>
+            <div class="stage-desc">Deal firmado. Documentación y seguimiento post-venta activo.</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">Automatización incluida</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">Cuando un lead cambia de etapa, se disparan emails automáticos, notificaciones al agente y actualizaciones de calendario. Todo sin intervención manual.</div>
+      </div>
+    </div>
+
+    <!-- Right: REAL IMAGE -->
+    <div class="anim-right anim-d3">
+      <img src="/img/showcase/flamingo/crmpipelinetonurtureleads.png" class="showcase-img" alt="CRM Pipeline real - Flamingo Real Estate" loading="lazy">
+      <div class="showcase-caption">Panel real de cliente — Flamingo Real Estate</div>
+    </div>
+  </div>
+</section>
+
+<!-- ADMIN PANEL -->
+<section id="panel" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Panel Administrativo</div>
+  <div class="section-title anim-up anim-d1">Todo tu negocio en una sola pantalla</div>
+  <div class="section-sub anim-up anim-d2">Dashboard personalizado con los módulos que tu negocio necesita. No más pestañas abiertas. No más apps separadas.</div>
+
+  <div class="two-col">
+    <!-- Left: REAL IMAGE -->
+    <div class="anim-left anim-d2">
+      <img src="/img/showcase/flamingo/adminpanel.png" class="showcase-img" alt="Panel administrativo real - Flamingo Real Estate" loading="lazy">
+      <div class="showcase-caption">Panel administrativo real — Flamingo Real Estate</div>
+    </div>
+
+    <!-- Right: info panel -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">Qué incluye</div>
+        <div class="qual-row">
+          <span class="qual-label">Dashboard Central</span>
+          <span class="qual-val gold-text">KPIs en tiempo real</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">CRM Completo</span>
+          <span class="qual-val gold-text">Pipeline + contactos</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Gestión de Propiedades</span>
+          <span class="qual-val gold-text">Listings + media</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Calendario</span>
+          <span class="qual-val gold-text">Citas + recordatorios</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Email Integrado</span>
+          <span class="qual-val gold-text">Plantillas + seguimiento</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Alertas Automáticas</span>
+          <span class="qual-val gold-text">Leads + tareas vencidas</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Integraciones</div>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>WhatsApp — Notificaciones y mensajes directos a leads</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>Google Calendar — Sincronización bidireccional de citas</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>Email — Envío de campañas y seguimiento automático</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>Calendly — Agendamiento directo desde tu sitio web</span>
+          </div>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">Hecho a tu medida</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">No es un SaaS genérico. Diseñamos cada módulo para tu flujo de trabajo específico. Si manejas propiedades, ves propiedades. Si manejas pacientes, ves pacientes. Tu negocio, tus reglas.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYTICS -->
+<section id="analytics" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Analytics en Tiempo Real</div>
+  <div class="section-title anim-up anim-d1">Datos que te dicen exactamente qué hacer</div>
+  <div class="section-sub anim-up anim-d2">No más decisiones a ciegas. Ve métricas de ventas, leads, rendimiento de agentes y ROI de marketing en un solo dashboard.</div>
+
+  <div class="two-col">
+    <!-- Left: REAL IMAGE -->
+    <div class="anim-left anim-d2">
+      <img src="/img/showcase/flamingo/adminanalytics.png" class="showcase-img" alt="Analytics dashboard real - Flamingo Real Estate" loading="lazy">
+      <div class="showcase-caption">Analytics en tiempo real — Flamingo Real Estate</div>
+    </div>
+
+    <!-- Right: info panel -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">Métricas que rastreamos</div>
+        <div class="qual-row">
+          <span class="qual-label">Leads por fuente</span>
+          <span class="qual-val gold-text">Web, WhatsApp, Referidos</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Tasa de conversión</span>
+          <span class="qual-val gold-text">Por etapa del pipeline</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Tiempo de respuesta</span>
+          <span class="qual-val gold-text">Promedio por agente</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Revenue por agente</span>
+          <span class="qual-val gold-text">Comisiones + metas</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Listings activos</span>
+          <span class="qual-val gold-text">Inventario + rendimiento</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">ROI de marketing</span>
+          <span class="qual-val gold-text">Costo por lead adquirido</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Tipos de Reportes</div>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>Reporte semanal automático por email</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>Dashboard en tiempo real con gráficas interactivas</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>Comparación mes a mes con tendencias</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">&#10003;</span>
+            <span>Exportar a PDF para juntas con equipo</span>
+          </div>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">Decisiones basadas en datos</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">Sabes exactamente qué fuente de leads genera más ventas, qué agente necesita soporte, y dónde invertir tu presupuesto de marketing. Datos reales, no intuición.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="anim-section">
+  <div class="section-label anim-up">Resultados</div>
+  <div class="section-title anim-up anim-d1">Lo que cambia cuando centralizas todo</div>
+  <div class="section-sub anim-up anim-d2">Estos son los números que nuestros clientes ven después de implementar su panel personalizado.</div>
+
+  <div class="results-grid">
+    <div class="result-card result-card-anim" style="animation-delay:0.1s;">
+      <div class="result-icon">🎯</div>
+      <div class="result-number">1</div>
+      <div class="result-label">Panel Central</div>
+      <div class="result-sub">todo tu negocio en una sola pantalla</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.25s;">
+      <div class="result-icon">📈</div>
+      <div class="result-number">+60%</div>
+      <div class="result-label">Eficiencia Operativa</div>
+      <div class="result-sub">menos tiempo en tareas administrativas</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.4s;">
+      <div class="result-icon">🛡️</div>
+      <div class="result-number">0</div>
+      <div class="result-label">Leads Perdidos</div>
+      <div class="result-sub">seguimiento automático de cada prospecto</div>
+    </div>
+  </div>
+
+  <div class="results-grid">
+    <div class="result-card result-card-anim" style="animation-delay:0.55s;">
+      <div class="result-icon">⚡</div>
+      <div class="result-number">2x</div>
+      <div class="result-label">Velocidad de Respuesta</div>
+      <div class="result-sub">a leads y clientes desde el panel</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.7s;">
+      <div class="result-icon">🚀</div>
+      <div class="result-number">1 sem</div>
+      <div class="result-label">Setup Completo</div>
+      <div class="result-sub">panel listo y funcionando en 7 días</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.85s;">
+      <div class="result-icon">🎓</div>
+      <div class="result-number">100%</div>
+      <div class="result-label">Training Incluido</div>
+      <div class="result-sub">capacitación para ti y tu equipo completo</div>
+    </div>
+  </div>
+
+  <!-- Tech stack -->
+  <div style="text-align:center;">
+    <div style="font-size:13px;color:var(--gray);margin-bottom:16px;font-weight:600;">Tecnología que usamos</div>
+    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">React / Next.js</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">Firebase</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">Node.js</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">WhatsApp API</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">Google Calendar API</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">Calendly API</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" style="max-width:100%; padding-left:40px; padding-right:40px;">
+  <div class="cta-title">¿Listo Para El <span style="color:var(--gold)">Control Total</span>?</div>
+  <p class="cta-sub">En 1 semana tendrás un panel personalizado con CRM, analytics y automatizaciones. Hecho a la medida de tu negocio.</p>
+  <div class="cta-btns">
+    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" style="text-decoration:none"><button class="btn-primary">Agenda tu Demo Gratis</button></a>
+    <a href="/servicios.html" class="btn-secondary">Ver más servicios</a>
+  </div>
+  <div style="margin-top:32px; font-size:13px; color:var(--gray);">
+    Demo gratuita de 30 min · Sin compromiso · Te mostramos un panel real funcionando
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:8px;">
+    <strong style="color:var(--gold)">JegoDigital</strong> — Custom Admin Panel + CRM
+  </div>
+  <div><a href="https://jegodigital.com">jegodigital.com</a> · jegoalexdigital@gmail.com</div>
+</footer>
+
+<script>
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    const top = s.offsetTop - 120;
+    if(scrollY >= top) cur = s.getAttribute('id');
+  });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if(l.getAttribute('href') === '#'+cur) l.classList.add('active');
+  });
+});
+
+// Scroll-triggered animations
+const animObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.anim-section').forEach(s => animObserver.observe(s));
+
+// Animated number counter for result cards
+function animateCounters() {
+  const cards = document.querySelectorAll('.result-number');
+  cards.forEach(card => {
+    const text = card.textContent;
+    const match = text.match(/\+?(\d+)/);
+    if(match && text.includes('%')) {
+      const target = parseInt(match[1]);
+      card.textContent = '+0%';
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const interval = setInterval(() => {
+        current += step;
+        if(current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        card.textContent = '+' + current + '%';
+      }, 30);
+    }
+  });
+}
+
+// Trigger counter animation when results section is visible
+const resultsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      animateCounters();
+      resultsObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+const resultsSection = document.getElementById('results');
+if(resultsSection) resultsObserver.observe(resultsSection);
+</script>
+</body>
+</html>

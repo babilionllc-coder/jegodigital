@@ -21,7 +21,7 @@
   --text: #e8eaf0;
   --red: #ff4d6d;
   --green: #22c55e;
-  --blue: #4f8ef7;
+  --blue: #C5A059;
   --purple: #a78bfa;
 }
 
@@ -376,7 +376,7 @@ h1 .dim { color: var(--gray); }
 }
 .pos-1 { background: rgba(34,197,94,0.15); color: var(--green); }
 .pos-2 { background: rgba(34,197,94,0.1); color: var(--green); }
-.pos-3 { background: rgba(79,142,247,0.1); color: var(--blue); }
+.pos-3 { background: rgba(79,142,247,0.1); color: var(--gold); }
 .pos-low { background: rgba(255,77,109,0.1); color: var(--red); }
 .trend-up { color: var(--green); font-size: 12px; font-weight: 700; }
 .trend-down { color: var(--red); font-size: 12px; font-weight: 700; }
@@ -419,7 +419,7 @@ h1 .dim { color: var(--gray); }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.cal-seo { background: rgba(79,142,247,0.15); color: var(--blue); }
+.cal-seo { background: rgba(79,142,247,0.15); color: var(--gold); }
 .cal-aeo { background: rgba(167,139,250,0.15); color: var(--purple); }
 .cal-local { background: rgba(34,197,94,0.15); color: var(--green); }
 .cal-content { background: rgba(197,160,89,0.15); color: var(--gold); }
@@ -622,10 +622,10 @@ footer a { color: var(--gold); text-decoration: none; }
 <!-- VIDEO DEMO -->
 <section id="video" class="anim-section" style="padding-top:40px; padding-bottom:80px;">
   <div style="text-align:center;">
-    <div class="section-label anim-up">Video Demo · 52 segundos</div>
+    <div class="section-label anim-up">Video Demo · 90 segundos</div>
     <div class="section-title anim-up anim-d1" style="margin-bottom:32px;">Mira cómo funciona <span class="gold">Smart Search Presence</span></div>
-    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;padding-top:56.25%">
-      <iframe id="video-iframe" src="seo-aeo-video.html" style="position:absolute;top:0;left:0;width:1920px;height:1080px;border:none;pointer-events:none;transform-origin:top left" loading="lazy"></iframe>
+    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;aspect-ratio:16/9;">
+      <video id="demo-video" src="/cf-videos/aeo-showcase.mp4" style="width:100%;height:100%;display:block;" playsinline loop></video>
       <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
         <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
@@ -636,20 +636,12 @@ footer a { color: var(--gold); text-decoration: none; }
   </div>
 </section>
 <script>
-function scaleVideoIframe(){
-  const container=document.querySelector('#video > div > div:nth-child(3)');
-  const iframe=document.getElementById('video-iframe');
-  if(!container||!iframe)return;
-  const scale=container.offsetWidth/1920;
-  iframe.style.transform='scale('+scale+')';
-}
-scaleVideoIframe();
-window.addEventListener('resize',scaleVideoIframe);
 function startVideo(){
   const overlay=document.getElementById('video-overlay');
+  const video=document.getElementById('demo-video');
   overlay.style.opacity='0';
   setTimeout(()=>{overlay.style.display='none'},300);
-  document.getElementById('video-iframe').src='seo-aeo-video.html';
+  video.play();
 }
 </script>
 
@@ -1003,7 +995,7 @@ function startVideo(){
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <span style="font-size:15px;font-weight:700;">Marzo 2026</span>
           <div style="display:flex;gap:6px;">
-            <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(79,142,247,0.15);color:var(--blue);">SEO</span>
+            <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(79,142,247,0.15);color:var(--gold);">SEO</span>
             <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(167,139,250,0.15);color:var(--purple);">AEO</span>
             <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:var(--green);">Local</span>
             <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(197,160,89,0.15);color:var(--gold);">Content</span>
@@ -1067,7 +1059,7 @@ function startVideo(){
         <div class="info-card-title">🎯 Tipos de contenido</div>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="padding:3px 8px;border-radius:4px;background:rgba(79,142,247,0.15);color:var(--blue);font-size:10px;font-weight:600;">SEO</span>
+            <span style="padding:3px 8px;border-radius:4px;background:rgba(79,142,247,0.15);color:var(--gold);font-size:10px;font-weight:600;">SEO</span>
             <span style="color:var(--gray);">Landings por zona + tipo de propiedad</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">

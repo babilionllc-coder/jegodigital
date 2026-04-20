@@ -1,0 +1,233 @@
+import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, Sequence, spring, Easing } from "remotion";
+import React, { useMemo } from "react";
+
+/**
+ * @param {string} text - The text to display with a glitch effect.
+ * @param {string} color - The color of the text.
+ * @param {number} fontSize - The font size of the text.
+ */
+const GlitchText: React.FC<{ text: string; color: string; fontSize: number }> = ({ text, color, fontSize }) => {
+    const frame = useCurrentFrame();
+
+    const opacity = useMemo(() => Math.random() > 0.8 ? 0.5 : 1, [frame]);
+    const transform = useMemo(() => `translate(${Math.random() * 5 - 2.5}px, ${Math.random() * 5 - 2.5}px)`, [frame]);
+
+    return (
+        <h1 style={{
+            fontFamily: "Inter, sans-serif",
+            fontWeight: 900,
+            fontSize,
+            color,
+            textAlign: "center",
+            textTransform: "uppercase",
+            opacity,
+            transform,
+            textShadow: `${Math.random() * 5 - 2.5}px ${Math.random() * 5 - 2.5}px 0px rgba(255,0,0,0.5), ${Math.random() * 5 - 2.5}px ${Math.random() * 5 - 2.5}px 0px rgba(0,255,255,0.5)`
+        }}>
+            {text}
+        </h1>
+    );
+};
+
+/**
+ * @param {string} title - The title of the search result.
+ * @param {string} url - The URL of the search result.
+ * @param {number} delay - The delay (in frames) before the result appears.
+ */
+const SearchResult: React.FC<{ title: string; url: string; delay: number }> = ({ title, url, delay }) => {
+    const frame = useCurrentFrame();
+
+    const opacity = spring({
+        frame: frame - delay,
+        config: { stiffness: 50, damping: 10 },
+        from: 0,
+        to: 1
+    });
+
+    const translateY = spring({
+        frame: frame - delay,
+        config: { stiffness: 80, damping: 12 },
+        from: 20,
+        to: 0
+    });
+
+    return (
+        <div style={{
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            marginBottom: "20px",
+            opacity,
+            transform: `translateY(${translateY}px)`, 
+            boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+        }}>
+            <div style={{ fontSize: "14px", color: "#202124", marginBottom: "4px" }}>{url}</div>
+            <div style={{ fontSize: "24px", color: "#1a0dab", fontWeight: 600 }}>{title}</div>
+        </div>
+    );
+};
+
+/**
+ * Scene 1: Google Search Simulation
+ * @param {number} durationInFrames - The duration of the scene in frames.
+ */
+const SearchScene: React.FC<{ durationInFrames: number }> = ({ durationInFrames }) => (
+    <Sequence durationInFrames={durationInFrames}>
+        <div style={{ width: "90%", paddingTop: "200px" }}>
+            {/* Fake Search Bar */}
+            <div style={{
+                backgroundColor: "white",
+                borderRadius: "50px",
+                padding: "20px 30px",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                marginBottom: "40px",
+                display: "flex",
+                alignItems: "center",
+                fontSize: "24px",
+                color: "#5f6368"
+            }}>
+                <span style={{ marginRight: "15px" }}>🔍</span>
+                Agencia Marketing Cancún
+            </div>
+
+            {/* Results */}
+            <SearchResult title="Futurité - Marketing Digital" url="www.futurite.com > cancun" delay={10} />
+            <SearchResult title="Neo E-Marketing" url="www.neoemarketing.com" delay={30} />
+            <SearchResult title="Aloha! Marketing" url="www.aloha-marketing.com" delay={50} />
+        </div>
+    </Sequence>
+);
+
+/**
+ * Scene 2: The Glitch Effect
+ * @param {number} from - The starting frame of the scene.
+ * @param {number} durationInFrames - The duration of the scene in frames.
+ */
+const GlitchScene: React.FC<{ from: number; durationInFrames: number }> = ({ from, durationInFrames }) => (
+    <Sequence from={from} durationInFrames={durationInFrames}>
+        <AbsoluteFill style={{
+            backgroundColor: Math.random() > 0.8 ? "red" : "transparent",
+            opacity: 0.8,
+            mixBlendMode: "overlay"
+        }} />
+        <div style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "100%"
+        }}>
+            <GlitchText text="WHERE ARE YOU?" color="white" fontSize={80} />
+            <GlitchText text="INVISIBLE?" color="red" fontSize={120} />
+        </div>
+    </Sequence>
+);
+
+/**
+ * Scene 3: The Solution - JegoDigital
+ * @param {number} from - The starting frame of the scene.
+ */
+const SolutionScene: React.FC<{ from: number }> = ({ from }) => {
+    const frame = useCurrentFrame();
+
+    const opacityTitle = spring({
+        frame: frame - from,
+        config: { stiffness: 50, damping: 10 },
+        from: 0,
+        to: 1
+    });
+
+    const scaleBox = spring({
+        frame: frame - from - 10,
+        config: { stiffness: 100, damping: 15 },
+        from: 0.8,
+        to: 1
+    });
+
+    const opacityText = spring({
+        frame: frame - from - 30,
+        config: { stiffness: 50, damping: 10 },
+        from: 0,
+        to: 1
+    });
+
+    return (
+        <Sequence from={from}>
+            <AbsoluteFill style={{
+                background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                alignItems: "center",
+                justifyContent: "center"
+            }}>
+                <h2 style={{
+                    color: "#38bdf8",
+                    fontSize: "40px",
+                    fontWeight: 700,
+                    marginBottom: "20px",
+                    opacity: opacityTitle
+                }}>
+                    JegoDigital
+                </h2>
+
+                <div style={{
+                    border: "2px solid #38bdf8",
+                    padding: "20px 40px",
+                    borderRadius: "20px",
+                    backgroundColor: "rgba(56, 189, 248, 0.1)",
+                    backdropFilter: "blur(10px)",
+                    transform: `scale(${scaleBox})`
+                }}>
+                    <h1 style={{ color: "white", fontSize: "60px", fontWeight: 900, textAlign: "center", margin: 0 }}>
+                        OPTIMIZED<br />FOR AI
+                    </h1>
+                </div>
+
+                <h3 style={{
+                    color: "#94a3b8",
+                    marginTop: "40px",
+                    fontSize: "30px",
+                    opacity: opacityText
+                }}>
+                    Don't be invisible.
+                </h3>
+            </AbsoluteFill>
+        </Sequence>
+    );
+};
+
+/**
+ * Main Component: Glitch Promo
+ */
+interface GlitchPromoProps { }
+
+/**
+ * @description A promotional video component with a glitch effect.
+ * @returns {JSX.Element} The GlitchPromo component.
+ */
+export const GlitchPromo: React.FC<GlitchPromoProps> = () => {
+    const frame = useCurrentFrame();
+    const { fps } = useVideoConfig();
+
+    // Scene timings
+    const startGlitch = fps * 3; // 3 seconds in
+
+    // Background flicker
+    const bg = frame > startGlitch && frame < startGlitch + 40
+        ? (Math.random() > 0.5 ? "black" : "#1a1a1a")
+        : (frame > startGlitch + 40 ? "black" : "#f1f3f4"); // Google gray then Black
+
+    return (
+        <AbsoluteFill style={{ backgroundColor: bg, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+            <meta name="description" content="Is your business invisible online? JegoDigital offers AI-optimized marketing solutions. Don't be invisible!" />
+            <title>JegoDigital: AI-Optimized Marketing Solutions</title>
+            {/* SCENE 1: Google Search (0s - 3s) */}
+            <SearchScene durationInFrames={startGlitch + 10} />
+
+            {/* SCENE 2: The Glitch (3s - 5s) */}
+            <GlitchScene from={startGlitch} durationInFrames={60} />
+
+            {/* SCENE 3: The Solution (5s - end) */}
+            <SolutionScene from={startGlitch + 60} />
+
+        </AbsoluteFill>
+    );
+};

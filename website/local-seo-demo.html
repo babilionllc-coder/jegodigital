@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "wc783wmt5i");
+    </script>
+    <!-- End Microsoft Clarity -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JegoDigital — Local SEO Positioning para Inmobiliarias · Riviera Maya</title>
+<meta name="description" content="Posicionamos tu agencia inmobiliaria en el #1 de Google Maps y el Local Pack. Mas llamadas, mas visitas, mas cierres — sin pagar por cada click.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #C5A059;
+  --gold-light: #E5C585;
+  --gold-dim: rgba(197,160,89,0.15);
+  --gold-border: rgba(197,160,89,0.2);
+  --dark: #0f1115;
+  --surface: #1a1d24;
+  --surface2: #20242e;
+  --gray: #8b9bb4;
+  --text: #e8eaf0;
+  --red: #ff4d6d;
+  --green: #22c55e;
+  --blue: #4f8ef7;
+  --purple: #a78bfa;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(15,17,21,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-icon {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: var(--dark);
+}
+.nav-logo { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+.nav-logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 6px; }
+.nav-link {
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: var(--gray);
+  cursor: pointer; transition: all 0.2s; border: none; background: none;
+  text-decoration: none;
+}
+.nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.nav-link.active { color: var(--gold); background: var(--gold-dim); }
+.nav-badge {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); padding: 7px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; transition: opacity 0.2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav-badge:hover { opacity: 0.85; }
+
+/* ─── SECTIONS ─── */
+section { padding: 100px 40px 80px; max-width: 1200px; margin: 0 auto; }
+section:first-of-type { padding-top: 140px; }
+
+/* ─── HERO ─── */
+#hero {
+  text-align: center; padding-top: 140px; padding-bottom: 60px;
+  position: relative;
+}
+.hero-glow {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(197,160,89,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.client-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--gold-border);
+  padding: 6px 16px; border-radius: 30px;
+  font-size: 12px; font-weight: 600; color: var(--gold);
+  margin-bottom: 28px; letter-spacing: 0.5px;
+}
+.client-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.5; transform:scale(0.8); } }
+
+h1 {
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 900; line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+h1 .gold { color: var(--gold); }
+h1 .dim { color: var(--gray); }
+
+.hero-sub {
+  font-size: 18px; color: var(--gray); max-width: 640px; margin: 0 auto 40px;
+  font-weight: 400;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+.hero-stat strong { font-size: 32px; font-weight: 900; color: var(--gold); display: block; }
+.hero-stat span { font-size: 13px; color: var(--gray); font-weight: 500; }
+
+/* ─── SECTION LABELS ─── */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
+}
+.section-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+.section-sub { font-size: 16px; color: var(--gray); margin-bottom: 48px; }
+
+/* ─── PAIN CARDS ─── */
+.pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.pain-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  transition: all 0.25s;
+  border-left: 3px solid var(--red);
+}
+.pain-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(197,160,89,0.08);
+}
+.pain-icon { font-size: 28px; margin-bottom: 14px; }
+.pain-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.pain-desc { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+/* ─── PIPELINE ─── */
+.pipeline-track {
+  display: flex; align-items: center; gap: 0;
+  overflow-x: auto; padding-bottom: 16px;
+  scrollbar-width: none;
+}
+.pipeline-track::-webkit-scrollbar { display: none; }
+.pipe-step {
+  flex: 1; min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px;
+  padding: 24px 20px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-decoration: none; color: inherit;
+}
+.pipe-step:hover, .pipe-step.active {
+  border-color: var(--gold);
+  background: var(--surface2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(197,160,89,0.12);
+}
+.pipe-arrow {
+  flex-shrink: 0; padding: 0 8px; color: var(--gold-border);
+  font-size: 20px; font-weight: 300;
+}
+.pipe-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+}
+.pipe-num {
+  position: absolute; top: 12px; right: 14px;
+  font-size: 11px; font-weight: 700; color: var(--gold-border);
+  letter-spacing: 1px;
+}
+.pipe-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.pipe-desc { font-size: 12px; color: var(--gray); line-height: 1.4; }
+.pipe-tag {
+  display: inline-block; margin-top: 10px;
+  padding: 3px 8px; border-radius: 6px;
+  font-size: 10px; font-weight: 600;
+  background: var(--gold-dim); color: var(--gold);
+}
+
+/* ─── TWO COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+
+/* ─── INFO CARDS ─── */
+.info-panel { display: flex; flex-direction: column; gap: 20px; }
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 22px;
+}
+.info-card-title {
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+}
+.qual-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.qual-row:last-child { border-bottom: none; }
+.qual-label { font-size: 13px; color: var(--gray); }
+.qual-val { font-size: 13px; font-weight: 600; }
+
+/* ─── GOOGLE MAPS MOCKUP ─── */
+.maps-container {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-border);
+}
+.maps-search {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.maps-search-bar {
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 10px 18px;
+  font-size: 13px; color: var(--text);
+  display: flex; align-items: center; gap: 10px;
+}
+.maps-search-bar .search-icon { color: var(--gray); font-size: 14px; }
+.maps-results { padding: 0; }
+.maps-result {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: background 0.2s;
+  position: relative;
+}
+.maps-result:hover { background: rgba(197,160,89,0.04); }
+.maps-result.highlighted {
+  background: rgba(197,160,89,0.06);
+  border-left: 3px solid var(--gold);
+}
+.maps-rank {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; flex-shrink: 0;
+}
+.maps-rank.rank-1 { background: rgba(34,197,94,0.15); color: var(--green); }
+.maps-rank.rank-2 { background: rgba(139,155,180,0.12); color: var(--gray); }
+.maps-rank.rank-3 { background: rgba(139,155,180,0.08); color: var(--gray); }
+.maps-result-info { flex: 1; }
+.maps-result-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.maps-result-meta { font-size: 12px; color: var(--gray); display: flex; align-items: center; gap: 8px; }
+.maps-stars { color: #fbbf24; font-size: 11px; }
+.maps-client-badge {
+  font-size: 9px; font-weight: 800; color: var(--gold);
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  padding: 2px 8px; border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.maps-mini-map {
+  height: 120px;
+  background: linear-gradient(135deg, var(--surface2) 0%, rgba(197,160,89,0.08) 50%, var(--surface2) 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray); font-size: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.maps-mini-map::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px),
+              repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px);
+}
+.maps-pin {
+  width: 24px; height: 24px; background: var(--gold); border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg); position: relative; z-index: 1;
+  box-shadow: 0 4px 12px rgba(197,160,89,0.4);
+}
+
+/* ─── GBP PROFILE MOCKUP ─── */
+.gbp-container {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-border);
+}
+.gbp-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.gbp-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.gbp-category { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
+.gbp-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.gbp-rating-stars { color: #fbbf24; font-size: 14px; }
+.gbp-rating-text { font-size: 13px; font-weight: 700; }
+.gbp-rating-count { font-size: 12px; color: var(--gray); }
+.gbp-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--green);
+}
+.gbp-status-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+.gbp-actions {
+  display: flex; gap: 8px; padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.gbp-action {
+  flex: 1; padding: 10px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid rgba(255,255,255,0.06);
+  text-align: center; font-size: 11px; font-weight: 600; color: var(--gray);
+  transition: all 0.2s; cursor: pointer;
+}
+.gbp-action:hover { border-color: var(--gold-border); color: var(--gold); }
+.gbp-action-icon { font-size: 16px; margin-bottom: 4px; display: block; }
+.gbp-photos {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px;
+  padding: 3px 20px;
+  margin-bottom: 14px;
+}
+.gbp-photo {
+  aspect-ratio: 1; border-radius: 6px;
+  background: linear-gradient(135deg, var(--surface2), rgba(197,160,89,0.15));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.gbp-post {
+  margin: 0 20px 16px;
+  padding: 14px;
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+.gbp-post-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.gbp-post-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 900; color: var(--dark);
+}
+.gbp-post-name { font-size: 11px; font-weight: 700; }
+.gbp-post-date { font-size: 10px; color: var(--gray); }
+.gbp-post-text { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+/* ─── REVIEW DASHBOARD ─── */
+.review-container {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-border);
+}
+.review-header {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--gold-border);
+}
+.review-overview {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: rgba(255,255,255,0.04);
+}
+.review-stat {
+  background: var(--surface);
+  padding: 20px;
+  text-align: center;
+}
+.review-stat .stat-value {
+  font-size: 28px; font-weight: 900; color: var(--gold);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.review-stat .stat-label { font-size: 11px; color: var(--gray); margin-top: 4px; }
+.review-growth { padding: 20px; }
+.review-chart {
+  display: flex; align-items: flex-end; gap: 16px;
+  height: 100px; padding: 0 10px;
+  justify-content: center;
+}
+.review-bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.review-bar {
+  width: 100%; border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--gold), var(--gold-light));
+  transition: height 0.6s ease;
+}
+.review-bar-label { font-size: 10px; color: var(--gray); }
+.review-bar-value { font-size: 11px; font-weight: 700; color: var(--gold); }
+.review-list { padding: 0 20px 16px; }
+.review-item {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.review-item:last-child { border-bottom: none; }
+.review-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.review-item-name { font-size: 13px; font-weight: 700; }
+.review-item-date { font-size: 11px; color: var(--gray); }
+.review-item-stars { color: #fbbf24; font-size: 12px; margin-bottom: 6px; }
+.review-item-text { font-size: 12px; color: var(--gray); line-height: 1.5; }
+.review-item-response {
+  margin-top: 10px; padding: 10px 12px;
+  background: var(--surface2); border-radius: 8px;
+  border-left: 2px solid var(--gold);
+}
+.review-item-response-label { font-size: 10px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+.review-item-response-text { font-size: 11px; color: var(--gray); line-height: 1.5; }
+
+/* ─── KEYWORD DASHBOARD ─── */
+.keyword-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.keyword-table thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px; font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--gold-border);
+}
+.keyword-table tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.keyword-table tbody tr { transition: background 0.15s; }
+.keyword-table tbody tr:hover { background: rgba(197,160,89,0.04); }
+.pos-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 8px;
+  font-size: 12px; font-weight: 800;
+}
+.pos-1 { background: rgba(34,197,94,0.15); color: var(--green); }
+.pos-2 { background: rgba(34,197,94,0.1); color: var(--green); }
+.pos-3 { background: rgba(79,142,247,0.1); color: var(--blue); }
+.pos-low { background: rgba(255,77,109,0.1); color: var(--red); }
+.trend-up { color: var(--green); font-size: 12px; font-weight: 700; }
+.vol-bar {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  margin-top: 4px;
+}
+
+/* ─── RESULTS ─── */
+.results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  text-align: center;
+  transition: all 0.25s;
+}
+.result-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(197,160,89,0.1);
+}
+.result-icon { font-size: 32px; margin-bottom: 12px; }
+.result-number {
+  font-size: 44px; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.result-label { font-size: 14px; color: var(--gray); margin-top: 8px; font-weight: 500; }
+.result-sub { font-size: 12px; color: rgba(139,155,180,0.6); margin-top: 4px; }
+
+/* ─── ADDITIONAL STATS ROW ─── */
+.stats-row {
+  display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px;
+}
+.stats-row-item { text-align: center; }
+.stats-row-item strong {
+  font-size: 24px; font-weight: 900; color: var(--gold); display: block;
+}
+.stats-row-item span { font-size: 12px; color: var(--gray); font-weight: 500; }
+
+/* ─── CTA ─── */
+#cta {
+  text-align: center;
+  padding: 100px 40px;
+  background: linear-gradient(180deg, transparent 0%, rgba(197,160,89,0.04) 50%, transparent 100%);
+  border-top: 1px solid var(--gold-border);
+}
+.cta-title { font-size: 40px; font-weight: 900; margin-bottom: 16px; }
+.cta-sub { font-size: 17px; color: var(--gray); max-width: 500px; margin: 0 auto 36px; }
+.cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 16px 36px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); font-size: 15px; font-weight: 800;
+  border: none; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.3px; text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(197,160,89,0.3); }
+.btn-secondary {
+  padding: 16px 36px; border-radius: 12px;
+  background: transparent;
+  color: var(--text); font-size: 15px; font-weight: 700;
+  border: 1px solid var(--gold-border); cursor: pointer; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ─── FOOTER ─── */
+footer {
+  text-align: center; padding: 32px 40px;
+  border-top: 1px solid var(--gold-border);
+  font-size: 12px; color: var(--gray);
+}
+footer a { color: var(--gold); text-decoration: none; }
+
+/* ─── SCROLL ANIMATIONS ─── */
+.anim-section { opacity: 0; }
+.anim-section.visible { opacity: 1; }
+.anim-left { opacity: 0; transform: translateX(-60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-left { opacity: 1; transform: translateX(0); }
+.anim-right { opacity: 0; transform: translateX(60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-right { opacity: 1; transform: translateX(0); }
+.anim-up { opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-up { opacity: 1; transform: translateY(0); }
+.anim-scale { opacity: 0; transform: scale(0.85); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-scale { opacity: 1; transform: scale(1); }
+.anim-d1 { transition-delay: 0.1s !important; }
+.anim-d2 { transition-delay: 0.25s !important; }
+.anim-d3 { transition-delay: 0.4s !important; }
+.anim-d4 { transition-delay: 0.55s !important; }
+.anim-d5 { transition-delay: 0.7s !important; }
+.anim-d6 { transition-delay: 0.85s !important; }
+
+/* Maps rank climbing animation */
+@keyframes climbUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.maps-climb { opacity: 0; }
+.anim-section.visible .maps-climb { animation: climbUp 0.5s ease forwards; }
+
+/* Result card pop */
+@keyframes resultPop {
+  0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.result-card-anim { opacity: 0; }
+.anim-section.visible .result-card-anim { animation: resultPop 0.5s ease forwards; }
+
+/* Keyword row slide */
+@keyframes kwSlide {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.kw-anim { opacity: 0; }
+.anim-section.visible .kw-anim { animation: kwSlide 0.35s ease forwards; }
+
+/* gold text */
+.gold-text { color: var(--gold); }
+
+/* responsive */
+@media (max-width: 900px) {
+  nav { padding: 0 16px; }
+  .nav-links { display: none; }
+  section { padding: 60px 16px 40px; }
+  .pain-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .pipeline-track { flex-direction: column; gap: 12px; }
+  .pipe-arrow { transform: rotate(90deg); }
+  h1 { font-size: 32px !important; }
+  .hero-stats { gap: 24px; }
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-row { gap: 24px; }
+  .gbp-photos { grid-template-columns: repeat(4, 1fr); }
+  .review-overview { grid-template-columns: 1fr 1fr; }
+  .review-chart { gap: 10px; padding: 0 6px; }
+  .keyword-table { font-size: 12px; }
+  .keyword-table thead th,
+  .keyword-table tbody td { padding: 10px 10px; }
+}
+
+@media (max-width: 600px) {
+  .results-grid { grid-template-columns: 1fr; }
+  .review-overview { grid-template-columns: 1fr; }
+}
+</style>
+
+    <!-- Structured Data: Service + FAQ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Posicionamiento SEO Local para Inmobiliarias",
+      "description": "Posiciona tu agencia inmobiliaria #1 en Google Maps y el Local Pack. Más llamadas, más visitas, más cierres — sin pagar por cada click.",
+      "provider": {
+        "@type": "MarketingAgency",
+        "name": "JegoDigital",
+        "url": "https://jegodigital.com"
+      },
+      "areaServed": {"@type": "Country", "name": "Mexico"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type":"Question","name":"¿Cuánto tiempo tarda en posicionarse una inmobiliaria en Google Maps?","acceptedAnswer":{"@type":"Answer","text":"Con una estrategia dedicada de SEO local, es posible alcanzar el top 3 de Google Maps en 60-90 días. Flamingo Real Estate logró el #1 en Cancún en 90 días."}},
+        {"@type":"Question","name":"¿Qué incluye el servicio de SEO local?","acceptedAnswer":{"@type":"Answer","text":"Optimización de Google Business Profile, SEO técnico, schema markup (LocalBusiness, RealEstateAgent), 4 artículos de blog al mes con keywords locales, y reporte mensual de rankings."}}
+      ]
+    }
+    </script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-icon">J</div>
+    <div class="nav-logo"><span>Jego</span>Digital</div>
+  </div>
+  <div class="nav-links">
+    <a href="#video" class="nav-link">Video</a>
+    <a href="#problem" class="nav-link active">Problema</a>
+    <a href="#how" class="nav-link">Pipeline</a>
+    <a href="#google-maps" class="nav-link">Google Maps</a>
+    <a href="#reviews" class="nav-link">Reviews</a>
+    <a href="#keywords" class="nav-link">Keywords</a>
+    <a href="#results" class="nav-link">Resultados</a>
+  </div>
+  <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" class="nav-badge">📞 Agendar Llamada</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="max-width:1200px;">
+  <div class="hero-glow"></div>
+  <div class="client-pill">
+    <div class="client-dot"></div>
+    DEMO EN VIVO · Local SEO Positioning · Riviera Maya
+  </div>
+  <h1>
+    Cuando buscan<br>
+    <span class="gold">"inmobiliaria cerca de mí"</span><br>
+    <span class="dim">¿apareces tú?</span>
+  </h1>
+  <p class="hero-sub">
+    Posicionamos tu agencia inmobiliaria en el #1 de Google Maps y el Local Pack. Mas llamadas, mas visitas, mas cierres — sin pagar por cada click.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <strong>#1</strong>
+      <span>Google Maps</span>
+    </div>
+    <div class="hero-stat">
+      <strong>50+</strong>
+      <span>Reseñas</span>
+    </div>
+    <div class="hero-stat">
+      <strong>+320%</strong>
+      <span>Llamadas</span>
+    </div>
+    <div class="hero-stat">
+      <strong>$0</strong>
+      <span>Costo por Click</span>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO DEMO -->
+<section id="video" class="anim-section" style="padding-top:40px; padding-bottom:80px;">
+  <div style="text-align:center;">
+    <div class="section-label anim-up">Video Demo · 90 segundos</div>
+    <div class="section-title anim-up anim-d1" style="margin-bottom:32px;">Mira cómo funciona <span class="gold">Local SEO Positioning</span></div>
+    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;padding-top:56.25%">
+      <video id="video-iframe" src="/cf-videos/local-seo-demo.mp4" playsinline controls style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;"></video>
+      <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
+        </div>
+      </div>
+    </div>
+    <p style="color:var(--gray);margin-top:16px;font-size:13px;">Google Maps · Google Business · Reviews · Keywords · Resultados</p>
+  </div>
+</section>
+<script>
+
+function startVideo(){
+  const overlay=document.getElementById('video-overlay');
+  overlay.style.opacity='0';
+  setTimeout(()=>{overlay.style.display='none'},300);
+  const v=document.getElementById('video-iframe');
+  v.muted=false;
+  v.volume=1;
+  v.play();
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     INSTAGRAM CAROUSEL · 03-local-seo
+     ═══════════════════════════════════════════════════════════ -->
+<section id="ig-carousel" class="anim-section" style="padding-top:60px;padding-bottom:40px;">
+  <div style="text-align:center;margin-bottom:40px;">
+    <div class="section-label anim-up" style="display:inline-flex;align-items:center;gap:8px;">
+      <span style="display:inline-block;width:7px;height:7px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite;"></span>
+      CASO REAL · CARRUSEL INSTAGRAM
+    </div>
+    <div class="section-title anim-up anim-d1" style="margin-top:8px;">Top 3 en Google Maps en 5 pantallas</div>
+    <div class="section-sub anim-up anim-d2" style="max-width:780px;margin:8px auto 16px;">El sistema completo de SEO Local que llevo a Flamingo Real Estate al #1 en Cancun. 320% mas trafico organico sin pagar Google Ads.</div>
+    <a href="https://www.instagram.com/jegodigital/" target="_blank" rel="noopener noreferrer" class="anim-up anim-d2"
+       style="display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--gold-border);padding:6px 14px;border-radius:20px;">
+      📸 @jegodigital en Instagram <span style="font-size:11px;">↗</span>
+    </a>
+  </div>
+
+  <!-- 5-slide carousel grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:1200px;margin:0 auto;">
+    <div class="anim-up anim-d2" style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;overflow:hidden;cursor:zoom-in;transition:transform 0.25s,box-shadow 0.25s;"
+         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(197,160,89,0.18)'"
+         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+         onclick="jdLightbox('/img/instagram/03-local-seo/slide_1.png')">
+      <img src="/img/instagram/03-local-seo/slide_1.png" style="width:100%;display:block;" alt="Slide 1 - 03-local-seo">
+      <div style="padding:10px 14px;font-size:11px;color:var(--gray);background:rgba(0,0,0,0.2);text-align:center;">1 · El Problema</div>
+    </div>
+    <div class="anim-up anim-d2" style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;overflow:hidden;cursor:zoom-in;transition:transform 0.25s,box-shadow 0.25s;"
+         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(197,160,89,0.18)'"
+         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+         onclick="jdLightbox('/img/instagram/03-local-seo/slide_2.png')">
+      <img src="/img/instagram/03-local-seo/slide_2.png" style="width:100%;display:block;" alt="Slide 2 - 03-local-seo">
+      <div style="padding:10px 14px;font-size:11px;color:var(--gray);background:rgba(0,0,0,0.2);text-align:center;">2 · Caso Real</div>
+    </div>
+    <div class="anim-up anim-d3" style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;overflow:hidden;cursor:zoom-in;transition:transform 0.25s,box-shadow 0.25s;"
+         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(197,160,89,0.18)'"
+         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+         onclick="jdLightbox('/img/instagram/03-local-seo/slide_3.png')">
+      <img src="/img/instagram/03-local-seo/slide_3.png" style="width:100%;display:block;" alt="Slide 3 - 03-local-seo">
+      <div style="padding:10px 14px;font-size:11px;color:var(--gray);background:rgba(0,0,0,0.2);text-align:center;">3 · Como Funciona</div>
+    </div>
+    <div class="anim-up anim-d3" style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;overflow:hidden;cursor:zoom-in;transition:transform 0.25s,box-shadow 0.25s;"
+         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(197,160,89,0.18)'"
+         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+         onclick="jdLightbox('/img/instagram/03-local-seo/slide_4.png')">
+      <img src="/img/instagram/03-local-seo/slide_4.png" style="width:100%;display:block;" alt="Slide 4 - 03-local-seo">
+      <div style="padding:10px 14px;font-size:11px;color:var(--gray);background:rgba(0,0,0,0.2);text-align:center;">4 · Resultados</div>
+    </div>
+    <div class="anim-up anim-d4" style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;overflow:hidden;cursor:zoom-in;transition:transform 0.25s,box-shadow 0.25s;"
+         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(197,160,89,0.18)'"
+         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+         onclick="jdLightbox('/img/instagram/03-local-seo/slide_5.png')">
+      <img src="/img/instagram/03-local-seo/slide_5.png" style="width:100%;display:block;" alt="Slide 5 - 03-local-seo">
+      <div style="padding:10px 14px;font-size:11px;color:var(--gray);background:rgba(0,0,0,0.2);text-align:center;">5 · Toma Accion</div>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox modal for carousel images -->
+<div id="jd-ig-lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:9999;cursor:zoom-out;padding:40px;align-items:center;justify-content:center;" onclick="jdCloseIgLightbox()">
+  <img id="jd-ig-lightbox-img" style="max-width:90%;max-height:92vh;border-radius:12px;box-shadow:0 40px 100px rgba(0,0,0,0.6);" alt="">
+  <button onclick="event.stopPropagation();jdCloseIgLightbox()" style="position:absolute;top:24px;right:24px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:20px;font-weight:300;backdrop-filter:blur(8px);">×</button>
+</div>
+<script>
+  if (typeof jdLightbox === 'undefined') {
+    function jdLightbox(src) {
+      const lb = document.getElementById('jd-ig-lightbox');
+      document.getElementById('jd-ig-lightbox-img').src = src;
+      lb.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function jdCloseIgLightbox() {
+      document.getElementById('jd-ig-lightbox').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') jdCloseIgLightbox(); });
+  }
+</script>
+
+
+
+<!-- PAIN POINTS -->
+<section id="problem" class="anim-section" style="padding-top:40px;">
+  <div class="section-label anim-up">El Problema · The Problem</div>
+  <div class="section-title anim-up anim-d1">¿Por qué tus competidores reciben <span style="color:var(--gold)">más llamadas</span> que tú?</div>
+  <div class="section-sub anim-up anim-d2">El 46% de las búsquedas en Google tienen intención local. Si no apareces en el Local Pack, no existes.</div>
+
+  <div class="pain-grid">
+    <div class="pain-card anim-up anim-d2">
+      <div class="pain-icon">👻</div>
+      <div class="pain-title">Invisible en Google Maps</div>
+      <div class="pain-desc">Tu ficha de Google Business tiene fotos viejas, 3 reseñas y categoria incorrecta. Los clientes ven a tu competencia primero.</div>
+    </div>
+    <div class="pain-card anim-up anim-d3">
+      <div class="pain-icon">⭐</div>
+      <div class="pain-title">Sin Estrategia de Reseñas</div>
+      <div class="pain-desc">Tus competidores tienen 50+ reseñas con 4.9 estrellas. Tú tienes 3 sin responder. Google los prefiere.</div>
+    </div>
+    <div class="pain-card anim-up anim-d4">
+      <div class="pain-icon">📍</div>
+      <div class="pain-title">NAP Inconsistente</div>
+      <div class="pain-desc">Tu nombre, dirección y teléfono son diferentes en cada directorio. Google no confía en ti y te baja del ranking.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="how" class="anim-section" style="padding-top:60px;">
+  <div class="section-label anim-up">Cómo funciona · paso a paso</div>
+  <div class="section-title anim-up anim-d1">Nuestro Pipeline de Local SEO</div>
+  <div class="section-sub anim-up anim-d2">5 pasos para posicionar tu agencia en el #1 del Local Pack de Google Maps.</div>
+
+  <div class="pipeline-track">
+    <div class="pipe-step active">
+      <div class="pipe-num">01</div>
+      <div class="pipe-icon">🔍</div>
+      <div class="pipe-title">Audit GBP</div>
+      <div class="pipe-desc">Auditoria completa de tu Google Business Profile</div>
+      <span class="pipe-tag">Semana 1</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">02</div>
+      <div class="pipe-icon">📍</div>
+      <div class="pipe-title">Optimización GBP</div>
+      <div class="pipe-desc">Fotos profesionales, categorías, atributos y descripción optimizada</div>
+      <span class="pipe-tag">Semana 1-2</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">03</div>
+      <div class="pipe-icon">⭐</div>
+      <div class="pipe-title">Estrategia de Reseñas</div>
+      <div class="pipe-desc">Sistema automatizado para solicitar reseñas y responder</div>
+      <span class="pipe-tag">Continuo</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">04</div>
+      <div class="pipe-icon">📝</div>
+      <div class="pipe-title">Contenido Local</div>
+      <div class="pipe-desc">Posts en GBP + artículos de blog con keywords locales</div>
+      <span class="pipe-tag">Mensual</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">05</div>
+      <div class="pipe-icon">📊</div>
+      <div class="pipe-title">Monitoreo</div>
+      <div class="pipe-desc">Tracking de posiciones, llamadas y visitas al perfil</div>
+      <span class="pipe-tag">Semanal</span>
+    </div>
+  </div>
+</section>
+
+<!-- GOOGLE MAPS MOCKUP -->
+<section id="google-maps" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Google Maps · Local Pack</div>
+  <div class="section-title anim-up anim-d1">Tu Agencia en el <span class="gold">#1 del Local Pack</span></div>
+  <div class="section-sub anim-up anim-d2">Cuando alguien busca una inmobiliaria en tu zona, tu agencia aparece primero con reseñas, fotos y un click para llamar.</div>
+
+  <div class="two-col">
+    <!-- Info panel -->
+    <div class="info-panel anim-left anim-d2">
+      <div class="info-card">
+        <div class="info-card-title">¿Qué es el Local Pack?</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.7;margin-bottom:16px;">
+          Es el bloque de 3 resultados con mapa que Google muestra para búsquedas locales. Aparece <strong style="color:var(--text)">antes de los resultados orgánicos</strong> y captura el <strong style="color:var(--gold)">44% de los clicks</strong>.
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">📍 Visibilidad</span>
+          <span class="qual-val gold-text">Encima de todo</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">📞 Click-to-Call</span>
+          <span class="qual-val gold-text">Llamada directa</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">🗺️ Direcciones</span>
+          <span class="qual-val gold-text">Navegación GPS</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">⭐ Reseñas</span>
+          <span class="qual-val gold-text">Social proof instantáneo</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">💰 Costo</span>
+          <span class="qual-val gold-text">$0 por click</span>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">Dato Clave</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">El 76% de las personas que buscan algo local en su teléfono visitan un negocio dentro de las 24 horas. Si no estás en el Local Pack, esos clientes van con tu competencia.</div>
+      </div>
+    </div>
+
+    <!-- Maps Mockup -->
+    <div class="maps-container anim-right anim-d3">
+      <div class="maps-search">
+        <div class="maps-search-bar">
+          <span class="search-icon">🔍</span>
+          <span>inmobiliaria cancún zona hotelera</span>
+        </div>
+      </div>
+      <div class="maps-results">
+        <div class="maps-result highlighted maps-climb" style="animation-delay:0.3s;">
+          <div class="maps-rank rank-1">1</div>
+          <div class="maps-result-info">
+            <div class="maps-result-name">Real Estate Flamingo <span class="maps-client-badge">CLIENTE JEGO</span></div>
+            <div class="maps-result-meta">
+              <span class="maps-stars">★★★★★</span>
+              <span>4.9</span>
+              <span>(127 reseñas)</span>
+            </div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;">Real Estate Agency · Blvd. Kukulcán Km 12.5</div>
+          </div>
+        </div>
+        <div class="maps-result maps-climb" style="animation-delay:0.5s;">
+          <div class="maps-rank rank-2">2</div>
+          <div class="maps-result-info">
+            <div class="maps-result-name" style="color:var(--gray);">Competitor A</div>
+            <div class="maps-result-meta">
+              <span class="maps-stars">★★★★☆</span>
+              <span>4.2</span>
+              <span>(34 reseñas)</span>
+            </div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;">Real Estate Agency · Av. Tulum 260</div>
+          </div>
+        </div>
+        <div class="maps-result maps-climb" style="animation-delay:0.7s;">
+          <div class="maps-rank rank-3">3</div>
+          <div class="maps-result-info">
+            <div class="maps-result-name" style="color:var(--gray);">Competitor B</div>
+            <div class="maps-result-meta">
+              <span class="maps-stars">★★★★</span>
+              <span>3.8</span>
+              <span>(12 reseñas)</span>
+            </div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;">Real Estate · Av. Bonampak 12</div>
+          </div>
+        </div>
+      </div>
+      <div class="maps-mini-map">
+        <div class="maps-pin"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOOGLE BUSINESS PROFILE MOCKUP -->
+<section id="gbp" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Google Business Profile · Optimización</div>
+  <div class="section-title anim-up anim-d1">Tu Perfil de Google Business <span class="gold">Optimizado al 100%</span></div>
+  <div class="section-sub anim-up anim-d2">Un perfil completo y optimizado recibe 7x más clicks que uno incompleto. Así dejamos el tuyo.</div>
+
+  <div class="two-col">
+    <!-- GBP Mockup -->
+    <div class="gbp-container anim-left anim-d2">
+      <div class="gbp-header">
+        <div class="gbp-name">Real Estate Flamingo</div>
+        <div class="gbp-category">Real Estate Agency</div>
+        <div class="gbp-rating">
+          <span class="gbp-rating-stars">★★★★★</span>
+          <span class="gbp-rating-text">4.9</span>
+          <span class="gbp-rating-count">(127 reviews)</span>
+        </div>
+        <div class="gbp-status">
+          <div class="gbp-status-dot"></div>
+          Open now
+        </div>
+      </div>
+      <div class="gbp-actions">
+        <div class="gbp-action">
+          <span class="gbp-action-icon">📞</span>
+          Call
+        </div>
+        <div class="gbp-action">
+          <span class="gbp-action-icon">🌐</span>
+          Website
+        </div>
+        <div class="gbp-action">
+          <span class="gbp-action-icon">🗺️</span>
+          Directions
+        </div>
+        <div class="gbp-action">
+          <span class="gbp-action-icon">💬</span>
+          Chat
+        </div>
+      </div>
+      <div style="padding:14px 20px 6px;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">Photos</div>
+      <div class="gbp-photos">
+        <div class="gbp-photo">🏢</div>
+        <div class="gbp-photo">🌊</div>
+        <div class="gbp-photo">🏠</div>
+        <div class="gbp-photo">🌴</div>
+      </div>
+      <div style="padding:6px 20px 6px;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">Latest Post</div>
+      <div class="gbp-post">
+        <div class="gbp-post-header">
+          <div class="gbp-post-avatar">F</div>
+          <div>
+            <div class="gbp-post-name">Real Estate Flamingo</div>
+            <div class="gbp-post-date">Hace 2 días</div>
+          </div>
+        </div>
+        <div class="gbp-post-text">🏠 Nuevo penthouse disponible en Zona Hotelera con vista al mar. 3 rec, 280m², terraza privada. Agenda tu tour virtual hoy. #CancúnRealEstate</div>
+      </div>
+    </div>
+
+    <!-- Optimization Details -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">Optimización Incluida</div>
+        <div class="qual-row">
+          <span class="qual-label">✓ Categorias primaria + secundarias</span>
+          <span class="qual-val gold-text">Configurado</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">✓ 20+ fotos profesionales geotagged</span>
+          <span class="qual-val gold-text">Subidas</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">✓ Descripcion SEO optimizada</span>
+          <span class="qual-val gold-text">Escrita</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">✓ Preguntas y respuestas pre-cargadas</span>
+          <span class="qual-val gold-text">10 Q&As</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">✓ Posts semanales en GBP</span>
+          <span class="qual-val gold-text">4/mes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">✓ Productos y servicios listados</span>
+          <span class="qual-val gold-text">Completo</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Señales de Ranking Local</div>
+        <div class="qual-row">
+          <span class="qual-label">Relevancia del Perfil</span>
+          <span class="qual-val" style="color:var(--green);">98/100</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Consistencia NAP</span>
+          <span class="qual-val" style="color:var(--green);">100%</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Velocidad de Reseñas</span>
+          <span class="qual-val" style="color:var(--green);">+12/mes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Actividad en GBP</span>
+          <span class="qual-val" style="color:var(--green);">Semanal</span>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">Impacto Directo</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">Un perfil de GBP optimizado al 100% recibe 7x más clicks, 5x más llamadas y 3x más solicitudes de dirección que uno incompleto.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEW MANAGEMENT -->
+<section id="reviews" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Gestión de Reseñas · Review Management</div>
+  <div class="section-title anim-up anim-d1">De 3 Reseñas a <span class="gold">127 en 90 Días</span></div>
+  <div class="section-sub anim-up anim-d2">Un sistema automatizado que solicita, responde y gestiona tus reseñas para dominar la confianza en Google.</div>
+
+  <div class="two-col">
+    <!-- Review Dashboard -->
+    <div class="review-container anim-left anim-d2">
+      <div class="review-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--dark);">J</div>
+          <span style="font-size:14px;font-weight:700;">Review Dashboard</span>
+          <span style="font-size:11px;color:var(--gray);background:var(--surface2);padding:3px 10px;border-radius:20px;">Real Estate Flamingo</span>
+        </div>
+      </div>
+
+      <div class="review-overview">
+        <div class="review-stat">
+          <div class="stat-value">4.9 ⭐</div>
+          <div class="stat-label">Rating Promedio</div>
+        </div>
+        <div class="review-stat">
+          <div class="stat-value">127</div>
+          <div class="stat-label">Total Reseñas</div>
+        </div>
+      </div>
+
+      <!-- Growth Chart -->
+      <div class="review-growth">
+        <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">Crecimiento Mensual</div>
+        <div class="review-chart">
+          <div class="review-bar-col">
+            <div class="review-bar-value">12</div>
+            <div class="review-bar" style="height:10%;"></div>
+            <div class="review-bar-label">Mes 1</div>
+          </div>
+          <div class="review-bar-col">
+            <div class="review-bar-value">34</div>
+            <div class="review-bar" style="height:27%;"></div>
+            <div class="review-bar-label">Mes 2</div>
+          </div>
+          <div class="review-bar-col">
+            <div class="review-bar-value">67</div>
+            <div class="review-bar" style="height:53%;"></div>
+            <div class="review-bar-label">Mes 3</div>
+          </div>
+          <div class="review-bar-col">
+            <div class="review-bar-value">97</div>
+            <div class="review-bar" style="height:76%;"></div>
+            <div class="review-bar-label">Mes 4</div>
+          </div>
+          <div class="review-bar-col">
+            <div class="review-bar-value">127</div>
+            <div class="review-bar" style="height:100%;"></div>
+            <div class="review-bar-label">Mes 5</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Reviews -->
+      <div style="padding:6px 20px 6px;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;">Reseñas Recientes</div>
+      <div class="review-list">
+        <div class="review-item">
+          <div class="review-item-header">
+            <span class="review-item-name">Carlos M.</span>
+            <span class="review-item-date">Hace 3 días</span>
+          </div>
+          <div class="review-item-stars">★★★★★</div>
+          <div class="review-item-text">Excelente servicio. Encontraron exactamente lo que buscábamos en Zona Hotelera. Proceso rápido y profesional.</div>
+          <div class="review-item-response">
+            <div class="review-item-response-label">Respuesta de Real Estate Flamingo</div>
+            <div class="review-item-response-text">¡Gracias Carlos! Fue un placer ayudarles a encontrar su departamento ideal. Estamos para lo que necesiten.</div>
+          </div>
+        </div>
+        <div class="review-item">
+          <div class="review-item-header">
+            <span class="review-item-name">Sarah J.</span>
+            <span class="review-item-date">Hace 1 semana</span>
+          </div>
+          <div class="review-item-stars">★★★★★</div>
+          <div class="review-item-text">Best real estate agency in Cancun. They helped us find our dream investment property. Highly recommend!</div>
+          <div class="review-item-response">
+            <div class="review-item-response-label">Respuesta de Real Estate Flamingo</div>
+            <div class="review-item-response-text">Thank you Sarah! We're glad you found the perfect investment. Welcome to Cancun!</div>
+          </div>
+        </div>
+        <div class="review-item">
+          <div class="review-item-header">
+            <span class="review-item-name">Roberto G.</span>
+            <span class="review-item-date">Hace 2 semanas</span>
+          </div>
+          <div class="review-item-stars">★★★★★</div>
+          <div class="review-item-text">Muy recomendados. Tienen las mejores propiedades de lujo en la Riviera Maya. Atención personalizada y sin presión.</div>
+          <div class="review-item-response">
+            <div class="review-item-response-label">Respuesta de Real Estate Flamingo</div>
+            <div class="review-item-response-text">¡Muchas gracias Roberto! Nos da gusto saber que la experiencia fue de su agrado. Siempre a sus órdenes.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Strategy Info -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">Estrategia de Reseñas</div>
+        <div class="qual-row">
+          <span class="qual-label">📧 Email automatizado post-cierre</span>
+          <span class="qual-val gold-text">Activo</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">💬 WhatsApp follow-up</span>
+          <span class="qual-val gold-text">Activo</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">🔗 Link directo a reseña</span>
+          <span class="qual-val gold-text">Configurado</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">📋 QR code en oficina</span>
+          <span class="qual-val gold-text">Impreso</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">⚡ Respuesta en 24h</span>
+          <span class="qual-val gold-text">Garantizado</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Beneficios de las Reseñas</div>
+        <div class="qual-row">
+          <span class="qual-label">🏆 Ranking en Maps</span>
+          <span class="qual-val gold-text">Factor #1</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">🤝 Confianza del Cliente</span>
+          <span class="qual-val gold-text">+72%</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">📞 Tasa de Llamada</span>
+          <span class="qual-val gold-text">+35%</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">💰 Conversión</span>
+          <span class="qual-val gold-text">+28%</span>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">¿Por qué importan las reseñas?</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">Las reseñas son el factor #1 de ranking local según BrightLocal. Negocios con 50+ reseñas y 4.5+ estrellas aparecen 2.7x más en el Local Pack que negocios con pocas reseñas.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KEYWORD TABLE -->
+<section id="keywords" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Keywords Locales · Local SEO Dashboard</div>
+  <div class="section-title anim-up anim-d1">Dominamos las búsquedas <span class="gold">que generan llamadas</span></div>
+  <div class="section-sub anim-up anim-d2">Keywords hiperlocales con intención de contacto. Cada posición ganada en Maps = más llamadas directas a tu oficina.</div>
+
+  <div style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+    <!-- Dashboard header -->
+    <div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gold-border);flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--dark);">J</div>
+        <span style="font-size:14px;font-weight:700;">JegoDigital Local SEO Dashboard</span>
+        <span style="font-size:11px;color:var(--gray);background:var(--surface2);padding:3px 10px;border-radius:20px;">Real Estate Flamingo</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <span style="font-size:11px;color:var(--gray);background:var(--surface2);padding:4px 12px;border-radius:6px;">Últimos 90 días</span>
+        <span style="font-size:11px;color:var(--green);background:rgba(34,197,94,0.1);padding:4px 12px;border-radius:6px;font-weight:600;">▲ 7 keywords en Top 3</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="keyword-table">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th>Maps Pos</th>
+            <th>Organic Pos</th>
+            <th>Cambio</th>
+            <th>Vol mensual</th>
+            <th>Llamadas est</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="kw-anim" style="animation-delay:0.2s;">
+            <td style="font-weight:600;">inmobiliaria cancún</td>
+            <td><span class="pos-badge pos-1">1</span></td>
+            <td><span class="pos-badge pos-3">3</span></td>
+            <td><span class="trend-up">▲ 15</span></td>
+            <td>2,400 <div class="vol-bar" style="width:75%;"></div></td>
+            <td style="font-weight:600;color:var(--gold);">+180</td>
+          </tr>
+          <tr class="kw-anim" style="animation-delay:0.35s;">
+            <td style="font-weight:600;">bienes raíces zona hotelera</td>
+            <td><span class="pos-badge pos-1">1</span></td>
+            <td><span class="pos-badge pos-2">2</span></td>
+            <td><span class="trend-up">▲ 22</span></td>
+            <td>1,100 <div class="vol-bar" style="width:34%;"></div></td>
+            <td style="font-weight:600;color:var(--gold);">+95</td>
+          </tr>
+          <tr class="kw-anim" style="animation-delay:0.5s;">
+            <td style="font-weight:600;">casas en venta cancún</td>
+            <td><span class="pos-badge pos-2">2</span></td>
+            <td><span class="pos-badge pos-low">5</span></td>
+            <td><span class="trend-up">▲ 18</span></td>
+            <td>3,200 <div class="vol-bar" style="width:100%;"></div></td>
+            <td style="font-weight:600;color:var(--gold);">+120</td>
+          </tr>
+          <tr class="kw-anim" style="animation-delay:0.65s;">
+            <td style="font-weight:600;">departamentos playa del carmen</td>
+            <td><span class="pos-badge pos-1">1</span></td>
+            <td><span class="pos-badge pos-low">4</span></td>
+            <td><span class="trend-up">▲ 20</span></td>
+            <td>1,800 <div class="vol-bar" style="width:56%;"></div></td>
+            <td style="font-weight:600;color:var(--gold);">+85</td>
+          </tr>
+          <tr class="kw-anim" style="animation-delay:0.8s;">
+            <td style="font-weight:600;">inversión inmobiliaria riviera maya</td>
+            <td><span class="pos-badge pos-1">1</span></td>
+            <td><span class="pos-badge pos-1">1</span></td>
+            <td><span class="trend-up">▲ 30</span></td>
+            <td>890 <div class="vol-bar" style="width:28%;"></div></td>
+            <td style="font-weight:600;color:var(--gold);">+45</td>
+          </tr>
+          <tr class="kw-anim" style="animation-delay:0.95s;">
+            <td style="font-weight:600;">realtor cancún</td>
+            <td><span class="pos-badge pos-2">2</span></td>
+            <td><span class="pos-badge pos-low">6</span></td>
+            <td><span class="trend-up">▲ 12</span></td>
+            <td>720 <div class="vol-bar" style="width:23%;"></div></td>
+            <td style="font-weight:600;color:var(--gold);">+38</td>
+          </tr>
+          <tr class="kw-anim" style="animation-delay:1.1s;">
+            <td style="font-weight:600;">luxury real estate tulum</td>
+            <td><span class="pos-badge pos-1">1</span></td>
+            <td><span class="pos-badge pos-3">3</span></td>
+            <td><span class="trend-up">▲ 25</span></td>
+            <td>1,400 <div class="vol-bar" style="width:44%;"></div></td>
+            <td style="font-weight:600;color:var(--gold);">+72</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--gold-border);background:var(--surface2);flex-wrap:wrap;gap:8px;">
+      <span style="font-size:12px;color:var(--gray);">Mostrando 7 de 38 keywords rastreadas</span>
+      <span style="font-size:12px;color:var(--gold);font-weight:600;">Llamadas estimadas totales: +635/mes</span>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="anim-section">
+  <div class="section-label anim-up">Resultados Comprobados · Proven Results</div>
+  <div class="section-title anim-up anim-d1">Resultados en los Primeros <span class="gold">90 Días</span></div>
+  <div class="section-sub anim-up anim-d2">Lo que nuestros clientes ven al activar Local SEO Positioning con JegoDigital.</div>
+
+  <div class="results-grid">
+    <div class="result-card result-card-anim" style="animation-delay:0.1s;">
+      <div class="result-icon">📍</div>
+      <div class="result-number">#1</div>
+      <div class="result-label">Posición en Google Maps</div>
+      <div class="result-sub">para keywords de alta intención en tu zona</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.25s;">
+      <div class="result-icon">📈</div>
+      <div class="result-number">+320%</div>
+      <div class="result-label">Más Llamadas Directas</div>
+      <div class="result-sub">desde Google Business Profile</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.4s;">
+      <div class="result-icon">⭐</div>
+      <div class="result-number">4.9</div>
+      <div class="result-label">Rating Promedio</div>
+      <div class="result-sub">de 3 reseñas a 127 en 90 días</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stats-row-item">
+      <strong>50+</strong>
+      <span>Reseñas Gestionadas</span>
+    </div>
+    <div class="stats-row-item">
+      <strong>7</strong>
+      <span>Keywords en Top 3</span>
+    </div>
+    <div class="stats-row-item">
+      <strong>$0</strong>
+      <span>Costo por Click</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- CTA -->
+<section id="cta" style="max-width:100%; padding-left:40px; padding-right:40px;">
+  <div class="cta-title">¿Listo para que <span style="color:var(--gold)">Google Maps</span> trabaje para ti?</div>
+  <p class="cta-sub">En 90 días posicionamos tu agencia en el #1 del Local Pack.</p>
+  <div class="cta-btns">
+    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" style="text-decoration:none"><button class="btn-primary">📍 Agenda tu Diagnóstico Local SEO Gratis</button></a>
+    <a href="/servicios.html" class="btn-secondary">Ver más servicios →</a>
+  </div>
+  <div style="margin-top:32px; font-size:13px; color:var(--gray);">
+    🔒 Diagnóstico gratuito de 30 min · Sin compromiso · Te mostramos exactamente cómo dominar tu zona
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:8px;">
+    <strong style="color:var(--gold)">JegoDigital</strong> — Local SEO Positioning para Inmobiliarias
+  </div>
+  <div><a href="https://jegodigital.com">jegodigital.com</a> · jegoalexdigital@gmail.com</div>
+</footer>
+
+<script>
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    const top = s.offsetTop - 120;
+    if(scrollY >= top) cur = s.getAttribute('id');
+  });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if(l.getAttribute('href') === '#'+cur) l.classList.add('active');
+  });
+});
+
+// Scroll-triggered animations
+const animObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.anim-section').forEach(s => animObserver.observe(s));
+
+// Animated number counter for result cards
+function animateCounters() {
+  const cards = document.querySelectorAll('.result-number');
+  cards.forEach(card => {
+    const text = card.textContent;
+    const match = text.match(/\+?(\d[\d,]*)/);
+    if(match && text.includes('%')) {
+      const target = parseInt(match[1].replace(',',''));
+      card.textContent = '+0%';
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const interval = setInterval(() => {
+        current += step;
+        if(current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        card.textContent = '+' + current.toLocaleString() + '%';
+      }, 30);
+    }
+  });
+}
+
+// Trigger counter animation when results section is visible
+const resultsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      animateCounters();
+      resultsObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+const resultsSection = document.getElementById('results');
+if(resultsSection) resultsObserver.observe(resultsSection);
+</script>
+</body>
+</html>

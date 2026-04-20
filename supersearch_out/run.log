@@ -1,0 +1,13 @@
+[23:34:02] POST /lead-lists → 200
+[23:34:02]   list id: a26e3dab-896c-4949-b83f-761b4d7e6fbe
+[23:34:02] POST /supersearch-enrichment/enrich-leads-from-supersearch  limit=50
+[23:34:02]   → 200
+[23:34:02] ✓ saved → /sessions/exciting-charming-hamilton/mnt/jegodigital/supersearch_out/enrich_response.json
+[23:34:02] Polling list for enriched leads...
+[23:34:07]   tick 1: list has 5 leads visible (showing up to 5)
+[23:34:07]     - Manu Malacara | mmalacara@priverealestate.mx | Privé Real Estate Group
+[23:34:07]     - Jerónimo Uribe | jeronimouribe@lahaus.com | Lahaus
+[23:34:07]     - Gerardo Cabada | gcabada@abilia.mx | Abilia
+[23:34:07] 
+List ID: a26e3dab-896c-4949-b83f-761b4d7e6fbe  |  List Name: Supersearch_MX_RE_Test_20260418_2334
+[23:34:07] Done. Check Instantly UI → Leads → this list to see final enriched rows.

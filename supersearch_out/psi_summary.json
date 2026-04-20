@@ -1,0 +1,16 @@
+{
+  "total_leads": 155,
+  "unique_domains": 124,
+  "patched": 155,
+  "no_site": 20,
+  "psi_success": 108,
+  "psi_fail": 16,
+  "patch_errors": [],
+  "score_distribution": {
+    "<30": 24,
+    "30-49": 30,
+    "50-69": 50,
+    "70-89": 12,
+    "90+": 8
+  }
+}

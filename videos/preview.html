@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Preview</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wrapper {
+            height: 100vh;
+            aspect-ratio: 9 / 16;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Inside wrapper, simulate 1080x1920 exactly as Remotion will render */
+        .container {
+            width: 1080px;
+            height: 1920px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(calc(100vh / 1920));
+            background: #000;
+        }
+
+        video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .intro {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 17, 21, 0.5);
+            animation: fadeOut 1s ease-in-out 3.5s forwards;
+            z-index: 10;
+        }
+
+        .intro h1 {
+            font-size: 120px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #C5A059 0%, #FFFFFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .intro h2 {
+            font-size: 48px;
+            color: #8b9bb4;
+            font-weight: 300;
+            margin: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid #C5A059;
+            animation: typing 2.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+
+        .lower-third {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 100px;
+            box-sizing: border-box;
+            opacity: 0;
+            animation: slideInLeft 1s ease-out 4s forwards, fadeOut 1s ease-in-out 10s forwards;
+            z-index: 5;
+        }
+
+        .glass-card {
+            background: rgba(26, 29, 36, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 8px solid #C5A059;
+            padding: 30px 50px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+            display: inline-block;
+        }
+
+        .glass-card .name {
+            font-size: 64px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .glass-card .title {
+            font-size: 32px;
+            color: #C5A059;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: #C5A059;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-1000px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <video src="public/alexvideo_h264.mp4" autoplay muted playsinline loop></video>
+
+            <div class="intro">
+                <h1>JEGODIGITAL</h1>
+                <h2>AI-Powered Growth for Real Estate Pros</h2>
+            </div>
+
+            <div class="lower-third">
+                <div class="glass-card">
+                    <div class="name">Alex</div>
+                    <div class="title">Founder, JegoDigital</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

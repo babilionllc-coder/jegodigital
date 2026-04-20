@@ -1,0 +1,34 @@
+[12:39:26] Fetching all leads from list...
+[12:39:28]   got 155 leads
+[12:39:28]   124 unique domains to audit
+[12:40:16]   PSI 10/124
+[12:40:42]   PSI 20/124
+[12:41:08]   PSI 30/124
+[12:41:38]   PSI 40/124
+[12:42:07]   PSI 50/124
+[12:42:39]   PSI 60/124
+[12:43:16]   PSI 70/124
+[12:44:05]   PSI 80/124
+[12:44:29]   PSI 90/124
+[12:45:10]   PSI 100/124
+[12:45:36]   PSI 110/124
+[12:45:59]   PSI 120/124
+[12:46:16]   PSI 124/124
+[12:46:16] Patching personalization vars into Instantly...
+[12:47:14] 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12:47:14] Total leads processed: 155
+[12:47:14] Unique domains audited: 124
+[12:47:14] PSI score > 0: 108
+[12:47:14] PSI score 0 (inaccessible): 16
+[12:47:14] Leads without usable website: 20
+[12:47:14] Patched with vars: 155/155
+[12:47:14] 
+PSI score distribution (n=124):
+[12:47:14]   <30       24
+[12:47:14]   30-49     30
+[12:47:14]   50-69     50
+[12:47:14]   70-89     12
+[12:47:14]   90+       8
+[12:47:14] 
+✓ Summary: /sessions/exciting-charming-hamilton/mnt/jegodigital/supersearch_out/psi_summary.json

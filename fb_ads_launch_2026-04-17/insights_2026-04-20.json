@@ -1,0 +1,97 @@
+{
+  "pulled_at": "2026-04-20",
+  "day_n": 3,
+  "notes": "Both campaigns are PAUSED at the campaign level. effective_status=PAUSED on both campaigns; ad sets + ads are ACTIVE but rolled up to CAMPAIGN_PAUSED. No spend yesterday (2026-04-19) as a result. Cumulative window = 2026-04-17 → 2026-04-20 (showing spend accrued before pause took effect).",
+  "camps": {
+    "AUDITORIA": {
+      "campaign": {
+        "name": "[LAUNCH 2026-04-17] AUDITORIA — IG DM — $5/day",
+        "status": "PAUSED",
+        "effective_status": "PAUSED",
+        "configured_status": "PAUSED",
+        "start_time": "2026-04-17T18:13:41-0700",
+        "stop_time": "2026-06-16T17:13:41-0700",
+        "objective": "OUTCOME_ENGAGEMENT",
+        "id": "120240641300580662"
+      },
+      "adset": {
+        "name": "AUDITORIA — MX Inmobiliarias — Advantage+",
+        "status": "ACTIVE",
+        "effective_status": "CAMPAIGN_PAUSED",
+        "configured_status": "ACTIVE",
+        "daily_budget": "500",
+        "end_time": "2026-06-16T17:13:41-0700",
+        "optimization_goal": "CONVERSATIONS",
+        "id": "120240641661120662"
+      },
+      "ad": {
+        "name": "AUDITORIA — Ad v3 (premium mockup + Spanish template)",
+        "status": "ACTIVE",
+        "effective_status": "CAMPAIGN_PAUSED",
+        "id": "120240641875550662"
+      },
+      "yesterday": null,
+      "cumulative": {
+        "impressions": 2964,
+        "reach": 2594,
+        "spend": 3.48,
+        "cpm": 1.174089,
+        "cpc": 0.1392,
+        "ctr": 0.843455,
+        "dm_convos_started": 3,
+        "link_clicks": 19,
+        "messaging_replies": 1,
+        "messaging_blocks": 1,
+        "date_start": "2026-04-17",
+        "date_stop": "2026-04-20"
+      },
+      "cost_per_dm_yesterday": null,
+      "cost_per_dm_cumulative": 1.16
+    },
+    "SITIO": {
+      "campaign": {
+        "name": "[LAUNCH 2026-04-17] SITIO — IG DM — $5/day",
+        "status": "PAUSED",
+        "effective_status": "PAUSED",
+        "configured_status": "PAUSED",
+        "start_time": "2026-04-17T18:13:50-0700",
+        "stop_time": "2026-06-16T17:13:50-0700",
+        "objective": "OUTCOME_ENGAGEMENT",
+        "id": "120240641301630662"
+      },
+      "adset": {
+        "name": "SITIO — MX Inmobiliarias — Advantage+",
+        "status": "ACTIVE",
+        "effective_status": "CAMPAIGN_PAUSED",
+        "configured_status": "ACTIVE",
+        "daily_budget": "500",
+        "end_time": "2026-06-16T17:13:50-0700",
+        "optimization_goal": "CONVERSATIONS",
+        "id": "120240641706140662"
+      },
+      "ad": {
+        "name": "SITIO — Ad v3 (premium mockup + Spanish template)",
+        "status": "ACTIVE",
+        "effective_status": "CAMPAIGN_PAUSED",
+        "id": "120240641876710662"
+      },
+      "yesterday": null,
+      "cumulative": {
+        "impressions": 3025,
+        "reach": 2455,
+        "spend": 3.5,
+        "cpm": 1.157025,
+        "cpc": 0.152174,
+        "ctr": 0.760331,
+        "dm_convos_started": 3,
+        "link_clicks": 20,
+        "messaging_replies": 2,
+        "messaging_blocks": 0,
+        "date_start": "2026-04-17",
+        "date_stop": "2026-04-20"
+      },
+      "cost_per_dm_yesterday": null,
+      "cost_per_dm_cumulative": 1.17
+    }
+  }
+}

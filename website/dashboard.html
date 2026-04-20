@@ -168,13 +168,13 @@
                 </div>
 
                 <!-- Stat 3 -->
-                <div class="glass p-6 rounded-2xl border-l-2 border-blue-500 relative overflow-hidden group">
+                <div class="glass p-6 rounded-2xl border-l-2 border-[#C5A059] relative overflow-hidden group">
                     <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-ticket-alt text-6xl text-blue-500"></i>
+                        <i class="fas fa-ticket-alt text-6xl text-[#C5A059]"></i>
                     </div>
                     <div class="text-slate-400 text-xs font-mono uppercase tracking-widest mb-2">VIP Passes Issued</div>
                     <div class="text-3xl font-bold font-mono text-white">28</div>
-                    <div class="text-xs text-blue-400 mt-2 flex items-center gap-1">
+                    <div class="text-xs text-[#C5A059] mt-2 flex items-center gap-1">
                         <i class="fas fa-check"></i> 12 Visited Store
                     </div>
                 </div>
@@ -260,9 +260,9 @@
                     bgImage: "radial-gradient(circle at center, #1a1a1a 0%, #000000 100%)",
                     glassColor: "rgba(20, 20, 20, 0.6)",
                     borderColor: "rgba(255, 255, 255, 0.1)",
-                    accentColor: "#3b82f6", // Blue
+                    accentColor: '#C5A059'", // Blue
                     textColor: "#ffffff",
-                    iconColor: "text-blue-500"
+                    iconColor: "text-[#C5A059]"
                 }
             },
             'jewelry': {
@@ -353,8 +353,8 @@
                     bgImage: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)", // Light Blue Clinical
                     glassColor: "rgba(255, 255, 255, 0.9)",
                     borderColor: "rgba(56, 189, 248, 0.3)", // Sky Blue
-                    accentColor: "#0ea5e9", // Sky Blue
-                    textColor: "#0f172a",
+                    accentColor: '#C5A059'", // Sky Blue
+                    textColor: "#0f1115",
                     iconColor: "text-sky-500",
                     isLightMode: true
                 }
@@ -644,7 +644,7 @@
         logContainer.innerHTML = ''; // Clear defaults
 
         // Use light mode text color for logs if needed
-        const logTimeColor = theme.isLightMode ? 'text-slate-600' : 'text-blue-400';
+        const logTimeColor = theme.isLightMode ? 'text-slate-600' : 'text-[#C5A059]';
         const logMsgColor = theme.isLightMode ? 'text-slate-800' : 'text-gray-300';
 
         config.logs.forEach(log => {

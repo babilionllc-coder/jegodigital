@@ -14,7 +14,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#0f1115
 :root{
   --gold:#C5A059;--gold-l:#E5C585;--gold-dim:rgba(197,160,89,0.15);
   --gold-border:rgba(197,160,89,0.2);--green:#22c55e;--red:#ff4d6d;
-  --blue:#4f8ef7;--dark:#0f1115;--surface:#1a1d24;--surface2:#20242e;
+  --blue:#C5A059;--dark:#0f1115;--surface:#1a1d24;--surface2:#20242e;
   --border:rgba(197,160,89,0.12);--gray:#8b9bb4;--text:#e8eaf0;
 }
 
@@ -95,7 +95,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,17,21,0.9
 .stab{padding:10px 20px;border-radius:10px;border:1px solid var(--gold-border);background:transparent;color:var(--gray);font-weight:600;font-size:.85rem;cursor:pointer;transition:all .3s;font-family:inherit}
 .stab.active,.stab:hover{color:var(--text);border-color:var(--active-color,var(--gold));background:rgba(197,160,89,0.08)}
 .stab[data-color="gold"]{--active-color:#C5A059}
-.stab[data-color="azure"]{--active-color:#4f8ef7}
+.stab[data-color="azure"]{--active-color:#C5A059}
 .stab[data-color="emerald"]{--active-color:#22c55e}
 .stab[data-color="coral"]{--active-color:#E07A5F}
 .stab[data-color="sand"]{--active-color:#C5B89E}
@@ -121,7 +121,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,17,21,0.9
 .preview-badge{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:6px 14px;border-radius:8px}
 .badge-speed{background:rgba(34,197,94,0.12);color:var(--green)}
 .badge-seo{background:var(--gold-dim);color:var(--gold)}
-.badge-mobile{background:rgba(79,142,247,0.12);color:var(--blue)}
+.badge-mobile{background:rgba(79,142,247,0.12);color:var(--gold)}
 .open-link{color:var(--gold);text-decoration:none;font-size:.85rem;font-weight:600;transition:color .2s}
 .open-link:hover{color:var(--gold-l)}
 
@@ -166,7 +166,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,17,21,0.9
 .aeo-rank-row:last-child{border-bottom:none}
 .aeo-rank-badge{padding:3px 10px;border-radius:6px;font-weight:700;font-size:12px}
 .aeo-rank-1{background:rgba(34,197,94,0.15);color:var(--green)}
-.aeo-rank-2{background:rgba(79,142,247,0.15);color:var(--blue)}
+.aeo-rank-2{background:rgba(79,142,247,0.15);color:var(--gold)}
 .aeo-rank-3{background:rgba(167,139,250,0.15);color:#a78bfa}
 .aeo-engine{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
 .aeo-engine-dot{width:6px;height:6px;border-radius:50%}
@@ -257,12 +257,12 @@ footer a{color:var(--gold);text-decoration:none}
 <!-- VIDEO DEMO -->
 <section id="video-demo" class="section" style="background:var(--dark);padding-top:40px;padding-bottom:80px">
   <div class="container" style="text-align:center">
-    <div class="stag" style="margin-bottom:12px">Video Demo · 50 segundos</div>
+    <div class="stag" style="margin-bottom:12px">Video Demo · 90 segundos</div>
     <div class="shdr" style="margin-bottom:32px">
-      <h2>Mira lo que incluye tu sitio web <span class="gold">en 50 segundos</span></h2>
+      <h2>Mira lo que incluye tu sitio web <span class="gold">en 90 segundos</span></h2>
     </div>
-    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;padding-top:56.25%">
-      <iframe id="video-iframe" src="website-video.html" style="position:absolute;top:0;left:0;width:1920px;height:1080px;border:none;pointer-events:none;transform-origin:top left" loading="lazy"></iframe>
+    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;aspect-ratio:16/9;">
+      <video id="demo-video" src="/cf-videos/website-demo.mp4" style="width:100%;height:100%;display:block;" playsinline loop></video>
       <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
         <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-l));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
@@ -273,22 +273,12 @@ footer a{color:var(--gold);text-decoration:none}
   </div>
 </section>
 <script>
-function scaleVideoIframe(){
-  const container=document.querySelector('#video-demo .container > div:nth-child(3)');
-  const iframe=document.getElementById('video-iframe');
-  if(!container||!iframe)return;
-  const scale=container.offsetWidth/1920;
-  iframe.style.transform='scale('+scale+')';
-}
-scaleVideoIframe();
-window.addEventListener('resize',scaleVideoIframe);
-
 function startVideo(){
   const overlay=document.getElementById('video-overlay');
+  const video=document.getElementById('demo-video');
   overlay.style.opacity='0';
   setTimeout(()=>{overlay.style.display='none'},300);
-  const iframe=document.getElementById('video-iframe');
-  iframe.src=iframe.src;
+  video.play();
 }
 </script>
 
@@ -486,11 +476,11 @@ function startVideo(){
 
         <!-- Perplexity mockup -->
         <div class="aeo-mockup" style="margin-top:20px">
-          <div class="aeo-mockup-hdr"><div class="aeo-dot" style="background:#6366f1"></div>Perplexity AI</div>
+          <div class="aeo-mockup-hdr"><div class="aeo-dot" style="background:#C5A059"></div>Perplexity AI</div>
           <div class="aeo-mockup-body">
             <div class="aeo-prompt">🔍 Best real estate agency in Tulum for US buyers?</div>
             <div class="aeo-response">
-              <div class="aeo-avatar" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">P</div>
+              <div class="aeo-avatar" style="background:linear-gradient(135deg,#C5A059,#FFFFFF)">P</div>
               <div class="aeo-text">
                 <strong>Based on verified listings and buyer reviews:</strong>
                 <ol>

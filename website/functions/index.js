@@ -1973,3 +1973,23 @@ exports.contentPublisher = require("./contentPublisher").contentPublisher;
 // ManyChat API (getByTag + getInfo) fallback. LOW_SCORE_FLAG = 7.
 // ============================================================
 exports.sofiaConversationAudit = require("./sofiaConversationAudit").sofiaConversationAudit;
+
+// ============================================================
+// SEED PHONE LEADS — one-shot HTTPS (added 2026-04-20)
+// Run ONCE after deploy to seed the 57 DIAL_READY leads into
+// phone_leads so coldCallPrep (09:55 Mon–Fri CDMX) has a queue
+// to draw from on day 1. Upserts by digits-only phone, safe to
+// re-run. Protected by X-Seed-Secret header. Retire after fire.
+// ============================================================
+exports.seedPhoneLeadsOnce = require("./seedPhoneLeadsOnce").seedPhoneLeadsOnce;
+
+// ============================================================
+// DAILY ROLLUP SLACK (added 2026-04-20)
+// 18:00 CDMX — close-of-business Slack brief covering cold
+// calls, cold email (Instantly), audit pipeline, FB Ads spend,
+// ElevenLabs credit, and estimated $$ cost-of-day. Parallel
+// to dailyDigest (07:00 morning brief via Telegram), but this
+// one targets Slack. Falls back to Telegram if SLACK_WEBHOOK_URL
+// is not configured. Snapshots to daily_rollups/{YYYY-MM-DD}.
+// ============================================================
+exports.dailyRollupSlack = require("./dailyRollupSlack").dailyRollupSlack;

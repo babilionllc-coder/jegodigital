@@ -1,0 +1,34 @@
+{
+  "status": 200,
+  "body": {
+    "id": "ad085586-b8d6-4389-b3d2-d1822dde9d23",
+    "organization_id": "b3918dc0-c811-414b-89fa-80b59d3c3e20",
+    "resource_id": "a26e3dab-896c-4949-b83f-761b4d7e6fbe",
+    "search_filters": {
+      "title": {
+        "include": [
+          "Owner",
+          "Director",
+          "Founder",
+          "CEO",
+          "Broker",
+          "Real Estate Broker",
+          "President",
+          "Managing Director"
+        ]
+      },
+      "locations": [
+        {
+          "country": "Mexico"
+        }
+      ],
+      "subIndustry": {
+        "include": [
+          "Real Estate"
+        ]
+      }
+    },
+    "limit": 50,
+    "list_name": "Supersearch List (19 April 2026)"
+  }
+}

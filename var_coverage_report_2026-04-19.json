@@ -1,0 +1,80 @@
+{
+  "run_at": "2026-04-19 17:23:13",
+  "campaigns": [
+    {
+      "campaign": "Trojan Horse",
+      "campaign_id": "cd9f1abf-3ad5-460c-88e9-29c48bc058b3",
+      "lead_count": 834,
+      "used_vars": [
+        "companyName",
+        "firstName"
+      ],
+      "custom_vars_checked": [],
+      "bracket_offenders": [],
+      "coverage": {
+        "firstName": {
+          "filled": 834,
+          "total": 834,
+          "pct": 1.0
+        }
+      },
+      "blocked_vars": []
+    },
+    {
+      "campaign": "Auditor\u00eda Gratis",
+      "campaign_id": "8b5f556f-9259-4258-b74b-2df55712f520",
+      "lead_count": 1169,
+      "used_vars": [
+        "companyName",
+        "firstName"
+      ],
+      "custom_vars_checked": [],
+      "bracket_offenders": [],
+      "coverage": {
+        "firstName": {
+          "filled": 1169,
+          "total": 1169,
+          "pct": 1.0
+        }
+      },
+      "blocked_vars": []
+    },
+    {
+      "campaign": "Campaign F (WhatsApp AI)",
+      "campaign_id": "733dfdd4-5813-48d6-8419-ebca3b40d783",
+      "lead_count": 137,
+      "used_vars": [
+        "companyName",
+        "firstName"
+      ],
+      "custom_vars_checked": [],
+      "bracket_offenders": [],
+      "coverage": {
+        "firstName": {
+          "filled": 137,
+          "total": 137,
+          "pct": 1.0
+        }
+      },
+      "blocked_vars": []
+    },
+    {
+      "campaign": "US-Hispanic-Bilingual",
+      "campaign_id": "dbb9dfd7-4ae2-4a44-ba28-d895206d78d6",
+      "lead_count": 46,
+      "used_vars": [
+        "firstName"
+      ],
+      "custom_vars_checked": [],
+      "bracket_offenders": [],
+      "coverage": {
+        "firstName": {
+          "filled": 46,
+          "total": 46,
+          "pct": 1.0
+        }
+      },
+      "blocked_vars": []
+    }
+  ]
+}

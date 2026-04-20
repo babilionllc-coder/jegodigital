@@ -1,0 +1,233 @@
+{
+  "US-Hispanic-Bilingual-Audit": {
+    "id": "dbb9dfd7-4ae2-4a44-ba28-d895206d78d6",
+    "daily_limit": 30,
+    "status": 1,
+    "steps": [
+      {
+        "step_num": 1,
+        "delay_days": 0,
+        "subject": "Hispanic buyers",
+        "body": "<div>Hi {{firstName}},</div><div><br /></div><div>When a bilingual buyer searches for a home in Spanish, does your site show up — or does it go to a competitor?</div><div><br /></div><div>Around 30% of US home searches start in Spanish. Most brokerages still run English-only sites, so that traffic keeps compounding for whoever ranks bilingual.</div><div><br /></div><div>GoodLife Tulum grew 300% in organic traffic with the same playbook.</div><div><br /></div><div>Worth a 60-second demo?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 2,
+        "delay_days": 4,
+        "subject": "",
+        "body": "<div>Hi {{firstName}},</div><div><br /></div><div>Quick math on the last one:</div><div><br /></div><div>Hispanic buyers are 51% more likely to be first-time buyers (NAR 2025). A metro the size of Miami sees 18,000+ Spanish-first home searches per month.</div><div><br /></div><div>If your site captures even 1% at a 4% conversion, that's 7 deals a month you're not getting.</div><div><br /></div><div>Flamingo Real Estate became #1 on Google Maps in their zone using bilingual SEO — 4.4x more visibility.</div><div><br /></div><div>Want me to send the demo?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 3,
+        "delay_days": 5,
+        "subject": "Flamingo case",
+        "body": "<div>Hi {{firstName}},</div><div><br /></div><div>Quick story: Flamingo Real Estate in Cancún was invisible online — the broker leaned on referrals and paid ads for most deals.</div><div><br /></div><div>We rebuilt their SEO around bilingual content. Eight months later they're #1 on Google Maps in their zone, organic traffic is up 320%, and 88% of new inbound leads are captured automatically through the site.</div><div><br /></div><div>The same playbook works in any US market with Hispanic buyer demand.</div><div><br /></div><div>Want to see how it works?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 4,
+        "delay_days": 7,
+        "subject": "try this",
+        "body": "<div>Hi {{firstName}},</div><div><br /></div><div>Try this: open ChatGPT and ask for the best real estate agent in your area for Spanish-speaking buyers.</div><div><br /></div><div>If your firm doesn't come up, you're invisible to a buyer segment that's quietly becoming the largest first-time-buyer pool in the US.</div><div><br /></div><div>Goza Real Estate fixed this and tripled their lead volume.</div><div><br /></div><div>Should I send the 60-second demo?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 5,
+        "delay_days": 7,
+        "subject": "last note",
+        "body": "<div>Hi {{firstName}},</div><div><br /></div><div>I'll stop reaching out. If you ever want to capture more of the Hispanic buyer market, I'm here.</div><div><br /></div><div>Best of luck with your listings.</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      }
+    ]
+  },
+  "Trojan Horse — Captura de Leads Gratis": {
+    "id": "cd9f1abf-3ad5-460c-88e9-29c48bc058b3",
+    "daily_limit": 75,
+    "status": 1,
+    "steps": [
+      {
+        "step_num": 1,
+        "delay_days": 0,
+        "subject": "Lead perdido anoche",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Imagina esto: anoche a las 10pm alguien vio una propiedad de {{companyName}} en redes, te escribió por WhatsApp, y nadie respondió hasta las 9am. Ese lead ya está hablando con otra inmobiliaria.</div><div><br /></div><div>Nuestro sistema responde en 30 segundos — automáticamente — por WhatsApp, SMS y chat web. Califica y te pasa solo los prospectos calientes.</div><div><br /></div><div>Flamingo Real Estate automatizó el 88% de su captación así.</div><div><br /></div><div>¿Te mando un video de 1 minuto para que veas cómo funciona?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 2,
+        "delay_days": 0,
+        "subject": "30 segundos",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Un lead contactado en menos de 5 minutos tiene 21x más probabilidad de cerrar. La mayoría de inmobiliarias tarda 12+ horas.</div><div><br /></div><div>¿Cuánto tarda {{companyName}} en responder un WhatsApp fuera de horario?</div><div><br /></div><div>Nuestro sistema responde en 30 segundos — automáticamente. Pre-califica y te pasa solo los calientes.</div><div><br /></div><div>Flamingo automatizó el 88% de su captación con esto.</div><div><br /></div><div>¿Te mando un video de 1 minuto?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 3,
+        "delay_days": 3,
+        "subject": "12 visitas este mes",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Si el sitio de {{companyName}} recibe 400 visitas al mes y solo el 3% contacta, son 12 leads — el resto se va sin dejar rastro.</div><div><br /></div><div>Con captura 24/7, la IA los engancha antes de que cierren la pestaña. Los que antes se iban, ahora dejan sus datos.</div><div><br /></div><div>¿Tienes 1 minuto para ver un ejemplo en video?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 4,
+        "delay_days": 5,
+        "subject": "El costo de no contestar",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>El 78% de los compradores contacta solo a las primeras 3 inmobiliarias que responden. Si {{companyName}} tarda, queda fuera.</div><div><br /></div><div>Por eso creamos un sistema que contesta en 30 segundos por WhatsApp, SMS y chat — incluso cuando estás durmiendo.</div><div><br /></div><div>Flamingo pasó de perder leads por la noche a cerrar el doble. Te lo instalamos sin costo.</div><div><br /></div><div>¿Quieres verlo?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 5,
+        "delay_days": 7,
+        "subject": "¿Sigue interesado?",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Te he escrito sobre los leads que {{companyName}} pierde después de horas.</div><div><br /></div><div>No sé si no te interesa o si simplemente no es el momento.</div><div><br /></div><div>Si quieres ver cómo Flamingo automatizó el 88% de su captación, te mando un video corto. Si no, con una palabra me dices y te dejo tranquilo.</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 6,
+        "delay_days": 7,
+        "subject": "Cierro este hilo",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>No te escribo más.</div><div><br /></div><div>Si en algún momento {{companyName}} necesita capturar leads fuera de horario, aquí sigo.</div><div><br /></div><div>Éxito con tus ventas.</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      }
+    ]
+  },
+  "Auditoría Gratis — Tu Sitio Web": {
+    "id": "8b5f556f-9259-4258-b74b-2df55712f520",
+    "daily_limit": 75,
+    "status": 1,
+    "steps": [
+      {
+        "step_num": 1,
+        "delay_days": 0,
+        "subject": "tu sitio web",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>¿{{companyName}} aparece cuando alguien busca \"comprar casa\" en Google Maps? ¿Y en ChatGPT?</div><div><br /></div><div>La mayoría de inmobiliarias no aparece en ninguno — son leads buscando todos los días que nunca te encuentran.</div><div><br /></div><div>GoodLife Tulum tenía el mismo problema. Después de auditar su sitio, su tráfico orgánico creció 300%.</div><div><br /></div><div>¿Quieres que revise el de {{companyName}}? Te envío el resultado en 24 horas.</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 2,
+        "delay_days": 4,
+        "subject": "re: tu sitio web",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Lo que normalmente encontramos al auditar inmobiliarias como {{companyName}}: el sitio tarda más de 5 segundos en cargar, Google Maps no los muestra, y ChatGPT ni sabe que existen.</div><div><br /></div><div>Son 3 problemas que cuestan leads todos los días — y la mayoría de brokers no saben que los tienen.</div><div><br /></div><div>La auditoría es gratis y te la entrego en 24 horas. ¿Te la hago?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 3,
+        "delay_days": 5,
+        "subject": "caso Flamingo",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Flamingo Real Estate en Cancún era invisible en Google Maps y su sitio tardaba 8 segundos en cargar.</div><div><br /></div><div>Hoy son #1 en Google Maps en su zona y su tráfico orgánico creció 320%.</div><div><br /></div><div>Todo empezó con una auditoría como la que te ofrezco — les mostró exactamente dónde estaban perdiendo leads.</div><div><br /></div><div>¿Vale la pena 2 minutos para ver si a {{companyName}} le pasa lo mismo?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 4,
+        "delay_days": 7,
+        "subject": "una prueba",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Abre ChatGPT y escribe \"mejor inmobiliaria en tu ciudad\".</div><div><br /></div><div>Si {{companyName}} no aparece, ya sabes que hay un problema. Y cada semana más compradores buscan así en vez de Google.</div><div><br /></div><div>La auditoría te muestra exactamente dónde estás y qué hacer primero. Sin costo.</div><div><br /></div><div>¿La hacemos?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 5,
+        "delay_days": 7,
+        "subject": "última vez",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>No te escribo más.</div><div><br /></div><div>Si en algún momento quieres ver cómo se ve {{companyName}} desde Google y ChatGPT, la auditoría sigue disponible.</div><div><br /></div><div>Éxito con tus ventas.</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      }
+    ]
+  },
+  "Campaign F - WhatsApp AI Assistant": {
+    "id": "733dfdd4-5813-48d6-8419-ebca3b40d783",
+    "daily_limit": 75,
+    "status": 1,
+    "steps": [
+      {
+        "step_num": 1,
+        "delay_days": 0,
+        "subject": "WhatsApp 24/7",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>¿Cuánto tarda {{companyName}} en responder un WhatsApp un sábado por la noche?</div><div><br /></div><div>Creamos un asistente de WhatsApp que responde en 30 segundos — 24/7 — califica al lead, agenda la cita, y te pasa solo los prospectos calientes.</div><div><br /></div><div>Flamingo Real Estate automatizó el 88% de su captación con esto mismo.</div><div><br /></div><div>Te lo instalamos sin que pagues setup. ¿Te mando un video de 1 minuto?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 2,
+        "delay_days": 0,
+        "subject": "10pm del sábado",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>10pm del sábado. Alguien vio una propiedad de {{companyName}} en Instagram, te escribió por WhatsApp preguntando el precio. Tú estás cenando con tu familia.</div><div><br /></div><div>La mayoría lo contesta el lunes. Para entonces, el lead se fue.</div><div><br /></div><div>Nuestro asistente IA lo contesta en 30 segundos, califica, y te avisa si es serio. Todo automático.</div><div><br /></div><div>Flamingo Real Estate automatizó el 88% de su captación con esto mismo.</div><div><br /></div><div>¿Te mando un video de 1 minuto para que lo veas?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 3,
+        "delay_days": 5,
+        "subject": "Sofia te contesta",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>La pregunta real: ¿el equipo de {{companyName}} revisa WhatsApp a las 11pm un viernes? ¿Un domingo?</div><div><br /></div><div>Nuestro asistente IA sí. Responde al instante, habla español e inglés, y nunca pierde una pregunta.</div><div><br /></div><div>¿Te mando el video donde ves cómo Flamingo lo usa?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 4,
+        "delay_days": 5,
+        "subject": "30 seg de respuesta",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Dato duro: los leads respondidos en menos de 5 minutos tienen 21x más probabilidad de cerrar. {{companyName}}, ¿cuánto tarda hoy?</div><div><br /></div><div>Nosotros respondemos en 30 segundos. Automatizamos por WhatsApp, sin que pierdas el toque humano — la IA pre-califica, tú cierras.</div><div><br /></div><div>¿Video de 1 minuto?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 5,
+        "delay_days": 4,
+        "subject": "Re: WhatsApp",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Si {{companyName}} recibe 50 mensajes de WhatsApp al mes y contesta solo 15 en menos de 1 hora, se está dejando ~70% del pipeline en la mesa.</div><div><br /></div><div>El asistente IA lo cierra. 24/7. Sin contratar a nadie.</div><div><br /></div><div>¿Te mando el video?</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 6,
+        "delay_days": 7,
+        "subject": "La pregunta final",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>Una última pregunta directa: ¿qué le impide a {{companyName}} automatizar su WhatsApp?</div><div><br /></div><div>Si es \"no sé cómo funciona\", te mando un video de 1 minuto. Si es \"no es para mí\", perfecto — con una palabra cerramos el hilo.</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      },
+      {
+        "step_num": 7,
+        "delay_days": 7,
+        "subject": "Último correo",
+        "body": "<div>Hola {{firstName}},</div><div><br /></div><div>No te escribo más.</div><div><br /></div><div>Si en algún momento {{companyName}} quiere automatizar su WhatsApp como lo hizo Flamingo, aquí sigo.</div><div><br /></div><div>Éxito con tus ventas.</div><div><br /></div><div>Alex</div><div>JegoDigital</div>",
+        "v_disabled": false
+      }
+    ]
+  },
+  "Audit_Trojan_MX_Supersearch_v1": {
+    "id": "51074dc9-fce9-4a20-b8a0-4f283ac52177",
+    "daily_limit": 60,
+    "status": 1,
+    "steps": [
+      {
+        "step_num": 1,
+        "delay_days": 0,
+        "subject": "Auditamos {{website}}",
+        "body": "Hola {{firstName}},\n\nAuditamos tu sitio {{website}} hoy:\n\n- PageSpeed: {{pageSpeed}}/100\n- {{mainIssue}}\n- Tu agencia no aparece en ChatGPT ni Perplexity cuando buscan inmobiliarias en {{city}}\n\nGoodLife Tulum logró 300% más tráfico orgánico trabajando con nosotros.\n\n¿Te mando el audit completo en 60 minutos? Sin costo.\n\nAlex\nJegoDigital",
+        "v_disabled": false
+      },
+      {
+        "step_num": 2,
+        "delay_days": 4,
+        "subject": "Recordatorio",
+        "body": "Hola {{firstName}},\n\nTe escribí hace unos días sobre la auditoría gratis de {{website}}.\n\nUn dato de mi correo anterior:\n- PageSpeed actual: {{pageSpeed}}/100\n\nSolo 1 de cada 20 inmobiliarias en México pasa 85/100. Cada punto debajo de eso son visitantes que se van antes de ver una sola propiedad.\n\n¿Te mando el audit? Contesta \"sí\" y lo tienes en tu correo en menos de una hora.\n\nAlex",
+        "v_disabled": false
+      },
+      {
+        "step_num": 3,
+        "delay_days": 5,
+        "subject": "Caso real",
+        "body": "Hola {{firstName}},\n\nRápido — un caso que puede interesarte:\n\nFlamingo Real Estate (Cancún) llegó a nosotros con el mismo perfil que {{companyName}}: buen inventario, sitio lento, invisibles en Google Maps.\n\nEn 90 días:\n- #1 en Google Maps en su zona\n- 4.4x más visibilidad en búsquedas\n- 88% de sus leads ahora los atiende IA automáticamente\n\nLa auditoría gratis de {{website}} te muestra exactamente qué replicar.\n\n¿Te la mando?\n\nAlex",
+        "v_disabled": false
+      },
+      {
+        "step_num": 4,
+        "delay_days": 7,
+        "subject": "¿Error mío?",
+        "body": "Hola {{firstName}},\n\nQuizá no soy la persona correcta para esto en {{companyName}}.\n\n¿Me pasas el contacto de quien maneja el marketing digital? Les mando directo la auditoría gratis de {{website}} y los dejo en paz.\n\nGracias.\n\nAlex\nJegoDigital",
+        "v_disabled": false
+      },
+      {
+        "step_num": 5,
+        "delay_days": 7,
+        "subject": "Último mensaje",
+        "body": "Hola {{firstName}},\n\nÚltimo correo de mi parte.\n\nLa auditoría gratis de {{website}} se queda disponible por si cambia algo: solo responde \"audit\" a este correo y la envío.\n\nSi no es el momento, todo bien — gracias por tu tiempo.\n\nAlex\nJegoDigital",
+        "v_disabled": false
+      }
+    ]
+  }
+}

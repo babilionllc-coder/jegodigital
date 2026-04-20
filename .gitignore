@@ -12,3 +12,50 @@ env.txt
 **/service-account*.json
 **/*-service-account*.json
 jegodigital-e02fb-*.json
+.secrets/
+
+# Large media — NEVER commit. GitHub hard-rejects anything >100MB
+# (Solik showcase 147MB killed a push on 2026-04-20). Videos must be hosted
+# on Firebase Storage / Cloud CDN, not in the git tree.
+# Directory wildcards ignore only the VIDEO/AUDIO extensions — small poster
+# jpgs and thumbnails stay tracked so HTML video player posters don't 404.
+website/cf-videos/*.mp4
+website/cf-videos/*.mov
+website/cf-videos/*.webm
+website/cf-videos/*.MP4
+website/cf-videos/*.MOV
+website/videos/**/*.mp4
+website/videos/**/*.mov
+website/videos/**/*.webm
+website/videos/**/*.MP4
+website/videos/**/*.MOV
+website/videos/**/*.mp3
+website/videos/**/*.gif
+website/assets/video/**/*.mp4
+website/assets/video/**/*.mov
+website/assets/video/**/*.MP4
+website/assets/videos/**/*.mp4
+website/assets/videos/**/*.mov
+website/assets/videos/**/*.MP4
+website/assets/videos/**/*.MOV
+website/img/showcase/**/*.mp4
+website/img/showcase/**/*.mov
+website/img/showcase/**/*.webm
+website/img/showcase/**/*.MP4
+*.mp4
+*.mov
+*.webm
+*.MP4
+*.MOV
+*.WEBM
+
+.secrets/
+
+# Imported skill docs — many SKILL.md files contain embedded API keys
+# for internal use (Perplexity, ElevenLabs, Meta, YouTube, etc). These
+# must NEVER be pushed to GitHub. GitHub secret scanner blocks the push
+# anyway. Added 2026-04-20 after push was rejected by GH013 secret scanner.
+_imported_skills/
+skill-packages/
+.claude/skills/
+!.claude/skills/notebooklm/

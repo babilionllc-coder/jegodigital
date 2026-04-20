@@ -1,0 +1,199 @@
+{
+  "campaign_id": "e526d5db-ee92-4b0d-9944-49ba47b587af",
+  "sheet_tab": "Audit_Trojan_MX_2026-04-18",
+  "cities": [
+    "Cancun",
+    "Playa del Carmen",
+    "Tulum",
+    "Ciudad de Mexico",
+    "Guadalajara",
+    "Monterrey"
+  ],
+  "totals": {
+    "raw": 105,
+    "passed": 23,
+    "uploaded": 23
+  },
+  "sample_leads": [
+    {
+      "first_name": "Monica",
+      "company": "Propiedades Cancún",
+      "email": "monica@propiedadescancun.mx",
+      "city": "Cancun",
+      "page_speed": 49,
+      "main_issue": "Tiempo de carga lento (11.3s) — 40% de visitantes abandonan",
+      "score": 70
+    },
+    {
+      "first_name": "Adriana",
+      "company": "Eproperties - Luxury Real Estate, México.",
+      "email": "alopez@eproperties.mx",
+      "city": "Cancun",
+      "page_speed": 37,
+      "main_issue": "Tiempo de carga lento (27.8s) — 40% de visitantes abandonan",
+      "score": 75
+    },
+    {
+      "first_name": "Julio",
+      "company": "Puerto Realty",
+      "email": "julio.mena@puertorealty.com",
+      "city": "Cancun",
+      "page_speed": 56,
+      "main_issue": "Tiempo de carga lento (12.2s) — 40% de visitantes abandonan",
+      "score": 70
+    },
+    {
+      "first_name": "Leticia",
+      "company": "CENTURY 21 Apolo Cancún",
+      "email": "leticia.vazquez@century21apolo.com",
+      "city": "Cancun",
+      "page_speed": 56,
+      "main_issue": "Tiempo de carga lento (9.4s) — 40% de visitantes abandonan",
+      "score": 70
+    },
+    {
+      "first_name": "Hazel",
+      "company": "Remax Maya Real Estate in Playa del Carmen and Riviera Maya",
+      "email": "hazel@remaxmaya.com",
+      "city": "Playa del Carmen",
+      "page_speed": 35,
+      "main_issue": "Tiempo de carga lento (23.1s) — 40% de visitantes abandonan",
+      "score": 75
+    },
+    {
+      "first_name": "Albane",
+      "company": "Century 21 Caribbean Paradise Real Estate en Playa del Carmen",
+      "email": "albane@c21caribbean.com",
+      "city": "Playa del Carmen",
+      "page_speed": 35,
+      "main_issue": "Tiempo de carga lento (8.0s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Sebastián",
+      "company": "Sur Selecto",
+      "email": "sebastian@surselecto.com",
+      "city": "Playa del Carmen",
+      "page_speed": 48,
+      "main_issue": "Tiempo de carga lento (31.7s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Judi",
+      "company": "Living Riviera Maya Real Estate",
+      "email": "judi@livingrivieramaya.com",
+      "city": "Playa del Carmen",
+      "page_speed": 38,
+      "main_issue": "Tiempo de carga lento (12.6s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Andrea",
+      "company": "Evoke Real Estate Group",
+      "email": "andrea@evokerealestategroup.com",
+      "city": "Playa del Carmen",
+      "page_speed": 47,
+      "main_issue": "Tiempo de carga lento (10.8s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Jessica",
+      "company": "5th Avenue Realty Playa del Carmen",
+      "email": "jessica@5thaverealtygroup.com",
+      "city": "Playa del Carmen",
+      "page_speed": 0,
+      "main_issue": "Sitio no accesible o bloqueado",
+      "score": 60
+    },
+    {
+      "first_name": "Karina",
+      "company": "PLAYA REALTORS ® Real Estate Agency | Main Office",
+      "email": "karina@playarealtors.co",
+      "city": "Playa del Carmen",
+      "page_speed": 53,
+      "main_issue": "Tiempo de carga lento (13.9s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Will",
+      "company": "Tulum Real Estate | Terrenos | Propiedades | Hoteles",
+      "email": "wacosta@tulumrealestate.com",
+      "city": "Tulum",
+      "page_speed": 75,
+      "main_issue": "Tiempo de carga lento (5.3s) — 40% de visitantes abandonan",
+      "score": 90
+    },
+    {
+      "first_name": "Rene",
+      "company": "Properties in tulum l HOME TULUM REAL ESTATE",
+      "email": "rene@hometulum.com",
+      "city": "Tulum",
+      "page_speed": 65,
+      "main_issue": "Tiempo de carga lento (15.4s) — 40% de visitantes abandonan",
+      "score": 70
+    },
+    {
+      "first_name": "Paola",
+      "company": "Jaguar Tulum Real Estate",
+      "email": "paola@jaguartulum.com",
+      "city": "Tulum",
+      "page_speed": 56,
+      "main_issue": "Tiempo de carga lento (27.5s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Sergio",
+      "company": "Zepto - Real Estate Tulum",
+      "email": "sergio.ayvar@zepto.com.mx",
+      "city": "Tulum",
+      "page_speed": 63,
+      "main_issue": "Tiempo de carga lento (7.1s) — 40% de visitantes abandonan",
+      "score": 75
+    },
+    {
+      "first_name": "David",
+      "company": "Love Tulum Eco Developments",
+      "email": "david@lovetulum.mx",
+      "city": "Tulum",
+      "page_speed": 54,
+      "main_issue": "Tiempo de carga lento (18.2s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Freddy",
+      "company": "CENTURY 21 Continental",
+      "email": "freddyadrian@c21continental.com",
+      "city": "Guadalajara",
+      "page_speed": 54,
+      "main_issue": "Tiempo de carga lento (7.3s) — 40% de visitantes abandonan",
+      "score": 70
+    },
+    {
+      "first_name": "Omar",
+      "company": "GDL Propiedades",
+      "email": "omar@gdlpropiedades.com",
+      "city": "Guadalajara",
+      "page_speed": 23,
+      "main_issue": "PageSpeed crítico (23/100) — pierdes ~60% de visitantes",
+      "score": 70
+    },
+    {
+      "first_name": "Fernando",
+      "company": "Ruba Monterrey",
+      "email": "fernando.laredo@ruba.com.mx",
+      "city": "Monterrey",
+      "page_speed": 61,
+      "main_issue": "Tiempo de carga lento (5.4s) — 40% de visitantes abandonan",
+      "score": 100
+    },
+    {
+      "first_name": "Jorge",
+      "company": "REALTY WORLD MEXICO",
+      "email": "jorge@realtyworld.com.mx",
+      "city": "Monterrey",
+      "page_speed": 50,
+      "main_issue": "Tiempo de carga lento (9.6s) — 40% de visitantes abandonan",
+      "score": 70
+    }
+  ]
+}

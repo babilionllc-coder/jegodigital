@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JegoDigital — Social Media Management para Inmobiliarias</title>
+<meta name="description" content="12 publicaciones profesionales al mes en Instagram, Facebook y TikTok. Estrategia de contenido, calendario editorial, publicacion en horarios optimos y reporte mensual.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #C5A059;
+  --gold-light: #E5C585;
+  --gold-dim: rgba(197,160,89,0.15);
+  --gold-border: rgba(197,160,89,0.2);
+  --dark: #0f1115;
+  --surface: #1a1d24;
+  --surface2: #20242e;
+  --gray: #8b9bb4;
+  --text: #e8eaf0;
+  --red: #ff4d6d;
+  --green: #22c55e;
+  --blue: #4f8ef7;
+  --purple: #a78bfa;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(15,17,21,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-icon {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: var(--dark);
+}
+.nav-logo { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+.nav-logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 6px; }
+.nav-link {
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: var(--gray);
+  cursor: pointer; transition: all 0.2s; border: none; background: none;
+  text-decoration: none;
+}
+.nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.nav-link.active { color: var(--gold); background: var(--gold-dim); }
+.nav-badge {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); padding: 7px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; transition: opacity 0.2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav-badge:hover { opacity: 0.85; }
+
+/* ─── SECTIONS ─── */
+section { padding: 100px 40px 80px; max-width: 1200px; margin: 0 auto; }
+section:first-of-type { padding-top: 140px; }
+
+/* ─── HERO ─── */
+#hero {
+  text-align: center; padding-top: 140px; padding-bottom: 60px;
+  position: relative;
+}
+.hero-glow {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(197,160,89,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.client-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--gold-border);
+  padding: 6px 16px; border-radius: 30px;
+  font-size: 12px; font-weight: 600; color: var(--gold);
+  margin-bottom: 28px; letter-spacing: 0.5px;
+}
+.client-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.5; transform:scale(0.8); } }
+
+h1 {
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 900; line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+h1 .gold { color: var(--gold); }
+h1 .dim { color: var(--gray); }
+
+.hero-sub {
+  font-size: 18px; color: var(--gray); max-width: 640px; margin: 0 auto 40px;
+  font-weight: 400;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+.hero-stat strong { font-size: 32px; font-weight: 900; color: var(--gold); display: block; }
+.hero-stat span { font-size: 13px; color: var(--gray); font-weight: 500; }
+
+/* ─── SECTION LABELS ─── */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
+}
+.section-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+.section-sub { font-size: 16px; color: var(--gray); margin-bottom: 48px; }
+
+/* ─── PAIN CARDS ─── */
+.pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.pain-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  transition: all 0.25s;
+  border-left: 3px solid var(--red);
+}
+.pain-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(197,160,89,0.08);
+}
+.pain-icon { font-size: 28px; margin-bottom: 14px; }
+.pain-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.pain-desc { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+/* ─── PIPELINE ─── */
+.pipeline-track {
+  display: flex; align-items: center; gap: 0;
+  overflow-x: auto; padding-bottom: 16px;
+  scrollbar-width: none;
+}
+.pipeline-track::-webkit-scrollbar { display: none; }
+.pipe-step {
+  flex: 1; min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px;
+  padding: 24px 20px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-decoration: none; color: inherit;
+}
+.pipe-step:hover, .pipe-step.active {
+  border-color: var(--gold);
+  background: var(--surface2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(197,160,89,0.12);
+}
+.pipe-arrow {
+  flex-shrink: 0; padding: 0 8px; color: var(--gold-border);
+  font-size: 20px; font-weight: 300;
+}
+.pipe-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+}
+.pipe-num {
+  position: absolute; top: 12px; right: 14px;
+  font-size: 11px; font-weight: 700; color: var(--gold-border);
+  letter-spacing: 1px;
+}
+.pipe-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.pipe-desc { font-size: 12px; color: var(--gray); line-height: 1.4; }
+.pipe-tag {
+  display: inline-block; margin-top: 10px;
+  padding: 3px 8px; border-radius: 6px;
+  font-size: 10px; font-weight: 600;
+  background: var(--gold-dim); color: var(--gold);
+}
+
+/* ─── TWO COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+
+/* ─── INFO CARDS ─── */
+.info-panel { display: flex; flex-direction: column; gap: 20px; }
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 22px;
+}
+.info-card-title {
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+}
+.qual-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.qual-row:last-child { border-bottom: none; }
+.qual-label { font-size: 13px; color: var(--gray); }
+.qual-val { font-size: 13px; font-weight: 600; }
+
+/* ─── INSTAGRAM FEED MOCKUP ─── */
+.ig-container {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-border);
+}
+.ig-header {
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ig-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900; color: var(--dark);
+  flex-shrink: 0;
+  border: 2px solid var(--gold);
+}
+.ig-info { flex: 1; }
+.ig-username { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.ig-bio { font-size: 12px; color: var(--gray); line-height: 1.4; }
+.ig-stats {
+  display: flex; gap: 16px; padding: 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 12px; color: var(--gray);
+}
+.ig-stats strong { color: var(--text); font-weight: 700; }
+.ig-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
+  padding: 3px;
+}
+.ig-post {
+  aspect-ratio: 1; border-radius: 4px;
+  position: relative; overflow: hidden;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.ig-post:hover { opacity: 0.85; }
+.ig-post-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+  background: rgba(0,0,0,0.4);
+  font-size: 11px; font-weight: 600; gap: 8px;
+}
+.ig-post:hover .ig-post-overlay { opacity: 1; }
+.ig-reel-badge {
+  position: absolute; top: 6px; right: 6px;
+  font-size: 10px; background: rgba(0,0,0,0.6);
+  padding: 2px 6px; border-radius: 4px;
+}
+.ig-carousel-dots {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 3px;
+}
+.ig-carousel-dots span {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+}
+.ig-carousel-dots span:first-child { background: #fff; }
+.ig-engagement {
+  padding: 12px 20px;
+  display: flex; gap: 16px;
+  font-size: 12px; color: var(--gray);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ─── ANALYTICS DASHBOARD ─── */
+.analytics-container {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-border);
+}
+.analytics-header {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--gold-border);
+}
+.analytics-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: rgba(255,255,255,0.04);
+}
+.analytics-stat {
+  background: var(--surface);
+  padding: 16px;
+  text-align: center;
+}
+.analytics-stat .stat-value {
+  font-size: 22px; font-weight: 900; color: var(--gold);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.analytics-stat .stat-arrow { font-size: 12px; color: var(--green); }
+.analytics-stat .stat-label { font-size: 11px; color: var(--gray); margin-top: 4px; }
+.chart-section { padding: 20px; }
+.chart-title { font-size: 12px; font-weight: 700; color: var(--gray); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+.bar-chart {
+  display: flex; align-items: flex-end; gap: 24px;
+  height: 120px; padding: 0 20px;
+  justify-content: center;
+}
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.bar {
+  width: 100%; border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--gold), var(--gold-light));
+  transition: height 0.6s ease;
+}
+.bar-label { font-size: 11px; color: var(--gray); }
+.bar-value { font-size: 12px; font-weight: 700; color: var(--gold); }
+.platform-bars { padding: 0 20px 20px; }
+.platform-bar-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 10px;
+}
+.platform-bar-name { font-size: 12px; color: var(--gray); width: 80px; text-align: right; }
+.platform-bar-track {
+  flex: 1; height: 8px; background: var(--surface2);
+  border-radius: 4px; overflow: hidden;
+}
+.platform-bar-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  transition: width 0.8s ease;
+}
+.platform-bar-val { font-size: 11px; font-weight: 600; color: var(--gold); width: 36px; }
+
+/* ─── RESULTS ─── */
+.results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  text-align: center;
+  transition: all 0.25s;
+}
+.result-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(197,160,89,0.1);
+}
+.result-icon { font-size: 32px; margin-bottom: 12px; }
+.result-number {
+  font-size: 44px; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.result-label { font-size: 14px; color: var(--gray); margin-top: 8px; font-weight: 500; }
+.result-sub { font-size: 12px; color: rgba(139,155,180,0.6); margin-top: 4px; }
+
+/* ─── ADDITIONAL STATS ROW ─── */
+.stats-row {
+  display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px;
+}
+.stats-row-item { text-align: center; }
+.stats-row-item strong {
+  font-size: 24px; font-weight: 900; color: var(--gold); display: block;
+}
+.stats-row-item span { font-size: 12px; color: var(--gray); font-weight: 500; }
+
+/* ─── CTA ─── */
+#cta {
+  text-align: center;
+  padding: 100px 40px;
+  background: linear-gradient(180deg, transparent 0%, rgba(197,160,89,0.04) 50%, transparent 100%);
+  border-top: 1px solid var(--gold-border);
+}
+.cta-title { font-size: 40px; font-weight: 900; margin-bottom: 16px; }
+.cta-sub { font-size: 17px; color: var(--gray); max-width: 500px; margin: 0 auto 36px; }
+.cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 16px 36px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); font-size: 15px; font-weight: 800;
+  border: none; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.3px; text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(197,160,89,0.3); }
+.btn-secondary {
+  padding: 16px 36px; border-radius: 12px;
+  background: transparent;
+  color: var(--text); font-size: 15px; font-weight: 700;
+  border: 1px solid var(--gold-border); cursor: pointer; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ─── FOOTER ─── */
+footer {
+  text-align: center; padding: 32px 40px;
+  border-top: 1px solid var(--gold-border);
+  font-size: 12px; color: var(--gray);
+}
+footer a { color: var(--gold); text-decoration: none; }
+
+/* ─── SCROLL ANIMATIONS ─── */
+.anim-section { opacity: 0; }
+.anim-section.visible { opacity: 1; }
+.anim-left { opacity: 0; transform: translateX(-60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-left { opacity: 1; transform: translateX(0); }
+.anim-right { opacity: 0; transform: translateX(60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-right { opacity: 1; transform: translateX(0); }
+.anim-up { opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-up { opacity: 1; transform: translateY(0); }
+.anim-scale { opacity: 0; transform: scale(0.85); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-scale { opacity: 1; transform: scale(1); }
+.anim-d1 { transition-delay: 0.1s !important; }
+.anim-d2 { transition-delay: 0.25s !important; }
+.anim-d3 { transition-delay: 0.4s !important; }
+.anim-d4 { transition-delay: 0.55s !important; }
+.anim-d5 { transition-delay: 0.7s !important; }
+.anim-d6 { transition-delay: 0.85s !important; }
+
+/* Result card pop */
+@keyframes resultPop {
+  0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.result-card-anim { opacity: 0; }
+.anim-section.visible .result-card-anim { animation: resultPop 0.5s ease forwards; }
+
+/* gold text */
+.gold-text { color: var(--gold); }
+
+/* responsive */
+@media (max-width: 768px) {
+  nav { padding: 0 16px; }
+  .nav-links { display: none; }
+  section { padding: 60px 16px 40px; }
+  .pain-grid, .results-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .pipeline-track { flex-direction: column; gap: 12px; }
+  .pipe-arrow { transform: rotate(90deg); }
+  h1 { font-size: 32px !important; }
+  .hero-stats { gap: 24px; }
+  .analytics-stats { grid-template-columns: repeat(2, 1fr); }
+  .stats-row { gap: 24px; }
+  .bar-chart { gap: 12px; padding: 0 10px; }
+  .ig-grid { gap: 2px; padding: 2px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-icon">J</div>
+    <div class="nav-logo"><span>Jego</span>Digital</div>
+  </div>
+  <div class="nav-links">
+    <a href="#problem" class="nav-link active">Problema</a>
+    <a href="#video" class="nav-link">Video</a>
+    <a href="#strategy" class="nav-link">Estrategia</a>
+    <a href="#content" class="nav-link">Contenido</a>
+    <a href="#analytics" class="nav-link">Analytics</a>
+    <a href="#results" class="nav-link">Resultados</a>
+  </div>
+  <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" class="nav-badge">📞 Agendar Llamada</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="max-width:1200px;">
+  <div class="hero-glow"></div>
+  <div class="client-pill">
+    <div class="client-dot"></div>
+    12 PUBLICACIONES AL MES · ESTRATEGIA INCLUIDA
+  </div>
+  <h1>
+    Tus Redes Sociales No Generan Leads.<br>
+    <span class="gold">Nosotros Lo Cambiamos.</span>
+  </h1>
+  <p class="hero-sub">
+    12 publicaciones profesionales al mes en Instagram, Facebook y TikTok. Estrategia de contenido, calendario editorial, publicacion en horarios optimos y reporte mensual de rendimiento.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <strong>12</strong>
+      <span>Posts por Mes</span>
+    </div>
+    <div class="hero-stat">
+      <strong>3</strong>
+      <span>Plataformas</span>
+    </div>
+    <div class="hero-stat">
+      <strong>4.8%</strong>
+      <span>Engagement Rate</span>
+    </div>
+    <div class="hero-stat">
+      <strong>48h</strong>
+      <span>Setup</span>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO DEMO -->
+<section id="video" class="anim-section" style="padding-top:40px; padding-bottom:80px;">
+  <div style="text-align:center;">
+    <div class="section-label anim-up">Video Demo · 90 segundos</div>
+    <div class="section-title anim-up anim-d1" style="margin-bottom:32px;">Mira como funciona <span class="gold">Social Media Management</span></div>
+    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;aspect-ratio:16/9;">
+      <video id="demo-video" src="/cf-videos/social-media.mp4" style="width:100%;height:100%;display:block;" playsinline loop></video>
+      <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
+        </div>
+      </div>
+    </div>
+    <p style="color:var(--gray);margin-top:16px;font-size:13px;">Estrategia · Contenido · Calendario · Analytics · Resultados</p>
+  </div>
+</section>
+<script>
+function startVideo(){
+  const overlay=document.getElementById('video-overlay');
+  const video=document.getElementById('demo-video');
+  overlay.style.opacity='0';
+  setTimeout(()=>{overlay.style.display='none'},300);
+  video.play();
+}
+</script>
+
+<!-- PAIN POINTS -->
+<section id="problem" class="anim-section" style="padding-top:40px;">
+  <div class="section-label anim-up">El Problema · The Problem</div>
+  <div class="section-title anim-up anim-d1">Publicar Sin Estrategia = <span style="color:var(--red)">Tirar Dinero</span></div>
+  <div class="section-sub anim-up anim-d2">Si tus redes sociales no generan leads, no es culpa del algoritmo. Es culpa de la estrategia.</div>
+
+  <div class="pain-grid">
+    <div class="pain-card anim-up anim-d2">
+      <div class="pain-icon">📉</div>
+      <div class="pain-title">Sin Estrategia de Contenido</div>
+      <div class="pain-desc">Publicar fotos random sin un plan genera 0 engagement. Tu marca se ve amateur y los clientes potenciales pasan de largo.</div>
+    </div>
+    <div class="pain-card anim-up anim-d3">
+      <div class="pain-icon">🕐</div>
+      <div class="pain-title">Sin Consistencia</div>
+      <div class="pain-desc">Un post cada 2 semanas no construye audiencia. Los algoritmos de Instagram y TikTok penalizan la inconsistencia y entierran tu contenido.</div>
+    </div>
+    <div class="pain-card anim-up anim-d4">
+      <div class="pain-icon">🎯</div>
+      <div class="pain-title">Sin Conversion</div>
+      <div class="pain-desc">Muchos seguidores pero cero leads. Sin CTAs estrategicos y contenido orientado a ventas, tus redes son solo una vitrina vacia.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STRATEGY PIPELINE -->
+<section id="strategy" class="anim-section" style="padding-top:60px;">
+  <div class="section-label anim-up">Como funciona · paso a paso</div>
+  <div class="section-title anim-up anim-d1">Nuestro Proceso de Social Media Management</div>
+  <div class="section-sub anim-up anim-d2">5 pasos para transformar tus redes sociales en una maquina de generacion de leads.</div>
+
+  <div class="pipeline-track">
+    <div class="pipe-step active">
+      <div class="pipe-num">01</div>
+      <div class="pipe-icon">🎯</div>
+      <div class="pipe-title">Estrategia</div>
+      <div class="pipe-desc">Definimos tu voz, audiencia y pilares de contenido</div>
+      <span class="pipe-tag">Semana 1</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">02</div>
+      <div class="pipe-icon">📸</div>
+      <div class="pipe-title">Produccion</div>
+      <div class="pipe-desc">12 piezas de contenido profesional al mes</div>
+      <span class="pipe-tag">Semanal</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">03</div>
+      <div class="pipe-icon">📅</div>
+      <div class="pipe-title">Calendario</div>
+      <div class="pipe-desc">Publicacion en horarios optimos de mayor engagement</div>
+      <span class="pipe-tag">Automatizado</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">04</div>
+      <div class="pipe-icon">📊</div>
+      <div class="pipe-title">Analisis</div>
+      <div class="pipe-desc">Monitoreo diario + ajustes de estrategia</div>
+      <span class="pipe-tag">Diario</span>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-num">05</div>
+      <div class="pipe-icon">📈</div>
+      <div class="pipe-title">Reporte</div>
+      <div class="pipe-desc">Informe mensual con metricas y recomendaciones</div>
+      <span class="pipe-tag">Mensual</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENT SHOWCASE -->
+<section id="content" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Contenido · Content Strategy</div>
+  <div class="section-title anim-up anim-d1">Contenido Profesional que <span class="gold">Genera Leads</span></div>
+  <div class="section-sub anim-up anim-d2">12 publicaciones mensuales distribuidas estrategicamente en 3 plataformas. Cada pieza tiene un objetivo claro.</div>
+
+  <div class="two-col">
+    <!-- Info panel -->
+    <div class="info-panel anim-left anim-d2">
+      <div class="info-card">
+        <div class="info-card-title">Pilares de Contenido</div>
+        <div class="qual-row">
+          <span class="qual-label">🏠 Propiedades Destacadas</span>
+          <span class="qual-val gold-text">3 posts/mes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">📊 Market Insights</span>
+          <span class="qual-val gold-text">2 posts/mes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">🎥 Reels & Tours Virtuales</span>
+          <span class="qual-val gold-text">3 posts/mes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">💡 Tips & Educacion</span>
+          <span class="qual-val gold-text">2 posts/mes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">✨ Testimonios & Social Proof</span>
+          <span class="qual-val gold-text">2 posts/mes</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Plataformas</div>
+        <div class="qual-row">
+          <span class="qual-label">Instagram</span>
+          <span class="qual-val gold-text">Feed + Reels + Stories</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Facebook</span>
+          <span class="qual-val gold-text">Posts + Videos + Events</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">TikTok</span>
+          <span class="qual-val gold-text">Short-form video content</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instagram Feed Mockup -->
+    <div class="ig-container anim-right anim-d3">
+      <div class="ig-header">
+        <div class="ig-avatar">L</div>
+        <div class="ig-info">
+          <div class="ig-username">luna_riviera_realestate</div>
+          <div class="ig-bio">🏠 Luxury Real Estate Cancun & Tulum</div>
+        </div>
+      </div>
+      <div class="ig-stats">
+        <span><strong>2,847</strong> seguidores</span>
+        <span><strong>96</strong> posts</span>
+        <span><strong>234</strong> siguiendo</span>
+      </div>
+      <div class="ig-grid">
+        <!-- Row 1 -->
+        <div class="ig-post" style="background:linear-gradient(135deg, #1a1d24 0%, var(--gold) 100%);">
+          <div class="ig-reel-badge">▶ Reel</div>
+          <div style="position:absolute;bottom:10px;left:10px;font-size:10px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.8);">Penthouse Tour</div>
+          <div class="ig-post-overlay">❤️ 342 💬 28</div>
+        </div>
+        <div class="ig-post" style="background:linear-gradient(180deg, var(--surface2) 0%, rgba(197,160,89,0.3) 100%);">
+          <div class="ig-carousel-dots"><span></span><span></span><span></span></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:700;text-align:center;color:var(--gold);text-shadow:0 1px 3px rgba(0,0,0,0.8);">5 Razones<br>para Invertir</div>
+          <div class="ig-post-overlay">❤️ 456 💬 34</div>
+        </div>
+        <div class="ig-post" style="background:linear-gradient(135deg, rgba(197,160,89,0.4) 0%, #1a1d24 100%);">
+          <div style="position:absolute;bottom:10px;left:10px;font-size:10px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.8);">Vista al Mar</div>
+          <div class="ig-post-overlay">❤️ 287 💬 22</div>
+        </div>
+        <!-- Row 2 -->
+        <div class="ig-post" style="background:linear-gradient(180deg, rgba(197,160,89,0.2) 0%, var(--surface2) 100%);">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:700;text-align:center;color:var(--text);text-shadow:0 1px 3px rgba(0,0,0,0.8);">MARKET<br>UPDATE<br><span style="color:var(--gold);font-size:11px;">Q1 2026</span></div>
+          <div class="ig-post-overlay">❤️ 189 💬 15</div>
+        </div>
+        <div class="ig-post" style="background:linear-gradient(135deg, var(--gold) 0%, #0f1115 100%);">
+          <div class="ig-reel-badge">▶ Reel</div>
+          <div style="position:absolute;bottom:10px;left:10px;font-size:10px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.8);">Tour Virtual</div>
+          <div class="ig-post-overlay">❤️ 521 💬 41</div>
+        </div>
+        <div class="ig-post" style="background:linear-gradient(180deg, #1a1d24 0%, rgba(197,160,89,0.25) 100%);">
+          <div class="ig-carousel-dots"><span></span><span></span></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:700;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,0.8);">⭐ Testimonio<br><span style="color:var(--gold);">Fam. Lopez</span></div>
+          <div class="ig-post-overlay">❤️ 324 💬 18</div>
+        </div>
+      </div>
+      <div class="ig-engagement">
+        <span>❤️ 234</span>
+        <span>💬 18</span>
+        <span>📌 45</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYTICS DASHBOARD -->
+<section id="analytics" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Metricas · Analytics Dashboard</div>
+  <div class="section-title anim-up anim-d1">Datos Reales, <span class="gold">Decisiones Inteligentes</span></div>
+  <div class="section-sub anim-up anim-d2">Cada mes recibes un reporte detallado con metricas de rendimiento, mejores contenidos y recomendaciones de optimizacion.</div>
+
+  <div class="two-col">
+    <!-- Analytics Dashboard Mockup -->
+    <div class="analytics-container anim-left anim-d2">
+      <div class="analytics-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--dark);">J</div>
+          <span style="font-size:14px;font-weight:700;">Social Media Analytics</span>
+          <span style="font-size:11px;color:var(--gray);background:var(--surface2);padding:3px 10px;border-radius:20px;">Marzo 2026</span>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="analytics-stats">
+        <div class="analytics-stat">
+          <div class="stat-value">45.2K <span class="stat-arrow">▲</span></div>
+          <div class="stat-label">Alcance</div>
+        </div>
+        <div class="analytics-stat">
+          <div class="stat-value">4.8% <span class="stat-arrow">▲</span></div>
+          <div class="stat-label">Engagement</div>
+        </div>
+        <div class="analytics-stat">
+          <div class="stat-value">892 <span class="stat-arrow">▲</span></div>
+          <div class="stat-label">Clicks al Sitio</div>
+        </div>
+        <div class="analytics-stat">
+          <div class="stat-value">12 <span class="stat-arrow">▲</span></div>
+          <div class="stat-label">Leads Generados</div>
+        </div>
+      </div>
+
+      <!-- Growth Chart -->
+      <div class="chart-section">
+        <div class="chart-title">Crecimiento Trimestral</div>
+        <div class="bar-chart">
+          <div class="bar-col">
+            <div class="bar-value">12.1K</div>
+            <div class="bar" style="height:30%;"></div>
+            <div class="bar-label">Ene</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">28.7K</div>
+            <div class="bar" style="height:60%;"></div>
+            <div class="bar-label">Feb</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-value">45.2K</div>
+            <div class="bar" style="height:95%;"></div>
+            <div class="bar-label">Mar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Breakdown -->
+      <div class="platform-bars">
+        <div class="chart-title">Desglose por Plataforma</div>
+        <div class="platform-bar-row">
+          <span class="platform-bar-name">Instagram</span>
+          <div class="platform-bar-track"><div class="platform-bar-fill" style="width:65%;"></div></div>
+          <span class="platform-bar-val">65%</span>
+        </div>
+        <div class="platform-bar-row">
+          <span class="platform-bar-name">Facebook</span>
+          <div class="platform-bar-track"><div class="platform-bar-fill" style="width:25%;"></div></div>
+          <span class="platform-bar-val">25%</span>
+        </div>
+        <div class="platform-bar-row">
+          <span class="platform-bar-name">TikTok</span>
+          <div class="platform-bar-track"><div class="platform-bar-fill" style="width:10%;"></div></div>
+          <span class="platform-bar-val">10%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">Mejor Contenido del Mes</div>
+        <div class="qual-row">
+          <span class="qual-label">Tour Virtual Penthouse</span>
+          <span class="qual-val gold-text">12.4K views · 892 likes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">5 Razones para Invertir</span>
+          <span class="qual-val gold-text">8.2K views · 456 likes</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Testimonio: Familia Lopez</span>
+          <span class="qual-val gold-text">6.7K views · 324 likes</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">Horarios Optimos</div>
+        <div class="qual-row">
+          <span class="qual-label">Instagram</span>
+          <span class="qual-val gold-text">Mar-Jue 10am-12pm</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">Facebook</span>
+          <span class="qual-val gold-text">Lun-Mie 2pm-4pm</span>
+        </div>
+        <div class="qual-row">
+          <span class="qual-label">TikTok</span>
+          <span class="qual-val gold-text">Vie-Dom 7pm-9pm</span>
+        </div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">Insight del Mes</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">Los Reels de tours virtuales generan 3.2x mas engagement que los posts estaticos. Recomendacion: aumentar produccion de video a 5 piezas/mes para Q2.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="anim-section">
+  <div class="section-label anim-up">Resultados Comprobados · Proven Results</div>
+  <div class="section-title anim-up anim-d1">Resultados en los Primeros <span class="gold">90 Dias</span></div>
+  <div class="section-sub anim-up anim-d2">Lo que nuestros clientes ven al activar Social Media Management con JegoDigital.</div>
+
+  <div class="results-grid">
+    <div class="result-card result-card-anim" style="animation-delay:0.1s;">
+      <div class="result-icon">📱</div>
+      <div class="result-number">12</div>
+      <div class="result-label">Publicaciones Profesionales al Mes</div>
+      <div class="result-sub">contenido premium con estrategia</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.25s;">
+      <div class="result-icon">📈</div>
+      <div class="result-number">+1,800%</div>
+      <div class="result-label">Crecimiento en Seguidores</div>
+      <div class="result-sub">de 156 a 2,847 seguidores organicos</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.4s;">
+      <div class="result-icon">💰</div>
+      <div class="result-number">12+</div>
+      <div class="result-label">Leads por Mes desde Redes</div>
+      <div class="result-sub">leads calificados directos a tu WhatsApp</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stats-row-item">
+      <strong>4.8%</strong>
+      <span>Engagement Rate (vs 0.5% promedio)</span>
+    </div>
+    <div class="stats-row-item">
+      <strong>3</strong>
+      <span>Plataformas gestionadas</span>
+    </div>
+    <div class="stats-row-item">
+      <strong>48h</strong>
+      <span>Tiempo de setup</span>
+    </div>
+  </div>
+
+  <!-- Tools -->
+  <div style="text-align:center;margin-top:40px;">
+    <div style="font-size:13px;color:var(--gray);margin-bottom:16px;font-weight:600;">Herramientas que usamos</div>
+    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">📱 Meta Business Suite</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">📊 Metricool</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">🎨 Canva Pro</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">🎥 CapCut Pro</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">📅 Later</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">🤖 ChatGPT</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" style="max-width:100%; padding-left:40px; padding-right:40px;">
+  <div class="cta-title">¿Listo Para Dominar las <span style="color:var(--gold)">Redes Sociales</span>?</div>
+  <p class="cta-sub">Setup en 48 horas. 12 publicaciones al mes. Resultados en 30 dias.</p>
+  <div class="cta-btns">
+    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" style="text-decoration:none"><button class="btn-primary">📱 Activar Mis Redes</button></a>
+    <a href="/servicios.html" class="btn-secondary">💬 Ver Mas Servicios</a>
+  </div>
+  <div style="margin-top:32px; font-size:13px; color:var(--gray);">
+    🔒 Consulta gratuita de 30 min · Sin compromiso · Te mostramos exactamente como transformar tus redes
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:8px;">
+    © 2026 <strong style="color:var(--gold)">JegoDigital</strong> — Cancun, Tulum, Playa del Carmen
+  </div>
+  <div><a href="https://jegodigital.com">jegodigital.com</a></div>
+</footer>
+
+<script>
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    const top = s.offsetTop - 120;
+    if(scrollY >= top) cur = s.getAttribute('id');
+  });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if(l.getAttribute('href') === '#'+cur) l.classList.add('active');
+  });
+});
+
+// Scroll-triggered animations
+const animObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.anim-section').forEach(s => animObserver.observe(s));
+
+// Animated number counter for result cards
+function animateCounters() {
+  const cards = document.querySelectorAll('.result-number');
+  cards.forEach(card => {
+    const text = card.textContent;
+    const match = text.match(/\+?(\d[\d,]*)/);
+    if(match && text.includes('%')) {
+      const target = parseInt(match[1].replace(',',''));
+      card.textContent = '+0%';
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const interval = setInterval(() => {
+        current += step;
+        if(current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        card.textContent = '+' + current.toLocaleString() + '%';
+      }, 30);
+    }
+  });
+}
+
+// Trigger counter animation when results section is visible
+const resultsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      animateCounters();
+      resultsObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+const resultsSection = document.getElementById('results');
+if(resultsSection) resultsObserver.observe(resultsSection);
+</script>
+</body>
+</html>

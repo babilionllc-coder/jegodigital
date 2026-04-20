@@ -1,0 +1,79 @@
+{
+  "date": "2026-04-11",
+  "target_keyword": "chatgpt marketing inmobiliario",
+  "slug": "chatgpt-marketing-inmobiliario-2026",
+  "keyword_data": {
+    "primary": {"keyword": "chatgpt marketing inmobiliario", "volume": 0, "cpc": 0, "competition": "N/A"},
+    "secondary": [
+      {"keyword": "inteligencia artificial inmobiliaria", "volume": 10, "cpc": 0, "competition": "LOW"},
+      {"keyword": "ia para inmobiliarias", "volume": 10, "cpc": 2.61, "competition": "HIGH"},
+      {"keyword": "chatgpt inmobiliarias", "volume": 0, "cpc": 0},
+      {"keyword": "chatgpt bienes raices", "volume": 0, "cpc": 0},
+      {"keyword": "aeo inmobiliario", "volume": 0, "cpc": 0},
+      {"keyword": "marketing digital inmobiliarias", "volume": 10, "cpc": 0}
+    ],
+    "notes": "Low formal search volume but MASSIVE organic interest — SERPs are full of content, PAA questions exist, 2 ChatGPT GPT stores rank. Emerging topic with first-mover advantage."
+  },
+  "serp_analysis": {
+    "top_results": [
+      {"position": 1, "domain": "chatgpt.com", "title": "Estrategia de marketing inmobiliario online (GPT Store)"},
+      {"position": 2, "domain": "lasserouhiainen.com", "title": "11 Consejos de ChatGPT para Realtors", "word_count": 4218},
+      {"position": 3, "domain": "translate.google.com", "title": "10 indicaciones de ChatGPT (translated)"},
+      {"position": 4, "domain": "chatgpt.com", "title": "Plan de Marketing Inmobiliario (GPT Store)"},
+      {"position": 5, "domain": "urbanizainteractiva.com", "title": "IA para inmobiliarias: Chat GPT para contenido", "word_count": 1402},
+      {"position": 6, "domain": "youtube.com", "title": "Que es ChatGPT: Como Crear Contenido Inmobiliario"},
+      {"position": 7, "domain": "realestatemarket.com.mx", "title": "ChatGPT transformando el sector inmobiliario", "word_count": 635},
+      {"position": 8, "domain": "translate.google.com", "title": "ChatGPT para agentes inmobiliarios (translated)"},
+      {"position": 9, "domain": "aylevelmag.com", "title": "ChatGPT: El Asistente Secreto de los Inmobiliarios"}
+    ],
+    "serp_features": ["GPT Store results ranking", "No AI Overview", "YouTube video result"],
+    "people_also_ask": [
+      "¿Cuál es la mejor IA para agentes inmobiliarios?",
+      "¿Cuáles son las 4 P del marketing inmobiliario?",
+      "¿Cómo hacer marketing con ChatGPT?",
+      "¿Cómo pueden los agentes inmobiliarios usar ChatGPT?"
+    ]
+  },
+  "competitor_analysis": {
+    "lasserouhiainen.com": {
+      "word_count": 4218,
+      "h2_count": 19,
+      "h2_topics": ["¿Qué es ChatGPT y cómo las inmobiliarias pueden utilizarlo?", "Cómo utilizar ChatGPT para crear listados de casas", "ChatGPT para marketing inmobiliario", "ChatGPT para documentación inmobiliaria", "Los mejores prompts de ChatGPT para inmobiliarias", "ChatGPT para analizar tendencias inmobiliarias"],
+      "strengths": "Comprehensive (4218 words), detailed prompts, covers multiple use cases",
+      "weaknesses": "Generic/not Mexico-specific, no AEO angle, no real case studies, no ROI data, focuses only on ChatGPT as a content tool not as a search engine"
+    },
+    "urbanizainteractiva.com": {
+      "word_count": 1402,
+      "h2_count": 2,
+      "h2_topics": ["Cómo utilizar Chat GPT para crear contenido inmobiliario"],
+      "strengths": "Focused on content creation use case",
+      "weaknesses": "Very short (1402 words), only 2 H2s, thin content, no prompts, no case studies"
+    },
+    "realestatemarket.com.mx": {
+      "word_count": 635,
+      "h2_count": 1,
+      "h2_topics": ["ChatGPT transformando el sector inmobiliario"],
+      "strengths": "Authoritative domain (realestatemarket.com.mx)",
+      "weaknesses": "Extremely short (635 words), news article format, no actionable advice"
+    }
+  },
+  "content_gaps": [
+    "NO competitor covers AEO — appearing IN ChatGPT/Gemini/Perplexity results (they only cover using ChatGPT AS a tool)",
+    "NO competitor has real ROI data or case studies from Mexican inmobiliarias",
+    "NO competitor explains the DUAL threat: using AI for marketing AND appearing in AI search results",
+    "NO competitor covers Gemini, Perplexity, or Google AI Overviews — all focus only on ChatGPT",
+    "NO competitor has Mexico-specific strategies or data",
+    "NO competitor provides a step-by-step implementation guide with costs",
+    "Weak schema markup across all competitors"
+  ],
+  "image_plan": {
+    "hero": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80",
+    "supporting_images": [
+      "Real proof screenshots from JegoDigital showcase",
+      "Comparison table: traditional marketing vs AI-powered",
+      "Step-by-step visual guide",
+      "AEO visibility dashboard proof"
+    ]
+  },
+  "our_angle": "The DUAL advantage: Use AI tools to 10x your marketing output AND optimize to appear in AI search results (AEO). No competitor covers both sides. Plus real case studies from Mexican inmobiliarias (Flamingo 4.4x, GoodLife 300%)."
+}

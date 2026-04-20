@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Conoce a JegoDigital - Agencia líder en marketing en Quintana Roo y todo México.">
+    <title>Nosotros | JegoDigital</title>
+
+    <!-- Google Fonts & Tailwind -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        background: '#0f1115', // Slate 900
+                        surface: '#1e293b',    // Slate 800
+                        primary: '#C5A059',    // Indigo 500
+                        accent: '#FFFFFF',     // Violet 500
+                        highlight: '#f472b6',  // Pink 400
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .logo-glow {
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+            transition: filter 0.3s ease;
+        }
+
+        .group:hover .logo-glow {
+            filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.8));
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .hero-gradient-text {
+            background: linear-gradient(135deg, #fff 0%, #C5A059 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f1115;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-white antialiased">
+
+    <!-- Ambient Background -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div
+            class="absolute top-[10%] left-[20%] w-[400px] h-[400px] bg-[#C5A059]/20 rounded-full blur-[100px] opacity-40 animate-pulse-slow">
+        </div>
+        <div
+            class="absolute bottom-[10%] right-[10%] w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] opacity-40">
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300 glass-panel border-b border-white/5" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-28">
+                <!-- Logo -->
+                <a href="index.html" class="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
+                    <img src="images/logo/logo1.png" alt="JegoDigital"
+                        class="h-24 w-auto hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+
+                </a>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_home">Inicio</a>
+                    <a href="servicios.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_services">Servicios</a>
+                    <a href="showcase.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_portfolio">Portafolio</a>
+                    <a href="blog.html" class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                        data-i18n="nav_blog">Insights</a>
+                    <a href="nosotros.html" class="text-white text-sm font-medium border-b-2 border-[#C5A059] pb-1"
+                        data-i18n="nav_about">Nosotros</a>
+
+                    <!-- Language Toggle -->
+                    <button
+                        class="lang-toggle-btn flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
+                        onclick="window.toggleLanguage()">
+                        <span class="text-lg">🇺🇸</span>
+                        <span class="text-xs font-bold text-slate-300 group-hover:text-white">EN</span>
+                    </button>
+
+                    <a href="contacto.html"
+                        class="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 backdrop-blur-md"
+                        data-i18n="nav_contact">Contacto</a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-white hover:text-[#C5A059] focus:outline-none p-2">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu"
+            class="hidden md:hidden glass-panel border-b border-white/5 absolute w-full left-0 top-20 bg-[#0f1115]/95 backdrop-blur-xl">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="index.html" data-i18n="nav_home"
+                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Inicio</a>
+                <a href="servicios.html" data-i18n="nav_services"
+                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Servicios</a>
+                <a href="showcase.html" data-i18n="nav_portfolio"
+                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Portafolio</a>
+                <a href="blog.html" data-i18n="nav_blog"
+                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Insights</a>
+                <a href="nosotros.html" data-i18n="nav_about"
+                    class="block px-3 py-3 rounded-md text-base font-medium text-white bg-[#C5A059]/10 border-l-4 border-[#C5A059]">Nosotros</a>
+
+                <!-- Mobile Language Toggle -->
+                <button
+                    class="lang-toggle-btn w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2"
+                    onclick="window.toggleLanguage()">
+                    <span class="mr-1">🇺🇸</span> EN
+                </button>
+
+                <a href="contacto.html" data-i18n="nav_contact"
+                    class="block px-3 py-3 rounded-md text-base font-bold text-[#C5A059] mt-4 text-center border border-[#C5A059]/30 bg-[#C5A059]/10">Contáctanos</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-16 relative z-10">
+        <div class="container mx-auto px-4 text-center">
+            <span class="text-accent text-sm font-bold tracking-wider uppercase mb-4 block animate-float"
+                data-i18n="about_hero_tag">Nuestra
+                Esencia</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6" data-i18n="about_hero_title">
+                Impulsando el <span class="hero-gradient-text text-glow">Futuro Digital</span><br>de Cancún.
+            </h1>
+            <p class="text-slate-400 max-w-3xl mx-auto text-lg leading-relaxed" data-i18n="about_hero_desc">
+                Nacimos con una misión clara: ayudar a los negocios locales a dominar el mundo digital. Combinamos
+                creatividad, datos y tecnología para crear estrategias que no solo se ven bien, sino que venden.
+            </p>
+        </div>
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="py-12 relative z-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div
+                    class="glass-panel p-6 rounded-2xl text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-bold text-[#C5A059] mb-2">50+</div>
+                    <div class="text-sm text-slate-400 font-medium" data-i18n="about_stat_projects">Proyectos Exitosos
+                    </div>
+                </div>
+                <div
+                    class="glass-panel p-6 rounded-2xl text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-bold text-accent mb-2">95%</div>
+                    <div class="text-sm text-slate-400 font-medium" data-i18n="about_stat_clients">Clientes Felices
+                    </div>
+                </div>
+                <div
+                    class="glass-panel p-6 rounded-2xl text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-bold text-highlight mb-2">3+</div>
+                    <div class="text-sm text-slate-400 font-medium" data-i18n="about_stat_years">Años de Innovación
+                    </div>
+                </div>
+                <div
+                    class="glass-panel p-6 rounded-2xl text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-bold text-white mb-2">24/7</div>
+                    <div class="text-sm text-slate-400 font-medium" data-i18n="about_stat_support">Soporte Dedicado
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story & Mission -->
+    <section class="py-20 relative z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="w-full md:w-1/2">
+                    <div class="relative group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-500">
+                        </div>
+                        <div class="relative glass-panel p-2 rounded-2xl border border-white/10 h-80 overflow-hidden">
+                            <img src="images/blog/jegodigital%20office.jpg" alt="Oficina JegoDigital"
+                                class="w-full h-full object-cover rounded-xl transform group-hover:scale-105 transition-transform duration-700">
+                            <!-- Overlay -->
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent flex items-end p-6">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white mb-1">Resultados Reales</h3>
+                                    <p class="text-slate-300 text-sm">Desde el corazón de Cancún</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Más que una agencia,<br>somos tu <span
+                            class="text-[#C5A059]">Socio Estratégico</span></h2>
+                    <p class="text-slate-400 mb-6 text-lg">
+                        En JegoDigital, no solo hacemos sitios web. Construimos ecosistemas digitales completos
+                        diseñados para generar ventas. Entendemos el mercado de Cancún porque somos de aquí.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3">
+                            <span
+                                class="h-8 w-auto rounded-full bg-[#C5A059]/20 flex items-center justify-center text-[#C5A059]"><i
+                                    class="fas fa-check"></i></span>
+                            <span class="text-slate-300">Estrategias personalizadas para cada negocio.</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span
+                                class="h-8 w-auto rounded-full bg-accent/20 flex items-center justify-center text-accent"><i
+                                    class="fas fa-check"></i></span>
+                            <span class="text-slate-300">Tecnología de punta y tendencias actuales.</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span
+                                class="h-8 w-auto rounded-full bg-highlight/20 flex items-center justify-center text-highlight"><i
+                                    class="fas fa-check"></i></span>
+                            <span class="text-slate-300">Compromiso total con tu crecimiento.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-20 bg-surface/30 relative z-10">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <span class="text-highlight text-sm font-bold uppercase tracking-wider">Nuestro Talento</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2">Mentes Creativas</h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Team Member 1 -->
+                <div
+                    class="group glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 hover:-translate-y-2 text-center">
+                    <div
+                        class="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] p-[3px] shadow-xl shadow-blue-500/20">
+                        <img src="images/about%20me%20/alex%20jego%20profile.jpg" alt="Alex Jego"
+                            class="w-full h-full rounded-full object-cover border-4 border-surface">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">Alex Jego</h3>
+                    <p class="text-[#C5A059] text-sm font-semibold uppercase tracking-wide mb-4">CEO & Fundador</p>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Visionario apasionado por el marketing digital con más de 5 años liderando estrategias de
+                        crecimiento en Cancún.
+                    </p>
+                </div>
+
+                <!-- Team Member 2 -->
+                <div
+                    class="group glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 hover:-translate-y-2 text-center">
+                    <div
+                        class="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-[3px] shadow-xl shadow-purple-500/20">
+                        <img src="images/about%20me%20/website%20desinger.jpg" alt="Carlos Ruiz"
+                            class="w-full h-full rounded-full object-cover border-4 border-surface">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">Carlos Ruiz</h3>
+                    <p class="text-accent text-sm font-semibold uppercase tracking-wide mb-4">Lead Developer</p>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Arquitecto de software dedicado a construir sitios veloces, seguros y escalables.
+                    </p>
+                </div>
+
+                <!-- Team Member 3 -->
+                <div
+                    class="group glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 hover:-translate-y-2 text-center">
+                    <div
+                        class="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 p-[3px] shadow-xl shadow-amber-500/20">
+                        <img src="images/about%20me%20/SEO%20Y%20reportes.jpg" alt="Daniel Rivera"
+                            class="w-full h-full rounded-full object-cover border-4 border-surface">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">Daniel Rivera</h3>
+                    <p class="text-highlight text-sm font-semibold uppercase tracking-wide mb-4">Head of Growth</p>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Experto certificado en Google Ads y posicionamiento orgánico con un historial probado de éxito.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-[#0f1115] pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl font-bold mb-6">¿Listo para transformar tu negocio?</h2>
+                <a href="contacto.html"
+                    class="inline-block px-8 py-3 bg-white text-slate-900 font-bold rounded-full hover:bg-slate-200 transition-colors">
+                    Hablemos Hoy
+                </a>
+            </div>
+            <div
+                class="flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm pt-8 border-t border-white/5">
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <p>&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
+                    <div class="flex gap-4">
+                        <a href="privacy.html" class="hover:text-white transition-colors">Privacidad</a>
+                        <a href="terms.html" class="hover:text-white transition-colors">Términos</a>
+                    </div>
+                </div>
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition-colors"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="hover:text-white transition-colors"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const icon = btn.querySelector('i');
+
+        if (btn && menu) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+                if (menu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+            });
+        }
+    </script>
+
+    <!-- Smart AI Chat Widget -->
+    <!-- Toggle Button -->
+    <button id="chat-toggle-btn"
+        class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/50 flex items-center justify-center hover:scale-110 transition-all duration-300 animate-float group">
+        <i class="fas fa-sparkles text-2xl group-hover:rotate-12 transition-transform"></i>
+        <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-900"></div>
+    </button>
+
+    <!-- Chat Container -->
+    <div id="chat-container"
+        class="fixed bottom-24 right-6 z-50 w-[350px] md:w-[400px] h-[600px] max-h-[80vh] bg-[#0f1115]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col hidden transition-all duration-300 origin-bottom-right transform scale-90 opacity-0">
+
+        <!-- Header -->
+        <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-2xl">
+            <div class="flex items-center gap-3">
+                <img src="images/avatar-bot.svg" alt="AI Agent"
+                    class="h-24 w-auto rounded-full shadow-lg shadow-primary/50 border border-white/20 bg-[#0f1115] object-cover">
+                <div>
+                    <h3 class="font-bold text-white text-sm">JegoDigital AI Agent</h3>
+                    <p class="text-xs text-slate-400">Concierge Digital 24/7</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('chat-toggle-btn').click()"
+                class="text-slate-400 hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <!-- Messages will be injected here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-white/10 bg-white/5 rounded-b-2xl">
+            <!-- Vision Preview -->
+            <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+
+            <div
+                class="relative flex items-center gap-2 bg-slate-800/50 border border-white/10 rounded-xl p-2 focus-within:border-[#C5A059]/50 transition-colors">
+                <button id="chat-image-btn" class="p-2 text-slate-400 hover:text-[#C5A059] transition-colors"
+                    title="Subir Imagen / Vision AI">
+                    <i class="fas fa-camera"></i>
+                </button>
+                <input type="text" id="chat-input" placeholder="Escribe o habla..."
+                    class="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder-slate-500 min-w-0">
+                <button id="chat-mic-btn" class="p-2 text-slate-400 hover:text-white transition-colors"
+                    title="Hablar (Voice AI)">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button id="chat-send-btn"
+                    class="p-2 h-8 w-auto flex items-center justify-center bg-[#C5A059] text-white rounded-lg hover:bg-[#C5A059]/90 transition-colors shadow-lg shadow-primary/20">
+                    <i class="fas fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+            <p class="text-[10px] text-slate-500 text-center mt-2">Powered by Gemini 2.0 Flash • Web Speech API</p>
+        </div>
+    </div>
+
+    <!-- Script Import -->
+    <!-- Smart Chat Widget & Language Manager -->
+    <script type="module" src="js/language-manager.js"></script>
+    <script type="module" src="js/smart-chat.js"></script>
+</body>
+
+</html>

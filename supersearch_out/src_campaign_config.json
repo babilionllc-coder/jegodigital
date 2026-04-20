@@ -1,0 +1,124 @@
+{
+  "id": "e526d5db-ee92-4b0d-9944-49ba47b587af",
+  "name": "Audit_Trojan_MX_v1",
+  "status": 0,
+  "campaign_schedule": {
+    "schedules": [
+      {
+        "name": "Weekdays",
+        "timing": {
+          "from": "09:00",
+          "to": "17:00"
+        },
+        "days": {
+          "0": false,
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true,
+          "6": false
+        },
+        "timezone": "America/Chicago"
+      }
+    ]
+  },
+  "timestamp_created": "2026-04-19T03:34:42.418Z",
+  "timestamp_updated": "2026-04-19T03:38:15.893Z",
+  "pl_value": 1000,
+  "sequences": [
+    {
+      "steps": [
+        {
+          "type": "email",
+          "delay": 0,
+          "variants": [
+            {
+              "subject": "Auditamos {{website}}",
+              "body": "Hola {{firstName}},\n\nAuditamos tu sitio {{website}} hoy:\n\n- PageSpeed: {{pageSpeed}}/100\n- {{mainIssue}}\n- Tu agencia no aparece en ChatGPT ni Perplexity cuando buscan inmobiliarias en {{city}}\n\nGoodLife Tulum logró 300% más tráfico orgánico trabajando con nosotros.\n\n¿Te mando el audit completo en 60 minutos? Sin costo.\n\nAlex\nJegoDigital"
+            }
+          ],
+          "delay_unit": "days",
+          "pre_delay_unit": "days"
+        },
+        {
+          "type": "email",
+          "delay": 4,
+          "variants": [
+            {
+              "subject": "Recordatorio",
+              "body": "Hola {{firstName}},\n\nTe escribí hace unos días sobre la auditoría gratis de {{website}}.\n\nUn dato de mi correo anterior:\n- PageSpeed actual: {{pageSpeed}}/100\n\nSolo 1 de cada 20 inmobiliarias en México pasa 85/100. Cada punto debajo de eso son visitantes que se van antes de ver una sola propiedad.\n\n¿Te mando el audit? Contesta \"sí\" y lo tienes en tu correo en menos de una hora.\n\nAlex"
+            }
+          ],
+          "delay_unit": "days",
+          "pre_delay_unit": "days"
+        },
+        {
+          "type": "email",
+          "delay": 5,
+          "variants": [
+            {
+              "subject": "Caso real",
+              "body": "Hola {{firstName}},\n\nRápido — un caso que puede interesarte:\n\nFlamingo Real Estate (Cancún) llegó a nosotros con el mismo perfil que {{companyName}}: buen inventario, sitio lento, invisibles en Google Maps.\n\nEn 90 días:\n- #1 en Google Maps en su zona\n- 4.4x más visibilidad en búsquedas\n- 88% de sus leads ahora los atiende IA automáticamente\n\nLa auditoría gratis de {{website}} te muestra exactamente qué replicar.\n\n¿Te la mando?\n\nAlex"
+            }
+          ],
+          "delay_unit": "days",
+          "pre_delay_unit": "days"
+        },
+        {
+          "type": "email",
+          "delay": 7,
+          "variants": [
+            {
+              "subject": "¿Error mío?",
+              "body": "Hola {{firstName}},\n\nQuizá no soy la persona correcta para esto en {{companyName}}.\n\n¿Me pasas el contacto de quien maneja el marketing digital? Les mando directo la auditoría gratis de {{website}} y los dejo en paz.\n\nGracias.\n\nAlex\nJegoDigital"
+            }
+          ],
+          "delay_unit": "days",
+          "pre_delay_unit": "days"
+        },
+        {
+          "type": "email",
+          "delay": 7,
+          "variants": [
+            {
+              "subject": "Último mensaje",
+              "body": "Hola {{firstName}},\n\nÚltimo correo de mi parte.\n\nLa auditoría gratis de {{website}} se queda disponible por si cambia algo: solo responde \"audit\" a este correo y la envío.\n\nSi no es el momento, todo bien — gracias por tu tiempo.\n\nAlex\nJegoDigital"
+            }
+          ],
+          "delay_unit": "days",
+          "pre_delay_unit": "days"
+        }
+      ]
+    }
+  ],
+  "email_list": [
+    "mail@aichatsy.com",
+    "contact@aichatsy.com",
+    "leads@jegoaeo.com",
+    "info@jegoaeo.com",
+    "alex@jegoaeo.com",
+    "reply@jegoleads.com",
+    "info@jegoleads.com",
+    "alex@jegoleads.com"
+  ],
+  "daily_limit": 60,
+  "stop_on_reply": true,
+  "open_tracking": true,
+  "stop_on_auto_reply": true,
+  "core_variables": {
+    "phone": true,
+    "website": true,
+    "lastName": true,
+    "firstName": true,
+    "companyName": true,
+    "personalization": true
+  },
+  "custom_variables": {
+    "city": true,
+    "loadTime": true,
+    "mainIssue": true,
+    "pageSpeed": true
+  },
+  "organization": "b3918dc0-c811-414b-89fa-80b59d3c3e20"
+}

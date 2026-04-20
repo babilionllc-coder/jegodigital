@@ -130,10 +130,12 @@ exports.coldCallPrep = functions
             return null;
         }
 
-        // Round-robin offer assignment
+        // Uniform-random offer assignment (per Alex 2026-04-20 — was round-robin).
+        // Random mix lets us read A/B/C performance without positional bias
+        // in the queue order; autopilotReviewer picks the winner weekly.
         const offerCounts = { A: 0, B: 0, C: 0 };
-        const writePromises = batch.map((lead, i) => {
-            const offer = OFFER_ROTATION[i % OFFER_ROTATION.length];
+        const writePromises = batch.map((lead) => {
+            const offer = OFFER_ROTATION[Math.floor(Math.random() * OFFER_ROTATION.length)];
             offerCounts[offer]++;
             return db.collection("call_queue").doc(dateKey).collection("leads").doc(lead.id).set({
                 ...lead,

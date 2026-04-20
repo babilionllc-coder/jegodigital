@@ -1,0 +1,75 @@
+{
+  "date": "2026-04-11",
+  "target_keyword": "seo para inmobiliarias",
+  "slug": "seo-para-inmobiliarias-mexico-2026",
+  "keyword_data": {
+    "primary": {"keyword": "seo para inmobiliarias", "volume": 30, "cpc": 0, "competition": "N/A"},
+    "secondary": [
+      {"keyword": "seo inmobiliario", "volume": 20, "cpc": 0},
+      {"keyword": "marketing inmobiliario", "volume": 260, "cpc": 1.80},
+      {"keyword": "posicionamiento seo inmobiliarias", "volume": 10, "cpc": 0},
+      {"keyword": "marketing digital inmobiliarias", "volume": 10, "cpc": 0},
+      {"keyword": "leads inmobiliarios", "volume": 30, "cpc": 5.75},
+      {"keyword": "seo real estate", "volume": 20, "cpc": 0}
+    ]
+  },
+  "serp_analysis": {
+    "top_results": [
+      {"position": 1, "domain": "seotopsecret.com", "title": "SEO para Inmobiliarias", "word_count": 2258, "images": 12, "h2_count": 6},
+      {"position": 2, "domain": "vivanuncios.com.mx", "title": "SEO para agentes inmobiliarios"},
+      {"position": 3, "domain": "johnny.mx", "title": "SEO para inmobiliarias: La guía para dominar Google en México", "word_count": 1052, "images": 4, "h2_count": 1},
+      {"position": 4, "domain": "itzimnarealestate.com", "title": "SEO Inmobiliario de Lujo: Yucatán y CDMX"},
+      {"position": 5, "domain": "inmuebles24.com", "title": "7 trucos de marketing inmobiliario para posicionarte"},
+      {"position": 6, "domain": "marketing.recreativos.com.mx", "title": "Importancia del SEO para inmobiliarias"},
+      {"position": 7, "domain": "easybroker.com", "title": "Guía introductoria sobre SEO para sitios web inmobiliarios"},
+      {"position": 8, "domain": "tulpa.mx", "title": "Cómo aparecer primero cuando alguien busca comprar o rentar", "word_count": 941, "images": 11, "h2_count": 0}
+    ],
+    "serp_features": ["AI Overview present"],
+    "people_also_ask": [
+      "¿Cuánto cobra un SEO en México?",
+      "¿Qué es el SEO inmobiliario?",
+      "¿Cuáles son las 4 P del marketing inmobiliario?",
+      "¿Cuál es el mejor software para inmobiliarias?"
+    ]
+  },
+  "competitor_analysis": {
+    "seotopsecret.com": {
+      "word_count": 2258,
+      "images": 12,
+      "h2_topics": ["SEO Inmobiliario", "SEO para agentes Inmobiliarios", "SEM vs SEO", "Impacto del SEO", "Cómo hacer SEO", "Decisión Estratégica C-Suite"],
+      "h3_topics": ["Reducción gasto publicitario", "CAC optimization", "Brand equity", "Excelencia técnica", "Contenido hiperlocal", "Autoridad Off-Page"],
+      "strengths": "Comprehensive, C-suite angle, SEM vs SEO comparison, 12 images",
+      "weaknesses": "Generic/not Mexico-specific, no real case studies, no AEO coverage"
+    },
+    "johnny.mx": {
+      "word_count": 1052,
+      "images": 4,
+      "h2_topics": ["Por qué SEO es activo más rentable"],
+      "h3_topics": ["Beneficios reales", "Pilares del SEO inmobiliario mexicano", "Por qué agencia debe entender ventas"],
+      "strengths": "Mexico-specific angle, sales-oriented, author credibility",
+      "weaknesses": "Short (1052 words), only 4 images, thin content"
+    },
+    "tulpa.mx": {
+      "word_count": 941,
+      "images": 11,
+      "h3_topics": ["Qué es SEO inmobiliario", "SEO local", "Keywords que convierten", "Fichas optimizadas", "Blog arma secreta", "SEO técnico", "Backlinks", "Automatización SEO"],
+      "strengths": "Good topic coverage, visual (11 images), practical tips",
+      "weaknesses": "Very short (941 words), no case studies, no Mexico data"
+    }
+  },
+  "content_gaps": [
+    "No competitor covers AEO (Answer Engine Optimization) for real estate",
+    "No competitor shows real case studies with numbers (Flamingo 4.4x, GoodLife 300%)",
+    "No competitor mentions Google AI Overviews or ChatGPT/Perplexity visibility",
+    "No competitor has actual ROI data or cost comparisons",
+    "No competitor covers Google Maps/local pack optimization in depth for Mexico",
+    "Weak FAQ sections across all competitors"
+  ],
+  "image_plan": {
+    "hero": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80",
+    "supporting_1": "https://images.unsplash.com/photo-1460317442991-0ec209397118?w=800&q=80",
+    "supporting_2": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80",
+    "supporting_3": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+    "data_viz": "Styled HTML stat cards, comparison tables, ROI calculator visual"
+  }
+}

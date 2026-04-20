@@ -1,0 +1,822 @@
+{
+  "lomoplateadoinc.com": {
+    "score": 100,
+    "seo_score": 82,
+    "lcp_sec": 1.1,
+    "fcp_sec": 1.1,
+    "load_time": 2.2
+  },
+  "the-crafters.com": {
+    "score": 56,
+    "seo_score": 92,
+    "lcp_sec": 17.1,
+    "fcp_sec": 5.3,
+    "load_time": 22.4
+  },
+  "hauzio.com": {
+    "score": 55,
+    "seo_score": 100,
+    "lcp_sec": 23.7,
+    "fcp_sec": 7.7,
+    "load_time": 31.4
+  },
+  "mexicoindustrialrealestate.com": {
+    "score": 66,
+    "seo_score": 92,
+    "lcp_sec": 14.4,
+    "fcp_sec": 2.5,
+    "load_time": 17.0
+  },
+  "compramostucasa.mx": {
+    "score": 88,
+    "seo_score": 100,
+    "lcp_sec": 2.3,
+    "fcp_sec": 1.4,
+    "load_time": 3.7
+  },
+  "omnimls.com": {
+    "score": 30,
+    "seo_score": 77,
+    "lcp_sec": 91.0,
+    "fcp_sec": 2.9,
+    "load_time": 93.9
+  },
+  "shorelinerealtypv.com": {
+    "score": 40,
+    "seo_score": 100,
+    "lcp_sec": 11.3,
+    "fcp_sec": 7.3,
+    "load_time": 18.5
+  },
+  "altaltiumrealestates.com": {
+    "score": 0,
+    "error": "HTTP 400"
+  },
+  "priverealestate.mx": {
+    "score": 32,
+    "seo_score": 92,
+    "lcp_sec": 54.0,
+    "fcp_sec": 8.0,
+    "load_time": 62.0
+  },
+  "abilia.mx": {
+    "score": 35,
+    "seo_score": 85,
+    "lcp_sec": 14.4,
+    "fcp_sec": 6.0,
+    "load_time": 20.4
+  },
+  "thewallendorfcollection.com": {
+    "score": 40,
+    "seo_score": 92,
+    "lcp_sec": 14.3,
+    "fcp_sec": 7.8,
+    "load_time": 22.1
+  },
+  "lahaus.com": {
+    "score": 33,
+    "seo_score": 92,
+    "lcp_sec": 30.7,
+    "fcp_sec": 4.5,
+    "load_time": 35.2
+  },
+  "mica.rent": {
+    "score": 49,
+    "seo_score": 92,
+    "lcp_sec": 7.4,
+    "fcp_sec": 5.2,
+    "load_time": 12.6
+  },
+  "vivedelasrentas.com": {
+    "score": 56,
+    "seo_score": 85,
+    "lcp_sec": 14.1,
+    "fcp_sec": 4.7,
+    "load_time": 18.8
+  },
+  "siventa.com": {
+    "score": 52,
+    "seo_score": 92,
+    "lcp_sec": 40.5,
+    "fcp_sec": 4.9,
+    "load_time": 45.5
+  },
+  "funo.mx": {
+    "score": 53,
+    "seo_score": 92,
+    "lcp_sec": 8.7,
+    "fcp_sec": 3.6,
+    "load_time": 12.3
+  },
+  "thecreamco.com": {
+    "score": 100,
+    "seo_score": 40,
+    "lcp_sec": 1.4,
+    "fcp_sec": 1.4,
+    "load_time": 2.7
+  },
+  "smlxl.mx": {
+    "score": 71,
+    "seo_score": 92,
+    "lcp_sec": 4.1,
+    "fcp_sec": 4.0,
+    "load_time": 8.1
+  },
+  "aciertamax.com": {
+    "score": 60,
+    "seo_score": 92,
+    "lcp_sec": 6.9,
+    "fcp_sec": 6.6,
+    "load_time": 13.6
+  },
+  "procincopuntocero.com": {
+    "score": 42,
+    "seo_score": 100,
+    "lcp_sec": 11.9,
+    "fcp_sec": 5.8,
+    "load_time": 17.7
+  },
+  "cushmanwakefield.com": {
+    "score": 30,
+    "seo_score": 85,
+    "lcp_sec": 29.7,
+    "fcp_sec": 4.0,
+    "load_time": 33.7
+  },
+  "krokel.com": {
+    "score": 80,
+    "seo_score": 92,
+    "lcp_sec": 4.3,
+    "fcp_sec": 2.7,
+    "load_time": 7.1
+  },
+  "svretailconsultors.com": {
+    "score": 56,
+    "seo_score": 100,
+    "lcp_sec": 4.2,
+    "fcp_sec": 2.9,
+    "load_time": 7.1
+  },
+  "twolander.com": {
+    "score": 0,
+    "error": "HTTP 400"
+  },
+  "newmark.mx": {
+    "score": 56,
+    "seo_score": 100,
+    "lcp_sec": 7.1,
+    "fcp_sec": 3.8,
+    "load_time": 10.8
+  },
+  "wework.com": {
+    "score": 31,
+    "seo_score": 92,
+    "lcp_sec": 15.8,
+    "fcp_sec": 8.2,
+    "load_time": 24.0
+  },
+  "dibasa.com.mx": {
+    "score": 0,
+    "error": "HTTP 400"
+  },
+  "c21eliteadvisors.com": {
+    "score": 36,
+    "seo_score": 91,
+    "lcp_sec": 44.7,
+    "fcp_sec": 5.4,
+    "load_time": 50.2
+  },
+  "nmrk.re": {
+    "score": 41,
+    "seo_score": 77,
+    "lcp_sec": 10.5,
+    "fcp_sec": 6.2,
+    "load_time": 16.6
+  },
+  "desgon.com.mx": {
+    "score": 27,
+    "seo_score": 92,
+    "lcp_sec": 33.3,
+    "fcp_sec": 6.5,
+    "load_time": 39.8
+  },
+  "greatdwellings.com": {
+    "score": 43,
+    "seo_score": 92,
+    "lcp_sec": 10.9,
+    "fcp_sec": 4.3,
+    "load_time": 15.2
+  },
+  "co.jll": {
+    "score": 42,
+    "seo_score": 100,
+    "lcp_sec": 16.1,
+    "fcp_sec": 5.6,
+    "load_time": 21.8
+  },
+  "moredevco.com": {
+    "score": 52,
+    "seo_score": 92,
+    "lcp_sec": 15.2,
+    "fcp_sec": 6.8,
+    "load_time": 22.0
+  },
+  "colliers.com": {
+    "score": 16,
+    "seo_score": 85,
+    "lcp_sec": 57.3,
+    "fcp_sec": 5.7,
+    "load_time": 63.1
+  },
+  "industrialrealestatemx.com": {
+    "score": 0,
+    "error": "HTTP 500"
+  },
+  "bluehomes.mx": {
+    "score": 60,
+    "seo_score": 92,
+    "lcp_sec": 20.5,
+    "fcp_sec": 2.4,
+    "load_time": 22.9
+  },
+  "vynmsa.com": {
+    "score": 82,
+    "seo_score": 100,
+    "lcp_sec": 3.5,
+    "fcp_sec": 3.3,
+    "load_time": 6.8
+  },
+  "industrialestatemexico.com": {
+    "score": 57,
+    "seo_score": 92,
+    "lcp_sec": 23.8,
+    "fcp_sec": 7.2,
+    "load_time": 30.9
+  },
+  "cbre.com": {
+    "score": 40,
+    "seo_score": 92,
+    "lcp_sec": 15.4,
+    "fcp_sec": 7.4,
+    "load_time": 22.8
+  },
+  "intermex.com": {
+    "score": 60,
+    "seo_score": 91,
+    "lcp_sec": 5.7,
+    "fcp_sec": 3.4,
+    "load_time": 9.0
+  },
+  "thehappybrokers.com": {
+    "score": 62,
+    "seo_score": 92,
+    "lcp_sec": 6.7,
+    "fcp_sec": 5.0,
+    "load_time": 11.7
+  },
+  "polibit.io": {
+    "score": 80,
+    "seo_score": 92,
+    "lcp_sec": 3.5,
+    "fcp_sec": 2.1,
+    "load_time": 5.6
+  },
+  "naimexico.com": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "boldnest-realestate.com": {
+    "score": 56,
+    "seo_score": 92,
+    "lcp_sec": 12.7,
+    "fcp_sec": 7.1,
+    "load_time": 19.9
+  },
+  "pulppo.com": {
+    "score": 51,
+    "seo_score": 100,
+    "lcp_sec": 6.6,
+    "fcp_sec": 3.6,
+    "load_time": 10.2
+  },
+  "eaglepropertycapital.com": {
+    "score": 56,
+    "seo_score": 77,
+    "lcp_sec": 36.8,
+    "fcp_sec": 4.6,
+    "load_time": 41.4
+  },
+  "ampisma.org.mx": {
+    "score": 0,
+    "error": "HTTP 400"
+  },
+  "condomex.mx": {
+    "score": 51,
+    "seo_score": 82,
+    "lcp_sec": 6.6,
+    "fcp_sec": 3.2,
+    "load_time": 9.8
+  },
+  "remax.com.mx": {
+    "score": 0,
+    "error": "HTTP 400"
+  },
+  "realguru.ai": {
+    "score": 100,
+    "seo_score": 90,
+    "lcp_sec": 1.5,
+    "fcp_sec": 1.5,
+    "load_time": 3.0
+  },
+  "incity.com.mx": {
+    "score": 59,
+    "seo_score": 83,
+    "lcp_sec": 19.5,
+    "fcp_sec": 6.5,
+    "load_time": 26.0
+  },
+  "lotusrivieramaya.com": {
+    "score": 51,
+    "seo_score": 85,
+    "lcp_sec": 9.6,
+    "fcp_sec": 4.3,
+    "load_time": 13.8
+  },
+  "mayaocean.com": {
+    "score": 68,
+    "seo_score": 92,
+    "lcp_sec": 14.7,
+    "fcp_sec": 1.8,
+    "load_time": 16.5
+  },
+  "probien.mx": {
+    "score": 55,
+    "seo_score": 92,
+    "lcp_sec": 25.6,
+    "fcp_sec": 3.8,
+    "load_time": 29.3
+  },
+  "cbcmexico.mx": {
+    "score": 54,
+    "seo_score": 57,
+    "lcp_sec": 16.7,
+    "fcp_sec": 3.8,
+    "load_time": 20.4
+  },
+  "terhinternational.com": {
+    "score": 54,
+    "seo_score": 85,
+    "lcp_sec": 20.3,
+    "fcp_sec": 16.0,
+    "load_time": 36.4
+  },
+  "colonyspaces.com": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "realestateklein.com": {
+    "score": 31,
+    "seo_score": 75,
+    "lcp_sec": 9.5,
+    "fcp_sec": 4.7,
+    "load_time": 14.3
+  },
+  "twindolphinloscabos.com": {
+    "score": 46,
+    "seo_score": 92,
+    "lcp_sec": 9.8,
+    "fcp_sec": 4.5,
+    "load_time": 14.3
+  },
+  "fibrainn.mx": {
+    "score": 63,
+    "seo_score": 83,
+    "lcp_sec": 6.7,
+    "fcp_sec": 4.4,
+    "load_time": 11.2
+  },
+  "ronival.com": {
+    "score": 28,
+    "seo_score": 67,
+    "lcp_sec": 23.1,
+    "fcp_sec": 9.4,
+    "load_time": 32.5
+  },
+  "mwgroup.mx": {
+    "score": 100,
+    "seo_score": 80,
+    "lcp_sec": 0.6,
+    "fcp_sec": 0.6,
+    "load_time": 1.3
+  },
+  "urbanopolis.mx": {
+    "score": 79,
+    "seo_score": 54,
+    "lcp_sec": 4.1,
+    "fcp_sec": 3.5,
+    "load_time": 7.5
+  },
+  "topmexicorealestate.com": {
+    "score": 72,
+    "seo_score": 92,
+    "lcp_sec": 6.1,
+    "fcp_sec": 2.7,
+    "load_time": 8.8
+  },
+  "qiainmobiliaria.com": {
+    "score": 18,
+    "seo_score": 83,
+    "lcp_sec": 27.0,
+    "fcp_sec": 5.8,
+    "load_time": 32.8
+  },
+  "cbcworldwide.com": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "gfa.com.mx": {
+    "score": 61,
+    "seo_score": 92,
+    "lcp_sec": 5.7,
+    "fcp_sec": 4.1,
+    "load_time": 9.8
+  },
+  "cbre.com.mx": {
+    "score": 46,
+    "seo_score": 100,
+    "lcp_sec": 14.4,
+    "fcp_sec": 7.7,
+    "load_time": 22.1
+  },
+  "destiny.mx": {
+    "score": 40,
+    "seo_score": 92,
+    "lcp_sec": 37.5,
+    "fcp_sec": 4.4,
+    "load_time": 42.0
+  },
+  "la-mexico.com": {
+    "score": 100,
+    "seo_score": 73,
+    "lcp_sec": 0.8,
+    "fcp_sec": 0.8,
+    "load_time": 1.5
+  },
+  "tempo.mx": {
+    "score": 79,
+    "seo_score": 92,
+    "lcp_sec": 3.8,
+    "fcp_sec": 3.2,
+    "load_time": 6.9
+  },
+  "whouse.mx": {
+    "score": 39,
+    "seo_score": 82,
+    "lcp_sec": 11.0,
+    "fcp_sec": 5.2,
+    "load_time": 16.2
+  },
+  "bricksell.com": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "levyholding.com.mx": {
+    "score": 41,
+    "seo_score": 100,
+    "lcp_sec": 38.2,
+    "fcp_sec": 3.5,
+    "load_time": 41.7
+  },
+  "bajasmart.com": {
+    "score": 31,
+    "seo_score": 75,
+    "lcp_sec": 13.3,
+    "fcp_sec": 6.6,
+    "load_time": 19.9
+  },
+  "c21caribbean.com": {
+    "score": 35,
+    "seo_score": 85,
+    "lcp_sec": 5.0,
+    "fcp_sec": 4.3,
+    "load_time": 9.3
+  },
+  "cashout.com.mx": {
+    "score": 48,
+    "seo_score": 85,
+    "lcp_sec": 11.3,
+    "fcp_sec": 5.3,
+    "load_time": 16.6
+  },
+  "remaxmaya.com": {
+    "score": 27,
+    "seo_score": 92,
+    "lcp_sec": 23.4,
+    "fcp_sec": 5.2,
+    "load_time": 28.6
+  },
+  "hausrealestate.com.mx": {
+    "score": 62,
+    "seo_score": 83,
+    "lcp_sec": 24.2,
+    "fcp_sec": 4.3,
+    "load_time": 28.5
+  },
+  "altiocapital.com": {
+    "score": 35,
+    "seo_score": 92,
+    "lcp_sec": 19.8,
+    "fcp_sec": 4.8,
+    "load_time": 24.5
+  },
+  "provive.mx": {
+    "score": 60,
+    "seo_score": 100,
+    "lcp_sec": 64.8,
+    "fcp_sec": 5.4,
+    "load_time": 70.2
+  },
+  "pulsoinmobiliario.com": {
+    "score": 52,
+    "seo_score": 92,
+    "lcp_sec": 31.2,
+    "fcp_sec": 10.3,
+    "load_time": 41.5
+  },
+  "co83.mx": {
+    "score": 28,
+    "seo_score": 92,
+    "lcp_sec": 7.8,
+    "fcp_sec": 4.8,
+    "load_time": 12.6
+  },
+  "agentesinteligentes.mx": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "metricdg.com": {
+    "score": 0,
+    "error": "HTTP 400"
+  },
+  "armoniaairbnb.com": {
+    "score": 83,
+    "seo_score": 100,
+    "lcp_sec": 4.6,
+    "fcp_sec": 1.6,
+    "load_time": 6.1
+  },
+  "consultorabienesraicesmellohmontano.com": {
+    "score": 100,
+    "seo_score": 64,
+    "lcp_sec": 0.8,
+    "fcp_sec": 0.8,
+    "load_time": 1.6
+  },
+  "alianzamx.com": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "zillow.com": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "gerardallardpv.com": {
+    "score": 78,
+    "seo_score": 100,
+    "lcp_sec": 2.0,
+    "fcp_sec": 2.0,
+    "load_time": 4.0
+  },
+  "valkiriapfm.com": {
+    "score": 61,
+    "seo_score": 100,
+    "lcp_sec": 7.6,
+    "fcp_sec": 4.7,
+    "load_time": 12.3
+  },
+  "meor.com.mx": {
+    "score": 72,
+    "seo_score": 100,
+    "lcp_sec": 6.3,
+    "fcp_sec": 2.9,
+    "load_time": 9.2
+  },
+  "dreambajarealty.com": {
+    "score": 35,
+    "seo_score": 92,
+    "lcp_sec": 7.2,
+    "fcp_sec": 4.8,
+    "load_time": 12.0
+  },
+  "corporativoali.com": {
+    "score": 90,
+    "seo_score": 83,
+    "lcp_sec": 1.8,
+    "fcp_sec": 1.2,
+    "load_time": 3.1
+  },
+  "tresvidas.mx": {
+    "score": 68,
+    "seo_score": 100,
+    "lcp_sec": 8.3,
+    "fcp_sec": 3.3,
+    "load_time": 11.7
+  },
+  "theagencyre.com": {
+    "score": 60,
+    "seo_score": 92,
+    "lcp_sec": 5.5,
+    "fcp_sec": 4.6,
+    "load_time": 10.1
+  },
+  "oceansideloscabos.com": {
+    "score": 28,
+    "seo_score": 85,
+    "lcp_sec": 13.3,
+    "fcp_sec": 4.5,
+    "load_time": 17.8
+  },
+  "tya.com.mx": {
+    "score": 50,
+    "seo_score": 75,
+    "lcp_sec": 40.3,
+    "fcp_sec": 3.9,
+    "load_time": 44.2
+  },
+  "iosoffices.com": {
+    "score": 28,
+    "seo_score": 100,
+    "lcp_sec": 30.1,
+    "fcp_sec": 5.5,
+    "load_time": 35.6
+  },
+  "xpandci.com": {
+    "score": 37,
+    "seo_score": 92,
+    "lcp_sec": 26.7,
+    "fcp_sec": 5.5,
+    "load_time": 32.2
+  },
+  "worldport.com.mx": {
+    "score": 63,
+    "seo_score": 92,
+    "lcp_sec": 9.8,
+    "fcp_sec": 3.7,
+    "load_time": 13.6
+  },
+  "playarealtors.co": {
+    "score": 60,
+    "seo_score": 92,
+    "lcp_sec": 9.3,
+    "fcp_sec": 5.9,
+    "load_time": 15.2
+  },
+  "bdgp.mx": {
+    "score": 56,
+    "seo_score": 92,
+    "lcp_sec": 6.8,
+    "fcp_sec": 3.9,
+    "load_time": 10.7
+  },
+  "eqtgroup.com": {
+    "score": 31,
+    "seo_score": 92,
+    "lcp_sec": 6.5,
+    "fcp_sec": 3.5,
+    "load_time": 10.0
+  },
+  "gicsa.com.mx": {
+    "score": 52,
+    "seo_score": 92,
+    "lcp_sec": 17.4,
+    "fcp_sec": 3.4,
+    "load_time": 20.8
+  },
+  "consiguetupiso.com": {
+    "score": 68,
+    "seo_score": 83,
+    "lcp_sec": 6.8,
+    "fcp_sec": 3.7,
+    "load_time": 10.5
+  },
+  "ascentis.mx": {
+    "score": 68,
+    "seo_score": 82,
+    "lcp_sec": 7.5,
+    "fcp_sec": 3.5,
+    "load_time": 11.0
+  },
+  "bajacapstone.com": {
+    "score": 76,
+    "seo_score": 92,
+    "lcp_sec": 4.5,
+    "fcp_sec": 2.7,
+    "load_time": 7.2
+  },
+  "homakah.com": {
+    "score": 61,
+    "seo_score": 83,
+    "lcp_sec": 20.5,
+    "fcp_sec": 3.5,
+    "load_time": 24.0
+  },
+  "century21pendulumrealty.com": {
+    "score": 55,
+    "seo_score": 85,
+    "lcp_sec": 7.5,
+    "fcp_sec": 3.6,
+    "load_time": 11.1
+  },
+  "zuksa.net": {
+    "score": 52,
+    "seo_score": 92,
+    "lcp_sec": 6.7,
+    "fcp_sec": 5.4,
+    "load_time": 12.1
+  },
+  "konig.ml": {
+    "score": 0,
+    "error": "HTTP 400"
+  },
+  "zionmexico.com": {
+    "score": 65,
+    "seo_score": 92,
+    "lcp_sec": 4.1,
+    "fcp_sec": 3.0,
+    "load_time": 7.1
+  },
+  "iimex.mx": {
+    "score": 99,
+    "seo_score": 83,
+    "lcp_sec": 1.7,
+    "fcp_sec": 1.4,
+    "load_time": 3.1
+  },
+  "tasvaluo.com": {
+    "score": 50,
+    "seo_score": 92,
+    "lcp_sec": 86.7,
+    "fcp_sec": 2.3,
+    "load_time": 89.0
+  },
+  "riminvestments.mx": {
+    "score": 0,
+    "error": "HTTPSConnectionPool(host='www.googleapis.com', port=443): Read timed out. (read timeout=90)"
+  },
+  "plantsite.com": {
+    "score": 61,
+    "seo_score": 82,
+    "lcp_sec": 8.5,
+    "fcp_sec": 5.6,
+    "load_time": 14.1
+  },
+  "citelis.com.mx": {
+    "score": 63,
+    "seo_score": 92,
+    "lcp_sec": 8.8,
+    "fcp_sec": 3.9,
+    "load_time": 12.7
+  },
+  "rebimx.com": {
+    "score": 33,
+    "seo_score": 91,
+    "lcp_sec": 31.8,
+    "fcp_sec": 6.3,
+    "load_time": 38.1
+  },
+  "cedral.com": {
+    "score": 67,
+    "seo_score": 92,
+    "lcp_sec": 6.1,
+    "fcp_sec": 4.2,
+    "load_time": 10.4
+  },
+  "profitandhome.com": {
+    "score": 60,
+    "seo_score": 92,
+    "lcp_sec": 10.4,
+    "fcp_sec": 5.0,
+    "load_time": 15.4
+  },
+  "kwmexico.mx": {
+    "score": 43,
+    "seo_score": 92,
+    "lcp_sec": 56.1,
+    "fcp_sec": 5.3,
+    "load_time": 61.3
+  },
+  "capitalc.mx": {
+    "score": 50,
+    "seo_score": 100,
+    "lcp_sec": 75.4,
+    "fcp_sec": 2.7,
+    "load_time": 78.1
+  },
+  "dieboqui.com": {
+    "score": 68,
+    "seo_score": 92,
+    "lcp_sec": 5.2,
+    "fcp_sec": 3.0,
+    "load_time": 8.1
+  }
+}
