@@ -161,17 +161,79 @@ async function fetchInstantlyStats() {
     }
 }
 
+// ---- 7-day rolling baseline for anomaly detection (added 2026-04-20) ----
+async function fetchLast7Digests(db, excludeKey) {
+    // Pull last 7 days of digests (excluding today's key) to compute a rolling average.
+    // Missing days are skipped — we average only the days we have.
+    const keys = [];
+    const now = new Date();
+    const cdmxOffsetMs = -6 * 60 * 60 * 1000;
+    const nowCdmx = new Date(now.getTime() + cdmxOffsetMs);
+    for (let i = 1; i <= 7; i++) {
+        const d = new Date(nowCdmx.getTime() - i * 24 * 60 * 60 * 1000);
+        const key = d.toISOString().slice(0, 10);
+        if (key !== excludeKey) keys.push(key);
+    }
+    const docs = await Promise.all(
+        keys.map((k) => db.collection("daily_digests").doc(k).get().catch(() => null))
+    );
+    return docs.filter((d) => d && d.exists).map((d) => d.data());
+}
+
+function rollingAvg(docs, path) {
+    if (!docs.length) return null;
+    const vals = docs.map((d) => {
+        const parts = path.split(".");
+        let v = d;
+        for (const p of parts) v = v?.[p];
+        return typeof v === "number" ? v : 0;
+    });
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+function anomalyCheck(today, avg, metricName, min_baseline = 3) {
+    // Flag a metric as anomalous when:
+    //   avg ≥ min_baseline (avoid noise on tiny numbers)
+    //   AND (today < avg*0.5 → 50% DROP, or today > avg*3 → 200% SPIKE)
+    // Returns {severity, msg} or null.
+    if (today === null || today === undefined || avg === null) return null;
+    if (avg < min_baseline) return null;
+    if (today < avg * 0.5) {
+        return {
+            severity: "drop",
+            msg: `${metricName}: *${today}* vs 7d avg *${avg.toFixed(1)}* (↓${(100 - (today / avg) * 100).toFixed(0)}%)`,
+        };
+    }
+    if (today > avg * 3) {
+        return {
+            severity: "spike",
+            msg: `${metricName}: *${today}* vs 7d avg *${avg.toFixed(1)}* (↑${((today / avg - 1) * 100).toFixed(0)}%)`,
+        };
+    }
+    return null;
+}
+
 // ---- Markdown builder ----
 function fmt(n) {
     if (n === null || n === undefined) return "—";
     return typeof n === "number" ? n.toLocaleString("en-US") : String(n);
 }
 
-function buildDigest({ dateKey, calendly, audits, emails, calls, instantly }) {
+function buildDigest({ dateKey, calendly, audits, emails, calls, instantly, anomalies }) {
     const lines = [];
     lines.push(`🌅 *JegoDigital · Daily Digest*`);
     lines.push(`_${dateKey} (CDMX, yesterday)_`);
     lines.push("");
+
+    // Anomaly section surfaces FIRST so Alex sees trouble before totals.
+    if (anomalies && anomalies.length > 0) {
+        lines.push(`🚨 *Anomalies vs 7d baseline*`);
+        anomalies.forEach((a) => {
+            const icon = a.severity === "drop" ? "📉" : "📈";
+            lines.push(`   ${icon} ${a.msg}`);
+        });
+        lines.push("");
+    }
 
     lines.push(`📞 *Cold calls*`);
     if (calls) {
@@ -228,15 +290,35 @@ exports.dailyDigest = functions.pubsub
 
         functions.logger.info(`dailyDigest: compiling ${dateKey} CDMX (${start.toDate().toISOString()} → ${end.toDate().toISOString()})`);
 
-        const [calendly, audits, emails, calls, instantly] = await Promise.all([
+        const [calendly, audits, emails, calls, instantly, baseline] = await Promise.all([
             countCalendly(db, start, end),
             countAudits(db, start, end),
             countScheduledEmails(db, start, end),
             countCalls(db, start, end),
             fetchInstantlyStats(),
+            fetchLast7Digests(db, dateKey),
         ]);
 
-        const digest = buildDigest({ dateKey, calendly, audits, emails, calls, instantly });
+        // ---- Anomaly detection vs 7-day rolling average ----
+        // Metrics that matter day-to-day. Silent when baseline is thin (<3 units).
+        const todayMetrics = {
+            "calls.total": calls?.total ?? 0,
+            "calls.positive": calls?.positive ?? 0,
+            "audits.total": audits?.total ?? 0,
+            "calendly.booked": calendly?.booked ?? 0,
+            "calendly.noshow": calendly?.noshow ?? 0,
+            "instantly.replies": instantly?.replies ?? 0,
+            "instantly.bounces": instantly?.bounces ?? 0,
+            "emails.failed": emails?.failed ?? 0,
+        };
+        const anomalies = [];
+        for (const [path, todayVal] of Object.entries(todayMetrics)) {
+            const avg = rollingAvg(baseline, path);
+            const a = anomalyCheck(todayVal, avg, path);
+            if (a) anomalies.push(a);
+        }
+
+        const digest = buildDigest({ dateKey, calendly, audits, emails, calls, instantly, anomalies });
 
         // Persist the snapshot first — even if Telegram fails, we have history.
         try {
@@ -244,6 +326,8 @@ exports.dailyDigest = functions.pubsub
                 date: dateKey,
                 generated_at: admin.firestore.FieldValue.serverTimestamp(),
                 calendly, audits, emails, calls, instantly,
+                anomalies,
+                baseline_days: baseline.length,
                 digest_text: digest,
             });
         } catch (err) {
@@ -251,6 +335,6 @@ exports.dailyDigest = functions.pubsub
         }
 
         const tg = await sendTelegram(digest);
-        functions.logger.info(`dailyDigest: telegram ok=${tg.ok}`);
+        functions.logger.info(`dailyDigest: telegram ok=${tg.ok} anomalies=${anomalies.length}`);
         return null;
     });

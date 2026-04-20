@@ -1855,3 +1855,15 @@ const coldCall = require("./coldCallAutopilot");
 exports.coldCallPrep = coldCall.coldCallPrep;
 exports.coldCallRun = coldCall.coldCallRun;
 exports.coldCallReport = coldCall.coldCallReport;
+
+// ============================================================
+// AUTOPILOT REVIEWER (added 2026-04-20)
+// Sunday 20:00 CDMX — 7-day self-improvement pass.
+// Reads daily_digests, system_health, call_queue_summaries,
+// call_analysis (by offer), audit_requests (by source).
+// Writes autopilot_reviews/{YYYY-WW} snapshot + posts
+// Telegram report with 3 concrete recommendations.
+// DETERMINISTIC — programmatic analysis, no LLM required.
+// This IS the self-improvement layer. See SYSTEM.md §1.2.
+// ============================================================
+exports.autopilotReviewer = require("./autopilotReviewer").autopilotReviewer;

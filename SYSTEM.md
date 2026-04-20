@@ -26,11 +26,12 @@ a laptop — see `DEPLOY.md`.
 | `scheduledCampaign` | every 1 hour | `index.js` | Runs the old SEO campaign processor. Low-value — candidate for removal. | — |
 | `processScheduledEmails` | every 1 hour | `calendlyWebhook.js` | Scans `scheduled_emails` Firestore collection and dispatches queued Brevo sends whose `send_at` has passed. Handles no-show recovery emails (+3d / +7d / +14d) and any other time-delayed transactional send. | Telegram (planned) |
 | `sendT10minReminders` | every 5 minutes | `calendlyWebhook.js` | Window-scans `calendly_events` for bookings starting in ≈10min from ManyChat-sourced leads. Fires the T-10 WhatsApp ping via ManyChat API. Sets `t10min_sent=true` so a booking is never pinged twice. | Telegram (planned) |
-| `dailyDigest` | every day 07:00 CDMX | `dailyDigest.js` | Pulls yesterday's Calendly / audit / Brevo-queue / call / Instantly numbers. Builds one-card Telegram Markdown summary. Snapshots to `daily_digests/{YYYY-MM-DD}`. Every metric wrapped in its own try/catch — partial data renders "—". | Telegram |
-| `systemHealthAudit` | every 48 hours | `systemHealthAudit.js` | 12-check watchdog: hosting · audit endpoint · Cloud Run mockup-renderer · DataForSEO · PageSpeed · Firecrawl · Perplexity · Brevo · Telegram · `daily_digest` freshness · audits flowing · `scheduled_email` failure rate. Any red → Telegram alert listing every broken check. All-green → silent except day-1-of-month alive-ping. Snapshot: `system_health/{runId}`. **Never auto-edits code** — surface-only. | Telegram |
+| `dailyDigest` | every day 07:00 CDMX | `dailyDigest.js` | Pulls yesterday's Calendly / audit / Brevo-queue / call / Instantly numbers. Builds one-card Telegram Markdown summary. **Anomaly detection vs 7-day rolling average** (added 2026-04-20): flags any metric that drops >50% or spikes >200% vs baseline with 🚨 section at top of digest. Snapshots to `daily_digests/{YYYY-MM-DD}` with `anomalies` array + `baseline_days`. Every metric wrapped in its own try/catch — partial data renders "—". | Telegram |
+| `systemHealthAudit` | every 48 hours | `systemHealthAudit.js` | **17-check** watchdog (expanded 2026-04-20): (1-12) hosting · audit endpoint · Cloud Run mockup-renderer · DataForSEO · PageSpeed · Firecrawl · Perplexity · Brevo · Telegram · `daily_digest` freshness · audits flowing · `scheduled_email` failure rate; (13) `coldcall_ran_today` weekday-aware — fails after 14:00 CDMX if no `call_queue_summaries/{today}` with `fired>0`; (14) `phone_leads_inventory` — fails if <100 verified leads available; (15) `elevenlabs_credit` — GET `/v1/user/subscription`, fails at <5% remaining; (16) `instantly_campaigns` — analytics overview, fails if bounce >3% or reply <0.3% (once sent ≥100); (17) `github_actions` — last 10 workflow runs, fails if ≥3 consecutive red. Any red → Telegram alert listing every broken check. All-green → silent except day-1-of-month alive-ping. Snapshot: `system_health/{runId}`. **Never auto-edits code** — surface-only. | Telegram |
 | `coldCallPrep` | 09:55 Mon–Fri CDMX | `coldCallAutopilot.js` | Queries `phone_leads` (phone_verified=true, do_not_call=false, last_called_at > 14d ago), ranks oldest-first, writes 50 into `call_queue/{YYYY-MM-DD}/leads/{leadId}` with round-robin A/B/C offer assignment. Snapshots to `call_queue_summaries/{YYYY-MM-DD}`. | Telegram |
 | `coldCallRun` | 10:00 Mon–Fri CDMX | `coldCallAutopilot.js` | Fires today's queue via ElevenLabs `/v1/convai/twilio/outbound-call` (Sofia MX, agent per offer). Throttles 12s between dials. Seeds `call_analysis/{conversationId}` to `outcome=pending` at dial time so the 13:00 report can reconcile even if `elevenLabsWebhook` is slow. Updates `phone_leads.last_called_at`. **No approve-gate** — fires directly (per Alex 2026-04-20). | Telegram |
 | `coldCallReport` | 13:00 Mon–Fri CDMX | `coldCallAutopilot.js` | Aggregates today's `call_analysis` (positive / negative / neutral / pending). Auto-fires `audit_requests` with `source: cold_call` for every positive that has email + website. Snapshots to `call_queue_summaries/{YYYY-MM-DD}`. | Telegram |
+| `autopilotReviewer` | Sunday 20:00 CDMX | `autopilotReviewer.js` | **Weekly self-improvement pass** (added 2026-04-20). Pulls last 7 days of `daily_digests`, `system_health` snapshots, `call_queue_summaries`, `call_analysis` (per offer A/B/C), `audit_requests` (by source), and real-time `phone_leads` inventory. Computes offer winner, funnel-source winner, watchdog repeat offenders, cron-silence gaps, and lead-inventory risk. Derives up to 3 concrete recommendations and posts them to Telegram. Snapshot: `autopilot_reviews/{YYYY-WW}`. Deterministic — no LLM needed in v1. **This is the self-improvement layer** Alex asked for on 2026-04-20. | Telegram |
 
 ### 1.2 Firestore-triggered (onCreate)
 
@@ -105,8 +106,9 @@ goes wrong. See `.auto-memory/feedback_no_approve_gates.md`.
 | `call_analysis` | `coldCallRun` (seeds pending), `handleCallAnalysis`, `elevenLabsWebhook` | `coldCallReport`, `dailyDigest`, dashboard | Transcript + outcome per call, keyed by ElevenLabs `conversation_id`. |
 | `campaigns` / `campaign_logs` | `startCampaign`, `uploadCampaignLogs` | legacy dashboard | Old SEO campaign engine — low traffic. |
 | `instantly_activity` | `instantlyReplyWatcher` (planned) | dashboard | Rolling reply cache, avoids double-firing audits. |
-| `daily_digests` | `dailyDigest` | dashboard, history | One doc per CDMX day, `{YYYY-MM-DD}`. Full metric breakdown + rendered digest text. |
-| `system_health` | `systemHealthAudit` | dashboard, Telegram | One doc per check-run `{ISO-timestamp}`, full 12-check verdict. |
+| `daily_digests` | `dailyDigest` | dashboard, history, `autopilotReviewer` | One doc per CDMX day, `{YYYY-MM-DD}`. Full metric breakdown + rendered digest text + `anomalies` array + `baseline_days` for context. |
+| `system_health` | `systemHealthAudit` | dashboard, Telegram, `autopilotReviewer` | One doc per check-run `{ISO-timestamp}`, full 17-check verdict. |
+| `autopilot_reviews` | `autopilotReviewer` | dashboard, Telegram | One doc per ISO week `{YYYY-WW}` (e.g. `2026-16`). Observations + recommendations + rendered report text. |
 | `research_digests` | `notebookResearcher` (planned) | Telegram digest | Daily NotebookLM output. |
 
 ---
@@ -215,7 +217,56 @@ Three guard-rails for every new cron:
 
 ---
 
-## 8. Open questions / known gaps
+## 8. Self-improvement & observability map (added 2026-04-20)
+
+This is the "**what's actually watched vs. what's not**" overview. Keep it honest —
+if we invent a new system, add a row. If something gets checked, tick it. If it
+doesn't, mark it and file the gap.
+
+### 8.1 Signals we observe automatically today
+
+| Signal | How it's observed | Where the data lands | How we act on it |
+|---|---|---|---|
+| **Audit pipeline output** | `audit_requests` doc → `processAuditRequest` → `audits` + Storage URL + Brevo email. Counted in `dailyDigest.audits.bySource`. | Firestore `audits`, `audit_requests`, `daily_digests` | `dailyDigest` morning brief + `autopilotReviewer` weekly source-winner ranking |
+| **Audit endpoint liveness** | `systemHealthAudit` POSTs empty body, expects <500 | `system_health` | Telegram alert on red |
+| **Cold call outcomes** | ElevenLabs webhook → `call_analysis.outcome`; `coldCallReport` aggregates positive/negative/neutral/pending | Firestore `call_analysis`, `call_queue_summaries` | `coldCallReport` Telegram + `autopilotReviewer` offer winner |
+| **Cold call cron execution** | `systemHealthAudit.checkColdCallRanToday` (weekday-aware, enforced after 14:00 CDMX) | `system_health` | Telegram alert if fired=0 on a weekday |
+| **Phone-lead inventory** | `systemHealthAudit.checkPhoneLeadsInventory` (threshold <100) + `autopilotReviewer` (threshold <150) | `system_health`, `autopilot_reviews` | Telegram alert + weekly "top up leads" recommendation |
+| **ElevenLabs credit** | `systemHealthAudit.checkElevenLabsSubscription` — GET `/v1/user/subscription`, alert at <5% remaining | `system_health` | Telegram alert + human must upgrade plan |
+| **Instantly campaign-level health** | `systemHealthAudit.checkInstantlyCampaigns` — GET `/campaigns/analytics/overview`. Hard limits: bounce ≤3%, reply ≥0.3% once sent ≥100. Plus `dailyDigest` pulls the same numbers and anomaly-checks vs 7d baseline. | `system_health`, `daily_digests` | Telegram alert + morning-brief anomaly flag |
+| **Instantly daily deltas** | `dailyDigest` pulls `sent / opens / replies / bounces` from overview endpoint | `daily_digests` | Morning brief + 7-day anomaly detection (>50% drop / >200% spike) |
+| **GitHub Actions runs** | `systemHealthAudit.checkGithubActions` — last 10 `/actions/runs`, fails at ≥3 consecutive red | `system_health` | Telegram alert if deploys are failing repeatedly (requires `GITHUB_TOKEN` env) |
+| **Firebase/Cloud Run hosting** | `systemHealthAudit` — GET hosting + POST mockup-renderer | `system_health` | Telegram alert on non-200 |
+| **External API keys alive** | `systemHealthAudit` — DataForSEO / PSI / Firecrawl / Perplexity / Brevo / Telegram health probes | `system_health` | Telegram alert on key revoked |
+| **Calendly bookings / no-shows** | `calendlyWebhook` → `calendly_events`; counted by `dailyDigest` | `daily_digests` | Morning brief + anomaly detection |
+| **Brevo email queue** | `processScheduledEmails` writes `sent_at` / `failed_at`; `dailyDigest` counts each | `daily_digests` | Morning brief + `scheduled_email_failures` watchdog check |
+| **Daily metrics vs 7d baseline** | `dailyDigest` — rolling average across 7 most recent `daily_digests`, flags >50% drops / >200% spikes | `daily_digests.anomalies` | 🚨 section at top of morning brief |
+| **Weekly trend + recommendations** | `autopilotReviewer` — Sunday 20:00, 7-day programmatic analysis, 3 concrete action items | `autopilot_reviews/{YYYY-WW}` | Sunday Telegram report |
+
+### 8.2 What we do NOT yet observe (honest gap list)
+
+These are known blind spots. Do not pretend they're covered. Build or flag.
+
+| Gap | Why it matters | Status / owner |
+|---|---|---|
+| **Instantly Unibox per-reply analysis** | The Instantly AI reply agent (ID `019d368d-c8ad-7208-8c42-438f4cb16258`) replies inside Instantly's Unibox. We currently see aggregate reply count via overview API — we do NOT scan individual replies for sentiment, intent, or whether the AI agent's reply was on-script. | `instantlyReplyWatcher` task #29 (pending). When built: polls Unibox every 5 min, auto-fires `audit_requests` for positives, logs agent reply quality to `instantly_activity`. |
+| **ElevenLabs per-call transcript analysis** | `elevenLabsWebhook` persists `call_analysis.outcome` + transcript. We sort calls into positive/negative/neutral but do NOT pattern-match transcripts for "Sofia said X wrong" or "prospect objected with Y we didn't counter". | Future `callTranscriptReviewer` cron — parse transcripts, detect missed objections, feed weekly to `autopilotReviewer` recommendations. |
+| **GitHub Actions deploy-trap analysis** | We count consecutive failures. We do NOT parse the failing log to say *why* it failed. | Future enhancement — fetch `/actions/runs/{id}/logs`, grep for known deploy traps (Scheduler 404, sed trailing comma, etc.), auto-PR the fix. |
+| **Brevo email per-send bounce/complaint reason** | We count failed sends. We do NOT classify why. | Future — parse Brevo webhook `event` + `reason` into per-domain bounce buckets. |
+| **ManyChat Sofia conversation quality** | Sofia qualifies via WhatsApp + IG. We see whether she captures lead data; we do NOT score whether she stayed on-script, quoted pricing (forbidden), or over-promised. | Future — nightly sample of recent ManyChat threads, LLM-grade each, flag violations. |
+| **LLM-enriched weekly review** | `autopilotReviewer` v1 is deterministic. An LLM pass could read the full week of transcripts + replies and surface patterns that pure counting misses. | Future — add ANTHROPIC_API_KEY, extend `autopilotReviewer` with an LLM synthesis step after the deterministic analysis. |
+| **Cron execution confirmation beyond cold-call** | Only cold-call has an "did it actually run today" check. `dailyDigest` / `systemHealthAudit` / `processScheduledEmails` / `sendT10minReminders` silent failures would only be caught by their own downstream effects. | Future — extend watchdog with generic `checkCronRan(name, collection, freshnessHours)` per cron. |
+
+### 8.3 Self-improvement loop
+
+1. **Every day 07:00** — `dailyDigest` reports yesterday with anomaly flags vs 7d baseline. Human sees trouble fast.
+2. **Every 48h** — `systemHealthAudit` runs 17 checks across hosting, APIs, crons, inventory, credit, deploys. Telegram fires on any red.
+3. **Every Sunday 20:00** — `autopilotReviewer` does a full 7-day programmatic analysis and posts 3 concrete recommendations (offer rotation shifts, funnel winners, watchdog repeat offenders, inventory risks).
+4. **Human acts on recommendations via PR.** The watchdog never auto-edits code. That's a design choice — see §7 rule #1 ("Never auto-edit live code from a watchdog").
+
+---
+
+## 9. Open questions / known gaps
 
 - **Phantom `runPendingAudits` Cloud Scheduler job.** Orphan from the pre-dual-fetch
   architecture. Each Functions deploy still exits 2 cleaning it up. Doesn't block
@@ -235,7 +286,7 @@ Three guard-rails for every new cron:
 
 ---
 
-## 9. Change log
+## 10. Change log
 
 | Date | Change |
 |---|---|
@@ -244,6 +295,7 @@ Three guard-rails for every new cron:
 | 2026-04-20 | **`systemHealthAudit` shipped** (commit `971575a`) — every-48h 12-check watchdog + `system_health/{runId}` snapshot. |
 | 2026-04-20 | **Policy change:** dropped approve-before-fire gate from cron design rules (Alex feedback). Saved as `.auto-memory/feedback_no_approve_gates.md`. Updated §2 planned-cron schema + §7 guard-rails to match. |
 | 2026-04-20 | **Cold-call autopilot trio shipped** (commit `66ad86b`) — `coldCallPrep` 09:55, `coldCallRun` 10:00, `coldCallReport` 13:00 Mon–Fri CDMX. 50 dials/day with A/B/C offer rotation, positives auto-fire `audit_requests`. New collections: `phone_leads`, `call_queue`, `call_queue_summaries`. |
+| 2026-04-20 | **Self-improvement layer shipped.** (1) `autopilotReviewer` Sunday 20:00 CDMX weekly pass writing `autopilot_reviews/{YYYY-WW}` + 3 Telegram recommendations. (2) `systemHealthAudit` expanded 12→17 checks: `coldcall_ran_today` (weekday-aware), `phone_leads_inventory` (<100 fail), `elevenlabs_credit` (<5% remaining fail), `instantly_campaigns` (bounce >3% OR reply <0.3% fail), `github_actions` (≥3 consecutive red fail). (3) `dailyDigest` gains 7-day rolling-average anomaly detection — flags >50% drops / >200% spikes with 🚨 section at top of morning brief. (4) New §8 "Self-improvement & observability map" documents every signal observed + every known gap. Triggered by Alex's question: "why do I have to verify in the morning, if this is supposed to be autopilot?". |
 
 ---
 

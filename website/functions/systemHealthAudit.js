@@ -26,6 +26,11 @@
  *  11. Audit pipeline produced at least 1 completed audit in last 7 days
  *  12. No Firebase Functions are in ERROR state (via audit_requests
  *      failed_at counts)
+ *  13. Cold-call trio ran today (weekday-aware — Mon-Fri only)
+ *  14. Phone-verified lead inventory ≥ 100 (else trio starves)
+ *  15. ElevenLabs subscription has remaining credit
+ *  16. Instantly campaigns healthy (bounce ≤ 3%, reply ≥ 0.5% aggregate)
+ *  17. GitHub Actions — last 10 workflow runs, fail if ≥3 consecutive reds
  */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -228,6 +233,175 @@ async function checkRecentFailures(db) {
     }
 }
 
+// ---- Cold-call autopilot checks (added 2026-04-20) ----
+function cdmxTodayKey() {
+    const now = new Date();
+    const cdmx = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+    return cdmx.toISOString().slice(0, 10);
+}
+
+async function checkColdCallRanToday(db) {
+    try {
+        // Only enforce on weekdays (CDMX). Saturday (6) and Sunday (0) = skip.
+        const now = new Date();
+        const cdmx = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+        const dow = cdmx.getUTCDay();
+        if (dow === 0 || dow === 6) {
+            return { name: "coldcall_ran_today", ok: true, detail: "weekend · skipped" };
+        }
+
+        // Only enforce AFTER 14:00 CDMX — gives coldCallReport (13:00) time to persist
+        const hourCdmx = cdmx.getUTCHours();
+        if (hourCdmx < 14) {
+            return { name: "coldcall_ran_today", ok: true, detail: `pre-14:00 CDMX (${hourCdmx}h) · not yet expected` };
+        }
+
+        const key = cdmxTodayKey();
+        const doc = await db.collection("call_queue_summaries").doc(key).get();
+        if (!doc.exists) {
+            return { name: "coldcall_ran_today", ok: false, detail: `no call_queue_summaries/${key}` };
+        }
+        const data = doc.data();
+        const fired = data?.fired ?? 0;
+        return {
+            name: "coldcall_ran_today",
+            ok: fired > 0,
+            detail: `fired=${fired} · queued=${data?.queued ?? 0}`,
+        };
+    } catch (err) {
+        return { name: "coldcall_ran_today", ok: false, detail: err.message };
+    }
+}
+
+async function checkPhoneLeadsInventory(db) {
+    try {
+        const snap = await db.collection("phone_leads")
+            .where("phone_verified", "==", true)
+            .where("do_not_call", "==", false)
+            .limit(500)
+            .get();
+        const count = snap.size;
+        return {
+            name: "phone_leads_inventory",
+            ok: count >= 100,
+            detail: `${count} verified · do_not_call=false (need ≥100)`,
+        };
+    } catch (err) {
+        return { name: "phone_leads_inventory", ok: false, detail: err.message };
+    }
+}
+
+async function checkElevenLabsSubscription() {
+    const key = process.env.ELEVENLABS_API_KEY || process.env.XI_API_KEY;
+    if (!key) return { name: "elevenlabs_credit", ok: false, detail: "key not set" };
+    try {
+        const r = await axios.get("https://api.elevenlabs.io/v1/user/subscription", {
+            headers: { "xi-api-key": key }, // lowercase — critical
+            timeout: 8000,
+            validateStatus: () => true,
+        });
+        if (r.status !== 200) {
+            return { name: "elevenlabs_credit", ok: false, detail: `status=${r.status}` };
+        }
+        const used = r.data?.character_count ?? 0;
+        const limit = r.data?.character_limit ?? 0;
+        const remaining = limit - used;
+        const pct = limit > 0 ? Math.round((used / limit) * 100) : 0;
+        // Fail if <5% remaining OR if tier+char limit seem to block calls
+        const ok = remaining > limit * 0.05;
+        return {
+            name: "elevenlabs_credit",
+            ok,
+            detail: `tier=${r.data?.tier ?? "?"} · used ${pct}% · remaining ${remaining.toLocaleString()}/${limit.toLocaleString()}`,
+        };
+    } catch (err) {
+        return { name: "elevenlabs_credit", ok: false, detail: err.message };
+    }
+}
+
+async function checkInstantlyCampaigns() {
+    const key = process.env.INSTANTLY_API_KEY;
+    if (!key) return { name: "instantly_campaigns", ok: false, detail: "key not set" };
+    try {
+        const r = await axios.get("https://api.instantly.ai/api/v2/campaigns/analytics/overview", {
+            headers: { Authorization: `Bearer ${key}` },
+            timeout: 10000,
+            validateStatus: () => true,
+        });
+        if (r.status !== 200) {
+            return { name: "instantly_campaigns", ok: false, detail: `status=${r.status}` };
+        }
+        const d = r.data || {};
+        const sent = d.emails_sent_count ?? d.sent ?? 0;
+        const bounces = d.bounces_count ?? d.bounces ?? 0;
+        const replies = d.replies_count ?? d.replies ?? 0;
+        if (sent < 100) {
+            return {
+                name: "instantly_campaigns",
+                ok: true,
+                detail: `sent=${sent} · too small to judge yet`,
+            };
+        }
+        const bounceRate = (bounces / sent) * 100;
+        const replyRate = (replies / sent) * 100;
+        // Hard limits: >3% bounce = deliverability disaster; <0.3% reply = copy dead
+        const ok = bounceRate <= 3 && replyRate >= 0.3;
+        return {
+            name: "instantly_campaigns",
+            ok,
+            detail: `sent=${sent} · bounce=${bounceRate.toFixed(2)}% (≤3%) · reply=${replyRate.toFixed(2)}% (≥0.3%)`,
+        };
+    } catch (err) {
+        return { name: "instantly_campaigns", ok: false, detail: err.message };
+    }
+}
+
+async function checkGithubActions() {
+    const token = process.env.GITHUB_TOKEN;
+    const repo = process.env.GITHUB_REPO || "babilionllc-coder/jegodigital";
+    if (!token) return { name: "github_actions", ok: true, detail: "GITHUB_TOKEN not set · skipped" };
+    try {
+        const r = await axios.get(
+            `https://api.github.com/repos/${repo}/actions/runs?per_page=10`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/vnd.github+json",
+                    "X-GitHub-Api-Version": "2022-11-28",
+                },
+                timeout: 10000,
+                validateStatus: () => true,
+            }
+        );
+        if (r.status !== 200) {
+            return { name: "github_actions", ok: false, detail: `status=${r.status}` };
+        }
+        const runs = r.data?.workflow_runs || [];
+        if (runs.length === 0) {
+            return { name: "github_actions", ok: true, detail: "no runs in history" };
+        }
+        // Count consecutive failures from the most-recent end
+        let consecutive = 0;
+        for (const run of runs) {
+            if (run.status === "in_progress" || run.status === "queued") continue;
+            if (run.conclusion === "failure" || run.conclusion === "timed_out") {
+                consecutive++;
+            } else if (run.conclusion === "success") {
+                break;
+            }
+        }
+        const failed = runs.filter((r) => r.conclusion === "failure").length;
+        const ok = consecutive < 3;
+        return {
+            name: "github_actions",
+            ok,
+            detail: `last 10 runs · ${failed} failed · ${consecutive} consecutive (red at ≥3)`,
+        };
+    } catch (err) {
+        return { name: "github_actions", ok: false, detail: err.message };
+    }
+}
+
 // ---- Main ----
 exports.systemHealthAudit = functions
     .runWith({ timeoutSeconds: 180, memory: "512MB" })
@@ -252,6 +426,12 @@ exports.systemHealthAudit = functions
             checkDailyDigestRan(db),
             checkAuditPipelineAlive(db),
             checkRecentFailures(db),
+            // Added 2026-04-20 — cold-call trio + self-improvement signals
+            checkColdCallRanToday(db),
+            checkPhoneLeadsInventory(db),
+            checkElevenLabsSubscription(),
+            checkInstantlyCampaigns(),
+            checkGithubActions(),
         ]);
 
         const red = results.filter((r) => !r.ok);
