@@ -45,6 +45,7 @@ Alex operates with a full AI stack that lets one person deliver like a 10-person
 - **DataForSEO + Perplexity Sonar** → SEO data + AEO audits
 - **Hunter.io** → Email finder for B2B prospecting
 - **ElevenLabs** → Voiceovers for property videos + AI Cold Calling (Conversational AI + Twilio)
+- **Cloud Run mockup-renderer** → Dedicated HTML→PNG microservice for dynamic CSS mockups (fake "ugly before" sites, complex layouts with fonts + gradients + backgrounds). Endpoint: `https://mockup-renderer-wfmydylowa-uc.a.run.app/render`. Auto-deploys via `.github/workflows/deploy-cloudrun.yml` on push to main. See Mockup Pipeline section below.
 
 ### DEAD TOOLS — NEVER USE (Updated April 12, 2026)
 - **Postiz** → REMOVED. Subscription expired. All `schedule_postiz_*.cjs` scripts are dead. Instagram publishing goes through **Graph API directly** (see `instagram-publisher` skill). NEVER reference Postiz in any workflow, script, or automation.
@@ -129,27 +130,48 @@ All results: jegodigital.com/showcase | instagram.com/jegodigital
 
 **Sending domain:** aichatsy.com (separate from jegodigital.com to protect main domain)
 
-### AI Reply Agent Guidance (UPDATED April 4, 2026 — Calendly now REQUIRED in positive replies)
+### AI Reply Agent Guidance (UPDATED April 19, 2026 — AUDIT-FIRST funnel replaces demo-video-first)
 
 > Always reply in the same language as the lead. Spanish if they write in Spanish, English if they write in English.
 >
-> If the reply is positive or shows interest, do the following in one reply:
+> If the reply is positive or shows interest, do the following in ONE reply:
 >
-> 1. Send them the demo video based on what was pitched in the original email. For AI lead capture or WhatsApp automation use jegodigital.com/lead-capture-demo. For SEO or Google visibility use jegodigital.com/seo-aeo-demo. For social media use jegodigital.com/social-media-demo. For property videos use jegodigital.com/property-videos-demo. For AI voice agent use jegodigital.com/ai-voice-agent-demo. For CRM or pipeline use jegodigital.com/admin-crm-demo. If unsure use jegodigital.com/lead-capture-demo.
+> 1. **Offer the free audit FIRST — it's the strongest hook.** It arrives in 45 minutes and covers PageSpeed, Google Maps presence, ChatGPT/Perplexity visibility, and the 3 biggest gaps costing them leads. Send them this personalized one-click link (Instantly auto-merges the variables):
+>    - Spanish: `https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply`
+>    - English: `https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply`
+>    - Say exactly: "Dale click al link de abajo y te llega a tu correo en 45 minutos — sin costo." / "Click the link below and the full audit arrives in your inbox in 45 minutes — free."
 >
-> 2. Mention the results: Flamingo Real Estate got 4.4x search visibility and 320% organic traffic. Goza Real Estate tripled their lead volume. GoodLife Tulum achieved 300% organic traffic growth. Invite them to see more at instagram.com/jegodigital.
+> 2. **Drop the social proof in one line.** Spanish: "Flamingo Real Estate: 4.4x visibilidad y #1 en Google Maps. GoodLife Tulum: +300% tráfico orgánico." English: "Flamingo Real Estate: 4.4x visibility and #1 on Google Maps. GoodLife Tulum: +300% organic traffic."
 >
-> 3. Propose two specific times to talk: "¿Tienes 15 minutos el martes o el jueves esta semana?" (Spanish) or "Do you have 15 minutes Tuesday or Thursday this week?" (English).
+> 3. **Propose a Calendly call AFTER the audit lands.** Spanish: "Cuando te llegue el audit, ¿te parece que lo revisemos juntos 15 minutos el martes o jueves? calendly.com/jegoalexdigital/30min" English: "Once the audit arrives, want to walk through it together — 15 minutes Tuesday or Thursday? calendly.com/jegoalexdigital/30min"
 >
-> 4. Include the booking link as a backup: calendly.com/jegoalexdigital/30min.
+> 4. **Include WhatsApp as backup:** +52 998 787 5321.
 >
-> 5. Include the WhatsApp number: +52 998 787 5321.
+> 5. **If the lead specifically asks for a demo video instead of an audit**, send the matching demo URL (see Demo Video URL Map) AND still offer the audit as a follow-up ("también te puedo mandar una auditoría gratis de {{website}} en 45 minutos, te muestra exactamente dónde perder leads").
 >
-> Keep the full reply to 6-8 lines. Never mention pricing. Never reveal any automation tools or software names.
+> Keep the full reply to 6-8 lines. Never mention pricing. Never reveal any automation tools or software names (no "Claude", no "ManyChat", no "Firecrawl", no "DataForSEO").
 >
 > If the reply is negative, respond briefly and professionally, thank them for their time, and remove them from the sequence.
 
-**⚠️ WHY THIS CHANGED:** The old guidance said "Never include Calendly links." That rule applies to Step 1 cold emails ONLY. Applied to warm replies, it was blocking all bookings. Now Calendly is REQUIRED in positive replies. See `skills/instantly-ai-agent-2026.skill` for full context.
+**⚠️ WHY THIS CHANGED (April 19, 2026):** The old guidance sent demo videos first. Video demos convert ~0.3% to booked calls. The free audit is a much stronger lead magnet — it delivers tangible value (PageSpeed score, Google Maps position, ChatGPT visibility, 3 concrete fixes) within 45 minutes. The one-click pre-filled URL closes the friction gap that was forcing Alex to manually trigger audits for every positive reply. Now the lead clicks once, the audit fires, and Calendly becomes the natural next step AFTER they've seen the deliverable. Reference Apr 19 memory: `audit_pipeline_dual_fetch.md`.
+
+**Short version for Instantly UI (paste this verbatim into the AI agent prompt):**
+```
+Always match the lead's language (ES or EN).
+
+POSITIVE REPLY → do all in ONE reply:
+1. Offer free audit. Send this personalized link (vars auto-merge):
+   https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply
+   Say: "Dale click y te llega en 45 minutos, sin costo." / "Click it, audit arrives in 45 min, free."
+2. Social proof: "Flamingo Real Estate: 4.4x visibility, #1 Google Maps. GoodLife Tulum: +300% organic traffic."
+3. Propose Calendly AFTER audit: "Cuando te llegue, ¿15 min el martes/jueves? calendly.com/jegoalexdigital/30min"
+4. WhatsApp backup: +52 998 787 5321.
+5. If they specifically ask for a demo video (not audit), send matching demo URL AND offer audit as add-on.
+
+NEVER mention pricing. NEVER reveal tool names. 6-8 lines max.
+
+NEGATIVE REPLY → thanks + remove from sequence. Brief, professional.
+```
 
 ### Demo Video URL Map
 | Service | URL |
@@ -164,10 +186,12 @@ All results: jegodigital.com/showcase | instagram.com/jegodigital
 
 **RULE:** Demo videos only sent AFTER positive reply. NEVER in Step 1 cold emails.
 
-### Cold Email Rules (Updated April 18, 2026)
+### Cold Email Rules (Updated April 19, 2026)
 1. No pricing ever in any email — not even a hint
-2. **No Calendly links in Step 1 cold emails** — CTA is always "¿Te mando un video demo de 1 minuto?"
-3. **Calendly IS required in positive reply responses** (step 2+) — see AI agent guidance above
+2. **No Calendly links in Step 1 cold emails.** CTA depends on campaign type:
+   - **Demo campaigns** (Trojan, SEO, WhatsApp, Staging): "¿Te mando un video demo de 1 minuto?"
+   - **Audit campaigns** (Auditoría Gratis, Supersearch, Hispanic-Bilingual): "¿Te mando la auditoría en 45 minutos?" — NO link in Step 1, but Steps 2-5 MUST include the pre-filled one-click URL: `https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=cold_email_mx`
+3. **Calendly IS required in positive reply responses** — but AFTER offering the audit first (see AI agent guidance above). For audit-offer campaigns, the audit link IS the primary CTA, Calendly is the follow-up after delivery.
 4. Sign as "Alex" only, then "JegoDigital" — never full name
 5. Language matching — Spanish default, English if they write in English
 6. Always use "inmobiliarias en México" — never "Riviera Maya" in mass templates
@@ -523,6 +547,67 @@ node tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=A|B|C [--ema
 
 ---
 
+## 🖼️ MOCKUP PIPELINE — CLOUD RUN HTML→PNG RENDERER (Added 2026-04-19)
+
+Dedicated microservice for rendering HTML pages (especially complex CSS mockups — fake "ugly before" sites, MacBook frames, gradient backgrounds, Google Fonts) into high-resolution PNGs. Built because the in-sandbox Playwright/WeasyPrint pipelines choke on complex fonts + gradients at 2x DPR.
+
+### Endpoint
+```
+POST https://mockup-renderer-wfmydylowa-uc.a.run.app/render
+Content-Type: application/json
+
+{
+  "html": "<!DOCTYPE html>...",
+  "width": 1080,
+  "height": 1350,
+  "dpr": 2
+}
+```
+Response: raw PNG bytes. Default output is `width*dpr × height*dpr` (e.g. 2160×2700 for IG carousels).
+
+### Deploy
+Auto-deploys via `.github/workflows/deploy-cloudrun.yml` on push to `main`. Never deploy manually — see `DEPLOY.md`. Service runs Playwright + Express on Chromium with `--single-process` (memory-constrained Cloud Run instance).
+
+### ⚠️ CRITICAL RULES — READ BEFORE RENDERING
+
+1. **NEVER use `@import url(...)` for Google Fonts inside `<style>` blocks.** This crashes the shared Chromium instance (`browserContext.newPage: Target page, context or browser has been closed`). Use `<link rel="preconnect">` + `<link rel="stylesheet">` in `<head>` instead.
+
+2. **Always retry on HTTP 500 (at least 3× with 4s delay).** First request after idle often fails while browser relaunches. Second attempt usually succeeds.
+
+3. **Warm the instance.** Before a batch, POST one trivial render (empty `<body>`) and discard the response. Cold start is ~5s.
+
+4. **Throttle 1.5s between requests** to avoid racing the shared browser.
+
+### Canonical Client
+`/carousels/_templates/before-after/build.py` — full Python template with `inject_fonts()` helper, `render()` with retry, and `warmup()`. Copy this when building new mockup batches.
+
+```python
+FONT_LINKS = (
+    '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    '<link href="https://fonts.googleapis.com/css2?'
+    'family=Inter:wght@300;400;500;600;700;800;900&'
+    'family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700;1,900&'
+    'display=swap" rel="stylesheet">'
+)
+def inject_fonts(html): return html.replace("<head>", "<head>" + FONT_LINKS, 1)
+```
+
+### When to use which pipeline
+| Pipeline | Use for |
+|---|---|
+| **WeasyPrint + pdftoppm** (in-sandbox) | Text-heavy JegoDigital carousels, cotizaciones, reports. Fast, deterministic, no network. |
+| **canva-jegodigital Playwright** (local) | Standard branded slides with brand assets, 1080×1350. |
+| **Cloud Run mockup-renderer** | Complex CSS mockups, fake client sites, Google Fonts + gradients + device frames. Anything that breaks WeasyPrint's font rendering at 2x DPR. |
+
+### Known Gotchas
+- Cold start ~5s, first-request-after-idle fails — always warmup + retry
+- Chromium `--single-process` crashes on heavy pages → simplify or chunk
+- Service has no persistent storage — response is returned as bytes; host the PNG yourself (catbox.moe works)
+- Never embed sensitive data in HTML — the service logs can be accessed by anyone with GCP project access
+
+---
+
 ## KEY TECHNICAL REFERENCES
 
 | Resource | Location |
@@ -533,6 +618,8 @@ node tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=A|B|C [--ema
 | SEO tool | /SEO antigravity/ folder |
 | Outreach | /OpenClaw/ folder |
 | Cold Calling Scripts | /website/tools/elevenlabs_*.cjs |
+| Mockup Renderer (Cloud Run) | https://mockup-renderer-wfmydylowa-uc.a.run.app/render |
+| Mockup Template (canonical) | /carousels/_templates/before-after/build.py |
 | Master Knowledge Base | /knowledge_base/JEGDIGITAL_MASTER_KNOWLEDGE_BASE.md |
 | Config & API keys | /_JEGODIGITAL_CONFIG.md |
 | ManyChat | https://app.manychat.com/fb4452446 |
