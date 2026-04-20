@@ -26,6 +26,8 @@ a laptop — see `DEPLOY.md`.
 | `scheduledCampaign` | every 1 hour | `index.js` | Runs the old SEO campaign processor. Low-value — candidate for removal. | — |
 | `processScheduledEmails` | every 1 hour | `calendlyWebhook.js` | Scans `scheduled_emails` Firestore collection and dispatches queued Brevo sends whose `send_at` has passed. Handles no-show recovery emails (+3d / +7d / +14d) and any other time-delayed transactional send. | Telegram (planned) |
 | `sendT10minReminders` | every 5 minutes | `calendlyWebhook.js` | Window-scans `calendly_events` for bookings starting in ≈10min from ManyChat-sourced leads. Fires the T-10 WhatsApp ping via ManyChat API. Sets `t10min_sent=true` so a booking is never pinged twice. | Telegram (planned) |
+| `dailyDigest` | every day 07:00 CDMX | `dailyDigest.js` | Pulls yesterday's Calendly / audit / Brevo-queue / call / Instantly numbers. Builds one-card Telegram Markdown summary. Snapshots to `daily_digests/{YYYY-MM-DD}`. Every metric wrapped in its own try/catch — partial data renders "—". | Telegram |
+| `systemHealthAudit` | every 48 hours | `systemHealthAudit.js` | 12-check watchdog: hosting · audit endpoint · Cloud Run mockup-renderer · DataForSEO · PageSpeed · Firecrawl · Perplexity · Brevo · Telegram · `daily_digest` freshness · audits flowing · `scheduled_email` failure rate. Any red → Telegram alert listing every broken check. All-green → silent except day-1-of-month alive-ping. Snapshot: `system_health/{runId}`. **Never auto-edits code** — surface-only. | Telegram |
 
 ### 1.2 Firestore-triggered (onCreate)
 
@@ -76,12 +78,10 @@ update to this table.
 
 | Cron | Interval | Purpose | Notifies | Approve-gate |
 |---|---|---|---|---|
-| `dailyDigest` | 07:00 CDMX daily | Pulls Instantly + ElevenLabs + Calendly + Brevo numbers from yesterday, posts a one-card Telegram summary | Telegram | — |
 | `coldCallPrep` | 09:55 Mon–Fri | Loads 50 phone-ready leads into Firestore `call_queue`, flags any without valid MX phone | Telegram | — |
 | `coldCallRun` | 10:00 Mon–Fri | Fires ElevenLabs+Twilio calls (Sofia, offer rotation A/B/C) against `call_queue`. For the first 2 weeks runs in **approve-before-fire** mode: posts the batch to Telegram, waits for 👍 reaction, then dials. | Telegram | ✅ (first 2 weeks) |
 | `coldCallReport` | 13:00 Mon–Fri | Reads `call_analysis` docs from the morning batch, summarises outcomes, flags positive replies, tops up `audit_requests` for any "yes, send audit" leads. | Telegram | — |
 | `instantlyReplyWatcher` | every 5 min | Polls Instantly Unibox for unreplied positive responses. For each: pulls `{{website}}` from the lead record, writes a fresh `audit_requests` doc (source `instantly_autofire`), which Brevo sends 45min later. | Telegram (per-lead) | — |
-| `systemHealthAudit` | every 2 days 02:00 | Watchdog. Runs a fixed checklist (PSI key valid? DataForSEO quota? Firebase Functions all healthy? Last deploy green? Catbox reachable? Brevo send rate). Opens a GitHub issue labelled `health-check` when anything is red. **Never auto-edits live code** — watchdog only. | Telegram + GitHub issue | — |
 | `notebookResearcher` | 02:00 daily | NotebookLM deep-research pass across the Ops Brain notebooks. Writes a 200-word digest + 3 concrete experiments to try. Posts to Telegram. | Telegram | — |
 
 ---
@@ -99,7 +99,8 @@ update to this table.
 | `call_analysis` | `handleCallAnalysis`, `elevenLabsWebhook` | `coldCallReport` (planned), dashboard | Transcript + outcome per call. |
 | `campaigns` / `campaign_logs` | `startCampaign`, `uploadCampaignLogs` | legacy dashboard | Old SEO campaign engine — low traffic. |
 | `instantly_activity` | `instantlyReplyWatcher` (planned) | dashboard | Rolling reply cache, avoids double-firing audits. |
-| `system_health` | `systemHealthAudit` (planned) | dashboard, Telegram digest | One doc per check-run, with green/red verdicts. |
+| `daily_digests` | `dailyDigest` | dashboard, history | One doc per CDMX day, `{YYYY-MM-DD}`. Full metric breakdown + rendered digest text. |
+| `system_health` | `systemHealthAudit` | dashboard, Telegram | One doc per check-run `{ISO-timestamp}`, full 12-check verdict. |
 | `research_digests` | `notebookResearcher` (planned) | Telegram digest | Daily NotebookLM output. |
 
 ---
@@ -225,6 +226,8 @@ Three guard-rails for every new cron:
 | Date | Change |
 |---|---|
 | 2026-04-20 | Initial SYSTEM.md created. Inventory captured post-deploy-trap cleanup. Roadmap for 6 new crons scoped (daily digest, cold-call trio, Instantly watcher, health audit, notebook researcher). |
+| 2026-04-20 | **`dailyDigest` shipped** (commit `1df1d33`) — 07:00 CDMX Telegram brief + `daily_digests/{YYYY-MM-DD}` snapshot. |
+| 2026-04-20 | **`systemHealthAudit` shipped** (commit `971575a`) — every-48h 12-check watchdog + `system_health/{runId}` snapshot. |
 
 ---
 
