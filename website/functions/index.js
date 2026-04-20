@@ -1821,3 +1821,12 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
 // ============================================================
 const { processAuditRequest } = require("./auditPipeline");
 exports.processAuditRequest = processAuditRequest;
+
+// ============================================================
+// DAILY DIGEST (added 2026-04-20)
+// 07:00 CDMX Telegram morning brief. Pulls yesterday's Instantly
+// + Calendly + audit + call + Brevo queue numbers, posts one card
+// to Telegram, snapshots to `daily_digests/{YYYY-MM-DD}`.
+// See SYSTEM.md §2 for the full cron roadmap.
+// ============================================================
+exports.dailyDigest = require("./dailyDigest").dailyDigest;
