@@ -1926,3 +1926,49 @@ exports.autopilotReviewer = require("./autopilotReviewer").autopilotReviewer;
 // where Instantly replies sat in Unibox with no downstream action.
 // ============================================================
 exports.instantlyReplyWatcher = require("./instantlyReplyWatcher").instantlyReplyWatcher;
+
+// ============================================================
+// CALL TRANSCRIPT REVIEWER (added 2026-04-20)
+// Sunday 19:00 CDMX — programmatic 7d transcript analysis.
+// Audits script adherence (greeted, offered_audit, offered_setup,
+// mentioned_flamingo, pushed_calendly, leaked_price, collected_email,
+// collected_website), extracts objection buckets, picks offer winner
+// with min-sample gate (>=10 calls), writes call_reviews/{YYYY-WW}.
+// Runs 1h BEFORE autopilotReviewer so its signal feeds the weekly.
+// Price leak >5% escalates 🚨 in Telegram.
+// ============================================================
+exports.callTranscriptReviewer = require("./callTranscriptReviewer").callTranscriptReviewer;
+
+// ============================================================
+// LEAD FINDER AUTO TOP UP (added 2026-04-20)
+// 08:00 CDMX — keeps phone_leads pool above HARD_FLOOR (100),
+// targets TARGET_POOL_SIZE (150). Uses 7-day CITY_ROTATION
+// (Cancún/PdC → Tulum/Cozumel → Mérida/PVR → CDMX/GDL → MTY/QRO
+// → LosCabos/SMA → Puebla/Oaxaca). Hunter.io decision-maker rank
+// (owner/founder/ceo=3, manager/gerente=2, sales=1). Hard cap
+// 60 enrichments/day, 350ms throttle, portal-domain blocklist.
+// Runs BEFORE coldCallPrep (09:55) so trio never starves.
+// ============================================================
+exports.leadFinderAutoTopUp = require("./leadFinderAutoTopUp").leadFinderAutoTopUp;
+
+// ============================================================
+// CONTENT PUBLISHER (added 2026-04-20)
+// 10:00 CDMX — reads content_queue/{YYYY-MM-DD}, publishes queued
+// Instagram posts (single, carousel, reel, story) via Graph API v22.0.
+// Supports catbox.moe-hosted PNGs + MP4s, 30s spacing between posts,
+// 8s carousel finalize wait, 15-attempt Reel status polling. Logs
+// to content_publishes + _summary_{dateKey}. NO approve gate per
+// Alex 2026-04-20 — Telegram alerts per-publish.
+// ============================================================
+exports.contentPublisher = require("./contentPublisher").contentPublisher;
+
+// ============================================================
+// SOFIA CONVERSATION AUDIT (added 2026-04-20)
+// 23:00 CDMX — nightly ManyChat script QA. Scores up to 20 sampled
+// conversations on 11-pt rubric: greeted, collected_goal, offered_audit,
+// pushed_calendly, mentioned_proof, collected_website, no_pricing_leak,
+// no_tool_name_leak. Pricing/tool-name leaks are hard fails. Writes
+// sofia_audits/{YYYY-MM-DD}. Source: sofia_conversations mirror first,
+// ManyChat API (getByTag + getInfo) fallback. LOW_SCORE_FLAG = 7.
+// ============================================================
+exports.sofiaConversationAudit = require("./sofiaConversationAudit").sofiaConversationAudit;
