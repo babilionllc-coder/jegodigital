@@ -1812,9 +1812,12 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
 
 // ============================================================
 // AUTOMATED AUDIT PIPELINE
-// processAuditRequest: Firestore onCreate → queues audit + sends confirmation
-// runPendingAudits: Scheduled (5min) → processes queued audits after 60-min delay
+// processAuditRequest: Firestore onCreate → runs audit + queues Brevo email
+//   with scheduledAt (45-min delay). No separate scheduled function is needed
+//   — Brevo handles the delayed send. The old `runPendingAudits` scheduled
+//   function was removed; leaving the export here left an orphaned Cloud
+//   Scheduler job (firebase-schedule-runPendingAudits-us-central1) that
+//   broke the Functions deploy with a 404 on every push from 2026-04-17 on.
 // ============================================================
-const { processAuditRequest, runPendingAudits } = require("./auditPipeline");
+const { processAuditRequest } = require("./auditPipeline");
 exports.processAuditRequest = processAuditRequest;
-exports.runPendingAudits = runPendingAudits;
