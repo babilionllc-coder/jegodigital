@@ -619,11 +619,6 @@
                 "source": "/blog/**",
                 "destination": "/blog.html"
             }
-        ],
-        "predeploy": [
-            "bash scripts/verify-videos.sh",
-            "bash scripts/auto-backup-videos.sh",
-            "npm run build"
         ]
     }
 }

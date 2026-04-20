@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sitio Web de Alto Rendimiento — Demo en Vivo | JegoDigital</title>
+<meta name="description" content="Mira 5 ejemplos reales de sitios web de alto rendimiento para inmobiliarias. Sub-1 segundo de carga, chat IA 24/7, y SEO optimizado desde el día 1.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#0f1115;color:#e8eaf0;overflow-x:hidden;line-height:1.6}
+
+:root{
+  --gold:#C5A059;--gold-l:#E5C585;--gold-dim:rgba(197,160,89,0.15);
+  --gold-border:rgba(197,160,89,0.2);--green:#22c55e;--red:#ff4d6d;
+  --blue:#4f8ef7;--dark:#0f1115;--surface:#1a1d24;--surface2:#20242e;
+  --border:rgba(197,160,89,0.12);--gray:#8b9bb4;--text:#e8eaf0;
+}
+
+h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;line-height:1.1;letter-spacing:-1px}
+h2{font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:800;line-height:1.2}
+h3{font-size:clamp(1.1rem,2.5vw,1.4rem);font-weight:700}
+p{color:var(--gray);font-size:1.05rem}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.section{padding:96px 0}
+.gold{color:var(--gold)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,17,21,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--gold-border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--gold),var(--gold-l));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--dark)}
+.nav-logo{font-size:15px;font-weight:800;letter-spacing:0.5px;color:var(--text)}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:6px}
+.nav-link{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--gray);cursor:pointer;transition:all 0.2s;text-decoration:none}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+.nav-link.active{color:var(--gold);background:var(--gold-dim)}
+.nav-cta{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);font-weight:700;font-size:13px;padding:8px 20px;border-radius:10px;text-decoration:none;transition:opacity 0.2s;display:inline-flex;align-items:center;gap:6px}
+.nav-cta:hover{opacity:0.85}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;width:800px;height:400px;background:radial-gradient(ellipse at center,rgba(197,160,89,0.08) 0%,transparent 70%);top:0;left:50%;transform:translateX(-50%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--gold-border);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--gold);margin-bottom:28px;letter-spacing:0.5px;text-transform:uppercase}
+.hero-badge::before{content:'';width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.hero h1{margin-bottom:20px}
+.hero-sub{font-size:clamp(1rem,2.5vw,1.15rem);color:var(--gray);max-width:640px;margin:0 auto 40px}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-p{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);font-weight:700;font-size:1rem;padding:16px 32px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;gap:10px;transition:all 0.2s;box-shadow:0 8px 30px rgba(197,160,89,0.25);border:none;cursor:pointer}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(197,160,89,0.4)}
+.btn-s{background:transparent;color:var(--text);font-weight:600;font-size:1rem;padding:16px 28px;border-radius:12px;text-decoration:none;border:1px solid var(--gold-border);display:inline-flex;align-items:center;gap:8px;transition:all 0.2s}
+.btn-s:hover{border-color:var(--gold);background:var(--gold-dim)}
+
+/* AUDIO BAR */
+.audio-bar{margin-top:32px;background:var(--surface);border:1px solid var(--gold-border);border-radius:12px;padding:14px 20px;display:inline-flex;align-items:center;gap:14px;max-width:380px;width:100%}
+.audio-play{width:40px;height:40px;min-width:40px;background:linear-gradient(135deg,var(--gold),var(--gold-l));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--dark);font-size:1rem;transition:all 0.2s}
+.audio-play:hover{transform:scale(1.05);opacity:0.85}
+.audio-info{text-align:left;flex:1}
+.audio-t{font-size:.8rem;font-weight:600;color:var(--text)}
+.audio-s{font-size:.7rem;color:var(--gray)}
+.audio-prog{width:100%;height:3px;background:var(--surface2);border-radius:2px;margin-top:6px;overflow:hidden}
+.audio-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));width:0%;transition:width .5s linear;border-radius:2px}
+
+/* PAIN SECTION */
+#pain{background:var(--surface)}
+.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px}
+.pain-card{background:var(--surface2);border:1px solid var(--gold-border);border-radius:16px;padding:28px;border-left:3px solid var(--red);transition:all 0.3s}
+.pain-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 40px rgba(197,160,89,0.08)}
+.pain-icon{font-size:2rem;margin-bottom:14px}
+.pain-card h3{margin-bottom:8px}
+.pain-card p{font-size:.9rem;color:var(--gray)}
+
+/* SECTION TAGS */
+.stag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--gold);background:var(--gold-dim);border-radius:6px;padding:4px 12px;margin-bottom:16px}
+.shdr{margin-bottom:0}
+.shdr p{margin-top:14px;max-width:620px}
+
+/* HOW IT WORKS */
+#how{background:var(--dark)}
+.steps{margin-top:56px}
+.step{display:grid;grid-template-columns:64px 1fr;gap:0 24px;margin-bottom:40px;opacity:0;transform:translateY(20px);transition:all .6s ease}
+.step.vis{opacity:1;transform:translateY(0)}
+.snum-col{display:flex;flex-direction:column;align-items:center}
+.snum{width:48px;height:48px;min-width:48px;background:linear-gradient(135deg,var(--gold),var(--gold-l));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;color:var(--dark)}
+.sline{width:2px;flex:1;min-height:32px;background:linear-gradient(to bottom,var(--gold),transparent);margin:8px 0}
+.step:last-child .sline{display:none}
+.step-c h3{margin-bottom:6px}
+.step-c p{font-size:.95rem;color:var(--gray)}
+
+/* SHOWCASE */
+#showcase{background:var(--surface)}
+.showcase-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:48px 0 32px}
+.stab{padding:10px 20px;border-radius:10px;border:1px solid var(--gold-border);background:transparent;color:var(--gray);font-weight:600;font-size:.85rem;cursor:pointer;transition:all .3s;font-family:inherit}
+.stab.active,.stab:hover{color:var(--text);border-color:var(--active-color,var(--gold));background:rgba(197,160,89,0.08)}
+.stab[data-color="gold"]{--active-color:#C5A059}
+.stab[data-color="azure"]{--active-color:#4f8ef7}
+.stab[data-color="emerald"]{--active-color:#22c55e}
+.stab[data-color="coral"]{--active-color:#E07A5F}
+.stab[data-color="sand"]{--active-color:#C5B89E}
+
+.preview-container{position:relative;max-width:1100px;margin:0 auto}
+.preview-frame{width:100%;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 20px 60px rgba(0,0,0,0.4);background:var(--dark);position:relative}
+.browser-bar{background:var(--surface2);padding:10px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--gold-border)}
+.browser-dots{display:flex;gap:6px}
+.browser-dots span{width:10px;height:10px;border-radius:50%}
+.browser-dots span:nth-child(1){background:#FF5F56}
+.browser-dots span:nth-child(2){background:#FFBD2E}
+.browser-dots span:nth-child(3){background:#27CA40}
+.browser-url{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;font-size:.75rem;color:var(--gray);font-family:'Plus Jakarta Sans',monospace}
+.browser-url span{color:var(--green)}
+.preview-frame iframe{width:100%;height:70vh;border:none;display:block;transition:opacity .4s ease}
+
+.device-toggle{display:flex;gap:8px;justify-content:center;margin-top:20px}
+.dtog{padding:8px 16px;border-radius:8px;border:1px solid var(--gold-border);background:transparent;color:var(--gray);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.dtog.active{color:var(--gold);background:var(--gold-dim);border-color:var(--gold)}
+
+.preview-info{display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:12px}
+.preview-name{font-weight:700;font-size:1.1rem}
+.preview-badge{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:6px 14px;border-radius:8px}
+.badge-speed{background:rgba(34,197,94,0.12);color:var(--green)}
+.badge-seo{background:var(--gold-dim);color:var(--gold)}
+.badge-mobile{background:rgba(79,142,247,0.12);color:var(--blue)}
+.open-link{color:var(--gold);text-decoration:none;font-size:.85rem;font-weight:600;transition:color .2s}
+.open-link:hover{color:var(--gold-l)}
+
+/* FEATURES */
+#features{background:var(--dark)}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:48px}
+.feat-card{background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;padding:28px;transition:all .3s}
+.feat-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 40px rgba(197,160,89,0.08)}
+.feat-icon{font-size:2rem;margin-bottom:14px}
+.feat-card h3{margin-bottom:8px}
+.feat-card p{font-size:.9rem;color:var(--gray)}
+
+/* RESULTS */
+#results{background:var(--surface)}
+.results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:48px}
+.rcard{background:var(--surface2);border:1px solid var(--gold-border);border-radius:16px;padding:32px 28px;text-align:center;transition:all .3s}
+.rcard:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 40px rgba(197,160,89,0.08)}
+.rnum{font-size:clamp(2.5rem,6vw,4rem);font-weight:900;color:var(--gold);line-height:1;margin-bottom:8px}
+.rlbl{font-size:.95rem;color:var(--text)}
+.rsub{font-size:.8rem;color:var(--gray);margin-top:4px}
+
+/* AEO SECTION */
+#aeo{background:var(--dark)}
+.aeo-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:48px}
+.aeo-mockup{background:#1e1e1e;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+.aeo-mockup-hdr{padding:12px 18px;background:#2a2a2a;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#d1d5db}
+.aeo-mockup-hdr .aeo-dot{width:8px;height:8px;border-radius:50%;background:#10a37f}
+.aeo-mockup-body{padding:20px}
+.aeo-prompt{background:#2f2f2f;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b4b4b4;border:1px solid #444}
+.aeo-response{display:flex;gap:12px;align-items:flex-start}
+.aeo-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#10a37f,#1a7f64);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.aeo-text{font-size:13px;color:#d1d5db;line-height:1.7;flex:1}
+.aeo-text strong{color:#ececec}
+.aeo-highlight{color:var(--gold);font-weight:700;background:rgba(197,160,89,0.12);padding:1px 6px;border-radius:4px}
+.aeo-text ol{padding-left:20px;margin:10px 0}
+.aeo-text li{margin-bottom:6px}
+.aeo-source{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#10a37f;font-weight:600;margin-top:10px}
+.aeo-info{display:flex;flex-direction:column;gap:20px}
+.aeo-card{background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;padding:24px}
+.aeo-card-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.aeo-rank-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px}
+.aeo-rank-row:last-child{border-bottom:none}
+.aeo-rank-badge{padding:3px 10px;border-radius:6px;font-weight:700;font-size:12px}
+.aeo-rank-1{background:rgba(34,197,94,0.15);color:var(--green)}
+.aeo-rank-2{background:rgba(79,142,247,0.15);color:var(--blue)}
+.aeo-rank-3{background:rgba(167,139,250,0.15);color:#a78bfa}
+.aeo-engine{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.aeo-engine-dot{width:6px;height:6px;border-radius:50%}
+@media(max-width:768px){.aeo-grid{grid-template-columns:1fr}}
+
+/* CTA */
+#cta{background:linear-gradient(135deg,rgba(197,160,89,0.06),var(--dark));text-align:center;padding:100px 24px;position:relative;overflow:hidden}
+.cta-glow{position:absolute;width:600px;height:300px;background:radial-gradient(ellipse,rgba(197,160,89,0.1) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+#cta h2{margin-bottom:16px}
+#cta p{max-width:520px;margin:0 auto 40px}
+
+/* CALENDLY */
+.cal-wrap{max-width:900px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.4)}
+.calendly-inline-widget{min-width:320px;height:700px}
+
+/* FLOATING CTA */
+#float-cta{position:fixed;bottom:28px;right:28px;z-index:200;opacity:0;transform:translateY(20px);transition:all .4s ease}
+#float-cta.vis{opacity:1;transform:translateY(0)}
+.float-btn{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--dark);font-weight:700;font-size:.9rem;padding:14px 22px;border-radius:50px;text-decoration:none;display:flex;align-items:center;gap:8px;box-shadow:0 8px 30px rgba(197,160,89,0.4);animation:floatUp 3s ease-in-out infinite}
+@keyframes floatUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* FOOTER */
+footer{background:var(--dark);border-top:1px solid var(--gold-border);padding:32px 24px;text-align:center}
+footer p{font-size:.85rem;color:var(--gray)}
+footer a{color:var(--gold);text-decoration:none}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .section{padding:64px 0}
+  nav{padding:0 16px;height:56px}
+  .nav-links{display:none}
+  .step{grid-template-columns:48px 1fr;gap:0 16px}
+  .preview-frame iframe{height:50vh}
+  #float-cta{bottom:16px;right:16px}
+  .float-btn{padding:12px 18px;font-size:.8rem}
+  .preview-info{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .hero-actions{flex-direction:column;align-items:center}
+  .btn-p,.btn-s{width:100%;justify-content:center}
+  .showcase-tabs{gap:4px}
+  .stab{padding:8px 12px;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://jegodigital.com" class="nav-brand">
+    <div class="nav-icon">J</div>
+    <div class="nav-logo">Jego<span>Digital</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="#video-demo" class="nav-link">Video</a>
+    <a href="#showcase" class="nav-link">Demos</a>
+    <a href="#features" class="nav-link">Incluye</a>
+    <a href="#aeo" class="nav-link">AEO</a>
+    <a href="#results" class="nav-link">Resultados</a>
+  </div>
+  <a href="#cta" class="nav-cta">📞 Agendar Demo</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="container hero">
+    <div class="hero-badge">Demo en Vivo · Sitio Web de Alto Rendimiento</div>
+    <h1>Tu Sitio Web Debería <span class="gold">Cerrar Tratos</span>,<br>No Espantar Leads</h1>
+    <p class="hero-sub">Mira 5 ejemplos reales de sitios web premium que construimos para inmobiliarias. Sub-1 segundo de carga, chat IA 24/7, y SEO optimizado.</p>
+    <div class="hero-actions">
+      <a href="#showcase" class="btn-p">Ver los 5 Ejemplos</a>
+      <a href="#cta" class="btn-s">Quiero mi Sitio Web</a>
+    </div>
+    <!-- Audio -->
+    <div class="audio-bar">
+      <button class="audio-play" id="play-btn" onclick="toggleAudio()">&#9654;</button>
+      <div class="audio-info">
+        <div class="audio-t">Narración del demo · 70 seg</div>
+        <div class="audio-s">Escucha mientras exploras</div>
+        <div class="audio-prog"><div class="audio-fill" id="audio-fill"></div></div>
+      </div>
+    </div>
+    <audio id="demo-audio" src="website-narration.mp3?v=20260331" preload="metadata"></audio>
+  </div>
+</section>
+
+<!-- VIDEO DEMO -->
+<section id="video-demo" class="section" style="background:var(--dark);padding-top:40px;padding-bottom:80px">
+  <div class="container" style="text-align:center">
+    <div class="stag" style="margin-bottom:12px">Video Demo · 50 segundos</div>
+    <div class="shdr" style="margin-bottom:32px">
+      <h2>Mira lo que incluye tu sitio web <span class="gold">en 50 segundos</span></h2>
+    </div>
+    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;padding-top:56.25%">
+      <iframe id="video-iframe" src="website-video.html" style="position:absolute;top:0;left:0;width:1920px;height:1080px;border:none;pointer-events:none;transform-origin:top left" loading="lazy"></iframe>
+      <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-l));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
+        </div>
+      </div>
+    </div>
+    <p style="color:var(--gray);margin-top:16px;font-size:.85rem">Velocidad · 5 Estilos Premium · Mobile · Chat IA · SEO</p>
+  </div>
+</section>
+<script>
+function scaleVideoIframe(){
+  const container=document.querySelector('#video-demo .container > div:nth-child(3)');
+  const iframe=document.getElementById('video-iframe');
+  if(!container||!iframe)return;
+  const scale=container.offsetWidth/1920;
+  iframe.style.transform='scale('+scale+')';
+}
+scaleVideoIframe();
+window.addEventListener('resize',scaleVideoIframe);
+
+function startVideo(){
+  const overlay=document.getElementById('video-overlay');
+  overlay.style.opacity='0';
+  setTimeout(()=>{overlay.style.display='none'},300);
+  const iframe=document.getElementById('video-iframe');
+  iframe.src=iframe.src;
+}
+</script>
+
+<!-- PAIN POINTS -->
+<section id="pain" class="section">
+  <div class="container">
+    <div class="stag">El problema</div>
+    <div class="shdr">
+      <h2>Lo que tu sitio web actual le cuesta a tu agencia</h2>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">🐌</div>
+        <h3>5 segundos para cargar</h3>
+        <p>El 53% de los visitantes se van si tu sitio tarda más de 3 segundos. Cada segundo extra = leads perdidos.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">👻</div>
+        <h3>Invisible en Google</h3>
+        <p>Sin estructura SEO, tu sitio no rankea. Pagás Google Ads eternamente mientras competidores aparecen gratis.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🕐</div>
+        <h3>Leads perdidos a las 3am</h3>
+        <p>Un prospecto entra a tu sitio de noche, no hay nadie para responder. Se va a la inmobiliaria que sí tiene chat IA.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="section">
+  <div class="container">
+    <div class="stag">Cómo funciona</div>
+    <div class="shdr">
+      <h2>De sitio lento a <span class="gold">máquina de leads</span> en 7 días</h2>
+      <p>Sin interrumpir tus operaciones. Sin código. Sin headaches.</p>
+    </div>
+    <div class="steps" id="steps">
+      <div class="step">
+        <div class="snum-col"><div class="snum">1</div><div class="sline"></div></div>
+        <div class="step-c">
+          <h3>Elegís tu estilo</h3>
+          <p>Te mostramos 5 diseños premium. Seleccionás el que mejor represente tu marca — o creamos uno personalizado.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum-col"><div class="snum">2</div><div class="sline"></div></div>
+        <div class="step-c">
+          <h3>Cargamos tus propiedades</h3>
+          <p>Importamos tus listings, fotos, precios y descripciones. Todo organizado con filtros, mapa y fichas de propiedad.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum-col"><div class="snum">3</div><div class="sline"></div></div>
+        <div class="step-c">
+          <h3>Activamos el chat IA + WhatsApp</h3>
+          <p>Tu asistente IA se entrena con tus propiedades y servicios. Empieza a calificar leads desde el primer día.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="snum-col"><div class="snum">4</div></div>
+        <div class="step-c">
+          <h3>Lanzamos + optimizamos SEO</h3>
+          <p>Desplegamos tu sitio con estructura SEO desde el día 1. Cada mes optimizamos contenido, keywords y rankings.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 DEMO SITES SHOWCASE -->
+<section id="showcase" class="section">
+  <div class="container">
+    <div class="stag">5 Estilos Premium</div>
+    <div class="shdr">
+      <h2>Mirá lo que <span class="gold">tu agencia</span> podría tener</h2>
+      <p>5 sitios web reales que construimos. Hacé clic en cada uno para explorarlo en vivo.</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="showcase-tabs" id="tabs">
+      <button class="stab active" data-color="gold" data-src="demo-luna-riviera.html" data-name="Luna Riviera" data-style="Lujo Oscuro + Oro" onclick="switchDemo(this)">🌙 Luna Riviera</button>
+      <button class="stab" data-color="azure" data-src="demo-costa-azul.html" data-name="Costa Azul" data-style="Azul Océano Premium" onclick="switchDemo(this)">🌊 Costa Azul</button>
+      <button class="stab" data-color="emerald" data-src="demo-selva-maya.html" data-name="Selva Maya" data-style="Esmeralda Eco-Luxury" onclick="switchDemo(this)">🌿 Selva Maya</button>
+      <button class="stab" data-color="coral" data-src="demo-caribe-elite.html" data-name="Caribe Elite" data-style="Coral Sunset Cálido" onclick="switchDemo(this)">🌅 Caribe Elite</button>
+      <button class="stab" data-color="sand" data-src="demo-playa-blanca.html" data-name="Playa Blanca" data-style="Minimalista Blanco Arena" onclick="switchDemo(this)">🏖️ Playa Blanca</button>
+    </div>
+
+    <!-- BROWSER PREVIEW -->
+    <div class="preview-container">
+      <div class="preview-frame" id="preview-frame">
+        <div class="browser-bar">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <div class="browser-url" id="browser-url"><span>https://</span>lunariviera.com</div>
+        </div>
+        <iframe id="demo-iframe" src="demo-luna-riviera.html?v=20260331" loading="lazy" title="Demo Preview"></iframe>
+      </div>
+
+      <!-- DEVICE TOGGLE -->
+      <div class="device-toggle">
+        <button class="dtog active" onclick="setDevice('100%',this)">🖥️ Desktop</button>
+        <button class="dtog" onclick="setDevice('768px',this)">📱 Tablet</button>
+        <button class="dtog" onclick="setDevice('375px',this)">📲 Mobile</button>
+      </div>
+
+      <!-- INFO BAR -->
+      <div class="preview-info">
+        <div>
+          <div class="preview-name" id="preview-name">Luna Riviera — Lujo Oscuro + Oro</div>
+          <a class="open-link" id="open-link" href="demo-luna-riviera.html" target="_blank">Abrir en pestaña nueva →</a>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="preview-badge badge-speed">⚡ &lt;1s carga</span>
+          <span class="preview-badge badge-seo">🔍 SEO Ready</span>
+          <span class="preview-badge badge-mobile">📱 Mobile-First</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="stag">Lo que incluye</div>
+    <div class="shdr">
+      <h2>Cada sitio viene con <span class="gold">todo esto</span></h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <h3>Carga en &lt;1 segundo</h3>
+        <p>Hosting optimizado, compresión de imágenes, y código limpio. 98+ PageSpeed garantizado.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🤖</div>
+        <h3>Chat IA 24/7</h3>
+        <p>Asistente IA entrenado con tus propiedades que califica leads y agenda showings automáticamente.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔍</div>
+        <h3>SEO desde el Día 1</h3>
+        <p>Estructura de schema markup, meta tags, sitemap XML, y landing pages geo-específicas.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📱</div>
+        <h3>Mobile-First</h3>
+        <p>80% de tus prospectos llegan desde celular. Tu sitio se ve perfecto en cualquier dispositivo.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💬</div>
+        <h3>WhatsApp Integrado</h3>
+        <p>Botón de WhatsApp flotante + leads capturados directamente a tu flujo de automatización.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🏠</div>
+        <h3>Páginas de Propiedad</h3>
+        <p>Fichas individuales con galería, specs, ubicación, ROI y botón de agendar visita.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AEO — AI SEARCH RANKINGS -->
+<section id="aeo" class="section">
+  <div class="container">
+    <div class="stag">Presencia en IA</div>
+    <div class="shdr">
+      <h2>Tu sitio también rankea en <span class="gold">ChatGPT, Perplexity y Gemini</span></h2>
+      <p>No solo Google — los compradores ya buscan propiedades en motores de IA. Tu sitio está optimizado para aparecer ahí.</p>
+    </div>
+
+    <div class="aeo-grid">
+      <!-- ChatGPT Mockup -->
+      <div>
+        <div class="aeo-mockup">
+          <div class="aeo-mockup-hdr"><div class="aeo-dot"></div>ChatGPT · GPT-4o</div>
+          <div class="aeo-mockup-body">
+            <div class="aeo-prompt">🔍 ¿Cuál es la mejor inmobiliaria en Cancún para comprar propiedades de lujo?</div>
+            <div class="aeo-response">
+              <div class="aeo-avatar">G</div>
+              <div class="aeo-text">
+                <strong>Basándome en reseñas, presencia digital y catálogo:</strong>
+                <ol>
+                  <li><span class="aeo-highlight">Luna Riviera Real Estate</span> — 15 años de experiencia, especializada en zona hotelera y Puerto Cancún. Sitio web rápido con tour virtual.</li>
+                  <li>Caribbean Luxury Homes — Buena selección en Playa Mujeres.</li>
+                  <li>Riviera Maya Properties — Enfocada en inversión para extranjeros.</li>
+                </ol>
+                <div class="aeo-source">📎 Fuentes: lunariviera.com, google.com/maps</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Perplexity mockup -->
+        <div class="aeo-mockup" style="margin-top:20px">
+          <div class="aeo-mockup-hdr"><div class="aeo-dot" style="background:#6366f1"></div>Perplexity AI</div>
+          <div class="aeo-mockup-body">
+            <div class="aeo-prompt">🔍 Best real estate agency in Tulum for US buyers?</div>
+            <div class="aeo-response">
+              <div class="aeo-avatar" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">P</div>
+              <div class="aeo-text">
+                <strong>Based on verified listings and buyer reviews:</strong>
+                <ol>
+                  <li><span class="aeo-highlight">Luna Riviera</span> — Bilingual team, Schema-optimized listings, featured in 4 travel publications. [1]</li>
+                  <li>Tulum Living — Focus on eco-developments.</li>
+                </ol>
+                <div class="aeo-source">📎 Sources: lunariviera.com [1], tripadvisor.com [2]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AEO Info Panel -->
+      <div class="aeo-info">
+        <div class="aeo-card">
+          <div class="aeo-card-title">🤖 Rankings en motores de IA</div>
+          <div class="aeo-rank-row">
+            <span>ChatGPT (GPT-4o)</span>
+            <span class="aeo-rank-badge aeo-rank-1">Recomendado #1</span>
+          </div>
+          <div class="aeo-rank-row">
+            <span>Perplexity AI</span>
+            <span class="aeo-rank-badge aeo-rank-1">Citado #1</span>
+          </div>
+          <div class="aeo-rank-row">
+            <span>Google Gemini</span>
+            <span class="aeo-rank-badge aeo-rank-2">Mencionado #2</span>
+          </div>
+          <div class="aeo-rank-row">
+            <span>Microsoft Copilot</span>
+            <span class="aeo-rank-badge aeo-rank-1">Recomendado #1</span>
+          </div>
+          <div class="aeo-rank-row">
+            <span>Claude AI</span>
+            <span class="aeo-rank-badge aeo-rank-3">Citado #3</span>
+          </div>
+        </div>
+
+        <div class="aeo-card">
+          <div class="aeo-card-title">🧠 ¿Por qué funciona?</div>
+          <div style="font-size:13px;color:var(--gray);display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="color:var(--gold);font-weight:700;font-size:16px;">01</span>
+              <div><strong style="color:var(--text)">Schema Markup</strong> — Cada propiedad tiene datos estructurados que la IA puede leer directamente.</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="color:var(--gold);font-weight:700;font-size:16px;">02</span>
+              <div><strong style="color:var(--text)">FAQ optimizadas</strong> — Preguntas y respuestas que los motores de IA citan como fuente confiable.</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="color:var(--gold);font-weight:700;font-size:16px;">03</span>
+              <div><strong style="color:var(--text)">Contenido bilingüe</strong> — Compradores en español e inglés encuentran tu agencia en cualquier motor de IA.</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="color:var(--gold);font-weight:700;font-size:16px;">04</span>
+              <div><strong style="color:var(--text)">Autoridad digital</strong> — Backlinks, reseñas y presencia que la IA interpreta como señal de confianza.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="aeo-card" style="background:linear-gradient(135deg,rgba(197,160,89,0.08),var(--surface));border-color:var(--gold)">
+          <div style="text-align:center">
+            <div style="font-size:32px;font-weight:900;color:var(--gold);margin-bottom:4px">5 de 5</div>
+            <div style="font-size:14px;color:var(--text);font-weight:600">Motores de IA recomiendan tu agencia</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:4px">Cuando construimos tu sitio, lo optimizamos para todos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="section">
+  <div class="container">
+    <div class="stag">Resultados</div>
+    <div class="shdr">
+      <h2>Números que <span class="gold">importan</span></h2>
+    </div>
+    <div class="results-grid">
+      <div class="rcard">
+        <div class="rnum" data-target="3" data-suffix="x">0</div>
+        <div class="rlbl">Más leads calificados</div>
+        <div class="rsub">Primeros 60 días después del lanzamiento</div>
+      </div>
+      <div class="rcard">
+        <div class="rnum" data-target="98" data-suffix="/100">0</div>
+        <div class="rlbl">PageSpeed Score</div>
+        <div class="rsub">Garantizado — o te devolvemos tu dinero</div>
+      </div>
+      <div class="rcard">
+        <div class="rnum" data-target="7" data-suffix=" días">0</div>
+        <div class="rlbl">Tiempo de entrega</div>
+        <div class="rsub">Sitio live, con chat IA activo y SEO configurado</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / CALENDLY -->
+<section id="cta">
+  <div class="cta-glow"></div>
+  <div class="container" style="position:relative;z-index:1">
+    <h2>¿Listo para tener un sitio que <span class="gold">cierre tratos</span>?</h2>
+    <p>Demo gratuita de 30 minutos. Te mostramos exactamente qué sitio construiríamos para tu agencia, con tu marca y tus propiedades.</p>
+    <div class="cal-wrap">
+      <div class="calendly-inline-widget" data-url="https://calendly.com/jegoalexdigital/30min?hide_gdpr_banner=1&background_color=ffffff&text_color=111827&primary_color=C5A059" style="min-width:320px;height:700px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 <strong style="color:var(--gold)">JegoDigital</strong> — Sitios web de alto rendimiento para inmobiliarias. <a href="mailto:jegoalexdigital@gmail.com">Contacto</a></p>
+</footer>
+
+<!-- FLOATING CTA -->
+<div id="float-cta">
+  <a href="#cta" class="float-btn">📅 Quiero mi sitio web</a>
+</div>
+
+<!-- SCRIPTS -->
+<script async src="https://assets.calendly.com/assets/external/widget.js"></script>
+<script>
+/* AUDIO */
+const audio=document.getElementById('demo-audio'),playBtn=document.getElementById('play-btn'),fill=document.getElementById('audio-fill');
+let playing=false;
+function toggleAudio(){if(playing){audio.pause();playBtn.innerHTML='&#9654;';playing=false}else{audio.play().catch(()=>{});playBtn.innerHTML='&#9208;';playing=true}}
+audio.addEventListener('timeupdate',()=>{if(audio.duration)fill.style.width=(audio.currentTime/audio.duration*100)+'%'});
+audio.addEventListener('ended',()=>{playBtn.innerHTML='&#9654;';playing=false;fill.style.width='0%'});
+
+/* STEPS ANIMATION */
+const stepObs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')})},{threshold:.15});
+document.querySelectorAll('.step').forEach(s=>stepObs.observe(s));
+
+/* COUNTER */
+function animC(el,target,suffix=''){const st=performance.now(),dur=1800,up=n=>{const p=Math.min((n-st)/dur,1),e=1-Math.pow(1-p,3);el.textContent=Math.floor(e*target)+suffix;if(p<1)requestAnimationFrame(up);else el.textContent=target+suffix};requestAnimationFrame(up)}
+const mObs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const t=parseInt(x.target.dataset.target),s=x.target.dataset.suffix||'';animC(x.target,t,s);mObs.unobserve(x.target)}})},{threshold:.5});
+document.querySelectorAll('.rnum').forEach(m=>mObs.observe(m));
+
+/* FLOATING CTA */
+window.addEventListener('scroll',()=>{const f=document.getElementById('float-cta');if(window.scrollY>400)f.classList.add('vis');else f.classList.remove('vis')},{passive:true});
+
+/* ACTIVE NAV */
+const sections=document.querySelectorAll('section[id]');
+const navLinks=document.querySelectorAll('.nav-link');
+window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(scrollY>=s.offsetTop-120)cur=s.getAttribute('id')});navLinks.forEach(l=>{l.classList.remove('active');if(l.getAttribute('href')==='#'+cur)l.classList.add('active')})},{passive:true});
+
+/* SHOWCASE SWITCHER */
+function switchDemo(btn){
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const iframe=document.getElementById('demo-iframe');
+  const url=document.getElementById('browser-url');
+  const name=document.getElementById('preview-name');
+  const link=document.getElementById('open-link');
+  iframe.style.opacity='0';
+  setTimeout(()=>{
+    iframe.src=btn.dataset.src+'?v=20260331';
+    url.innerHTML='<span>https://</span>'+btn.dataset.name.toLowerCase().replace(/\s+/g,'')+'.com';
+    name.textContent=btn.dataset.name+' — '+btn.dataset.style;
+    link.href=btn.dataset.src;
+    iframe.style.opacity='1';
+  },300);
+}
+
+/* DEVICE TOGGLE */
+function setDevice(w,btn){
+  document.querySelectorAll('.dtog').forEach(d=>d.classList.remove('active'));
+  btn.classList.add('active');
+  const frame=document.getElementById('preview-frame');
+  frame.style.maxWidth=w;
+  frame.style.margin='0 auto';
+  frame.style.transition='max-width .4s ease';
+}
+</script>
+
+</body>
+</html>

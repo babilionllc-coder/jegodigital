@@ -5,10 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Servicios Premium: Diseño Web, SEO Local, y Marketing Digital en Cancún, Tulum y Playa del Carmen. Soluciones de IA y E-commerce.">
-    <meta name="keywords"
-        content="Servicios Marketing Digital Cancún, Web Design Services Tulum, SEO Playa del Carmen, App Development Riviera Maya, AI Solutions Mexico">
-    <title>Servicios | Marketing Digital, SEO & Web Design Cancún</title>
+        content="Servicios Premium: Diseño Web, SEO Local, y Marketing Digital en Cancún. Soluciones de IA y E-commerce.">
+    <title>Servicios | Marketing Digital & IA Premium</title>
 
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,8 +17,6 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -32,8 +28,16 @@
                         surface: '#1e293b',
                         primary: '#6366f1',
                         accent: '#8b5cf6',
-                        highlight: '#f472b6',
                     },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
                 }
             }
         }
@@ -45,13 +49,8 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .logo-glow {
-            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
-            transition: filter 0.3s ease;
-        }
-
-        .group:hover .logo-glow {
-            filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.8));
+        .service-card-gradient {
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.6) 50%, rgba(15, 23, 42, 0) 100%);
         }
 
         .hero-gradient-text {
@@ -65,400 +64,244 @@
 
 <body class="bg-background text-white antialiased">
 
-    <!-- Navigation -->
+    <!-- Navigation (Preserved) -->
     <nav class="fixed w-full z-50 transition-all duration-300 glass-panel border-b border-white/5" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-28">
-                <!-- Logo -->
                 <a href="index.html" class="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
                     <img src="images/logo/logo1.png" alt="JegoDigital"
                         class="h-24 w-auto hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
-
                 </a>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
-                        data-i18n="nav_home">Inicio</a>
-                    <a href="servicios.html" class="text-white text-sm font-medium border-b-2 border-primary pb-1"
-                        data-i18n="nav_services">Servicios</a>
-                    <a href="portfolio.html"
-                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
-                        data-i18n="nav_portfolio">Portafolio</a>
-                    <a href="blog.html" class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
-                        data-i18n="nav_blog">Insights</a>
+                    <a href="index.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Inicio</a>
+                    <a href="servicios.html"
+                        class="text-white text-sm font-medium border-b-2 border-primary pb-1">Servicios</a>
+                    <a href="showcase.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Portafolio</a>
+                    <a href="blog.html"
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Insights</a>
                     <a href="nosotros.html"
-                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium"
-                        data-i18n="nav_about">Nosotros</a>
-
-                    <!-- Language Toggle -->
-                    <button
-                        class="lang-toggle-btn flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
-                        onclick="window.toggleLanguage()">
-                        <span class="text-lg">🇺🇸</span>
-                        <span class="text-xs font-bold text-slate-300 group-hover:text-white">EN</span>
-                    </button>
-
+                        class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Nosotros</a>
                     <a href="contacto.html"
-                        class="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 backdrop-blur-md"
-                        data-i18n="nav_contact">Contacto</a>
+                        class="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 backdrop-blur-md">Contacto</a>
                 </div>
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-white hover:text-primary focus:outline-none p-2">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu"
-            class="hidden md:hidden glass-panel border-b border-white/5 absolute w-full left-0 top-20 bg-slate-900/95 backdrop-blur-xl">
-            <div class="px-4 pt-2 pb-6 space-y-2">
-                <a href="index.html" data-i18n="nav_home"
-                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Inicio</a>
-                <a href="servicios.html" data-i18n="nav_services"
-                    class="block px-3 py-3 rounded-md text-base font-medium text-white bg-primary/10 border-l-4 border-primary">Servicios</a>
-                <a href="portfolio.html" data-i18n="nav_portfolio"
-                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Portafolio</a>
-                <a href="blog.html" data-i18n="nav_blog"
-                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Insights</a>
-                <a href="nosotros.html" data-i18n="nav_about"
-                    class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors">Nosotros</a>
-
-                <!-- Mobile Language Toggle -->
-                <button
-                    class="lang-toggle-btn w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2"
-                    onclick="window.toggleLanguage()">
-                    <span class="mr-1">🇺🇸</span> EN
-                </button>
-
-                <a href="contacto.html" data-i18n="nav_contact"
-                    class="block px-3 py-3 rounded-md text-base font-bold text-primary mt-4 text-center border border-primary/30 bg-primary/10">Contáctanos</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <section class="pt-32 pb-16 text-center relative z-10">
-        <!-- Ambient Background -->
-        <div class="absolute top-0 inset-x-0 h-full pointer-events-none overflow-hidden z-[-1]">
-            <div
-                class="absolute top-0 left-1/2 transform -translate-x-1/2 w-[800px] h-[500px] bg-primary/10 rounded-full blur-[120px]">
-            </div>
-        </div>
-
-        <div class="container mx-auto px-4">
-            <span class="text-accent text-sm font-bold tracking-wider uppercase mb-4 block" data-i18n="serv_hero_tag">Lo
-                Que Hacemos Mejor</span>
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-6" data-i18n="serv_hero_title">
-                Motores de <span class="hero-gradient-text">Crecimiento</span>
+    <!-- Services Gallery Hero -->
+    <section class="pt-40 pb-12 relative z-10">
+        <div class="container mx-auto px-4 text-center">
+            <span class="text-accent text-sm font-bold tracking-[0.2em] uppercase mb-4 block animate-pulse">Our
+                Expertise</span>
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+                Soluciones <span class="hero-gradient-text">Premium</span>
             </h1>
-            <p class="text-slate-400 max-w-2xl mx-auto text-lg" data-i18n="serv_hero_desc">
-                No vendemos servicios. Diseñamos ecosistemas digitales divididos en dos fases estratégicas: Lanzamiento
-                y Escalamiento.
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg font-light leading-relaxed">
+                Fusionamos diseño de élite con inteligencia artificial para crear ecosistemas digitales que dominan
+                mercados.
             </p>
         </div>
     </section>
 
-    <!-- Lumière AI Concierge Section (Featured) -->
-    <section class="pb-16 relative z-10">
-        <div class="container mx-auto px-4">
-            <div
-                class="glass-panel p-8 md:p-12 rounded-3xl relative overflow-hidden border border-yellow-500/30 shadow-[0_0_50px_-12px_rgba(234,179,8,0.3)]">
-                <!-- Background Glow -->
+    <!-- Premium Service Grid -->
+    <section class="pb-24 px-4 relative z-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- 1. Web Design -->
+            <a href="diseno-web.html"
+                class="group relative h-[500px] rounded-3xl overflow-hidden cursor-pointer border border-white/10 hover:border-white/30 transition-all shadow-2xl">
+                <!-- Background Image -->
+                <img src="images/services/service_web_design.png" alt="Diseño Web Premium"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+
+                <!-- Gradient Overlay -->
                 <div
-                    class="absolute top-0 right-0 w-[500px] h-[500px] bg-yellow-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none">
+                    class="absolute inset-0 service-card-gradient opacity-90 group-hover:opacity-80 transition-opacity duration-500">
                 </div>
 
-                <div class="absolute top-6 right-6 animate-pulse">
+                <!-- Content -->
+                <div
+                    class="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white mb-6 border border-white/10">
+                        <i class="fas fa-layer-group text-xl"></i>
+                    </div>
+                    <div class="h-px w-12 bg-white/50 mb-6 group-hover:w-24 transition-all duration-500"></div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Diseño Web</h2>
+                    <p
+                        class="text-slate-300 text-sm font-light leading-relaxed mb-6 opacity-80 group-hover:opacity-100">
+                        Arquitectura digital minimalista. Sitios ultra-rápidos que cuentan la historia de tu marca.
+                    </p>
                     <span
-                        class="px-4 py-1.5 rounded-full bg-yellow-500 text-black text-xs font-black tracking-wider uppercase border border-yellow-400 shadow-lg shadow-yellow-500/20">GAME
-                        CHANGER</span>
+                        class="inline-flex items-center text-xs font-bold uppercase tracking-widest text-white hover:text-accent transition-colors">
+                        Ver Detalles <i class="fas fa-arrow-right ml-2 group-hover:ml-3 transition-all"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- 2. AI Sales Agents (Lumiere) -->
+            <a href="lumiere.html"
+                class="group relative h-[500px] rounded-3xl overflow-hidden cursor-pointer border border-yellow-500/20 hover:border-yellow-500/50 transition-all shadow-2xl shadow-yellow-900/10">
+                <img src="images/services/service_ai_sales.png" alt="Agentes de Venta IA"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div
+                    class="absolute inset-0 service-card-gradient opacity-90 group-hover:opacity-80 transition-opacity duration-500">
                 </div>
 
-                <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="text-primary text-xs font-bold tracking-[0.2em] uppercase">The Ultimate
-                                Weapon</span>
-                            <div class="h-px w-12 bg-yellow-500/50"></div>
-                        </div>
-                        <h2 class="text-4xl md:text-5xl font-extrabold mb-6 text-white leading-tight">
-                            Lumière <br>
-                            <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_0_10px_rgba(234,179,8,0.4)]">AI
-                                Concierge</span>
-                        </h2>
-                        <p class="text-slate-300 text-lg mb-8 leading-relaxed font-light">
-                            El único "empleado" que trabaja 24/7, habla 30 idiomas y cierra ventas mientras duermes. La
-                            joya de la corona de tu ecosistema.
-                        </p>
-
-                        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                            <a href="lumiere.html"
-                                class="inline-flex items-center px-8 py-4 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold text-lg shadow-lg hover:shadow-yellow-500/25 transform hover:-translate-y-1 transition-all">
-                                Conocer Lumière
-                                <i class="fas fa-sparkles ml-3"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="space-y-6">
-                        <!-- Feature 1 -->
-                        <div
-                            class="flex items-start gap-5 p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group/item">
-                            <div
-                                class="h-24 w-auto rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0 group-hover/item:scale-110 transition-transform">
-                                <i class="fas fa-microphone-lines text-yellow-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-white font-bold text-lg mb-1">Voz Humana Real</h3>
-                                <p class="text-slate-400 text-sm leading-relaxed">Tus clientes hablan, Lumière responde.
-                                    Cero latencia, 100% natural.</p>
-                            </div>
-                        </div>
-
-                        <!-- Feature 2 -->
-                        <div
-                            class="flex items-start gap-5 p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group/item">
-                            <div
-                                class="h-24 w-auto rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0 group-hover/item:scale-110 transition-transform">
-                                <i class="fas fa-eye text-yellow-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-white font-bold text-lg mb-1">Visión Artificial</h3>
-                                <p class="text-slate-400 text-sm leading-relaxed">"¿Tienen esto?" *Sube foto*. "Sí, aquí
-                                    está". Así de simple.</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="absolute top-6 right-6">
+                    <span
+                        class="px-3 py-1 rounded-full bg-yellow-500 text-black text-[10px] font-black tracking-wider uppercase">Flagship</span>
                 </div>
-            </div>
+
+                <div
+                    class="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-yellow-500/20 backdrop-blur-md flex items-center justify-center text-yellow-400 mb-6 border border-yellow-500/30">
+                        <i class="fas fa-robot text-xl"></i>
+                    </div>
+                    <div class="h-px w-12 bg-yellow-500/50 mb-6 group-hover:w-24 transition-all duration-500"></div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Lumière AI</h2>
+                    <p
+                        class="text-slate-300 text-sm font-light leading-relaxed mb-6 opacity-80 group-hover:opacity-100">
+                        Agentes de voz y chat que trabajan 24/7. Cierran ventas, agendan citas y resuelven dudas.
+                    </p>
+                    <span
+                        class="inline-flex items-center text-xs font-bold uppercase tracking-widest text-yellow-400 hover:text-white transition-colors">
+                        Conocer Agente <i class="fas fa-sparkles ml-2 group-hover:ml-3 transition-all"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- 3. Growth Strategy -->
+            <a href="contacto.html"
+                class="group relative h-[500px] rounded-3xl overflow-hidden cursor-pointer border border-white/10 hover:border-white/30 transition-all shadow-2xl">
+                <img src="images/services/service_consulting.png" alt="Consultoría Estratégica"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div
+                    class="absolute inset-0 service-card-gradient opacity-90 group-hover:opacity-80 transition-opacity duration-500">
+                </div>
+
+                <div
+                    class="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white mb-6 border border-white/10">
+                        <i class="fas fa-chess-queen text-xl"></i>
+                    </div>
+                    <div class="h-px w-12 bg-white/50 mb-6 group-hover:w-24 transition-all duration-500"></div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Consultoría</h2>
+                    <p
+                        class="text-slate-300 text-sm font-light leading-relaxed mb-6 opacity-80 group-hover:opacity-100">
+                        Estrategia de crecimiento agresivo. Mapas de ruta claros para escalar de 6 a 7 cifras.
+                    </p>
+                    <span
+                        class="inline-flex items-center text-xs font-bold uppercase tracking-widest text-white hover:text-accent transition-colors">
+                        Agendar Sesión <i class="fas fa-arrow-right ml-2 group-hover:ml-3 transition-all"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- 4. Marketing & Ads -->
+            <a href="publicidad.html"
+                class="group relative h-[500px] rounded-3xl overflow-hidden cursor-pointer border border-white/10 hover:border-white/30 transition-all shadow-2xl">
+                <img src="images/services/service_marketing.png" alt="Marketing Digital"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div
+                    class="absolute inset-0 service-card-gradient opacity-90 group-hover:opacity-80 transition-opacity duration-500">
+                </div>
+
+                <div
+                    class="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-blue-500/20 backdrop-blur-md flex items-center justify-center text-blue-400 mb-6 border border-blue-500/30">
+                        <i class="fas fa-bullhorn text-xl"></i>
+                    </div>
+                    <div class="h-px w-12 bg-blue-500/50 mb-6 group-hover:w-24 transition-all duration-500"></div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Ads & Traffic</h2>
+                    <p
+                        class="text-slate-300 text-sm font-light leading-relaxed mb-6 opacity-80 group-hover:opacity-100">
+                        Campañas de Meta y Google Ads optimizadas con IA. Tráfico de alta intención, ROAS maximizado.
+                    </p>
+                    <span
+                        class="inline-flex items-center text-xs font-bold uppercase tracking-widest text-blue-400 hover:text-white transition-colors">
+                        Ver Campañas <i class="fas fa-arrow-right ml-2 group-hover:ml-3 transition-all"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- 5. Chatbots & Automation -->
+            <a href="lumiere.html"
+                class="group relative h-[500px] rounded-3xl overflow-hidden cursor-pointer border border-white/10 hover:border-white/30 transition-all shadow-2xl">
+                <img src="images/services/service_chatbot.png" alt="Chatbots IA"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div
+                    class="absolute inset-0 service-card-gradient opacity-90 group-hover:opacity-80 transition-opacity duration-500">
+                </div>
+
+                <div
+                    class="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white mb-6 border border-white/10">
+                        <i class="fas fa-comments text-xl"></i>
+                    </div>
+                    <div class="h-px w-12 bg-white/50 mb-6 group-hover:w-24 transition-all duration-500"></div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Automatización</h2>
+                    <p
+                        class="text-slate-300 text-sm font-light leading-relaxed mb-6 opacity-80 group-hover:opacity-100">
+                        Flujos de chat inteligentes. Califica leads y responde preguntas comunes al instante.
+                    </p>
+                    <span
+                        class="inline-flex items-center text-xs font-bold uppercase tracking-widest text-white hover:text-accent transition-colors">
+                        Ver Demo <i class="fas fa-arrow-right ml-2 group-hover:ml-3 transition-all"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- 6. SEO Dominante -->
+            <a href="seo-local.html"
+                class="group relative h-[500px] rounded-3xl overflow-hidden cursor-pointer border border-white/10 hover:border-white/30 transition-all shadow-2xl">
+                <img src="images/services/service_seo.png" alt="SEO Local"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div
+                    class="absolute inset-0 service-card-gradient opacity-90 group-hover:opacity-80 transition-opacity duration-500">
+                </div>
+
+                <div
+                    class="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-emerald-500/20 backdrop-blur-md flex items-center justify-center text-emerald-400 mb-6 border border-emerald-500/30">
+                        <i class="fas fa-search-dollar text-xl"></i>
+                    </div>
+                    <div class="h-px w-12 bg-emerald-500/50 mb-6 group-hover:w-24 transition-all duration-500"></div>
+                    <h2 class="text-3xl font-bold text-white mb-2">SEO Authority</h2>
+                    <p
+                        class="text-slate-300 text-sm font-light leading-relaxed mb-6 opacity-80 group-hover:opacity-100">
+                        Domina los resultados de búsqueda. Estrategias semánticas para posicionarte como el #1.
+                    </p>
+                    <span
+                        class="inline-flex items-center text-xs font-bold uppercase tracking-widest text-emerald-400 hover:text-white transition-colors">
+                        Ver Estrategia <i class="fas fa-arrow-right ml-2 group-hover:ml-3 transition-all"></i>
+                    </span>
+                </div>
+            </a>
+
         </div>
     </section>
 
-    <!-- Phase 1: Launch (Lanzamiento) -->
-    <section class="py-16 relative z-10 border-t border-white/5 bg-gradient-to-b from-slate-900/50 to-slate-900/0">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
-                <div>
-                    <span class="text-blue-400 font-bold tracking-widest uppercase text-xs mb-2 block">Fase 1</span>
-                    <h2 class="text-3xl md:text-4xl font-bold">Lanzamiento <span class="text-slate-500 font-light">/
-                            Build</span></h2>
-                    <p class="text-slate-400 mt-4 max-w-xl">
-                        Infraestructura digital sólida. Antes de correr, necesitas un vehículo de alto rendimiento.
-                    </p>
-                </div>
-                <div class="h-px bg-white/10 flex-grow md:ml-12"></div>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Web Design -->
-                <div
-                    class="glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 group hover:-translate-y-2 border-t-2 border-transparent hover:border-blue-500 relative overflow-hidden">
-                    <div
-                        class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Diseño Web Premium</h3>
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        No hacemos "páginas web". Construimos activos digitales de alta conversión. Velocidad
-                        instantánea, diseño de clase mundial.
-                    </p>
-                    <a href="diseno-web.html"
-                        class="inline-flex items-center text-blue-400 text-sm font-bold hover:gap-2 transition-all">
-                        Ver Arquitectura <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-
-                <!-- E-commerce -->
-                <div
-                    class="glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 group hover:-translate-y-2 border-t-2 border-transparent hover:border-blue-500 relative overflow-hidden">
-                    <div
-                        class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">E-commerce</h3>
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        Tiendas que venden solas. Integraciones de pago seguras, gestión de inventario y UX diseñada
-                        para maximizar el ticket promedio.
-                    </p>
-                    <a href="ecommerce.html"
-                        class="inline-flex items-center text-blue-400 text-sm font-bold hover:gap-2 transition-all">
-                        Ver Solución <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-
-                <!-- Apps -->
-                <div
-                    class="glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 group hover:-translate-y-2 border-t-2 border-transparent hover:border-blue-500 relative overflow-hidden">
-                    <div
-                        class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Desarrollo de Apps</h3>
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        Tu marca en el bolsillo del cliente. Apps nativas (iOS/Android) rápidas y potentes para
-                        fidelización y servicio.
-                    </p>
-                    <a href="desarrollo-apps.html"
-                        class="inline-flex items-center text-blue-400 text-sm font-bold hover:gap-2 transition-all">
-                        Ver Desarrollo <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Phase 2: Scale (Escalamiento) -->
-    <section class="py-16 pb-24 relative z-10">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
-                <div>
-                    <span class="text-emerald-400 font-bold tracking-widest uppercase text-xs mb-2 block">Fase 2</span>
-                    <h2 class="text-3xl md:text-4xl font-bold">Escalamiento <span class="text-slate-500 font-light">/
-                            Scale</span></h2>
-                    <p class="text-slate-400 mt-4 max-w-xl">
-                        Tracción y crecimiento agresivo. Llevamos tráfico cualificado a tu infraestructura.
-                    </p>
-                </div>
-                <div class="h-px bg-white/10 flex-grow md:ml-12"></div>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- SEO -->
-                <div
-                    class="glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 group hover:-translate-y-2 border-t-2 border-transparent hover:border-emerald-500 relative overflow-hidden">
-                    <div
-                        class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-search-dollar"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">SEO Dominante</h3>
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        No pagues por cada clic para siempre. Posiciónate como la autoridad #1 en tu nicho y atrae
-                        tráfico orgánico de alta intención.
-                    </p>
-                    <a href="seo-local.html"
-                        class="inline-flex items-center text-emerald-400 text-sm font-bold hover:gap-2 transition-all">
-                        Dominar Google <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-
-                <!-- Ads -->
-                <div
-                    class="glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 group hover:-translate-y-2 border-t-2 border-transparent hover:border-emerald-500 relative overflow-hidden">
-                    <div
-                        class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Publicidad (Ads)</h3>
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        Resultados inmediatos. Campañas de Facebook, Instagram y Google Ads optimizadas con IA para
-                        maximizar el ROAS (Retorno).
-                    </p>
-                    <a href="publicidad.html"
-                        class="inline-flex items-center text-emerald-400 text-sm font-bold hover:gap-2 transition-all">
-                        Lanzar Campaña <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-
-                <!-- Analytics -->
-                <div
-                    class="glass-panel rounded-2xl p-8 hover:bg-white/5 transition-all duration-300 group hover:-translate-y-2 border-t-2 border-transparent hover:border-emerald-500 relative overflow-hidden">
-                    <div
-                        class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl mb-6 group-hover:scale-110 transition-transform">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Data Analytics</h3>
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        Tableros de control en tiempo real. Deja de adivinar y empieza a tomar decisiones basadas en
-                        datos duros.
-                    </p>
-                    <a href="analitica.html"
-                        class="inline-flex items-center text-emerald-400 text-sm font-bold hover:gap-2 transition-all">
-                        Ver Datos <i class="fas fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Specialized Industries -->
-    <section class="py-20 relative z-10 bg-slate-900/50 border-t border-white/5">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <span class="text-amber-400 font-bold tracking-widest uppercase text-xs mb-2 block">Industrias</span>
-                <h2 class="text-3xl md:text-4xl font-bold">Soluciones <span class="text-slate-500 font-light">/
-                        Especializadas</span></h2>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                <!-- Medical -->
-                <a href="marketing-medico.html"
-                    class="group relative overflow-hidden rounded-3xl h-64 md:h-80 flex items-end p-8 border border-white/10 hover:border-blue-500/50 transition-all duration-500">
-                    <div class="absolute inset-0">
-                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=2070"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40 group-hover:opacity-50">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent">
-                        </div>
-                    </div>
-                    <div class="relative z-10 w-full">
-                        <div
-                            class="w-12 h-12 rounded-xl bg-blue-600/20 backdrop-blur-md flex items-center justify-center text-blue-400 mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                            <i class="fas fa-user-md text-xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
-                            Marketing Médico</h3>
-                        <p
-                            class="text-slate-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-4 group-hover:translate-y-0 duration-300">
-                            Patient Acquisition Systems para Clínicas y Doctores.
-                        </p>
-                    </div>
-                </a>
-
-                <!-- Real Estate -->
-                <a href="marketing-realestate.html"
-                    class="group relative overflow-hidden rounded-3xl h-64 md:h-80 flex items-end p-8 border border-white/10 hover:border-emerald-500/50 transition-all duration-500">
-                    <div class="absolute inset-0">
-                        <img src="https://images.unsplash.com/photo-1600596542815-40c5f0c52d18?auto=format&fit=crop&q=80&w=2068"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40 group-hover:opacity-50">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent">
-                        </div>
-                    </div>
-                    <div class="relative z-10 w-full">
-                        <div
-                            class="w-12 h-12 rounded-xl bg-emerald-600/20 backdrop-blur-md flex items-center justify-center text-emerald-400 mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                            <i class="fas fa-city text-xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2 group-hover:translate-x-2 transition-transform">
-                            Marketing Inmobiliario</h3>
-                        <p
-                            class="text-slate-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-4 group-hover:translate-y-0 duration-300">
-                            High-Ticket Lead Gen para Desarrolladores.
-                        </p>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Footer -->
+    <!-- Footer -->
     <footer class="border-t border-white/10 bg-slate-950 py-12">
         <div class="container mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-6">¿No estás seguro de qué necesitas?</h2>
-            <p class="text-slate-400 mb-8 max-w-xl mx-auto">Agenda una consulta gratuita de 30 minutos y analicemos
-                juntos la mejor estrategia para tu negocio.</p>
+            <h2 class="text-3xl font-bold mb-6">¿Listo para Escalar?</h2>
+            <p class="text-slate-400 mb-8 max-w-xl mx-auto">Agenda una auditoría gratuita. Analizaremos tu presencia
+                actual y te daremos un plan de acción.</p>
             <a href="contacto.html"
-                class="inline-block px-8 py-3 bg-white text-slate-900 font-bold rounded-full hover:bg-slate-200 transition-colors">
-                Consulta Gratuita
+                class="inline-block px-8 py-3 bg-white text-slate-900 font-bold rounded-full hover:bg-slate-200 transition-colors shadow-lg hover:shadow-white/20">
+                Auditoría Gratuita
             </a>
             <div
-                class="border-t border-white/5 pt-8 text-center text-slate-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="hidden md:flex space-x-8 text-sm font-medium">
-                    <a href="index.html" class="hover:text-primary transition">Inicio</a>
-                    <a href="diseno-web.html" class="text-primary">Diseño Web</a>
-                    <a href="lumiere.html" class="hover:text-amber-400 transition">IA Lumière</a>
-                    <a href="#portfolio" class="hover:text-primary transition">Catálogo</a>
-                </div>
-                <p data-i18n="footer_rights">&copy; 2024 JegoDigital. Todos los derechos reservados.</p>
+                class="border-t border-white/5 pt-8 mt-12 text-center text-slate-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <p>&copy; 2026 JegoDigital. All rights reserved.</p>
                 <div class="flex gap-6">
                     <a href="privacy.html" class="hover:text-primary transition-colors">Privacidad</a>
                     <a href="terms.html" class="hover:text-primary transition-colors">Términos</a>
@@ -467,90 +310,7 @@
         </div>
     </footer>
 
-    <script>
-        // Mobile Menu Toggle
-        const btn = document.getElementById('mobile-menu-btn');
-        const menu = document.getElementById('mobile-menu');
-        const icon = btn.querySelector('i');
-
-        if (btn && menu) {
-            btn.addEventListener('click', () => {
-                menu.classList.toggle('hidden');
-                if (menu.classList.contains('hidden')) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                } else {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                }
-            });
-        }
-    </script>
-
-    <!-- Smart AI Chat Widget -->
-    <!-- Toggle Button -->
-    <button id="chat-toggle-btn"
-        class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/50 flex items-center justify-center hover:scale-110 transition-all duration-300 animate-float group">
-        <i class="fas fa-sparkles text-2xl group-hover:rotate-12 transition-transform"></i>
-        <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-slate-900"></div>
-    </button>
-
-    <!-- Chat Container -->
-    <div id="chat-container"
-        class="fixed bottom-24 right-6 z-50 w-[350px] md:w-[400px] h-[600px] max-h-[80vh] bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col hidden transition-all duration-300 origin-bottom-right transform scale-90 opacity-0">
-
-        <!-- Header -->
-        <div class="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 rounded-t-2xl">
-            <div class="flex items-center gap-3">
-                <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30 relative">
-                    <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
-                    <i class="fas fa-robot text-white text-lg relative z-10"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-white text-sm">JegoDigital AI Agent</h3>
-                    <p class="text-xs text-slate-400">Concierge Digital 24/7</p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('chat-toggle-btn').click()"
-                class="text-slate-400 hover:text-white transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <!-- Messages Area -->
-        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 custom-scrollbar">
-            <!-- Messages will be injected here -->
-        </div>
-
-        <!-- Input Area -->
-        <div class="p-4 border-t border-white/10 bg-white/5 rounded-b-2xl">
-            <!-- Vision Preview -->
-            <input type="file" id="chat-file-input" accept="image/*" class="hidden">
-
-            <div
-                class="relative flex items-center gap-2 bg-slate-800/50 border border-white/10 rounded-xl p-2 focus-within:border-primary/50 transition-colors">
-                <button id="chat-image-btn" class="p-2 text-slate-400 hover:text-primary transition-colors"
-                    title="Subir Imagen / Vision AI">
-                    <i class="fas fa-camera"></i>
-                </button>
-                <input type="text" id="chat-input" placeholder="Escribe o habla..."
-                    class="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder-slate-500 min-w-0">
-                <button id="chat-mic-btn" class="p-2 text-slate-400 hover:text-white transition-colors"
-                    title="Hablar (Voice AI)">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button id="chat-send-btn"
-                    class="p-2 h-8 w-auto flex items-center justify-center bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                    <i class="fas fa-paper-plane text-xs"></i>
-                </button>
-            </div>
-            <p class="text-[10px] text-slate-500 text-center mt-2">Powered by Gemini 2.0 Flash • Web Speech API</p>
-        </div>
-    </div>
-
-    <!-- Script Import -->
-    <!-- Smart Chat Widget & Language Manager -->
+    <!-- Smart Chat Import -->
     <script type="module" src="js/language-manager.js"></script>
     <script type="module" src="js/smart-chat.js"></script>
 </body>

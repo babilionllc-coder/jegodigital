@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JegoDigital — Smart Search Presence (AEO) para Inmobiliarias</title>
+<meta name="description" content="Cuando alguien le pregunta a ChatGPT cuál es la mejor inmobiliaria en Cancún, ¿apareces tú? Demo en vivo de Presencia Inteligente en Búsquedas para inmobiliarias.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #C5A059;
+  --gold-light: #E5C585;
+  --gold-dim: rgba(197,160,89,0.15);
+  --gold-border: rgba(197,160,89,0.2);
+  --dark: #0f1115;
+  --surface: #1a1d24;
+  --surface2: #20242e;
+  --gray: #8b9bb4;
+  --text: #e8eaf0;
+  --red: #ff4d6d;
+  --green: #22c55e;
+  --blue: #4f8ef7;
+  --purple: #a78bfa;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(15,17,21,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-icon {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: var(--dark);
+}
+.nav-logo { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+.nav-logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 6px; }
+.nav-link {
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: var(--gray);
+  cursor: pointer; transition: all 0.2s; border: none; background: none;
+  text-decoration: none;
+}
+.nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.nav-link.active { color: var(--gold); background: var(--gold-dim); }
+.nav-badge {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); padding: 7px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; transition: opacity 0.2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav-badge:hover { opacity: 0.85; }
+
+/* ─── SECTIONS ─── */
+section { padding: 100px 40px 80px; max-width: 1200px; margin: 0 auto; }
+section:first-of-type { padding-top: 140px; }
+
+/* ─── HERO ─── */
+#hero {
+  text-align: center; padding-top: 140px; padding-bottom: 60px;
+  position: relative;
+}
+.hero-glow {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(197,160,89,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.client-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--gold-border);
+  padding: 6px 16px; border-radius: 30px;
+  font-size: 12px; font-weight: 600; color: var(--gold);
+  margin-bottom: 28px; letter-spacing: 0.5px;
+}
+.client-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.5; transform:scale(0.8); } }
+
+h1 {
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 900; line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+h1 .gold { color: var(--gold); }
+h1 .dim { color: var(--gray); }
+
+.hero-sub {
+  font-size: 18px; color: var(--gray); max-width: 640px; margin: 0 auto 40px;
+  font-weight: 400;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+.hero-stat strong { font-size: 32px; font-weight: 900; color: var(--gold); display: block; }
+.hero-stat span { font-size: 13px; color: var(--gray); font-weight: 500; }
+
+/* ─── SECTION LABELS ─── */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
+}
+.section-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+.section-sub { font-size: 16px; color: var(--gray); margin-bottom: 48px; }
+
+/* ─── PAIN CARDS ─── */
+.pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.pain-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  transition: all 0.25s;
+  border-left: 3px solid var(--red);
+}
+.pain-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(197,160,89,0.08);
+}
+.pain-icon { font-size: 28px; margin-bottom: 14px; }
+.pain-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.pain-desc { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+/* ─── PIPELINE ─── */
+.pipeline-track {
+  display: flex; align-items: center; gap: 0;
+  overflow-x: auto; padding-bottom: 16px;
+  scrollbar-width: none;
+}
+.pipeline-track::-webkit-scrollbar { display: none; }
+.pipe-step {
+  flex: 1; min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px;
+  padding: 24px 20px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-decoration: none; color: inherit;
+}
+.pipe-step:hover, .pipe-step.active {
+  border-color: var(--gold);
+  background: var(--surface2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(197,160,89,0.12);
+}
+.pipe-arrow {
+  flex-shrink: 0; padding: 0 8px; color: var(--gold-border);
+  font-size: 20px; font-weight: 300;
+}
+.pipe-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+}
+.pipe-num {
+  position: absolute; top: 12px; right: 14px;
+  font-size: 11px; font-weight: 700; color: var(--gold-border);
+  letter-spacing: 1px;
+}
+.pipe-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.pipe-desc { font-size: 12px; color: var(--gray); line-height: 1.4; }
+.pipe-tag {
+  display: inline-block; margin-top: 10px;
+  padding: 3px 8px; border-radius: 6px;
+  font-size: 10px; font-weight: 600;
+  background: var(--gold-dim); color: var(--gold);
+}
+
+/* ─── TWO COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+
+/* ─── INFO CARDS ─── */
+.info-panel { display: flex; flex-direction: column; gap: 20px; }
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 22px;
+}
+.info-card-title {
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+}
+.qual-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.qual-row:last-child { border-bottom: none; }
+.qual-label { font-size: 13px; color: var(--gray); }
+.qual-val { font-size: 13px; font-weight: 600; }
+
+/* ─── GOOGLE SERP MOCKUP ─── */
+.serp-container {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  border: 1px solid #dfe1e5;
+}
+.serp-bar {
+  background: #fff;
+  padding: 12px 20px;
+  border-bottom: 1px solid #dfe1e5;
+  display: flex; align-items: center; gap: 12px;
+}
+.serp-search-box {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
+  padding: 10px 18px;
+  font-size: 14px;
+  color: #202124;
+  display: flex; align-items: center; gap: 10px;
+}
+.serp-search-icon { color: #9aa0a6; font-size: 16px; }
+.serp-tabs {
+  display: flex; gap: 0; padding: 0 20px;
+  border-bottom: 1px solid #dfe1e5;
+}
+.serp-tab {
+  padding: 10px 16px;
+  font-size: 13px; color: #5f6368;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+}
+.serp-tab.active { color: #1a73e8; border-bottom-color: #1a73e8; font-weight: 500; }
+.serp-results { padding: 20px; }
+.serp-info { font-size: 12px; color: #70757a; margin-bottom: 20px; }
+.serp-result { margin-bottom: 24px; }
+.serp-url { font-size: 12px; color: #202124; display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+.serp-url .favicon { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; }
+.serp-url .domain { color: #4d5156; font-size: 12px; }
+.serp-result-title { font-size: 18px; color: #1a0dab; font-weight: 400; margin-bottom: 4px; cursor: pointer; }
+.serp-result-title:hover { text-decoration: underline; }
+.serp-snippet { font-size: 14px; color: #4d5156; line-height: 1.5; }
+.serp-snippet strong { color: #202124; font-weight: 600; }
+.serp-stars { color: #fbbc04; font-size: 12px; margin-bottom: 4px; }
+
+/* Position highlight */
+.serp-result.featured {
+  background: #f0f7ff;
+  border: 2px solid #1a73e8;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+}
+.serp-position-badge {
+  position: absolute; top: -10px; right: 16px;
+  background: #1a73e8; color: #fff;
+  padding: 2px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+
+/* ─── CHATGPT MOCKUP ─── */
+.chatgpt-container {
+  background: #212121;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+  border: 1px solid #333;
+}
+.chatgpt-header {
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #333;
+}
+.chatgpt-model {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 500; color: #ececec;
+}
+.chatgpt-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
+.chatgpt-body { padding: 24px 20px; }
+.chatgpt-user-msg {
+  background: #2f2f2f;
+  border-radius: 20px;
+  padding: 12px 18px;
+  font-size: 14px;
+  color: #ececec;
+  max-width: 80%;
+  margin-left: auto;
+  margin-bottom: 20px;
+}
+.chatgpt-ai-msg {
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.chatgpt-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, #10a37f, #1a7f64);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.chatgpt-text {
+  font-size: 14px; color: #d1d5db; line-height: 1.7;
+  flex: 1;
+}
+.chatgpt-text strong { color: #ececec; }
+.chatgpt-text .client-name {
+  color: var(--gold);
+  font-weight: 700;
+  background: rgba(197,160,89,0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.chatgpt-text ol { padding-left: 20px; margin: 10px 0; }
+.chatgpt-text li { margin-bottom: 8px; }
+.chatgpt-text .source-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; color: #10a37f; font-weight: 600;
+  margin-top: 12px;
+}
+.chatgpt-input {
+  margin: 16px 20px 20px;
+  background: #2f2f2f;
+  border: 1px solid #444;
+  border-radius: 24px;
+  padding: 12px 18px;
+  font-size: 13px; color: #8e8ea0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ─── KEYWORD DASHBOARD ─── */
+.keyword-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.keyword-table thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px; font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--gold-border);
+}
+.keyword-table tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.keyword-table tbody tr { transition: background 0.15s; }
+.keyword-table tbody tr:hover { background: rgba(197,160,89,0.04); }
+.pos-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 8px;
+  font-size: 12px; font-weight: 800;
+}
+.pos-1 { background: rgba(34,197,94,0.15); color: var(--green); }
+.pos-2 { background: rgba(34,197,94,0.1); color: var(--green); }
+.pos-3 { background: rgba(79,142,247,0.1); color: var(--blue); }
+.pos-low { background: rgba(255,77,109,0.1); color: var(--red); }
+.trend-up { color: var(--green); font-size: 12px; font-weight: 700; }
+.trend-down { color: var(--red); font-size: 12px; font-weight: 700; }
+.vol-bar {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  margin-top: 4px;
+}
+
+/* ─── CONTENT CALENDAR ─── */
+.content-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+}
+.cal-header {
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 10px; font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cal-cell {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 6px;
+  min-height: 70px;
+  transition: all 0.2s;
+}
+.cal-cell:hover {
+  border-color: var(--gold-border);
+  background: var(--surface2);
+}
+.cal-day { font-size: 10px; color: var(--gray); margin-bottom: 4px; }
+.cal-item {
+  font-size: 9px; font-weight: 600;
+  padding: 3px 5px; border-radius: 4px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-seo { background: rgba(79,142,247,0.15); color: var(--blue); }
+.cal-aeo { background: rgba(167,139,250,0.15); color: var(--purple); }
+.cal-local { background: rgba(34,197,94,0.15); color: var(--green); }
+.cal-content { background: rgba(197,160,89,0.15); color: var(--gold); }
+
+/* ─── RESULTS ─── */
+.results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 28px 24px;
+  text-align: center;
+  transition: all 0.25s;
+}
+.result-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(197,160,89,0.1);
+}
+.result-icon { font-size: 32px; margin-bottom: 12px; }
+.result-number {
+  font-size: 44px; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.result-label { font-size: 14px; color: var(--gray); margin-top: 8px; font-weight: 500; }
+.result-sub { font-size: 12px; color: rgba(139,155,180,0.6); margin-top: 4px; }
+
+/* ─── CTA ─── */
+#cta {
+  text-align: center;
+  padding: 100px 40px;
+  background: linear-gradient(180deg, transparent 0%, rgba(197,160,89,0.04) 50%, transparent 100%);
+  border-top: 1px solid var(--gold-border);
+}
+.cta-title { font-size: 40px; font-weight: 900; margin-bottom: 16px; }
+.cta-sub { font-size: 17px; color: var(--gray); max-width: 500px; margin: 0 auto 36px; }
+.cta-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 16px 36px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); font-size: 15px; font-weight: 800;
+  border: none; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.3px; text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(197,160,89,0.3); }
+.btn-secondary {
+  padding: 16px 36px; border-radius: 12px;
+  background: transparent;
+  color: var(--text); font-size: 15px; font-weight: 700;
+  border: 1px solid var(--gold-border); cursor: pointer; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ─── FOOTER ─── */
+footer {
+  text-align: center; padding: 32px 40px;
+  border-top: 1px solid var(--gold-border);
+  font-size: 12px; color: var(--gray);
+}
+footer a { color: var(--gold); text-decoration: none; }
+
+/* ─── SCROLL ANIMATIONS ─── */
+.anim-section { opacity: 0; }
+.anim-section.visible { opacity: 1; }
+.anim-left { opacity: 0; transform: translateX(-60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-left { opacity: 1; transform: translateX(0); }
+.anim-right { opacity: 0; transform: translateX(60px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.anim-section.visible .anim-right { opacity: 1; transform: translateX(0); }
+.anim-up { opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-up { opacity: 1; transform: translateY(0); }
+.anim-scale { opacity: 0; transform: scale(0.85); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-section.visible .anim-scale { opacity: 1; transform: scale(1); }
+.anim-d1 { transition-delay: 0.1s !important; }
+.anim-d2 { transition-delay: 0.25s !important; }
+.anim-d3 { transition-delay: 0.4s !important; }
+.anim-d4 { transition-delay: 0.55s !important; }
+.anim-d5 { transition-delay: 0.7s !important; }
+.anim-d6 { transition-delay: 0.85s !important; }
+
+/* SERP rank climbing animation */
+@keyframes climbUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.serp-climb { opacity: 0; }
+.anim-section.visible .serp-climb { animation: climbUp 0.5s ease forwards; }
+
+/* ChatGPT typing effect */
+@keyframes typeReveal {
+  0% { max-height: 0; opacity: 0; }
+  100% { max-height: 600px; opacity: 1; }
+}
+.chatgpt-reveal { max-height: 0; opacity: 0; overflow: hidden; }
+.anim-section.visible .chatgpt-reveal { animation: typeReveal 1.5s ease 0.6s forwards; }
+
+/* Result card pop */
+@keyframes resultPop {
+  0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.result-card-anim { opacity: 0; }
+.anim-section.visible .result-card-anim { animation: resultPop 0.5s ease forwards; }
+
+/* Keyword row slide */
+@keyframes kwSlide {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.kw-anim { opacity: 0; }
+.anim-section.visible .kw-anim { animation: kwSlide 0.35s ease forwards; }
+
+/* Calendar cell fill */
+@keyframes calFill {
+  0% { opacity: 0; transform: scale(0.7); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.cal-anim { opacity: 0; }
+.anim-section.visible .cal-anim { animation: calFill 0.3s ease forwards; }
+
+/* gold text */
+.gold-text { color: var(--gold); }
+
+/* responsive */
+@media (max-width: 900px) {
+  .two-col { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .pain-grid { grid-template-columns: 1fr; }
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  section { padding: 80px 20px 60px; }
+  .hero-stats { gap: 28px; }
+  .pipeline-track { gap: 0; }
+  .content-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 600px) {
+  .results-grid { grid-template-columns: 1fr; }
+  .content-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-icon">J</div>
+    <div class="nav-logo"><span>Jego</span>Digital</div>
+  </div>
+  <div class="nav-links">
+    <a href="#video" class="nav-link">Video</a>
+    <a href="#problem" class="nav-link active">Problema</a>
+    <a href="#how" class="nav-link">Pipeline</a>
+    <a href="#google-serp" class="nav-link">Google</a>
+    <a href="#chatgpt" class="nav-link">ChatGPT</a>
+    <a href="#keywords" class="nav-link">Keywords</a>
+    <a href="#content" class="nav-link">Contenido</a>
+    <a href="#results" class="nav-link">Resultados</a>
+  </div>
+  <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" class="nav-badge">📞 Agendar Llamada</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="max-width:1200px;">
+  <div class="hero-glow"></div>
+  <div class="client-pill">
+    <div class="client-dot"></div>
+    DEMO EN VIVO · Smart Search Presence · Riviera Maya
+  </div>
+  <h1>
+    Cuando preguntan<br>
+    <span class="gold">"mejor inmobiliaria en Cancún"</span><br>
+    <span class="dim">¿apareces tú?</span>
+  </h1>
+  <p class="hero-sub">
+    Posicionamos tu agencia en Google Y en ChatGPT. No solo anuncios — presencia inteligente que genera leads orgánicos las 24 horas sin pagar por cada click.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <strong>Top 3</strong>
+      <span>en Google para<br>keywords de alta intención</span>
+    </div>
+    <div class="hero-stat">
+      <strong>90 días</strong>
+      <span>para posicionar<br>tu primera página</span>
+    </div>
+    <div class="hero-stat">
+      <strong>+340%</strong>
+      <span>más tráfico orgánico<br>en 6 meses</span>
+    </div>
+    <div class="hero-stat">
+      <strong>ChatGPT</strong>
+      <span>te recomienda como<br>agencia #1 en tu zona</span>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO DEMO -->
+<section id="video" class="anim-section" style="padding-top:40px; padding-bottom:80px;">
+  <div style="text-align:center;">
+    <div class="section-label anim-up">Video Demo · 52 segundos</div>
+    <div class="section-title anim-up anim-d1" style="margin-bottom:32px;">Mira cómo funciona <span class="gold">Smart Search Presence</span></div>
+    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;padding-top:56.25%">
+      <iframe id="video-iframe" src="seo-aeo-video.html" style="position:absolute;top:0;left:0;width:1920px;height:1080px;border:none;pointer-events:none;transform-origin:top left" loading="lazy"></iframe>
+      <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
+        </div>
+      </div>
+    </div>
+    <p style="color:var(--gray);margin-top:16px;font-size:13px;">Google SERP · ChatGPT · Keywords · Contenido · Resultados</p>
+  </div>
+</section>
+<script>
+function scaleVideoIframe(){
+  const container=document.querySelector('#video > div > div:nth-child(3)');
+  const iframe=document.getElementById('video-iframe');
+  if(!container||!iframe)return;
+  const scale=container.offsetWidth/1920;
+  iframe.style.transform='scale('+scale+')';
+}
+scaleVideoIframe();
+window.addEventListener('resize',scaleVideoIframe);
+function startVideo(){
+  const overlay=document.getElementById('video-overlay');
+  overlay.style.opacity='0';
+  setTimeout(()=>{overlay.style.display='none'},300);
+  document.getElementById('video-iframe').src='seo-aeo-video.html';
+}
+</script>
+
+<!-- PAIN POINTS -->
+<section id="problem" class="anim-section" style="padding-top:40px;">
+  <div class="section-label anim-up">El problema</div>
+  <div class="section-title anim-up anim-d1">¿Por qué tus competidores reciben más leads que tú?</div>
+  <div class="section-sub anim-up anim-d2">No es porque tienen mejores propiedades. Es porque son más visibles donde los compradores buscan.</div>
+
+  <div class="pain-grid">
+    <div class="pain-card anim-up anim-d2">
+      <div class="pain-icon">👻</div>
+      <div class="pain-title">Invisible en Google</div>
+      <div class="pain-desc">Cuando alguien busca "departamentos en venta Cancún zona hotelera", tu sitio aparece en la página 3. Tus competidores en la 1. Cada día pierdes leads orgánicos que nunca sabrás que existieron.</div>
+    </div>
+    <div class="pain-card anim-up anim-d3">
+      <div class="pain-icon">🤖</div>
+      <div class="pain-title">ChatGPT no sabe que existes</div>
+      <div class="pain-desc">Millones de compradores ya le preguntan a ChatGPT "¿cuál es la mejor inmobiliaria en Tulum?". Si no estás optimizado para IA, la respuesta menciona a tu competencia — nunca a ti.</div>
+    </div>
+    <div class="pain-card anim-up anim-d4">
+      <div class="pain-icon">💸</div>
+      <div class="pain-title">Dependencia total de anuncios pagados</div>
+      <div class="pain-desc">Pagas $15,000–$30,000 MXN/mes en Google Ads. El día que dejas de pagar, los leads desaparecen. Cero presencia orgánica = cero leads gratuitos.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="how" class="anim-section" style="padding-top:60px;">
+  <div class="section-label anim-up">Cómo funciona · paso a paso</div>
+  <div class="section-title anim-up anim-d1">El pipeline de Smart Search Presence</div>
+  <div class="section-sub anim-up anim-d2">5 capas que hacen que tu agencia domine Google, ChatGPT y cada motor de búsqueda donde tus compradores investigan.</div>
+
+  <div class="pipeline-track">
+    <a href="#google-serp" class="pipe-step active">
+      <div class="pipe-num">01</div>
+      <div class="pipe-icon">🔍</div>
+      <div class="pipe-title">Keyword Strategy</div>
+      <div class="pipe-desc">Identificamos las 50+ keywords donde tus compradores buscan propiedades.</div>
+      <span class="pipe-tag">SEO Research</span>
+    </a>
+    <div class="pipe-arrow">→</div>
+    <a href="#google-serp" class="pipe-step">
+      <div class="pipe-num">02</div>
+      <div class="pipe-icon">📄</div>
+      <div class="pipe-title">Landing Pages</div>
+      <div class="pipe-desc">Páginas optimizadas por zona + tipo de propiedad + comprador.</div>
+      <span class="pipe-tag">SEO On-Page</span>
+    </a>
+    <div class="pipe-arrow">→</div>
+    <a href="#chatgpt" class="pipe-step">
+      <div class="pipe-num">03</div>
+      <div class="pipe-icon">🧠</div>
+      <div class="pipe-title">AEO Schema</div>
+      <div class="pipe-desc">Structured data + FAQ schema para que la IA te cite como fuente.</div>
+      <span class="pipe-tag">Answer Engine</span>
+    </a>
+    <div class="pipe-arrow">→</div>
+    <a href="#content" class="pipe-step">
+      <div class="pipe-num">04</div>
+      <div class="pipe-icon">📝</div>
+      <div class="pipe-title">Contenido Mensual</div>
+      <div class="pipe-desc">Artículos, guías y FAQs que posicionan y alimentan a la IA.</div>
+      <span class="pipe-tag">Content SEO</span>
+    </a>
+    <div class="pipe-arrow">→</div>
+    <a href="#results" class="pipe-step">
+      <div class="pipe-num">05</div>
+      <div class="pipe-icon">📊</div>
+      <div class="pipe-title">Monitoreo & Ajuste</div>
+      <div class="pipe-desc">Rankings, tráfico y menciones en IA — reportes mensuales.</div>
+      <span class="pipe-tag">Analytics</span>
+    </a>
+  </div>
+</section>
+
+<!-- STEP 1: GOOGLE SERP -->
+<section id="google-serp" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Paso 1–2 · SEO Tradicional</div>
+  <div class="section-title anim-up anim-d1">Tu agencia en el Top 3 de Google</div>
+  <div class="section-sub anim-up anim-d2">Así se ve cuando un comprador busca propiedades en tu zona — y tu agencia aparece primero.</div>
+
+  <div class="two-col">
+    <!-- Google SERP mockup -->
+    <div class="serp-container anim-left anim-d2">
+      <div class="serp-bar">
+        <svg width="74" height="24" viewBox="0 0 74 24"><text x="0" y="18" font-family="Arial" font-weight="700" font-size="18"><tspan fill="#4285f4">G</tspan><tspan fill="#ea4335">o</tspan><tspan fill="#fbbc05">o</tspan><tspan fill="#4285f4">g</tspan><tspan fill="#34a853">l</tspan><tspan fill="#ea4335">e</tspan></text></svg>
+        <div class="serp-search-box">
+          <span class="serp-search-icon">🔍</span>
+          <span>mejor inmobiliaria cancún zona hotelera</span>
+        </div>
+      </div>
+      <div class="serp-tabs">
+        <div class="serp-tab active">Todos</div>
+        <div class="serp-tab">Mapas</div>
+        <div class="serp-tab">Imágenes</div>
+        <div class="serp-tab">Noticias</div>
+      </div>
+      <div class="serp-results">
+        <div class="serp-info">Aprox. 2,340,000 resultados (0.42 seg)</div>
+
+        <!-- #1 — Client (highlighted) -->
+        <div class="serp-result featured serp-climb" style="animation-delay:0.3s;">
+          <div class="serp-position-badge">#1</div>
+          <div class="serp-url">
+            <div class="favicon" style="background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0f1115;">L</div>
+            <span class="domain">lunaespecialistas.com › cancun › zona-hotelera</span>
+          </div>
+          <div class="serp-stars">★★★★★ 4.9 — 127 reseñas</div>
+          <div class="serp-result-title">Las Mejores Propiedades en Cancún Zona Hotelera | Luna Especialistas</div>
+          <div class="serp-snippet">Departamentos de <strong>lujo en la zona hotelera de Cancún</strong> con vista al mar. Asesoría personalizada, financiamiento disponible y tour virtual. <strong>15 años de experiencia</strong> en bienes raíces premium en la Riviera Maya.</div>
+        </div>
+
+        <!-- #2 — Competitor -->
+        <div class="serp-result serp-climb" style="animation-delay:0.6s;">
+          <div class="serp-url">
+            <div class="favicon" style="background:#e0e0e0;color:#666;">I</div>
+            <span class="domain">inmuebles24.com › cancun</span>
+          </div>
+          <div class="serp-result-title">Inmuebles en Cancún Zona Hotelera - Inmuebles24</div>
+          <div class="serp-snippet">245 inmuebles en venta en Cancún zona hotelera. Encuentra departamentos, casas y terrenos...</div>
+        </div>
+
+        <!-- #3 — Competitor -->
+        <div class="serp-result serp-climb" style="animation-delay:0.9s;">
+          <div class="serp-url">
+            <div class="favicon" style="background:#e0e0e0;color:#666;">V</div>
+            <span class="domain">vivanuncios.com.mx › cancun</span>
+          </div>
+          <div class="serp-result-title">Propiedades en Venta Cancún - Vivanuncios</div>
+          <div class="serp-snippet">Encuentra propiedades en venta en Cancún. Departamentos desde $2.5M MXN...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">🔍 Estrategia SEO Aplicada</div>
+        <div class="qual-row"><span class="qual-label">Keyword principal</span><span class="qual-val">"mejor inmobiliaria cancún"</span></div>
+        <div class="qual-row"><span class="qual-label">Volumen mensual</span><span class="qual-val gold-text">2,400 búsquedas</span></div>
+        <div class="qual-row"><span class="qual-label">Dificultad</span><span class="qual-val" style="color:var(--green);">Media (38/100)</span></div>
+        <div class="qual-row"><span class="qual-label">Intención</span><span class="qual-val" style="color:var(--green);">Comercial / Alta</span></div>
+        <div class="qual-row"><span class="qual-label">Landing optimizada</span><span class="qual-val gold-text">✓</span></div>
+        <div class="qual-row"><span class="qual-label">Schema markup</span><span class="qual-val gold-text">✓ RealEstateAgent</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">📈 Impacto en 90 días</div>
+        <div class="qual-row"><span class="qual-label">Posición antes</span><span class="qual-val" style="color:var(--red);">Página 3 (#27)</span></div>
+        <div class="qual-row"><span class="qual-label">Posición ahora</span><span class="qual-val" style="color:var(--green);">#1</span></div>
+        <div class="qual-row"><span class="qual-label">Clicks orgánicos/mes</span><span class="qual-val gold-text">+480</span></div>
+        <div class="qual-row"><span class="qual-label">Valor en Google Ads</span><span class="qual-val gold-text">$14,400 MXN/mes ahorrado</span></div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">¿Qué significa esto?</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">Cada mes, 480 personas buscan exactamente lo que tú vendes — y te encuentran a ti primero. Sin pagar un centavo en anuncios. Eso es presencia inteligente.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 2: CHATGPT / AEO -->
+<section id="chatgpt" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Paso 3 · AEO (Answer Engine Optimization)</div>
+  <div class="section-title anim-up anim-d1">ChatGPT te recomienda como la agencia #1</div>
+  <div class="section-sub anim-up anim-d2">Miles de compradores ya usan ChatGPT, Perplexity y Gemini para investigar propiedades. Con AEO, la IA te cita como fuente confiable.</div>
+
+  <div class="two-col">
+    <!-- ChatGPT mockup -->
+    <div class="chatgpt-container anim-left anim-d2">
+      <div class="chatgpt-header">
+        <div class="chatgpt-model">
+          <div class="chatgpt-dot"></div>
+          ChatGPT 4o
+        </div>
+        <div style="font-size:12px;color:#8e8ea0;">chat.openai.com</div>
+      </div>
+      <div class="chatgpt-body">
+        <div class="chatgpt-user-msg">
+          ¿Cuál es la mejor inmobiliaria en Cancún para comprar un departamento de lujo?
+        </div>
+        <div class="chatgpt-ai-msg">
+          <div class="chatgpt-avatar">G</div>
+          <div class="chatgpt-text chatgpt-reveal">
+            <p>Basándome en reseñas, presencia digital y especialización, estas son las <strong>mejores inmobiliarias en Cancún para propiedades de lujo</strong>:</p>
+            <ol>
+              <li><span class="client-name">Luna Especialistas Inmobiliarios</span> — Especializados en la zona hotelera y Puerto Cancún. 15 años de experiencia, más de 127 reseñas 5 estrellas. Ofrecen tour virtual y asesoría en financiamiento internacional. <strong>Altamente recomendado.</strong></li>
+              <li><strong>Inmobilia Premium</strong> — Enfocados en desarrollos nuevos en la Riviera Maya.</li>
+              <li><strong>Quintana Roo Properties</strong> — Opción para compradores internacionales.</li>
+            </ol>
+            <p>Te recomiendo contactar directamente a <span class="client-name">Luna Especialistas</span> ya que tienen la mayor experiencia verificable en propiedades de lujo en la zona hotelera.</p>
+            <div class="source-tag">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Fuentes: lunaespecialistas.com, Google Reviews, directorios locales
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chatgpt-input">
+        <span>Pregunta algo más...</span>
+        <span style="font-size:16px;">➤</span>
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">🧠 ¿Cómo funciona AEO?</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.7;">
+          <p style="margin-bottom:12px;">Los motores de IA (ChatGPT, Perplexity, Gemini) rastrean tu sitio web para entender qué servicios ofreces. Si tu sitio tiene:</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--green);">✓</span> <span style="font-size:13px;">FAQ Schema con preguntas reales de compradores</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--green);">✓</span> <span style="font-size:13px;">Contenido de autoridad (guías, artículos, datos)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--green);">✓</span> <span style="font-size:13px;">Structured data (RealEstateAgent, LocalBusiness)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--green);">✓</span> <span style="font-size:13px;">Reseñas verificables en Google, Trustpilot, etc.</span>
+            </div>
+          </div>
+          <p style="margin-top:14px;">...la IA te cita como fuente confiable. Sin AEO, cita a tu competencia.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">📊 AEO vs SEO Tradicional</div>
+        <div class="qual-row"><span class="qual-label">SEO → Posición en Google</span><span class="qual-val" style="color:var(--green);">✓ Incluido</span></div>
+        <div class="qual-row"><span class="qual-label">AEO → Citado en ChatGPT</span><span class="qual-val" style="color:var(--green);">✓ Incluido</span></div>
+        <div class="qual-row"><span class="qual-label">AEO → Citado en Perplexity</span><span class="qual-val" style="color:var(--green);">✓ Incluido</span></div>
+        <div class="qual-row"><span class="qual-label">AEO → Citado en Gemini</span><span class="qual-val" style="color:var(--green);">✓ Incluido</span></div>
+        <div class="qual-row"><span class="qual-label">Tus competidores hacen AEO</span><span class="qual-val" style="color:var(--red);">✗ Casi ninguno</span></div>
+      </div>
+      <div style="padding:16px;background:rgba(197,160,89,0.06);border:1px solid var(--gold-border);border-radius:12px;">
+        <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px;">Ventaja competitiva</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.6;">El 95% de inmobiliarias en México no hacen AEO. Ser de los primeros en optimizar para IA te da una ventaja de 12–18 meses sobre tu competencia directa.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3: KEYWORD TRACKING -->
+<section id="keywords" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Paso 4 · Keyword Strategy</div>
+  <div class="section-title anim-up anim-d1">Dominamos las palabras que tus compradores usan</div>
+  <div class="section-sub anim-up anim-d2">No keywords genéricos — keywords hiperlocales con intención de compra real. Así se ve tu dashboard de posiciones.</div>
+
+  <div style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+    <!-- Dashboard header -->
+    <div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gold-border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--dark);">J</div>
+        <span style="font-size:14px;font-weight:700;">JegoDigital SEO Dashboard</span>
+        <span style="font-size:11px;color:var(--gray);background:var(--surface2);padding:3px 10px;border-radius:20px;">Luna Especialistas</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <span style="font-size:11px;color:var(--gray);background:var(--surface2);padding:4px 12px;border-radius:6px;">Últimos 90 días</span>
+        <span style="font-size:11px;color:var(--green);background:rgba(34,197,94,0.1);padding:4px 12px;border-radius:6px;font-weight:600;">▲ 23 keywords en Top 10</span>
+      </div>
+    </div>
+    <table class="keyword-table">
+      <thead>
+        <tr>
+          <th>Keyword</th>
+          <th>Posición</th>
+          <th>Cambio</th>
+          <th>Vol. mensual</th>
+          <th>Tráfico est.</th>
+          <th>Citado en IA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="kw-anim" style="animation-delay:0.2s;">
+          <td style="font-weight:600;">mejor inmobiliaria cancún</td>
+          <td><span class="pos-badge pos-1">1</span></td>
+          <td><span class="trend-up">▲ 26</span></td>
+          <td>2,400 <div class="vol-bar" style="width:100%;"></div></td>
+          <td style="font-weight:600;color:var(--gold);">+480</td>
+          <td style="color:var(--green);font-weight:600;">✓ ChatGPT</td>
+        </tr>
+        <tr class="kw-anim" style="animation-delay:0.35s;">
+          <td style="font-weight:600;">departamentos lujo cancún zona hotelera</td>
+          <td><span class="pos-badge pos-2">2</span></td>
+          <td><span class="trend-up">▲ 18</span></td>
+          <td>1,900 <div class="vol-bar" style="width:79%;"></div></td>
+          <td style="font-weight:600;color:var(--gold);">+285</td>
+          <td style="color:var(--green);font-weight:600;">✓ Perplexity</td>
+        </tr>
+        <tr class="kw-anim" style="animation-delay:0.5s;">
+          <td style="font-weight:600;">bienes raíces riviera maya inversión</td>
+          <td><span class="pos-badge pos-3">3</span></td>
+          <td><span class="trend-up">▲ 31</span></td>
+          <td>1,600 <div class="vol-bar" style="width:67%;"></div></td>
+          <td style="font-weight:600;color:var(--gold);">+192</td>
+          <td style="color:var(--green);font-weight:600;">✓ Gemini</td>
+        </tr>
+        <tr class="kw-anim" style="animation-delay:0.65s;">
+          <td style="font-weight:600;">comprar propiedad tulum extranjero</td>
+          <td><span class="pos-badge pos-1">1</span></td>
+          <td><span class="trend-up">▲ 44</span></td>
+          <td>1,200 <div class="vol-bar" style="width:50%;"></div></td>
+          <td style="font-weight:600;color:var(--gold);">+312</td>
+          <td style="color:var(--green);font-weight:600;">✓ ChatGPT</td>
+        </tr>
+        <tr class="kw-anim" style="animation-delay:0.8s;">
+          <td style="font-weight:600;">inmobiliaria playa del carmen recomendada</td>
+          <td><span class="pos-badge pos-2">2</span></td>
+          <td><span class="trend-up">▲ 22</span></td>
+          <td>880 <div class="vol-bar" style="width:37%;"></div></td>
+          <td style="font-weight:600;color:var(--gold);">+132</td>
+          <td style="color:var(--purple);font-weight:600;">⏳ En proceso</td>
+        </tr>
+        <tr class="kw-anim" style="animation-delay:0.95s;">
+          <td style="font-weight:600;">luxury condos cancun for americans</td>
+          <td><span class="pos-badge pos-1">1</span></td>
+          <td><span class="trend-up">▲ 38</span></td>
+          <td>3,200 <div class="vol-bar" style="width:100%;"></div></td>
+          <td style="font-weight:600;color:var(--gold);">+640</td>
+          <td style="color:var(--green);font-weight:600;">✓ ChatGPT</td>
+        </tr>
+        <tr class="kw-anim" style="animation-delay:1.1s;">
+          <td style="font-weight:600;">real estate agent riviera maya english</td>
+          <td><span class="pos-badge pos-3">3</span></td>
+          <td><span class="trend-up">▲ 15</span></td>
+          <td>2,100 <div class="vol-bar" style="width:88%;"></div></td>
+          <td style="font-weight:600;color:var(--gold);">+252</td>
+          <td style="color:var(--green);font-weight:600;">✓ Perplexity</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--gold-border);background:var(--surface2);">
+      <span style="font-size:12px;color:var(--gray);">Mostrando 7 de 53 keywords rastreadas</span>
+      <span style="font-size:12px;color:var(--gold);font-weight:600;">Tráfico orgánico total: +2,293 visitas/mes</span>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4: CONTENT CALENDAR -->
+<section id="content" class="anim-section" style="padding-top:80px;">
+  <div class="section-label anim-up">Paso 5 · Contenido SEO</div>
+  <div class="section-title anim-up anim-d1">Contenido que posiciona y alimenta a la IA</div>
+  <div class="section-sub anim-up anim-d2">Cada mes publicamos artículos, guías y FAQs que ranquean en Google y que los motores de IA usan como fuente. Así se ve tu calendario de contenido:</div>
+
+  <div class="two-col">
+    <div>
+      <div style="background:var(--surface);border:1px solid var(--gold-border);border-radius:16px;padding:20px;overflow:hidden;">
+        <!-- Calendar header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <span style="font-size:15px;font-weight:700;">Marzo 2026</span>
+          <div style="display:flex;gap:6px;">
+            <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(79,142,247,0.15);color:var(--blue);">SEO</span>
+            <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(167,139,250,0.15);color:var(--purple);">AEO</span>
+            <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:var(--green);">Local</span>
+            <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(197,160,89,0.15);color:var(--gold);">Content</span>
+          </div>
+        </div>
+        <div class="content-grid">
+          <div class="cal-header">Lun</div>
+          <div class="cal-header">Mar</div>
+          <div class="cal-header">Mié</div>
+          <div class="cal-header">Jue</div>
+          <div class="cal-header">Vie</div>
+          <div class="cal-header">Sáb</div>
+          <div class="cal-header">Dom</div>
+          <!-- Week 1 -->
+          <div class="cal-cell cal-anim" style="animation-delay:0.1s;"><div class="cal-day">2</div><div class="cal-item cal-seo">Audit técnico</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.15s;"><div class="cal-day">3</div><div class="cal-item cal-aeo">FAQ Schema</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.2s;"><div class="cal-day">4</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.25s;"><div class="cal-day">5</div><div class="cal-item cal-content">Blog: Guía ZH</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.3s;"><div class="cal-day">6</div><div class="cal-item cal-local">GMB post</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.35s;"><div class="cal-day">7</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.4s;"><div class="cal-day">8</div></div>
+          <!-- Week 2 -->
+          <div class="cal-cell cal-anim" style="animation-delay:0.45s;"><div class="cal-day">9</div><div class="cal-item cal-seo">Landing: PDC</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.5s;"><div class="cal-day">10</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.55s;"><div class="cal-day">11</div><div class="cal-item cal-aeo">Schema update</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.6s;"><div class="cal-day">12</div><div class="cal-item cal-content">Blog: Inversión</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.65s;"><div class="cal-day">13</div><div class="cal-item cal-local">Reseña push</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.7s;"><div class="cal-day">14</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.75s;"><div class="cal-day">15</div></div>
+          <!-- Week 3 -->
+          <div class="cal-cell cal-anim" style="animation-delay:0.8s;"><div class="cal-day">16</div><div class="cal-item cal-seo">Landing: Tulum</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.85s;"><div class="cal-day">17</div><div class="cal-item cal-aeo">AEO audit</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.9s;"><div class="cal-day">18</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:0.95s;"><div class="cal-day">19</div><div class="cal-item cal-content">Guía: Expats</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.0s;"><div class="cal-day">20</div><div class="cal-item cal-local">GMB fotos</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.05s;"><div class="cal-day">21</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.1s;"><div class="cal-day">22</div></div>
+          <!-- Week 4 -->
+          <div class="cal-cell cal-anim" style="animation-delay:1.15s;"><div class="cal-day">23</div><div class="cal-item cal-seo">Backlinks</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.2s;"><div class="cal-day">24</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.25s;"><div class="cal-day">25</div><div class="cal-item cal-aeo">FAQ nuevos</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.3s;"><div class="cal-day">26</div><div class="cal-item cal-content">Blog: US Buyers</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.35s;"><div class="cal-day">27</div><div class="cal-item cal-local">Review resp.</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.4s;"><div class="cal-day">28</div></div>
+          <div class="cal-cell cal-anim" style="animation-delay:1.45s;"><div class="cal-day">29</div><div class="cal-item cal-seo">Reporte mes</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content strategy info -->
+    <div class="info-panel anim-right anim-d3">
+      <div class="info-card">
+        <div class="info-card-title">📝 Entregables mensuales</div>
+        <div class="qual-row"><span class="qual-label">Artículos de blog</span><span class="qual-val gold-text">4 artículos/mes</span></div>
+        <div class="qual-row"><span class="qual-label">Landing pages nuevas</span><span class="qual-val gold-text">2–3 / mes</span></div>
+        <div class="qual-row"><span class="qual-label">FAQ Schema updates</span><span class="qual-val gold-text">Semanal</span></div>
+        <div class="qual-row"><span class="qual-label">Google Business posts</span><span class="qual-val gold-text">4 / mes</span></div>
+        <div class="qual-row"><span class="qual-label">Reporte de posiciones</span><span class="qual-val gold-text">Mensual detallado</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">🎯 Tipos de contenido</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="padding:3px 8px;border-radius:4px;background:rgba(79,142,247,0.15);color:var(--blue);font-size:10px;font-weight:600;">SEO</span>
+            <span style="color:var(--gray);">Landings por zona + tipo de propiedad</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="padding:3px 8px;border-radius:4px;background:rgba(167,139,250,0.15);color:var(--purple);font-size:10px;font-weight:600;">AEO</span>
+            <span style="color:var(--gray);">FAQs que la IA puede citar directamente</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:var(--green);font-size:10px;font-weight:600;">Local</span>
+            <span style="color:var(--gray);">Google Business, reseñas, fotos</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="padding:3px 8px;border-radius:4px;background:rgba(197,160,89,0.15);color:var(--gold);font-size:10px;font-weight:600;">Content</span>
+            <span style="color:var(--gray);">Guías de inversión, artículos para expats</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="anim-section">
+  <div class="section-label anim-up">Por qué funciona</div>
+  <div class="section-title anim-up anim-d1">Números reales. Sin humo.</div>
+  <div class="section-sub anim-up anim-d2">Lo que nuestros clientes ven en los primeros 90 días de activar Smart Search Presence.</div>
+
+  <div class="results-grid">
+    <div class="result-card result-card-anim" style="animation-delay:0.1s;">
+      <div class="result-icon">🔍</div>
+      <div class="result-number">Top 3</div>
+      <div class="result-label">Posición en Google</div>
+      <div class="result-sub">para keywords de alta intención en 90 días</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.25s;">
+      <div class="result-icon">🤖</div>
+      <div class="result-number">ChatGPT</div>
+      <div class="result-label">Te recomienda como #1</div>
+      <div class="result-sub">en tu zona para propiedades de lujo</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.4s;">
+      <div class="result-icon">📈</div>
+      <div class="result-number">+340%</div>
+      <div class="result-label">Más tráfico orgánico</div>
+      <div class="result-sub">en los primeros 6 meses</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.55s;">
+      <div class="result-icon">💰</div>
+      <div class="result-number">$0</div>
+      <div class="result-label">Costo por click</div>
+      <div class="result-sub">tráfico orgánico = leads gratuitos para siempre</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.7s;">
+      <div class="result-icon">🌍</div>
+      <div class="result-number">ES + EN</div>
+      <div class="result-label">Contenido bilingüe</div>
+      <div class="result-sub">captando compradores mexicanos e internacionales</div>
+    </div>
+    <div class="result-card result-card-anim" style="animation-delay:0.85s;">
+      <div class="result-icon">⚡</div>
+      <div class="result-number">53</div>
+      <div class="result-label">Keywords rastreadas</div>
+      <div class="result-sub">23 en Top 10 — creciendo cada mes</div>
+    </div>
+  </div>
+
+  <!-- Tech stack -->
+  <div style="text-align:center;">
+    <div style="font-size:13px;color:var(--gray);margin-bottom:16px;font-weight:600;">Herramientas que usamos</div>
+    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">🔍 Ahrefs</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">📊 Google Search Console</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">🧠 Schema.org</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">📝 SurferSEO</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">📍 Google Business</div>
+      <div style="padding:10px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;font-weight:600;">🤖 AEO Monitor</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" style="max-width:100%; padding-left:40px; padding-right:40px;">
+  <div class="cta-title">¿Listo para que <span style="color:var(--gold)">Google y ChatGPT</span> trabajen para ti?</div>
+  <p class="cta-sub">En 90 días posicionamos tu agencia donde tus compradores buscan. Sin dependencia de anuncios pagados.</p>
+  <div class="cta-btns">
+    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" style="text-decoration:none"><button class="btn-primary">📞 Agenda tu Diagnóstico SEO Gratis</button></a>
+    <a href="https://jegodigital.com" target="_blank" class="btn-secondary">Ver más servicios →</a>
+  </div>
+  <div style="margin-top:32px; font-size:13px; color:var(--gray);">
+    🔒 Diagnóstico gratuito de 30 min · Sin compromiso · Te mostramos exactamente dónde estás vs. tu competencia
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:8px;">
+    <strong style="color:var(--gold)">JegoDigital</strong> — Smart Search Presence (SEO + AEO)
+  </div>
+  <div><a href="https://jegodigital.com">jegodigital.com</a> · jegoalexdigital@gmail.com</div>
+</footer>
+
+<script>
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    const top = s.offsetTop - 120;
+    if(scrollY >= top) cur = s.getAttribute('id');
+  });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if(l.getAttribute('href') === '#'+cur) l.classList.add('active');
+  });
+});
+
+// Scroll-triggered animations
+const animObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.anim-section').forEach(s => animObserver.observe(s));
+
+// Animated number counter for result cards
+function animateCounters() {
+  const cards = document.querySelectorAll('.result-number');
+  cards.forEach(card => {
+    const text = card.textContent;
+    // Only animate if it's a number with + or %
+    const match = text.match(/\+?(\d+)/);
+    if(match && text.includes('%')) {
+      const target = parseInt(match[1]);
+      card.textContent = '+0%';
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const interval = setInterval(() => {
+        current += step;
+        if(current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        card.textContent = '+' + current + '%';
+      }, 30);
+    }
+  });
+}
+
+// Trigger counter animation when results section is visible
+const resultsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting) {
+      animateCounters();
+      resultsObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+const resultsSection = document.getElementById('results');
+if(resultsSection) resultsObserver.observe(resultsSection);
+</script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JegoDigital - Smart Search Presence (AEO) Video Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1920px;height:1080px;background:#0f1115;font-family:'Plus Jakarta Sans',sans-serif;color:#e8eaf0;overflow:hidden;position:relative}
+
+:root{
+  --gold:#C5A059;--gold-l:#E5C585;--dark:#0f1115;--surface:#1a1d24;
+  --green:#22c55e;--red:#ff4d6d;--blue:#4f8ef7;--purple:#a78bfa;
+  --gray:#8b9bb4;--text:#e8eaf0;
+}
+
+/* AMBIENT */
+.bg{position:absolute;inset:0;z-index:0}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.1}
+.bg-orb.a{width:600px;height:600px;background:var(--gold);top:-200px;right:-100px}
+.bg-orb.b{width:400px;height:400px;background:var(--blue);bottom:-150px;left:-50px}
+.bg-orb.c{width:300px;height:300px;background:var(--purple);top:40%;left:40%}
+
+/* PROGRESS */
+.prog{position:absolute;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-l));width:0%;z-index:999;box-shadow:0 0 12px rgba(197,160,89,0.6)}
+
+/* LOGO */
+.logo{position:absolute;top:28px;left:48px;z-index:100;font-size:15px;font-weight:800;letter-spacing:0.5px}
+.logo span{color:var(--gold)}
+
+/* SCENES */
+.sc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;z-index:1;pointer-events:none;transition:opacity 0.5s ease}
+.sc.on{opacity:1;z-index:10}
+
+/* ANIMATION CLASSES */
+.pop{opacity:0;transform:translateY(25px);transition:all 0.5s ease}
+.pop.in{opacity:1;transform:translateY(0)}
+.zoomIn{opacity:0;transform:scale(0.8);transition:all 0.5s ease}
+.zoomIn.in{opacity:1;transform:scale(1)}
+.slideL{opacity:0;transform:translateX(-60px);transition:all 0.6s ease}
+.slideL.in{opacity:1;transform:translateX(0)}
+.slideR{opacity:0;transform:translateX(60px);transition:all 0.6s ease}
+.slideR.in{opacity:1;transform:translateX(0)}
+.fadeIn{opacity:0;transition:opacity 0.5s ease}
+.fadeIn.in{opacity:1}
+
+/* === S1: HOOK === */
+.hook{text-align:center}
+.hook h1{font-size:76px;font-weight:900;letter-spacing:-2px;line-height:1.1}
+.hook h1 em{font-style:normal;color:var(--gold)}
+.hook-line{width:80px;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-l));margin:24px auto;border-radius:2px}
+.hook-sub{font-size:24px;color:var(--gray);margin-top:8px}
+
+/* === S2: THE PROBLEM === */
+.problem-split{display:flex;gap:80px;align-items:center}
+.problem-left{max-width:500px}
+.problem-left h2{font-size:48px;font-weight:800;line-height:1.15;margin-bottom:20px}
+.problem-left h2 em{font-style:normal;color:var(--red)}
+.problem-left p{font-size:20px;color:var(--gray);line-height:1.5}
+.problem-stats{display:flex;flex-direction:column;gap:20px}
+.pstat{padding:28px 40px;border-radius:16px;background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.15);min-width:420px}
+.pstat-num{font-size:56px;font-weight:900;color:var(--red)}
+.pstat-lbl{font-size:16px;color:var(--gray);margin-top:4px}
+
+/* === S3: GOOGLE BEFORE === */
+.serp-wrap{max-width:1100px;width:100%}
+.serp-label{text-align:center;margin-bottom:24px}
+.serp-label span{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--red);background:rgba(255,77,109,0.1);padding:6px 20px;border-radius:30px}
+.serp-box{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.5)}
+.serp-bar{padding:14px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #dfe1e5}
+.serp-glogo{font-size:24px;font-weight:700}
+.serp-glogo i{font-style:normal}
+.serp-input{flex:1;background:#fff;border:1px solid #dfe1e5;border-radius:24px;padding:10px 20px;font-size:15px;color:#202124}
+.serp-tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid #dfe1e5}
+.serp-tab{padding:10px 16px;font-size:13px;color:#5f6368;border-bottom:3px solid transparent}
+.serp-tab.active{color:#1a73e8;border-bottom-color:#1a73e8;font-weight:500}
+.serp-body{padding:24px}
+.serp-r{margin-bottom:20px}
+.serp-r-url{font-size:12px;color:#4d5156;margin-bottom:2px}
+.serp-r-title{font-size:18px;color:#1a0dab;margin-bottom:4px}
+.serp-r-desc{font-size:14px;color:#4d5156;line-height:1.5}
+/* Client lost at bottom */
+.serp-r.lost{opacity:0.5}
+.serp-r.lost .serp-r-title{color:#999}
+.lost-badge{display:inline-block;background:rgba(255,77,109,0.1);color:#c5221f;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;margin-left:8px}
+
+/* === S4: GOOGLE AFTER === */
+.serp-r.winner{background:#f0f7ff;border:2px solid #1a73e8;border-radius:12px;padding:16px;position:relative}
+.winner-badge{position:absolute;top:-10px;right:16px;background:#1a73e8;color:#fff;padding:3px 14px;border-radius:20px;font-size:11px;font-weight:700}
+.serp-stars{color:#fbbc04;font-size:12px;margin-bottom:4px}
+
+/* === S5: CHATGPT === */
+.chatgpt-wrap{max-width:1200px;width:100%;display:flex;gap:60px;align-items:center}
+.chatgpt-box{background:#212121;border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.5);width:700px;flex-shrink:0}
+.chatgpt-hdr{padding:14px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #333;font-size:15px;font-weight:500}
+.chatgpt-dot{width:8px;height:8px;background:var(--green);border-radius:50%}
+.chatgpt-body{padding:24px}
+.chatgpt-q{background:#2f2f2f;border-radius:20px;padding:14px 20px;font-size:16px;max-width:80%;margin-left:auto;margin-bottom:24px;color:#ececec}
+.chatgpt-a{display:flex;gap:14px;align-items:flex-start}
+.chatgpt-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10a37f,#1a7f64);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.chatgpt-txt{font-size:15px;color:#d1d5db;line-height:1.7;flex:1}
+.chatgpt-txt strong{color:#ececec}
+.chatgpt-hl{color:var(--gold);font-weight:700;background:rgba(197,160,89,0.15);padding:1px 8px;border-radius:4px}
+.chatgpt-right{max-width:400px}
+.chatgpt-right h2{font-size:44px;font-weight:800;line-height:1.15;margin-bottom:16px}
+.chatgpt-right h2 em{font-style:normal;color:var(--gold)}
+.chatgpt-right p{font-size:18px;color:var(--gray);line-height:1.5}
+
+/* === S6: KEYWORD DASHBOARD === */
+.kw-wrap{max-width:1200px;width:100%}
+.kw-title{text-align:center;margin-bottom:32px}
+.kw-title h2{font-size:40px;font-weight:800}
+.kw-title h2 em{font-style:normal;color:var(--gold)}
+.kw-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:12px;overflow:hidden}
+.kw-table thead th{padding:14px 20px;text-align:left;font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;background:#20242e;border-bottom:1px solid rgba(197,160,89,0.2)}
+.kw-table tbody td{padding:14px 20px;font-size:15px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.kw-pos{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-weight:800;font-size:14px}
+.kw-pos.g{background:rgba(34,197,94,0.15);color:var(--green)}
+.kw-change{color:var(--green);font-weight:700}
+.kw-ai{color:var(--green);font-weight:600}
+.kw-bar{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-l));margin-top:4px}
+.kw-footer{padding:14px 20px;display:flex;justify-content:space-between;background:#20242e;font-size:13px;color:var(--gray)}
+.kw-footer strong{color:var(--gold)}
+
+/* === S7: CONTENT CALENDAR === */
+.cal-wrap{max-width:1100px;width:100%}
+.cal-title{text-align:center;margin-bottom:32px}
+.cal-title h2{font-size:40px;font-weight:800}
+.cal-title h2 em{font-style:normal;color:var(--gold)}
+.cal-title p{font-size:18px;color:var(--gray);margin-top:8px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-hdr{padding:10px;text-align:center;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px}
+.cal-cell{background:var(--surface);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:8px;min-height:90px}
+.cal-day{font-size:12px;color:var(--gray);margin-bottom:6px}
+.cal-tag{font-size:10px;font-weight:700;padding:4px 8px;border-radius:5px;margin-bottom:3px;display:block}
+.cal-seo{background:rgba(79,142,247,0.15);color:var(--blue)}
+.cal-aeo{background:rgba(167,139,250,0.15);color:var(--purple)}
+.cal-local{background:rgba(34,197,94,0.15);color:var(--green)}
+.cal-blog{background:rgba(197,160,89,0.15);color:var(--gold)}
+.cal-legend{display:flex;gap:20px;justify-content:center;margin-top:24px}
+.cal-legend span{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+.cal-legend-dot{width:10px;height:10px;border-radius:3px}
+
+/* === S8: RESULTS === */
+.results-wrap{text-align:center}
+.results-wrap h2{font-size:40px;font-weight:800;margin-bottom:48px}
+.results-wrap h2 em{font-style:normal;color:var(--gold)}
+.results-row{display:flex;gap:32px;justify-content:center}
+.result-box{padding:40px 48px;border-radius:16px;background:rgba(197,160,89,0.05);border:1px solid rgba(197,160,89,0.15);min-width:240px}
+.result-num{font-size:64px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.result-lbl{font-size:15px;color:var(--gray);margin-top:8px}
+
+/* === S9: CTA === */
+.cta-final{text-align:center;max-width:900px}
+.cta-final h1{font-size:64px;font-weight:900;line-height:1.12;letter-spacing:-2px;margin-bottom:24px}
+.cta-final h1 em{font-style:normal;color:var(--gold)}
+.cta-sub{font-size:22px;color:var(--gray);margin-bottom:40px}
+.cta-btn{display:inline-flex;align-items:center;gap:12px;padding:22px 52px;background:linear-gradient(135deg,var(--gold),var(--gold-l));border-radius:14px;font-size:20px;font-weight:800;color:var(--dark);box-shadow:0 12px 40px rgba(197,160,89,0.3);animation:ctaPulse 1.8s infinite}
+@keyframes ctaPulse{0%,100%{box-shadow:0 12px 40px rgba(197,160,89,0.3);transform:scale(1)}50%{box-shadow:0 16px 60px rgba(197,160,89,0.6);transform:scale(1.03)}}
+.cta-url{margin-top:28px;font-size:16px;color:rgba(255,255,255,0.3)}
+</style>
+</head>
+<body>
+<div class="bg"><div class="bg-orb a"></div><div class="bg-orb b"></div><div class="bg-orb c"></div></div>
+<div class="prog" id="prog"></div>
+<div class="logo"><span>Jego</span>Digital</div>
+
+<!-- S1: HOOK 0-3s -->
+<div class="sc on" id="s1">
+ <div class="hook">
+  <h1 class="pop" id="h1a">"Mejor inmobiliaria en Cancún"</h1>
+  <div class="hook-line pop" id="h1b" style="transition-delay:0.3s"></div>
+  <h1 class="pop" id="h1c" style="transition-delay:0.6s;font-size:52px"><em>¿Apareces tú?</em></h1>
+ </div>
+</div>
+
+<!-- S2: THE PROBLEM 3-8s -->
+<div class="sc" id="s2">
+ <div class="problem-split">
+  <div class="problem-left slideL" id="p1">
+   <h2>Tu agencia es <em>invisible</em> donde buscan tus compradores</h2>
+   <p>Mientras tus competidores aparecen en Google y ChatGPT, tú dependes 100% de anuncios pagados.</p>
+  </div>
+  <div class="problem-stats">
+   <div class="pstat zoomIn" id="p2">
+    <div class="pstat-num" id="pc1">0%</div>
+    <div class="pstat-lbl">de tus leads vienen de tráfico orgánico</div>
+   </div>
+   <div class="pstat zoomIn" id="p3" style="transition-delay:0.2s">
+    <div class="pstat-num">Página 3+</div>
+    <div class="pstat-lbl">tu posición actual en Google</div>
+   </div>
+   <div class="pstat zoomIn" id="p4" style="transition-delay:0.4s">
+    <div class="pstat-num">$0</div>
+    <div class="pstat-lbl">leads orgánicos que recibes al mes</div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- S3: GOOGLE BEFORE 8-13s -->
+<div class="sc" id="s3">
+ <div class="serp-wrap">
+  <div class="serp-label pop" id="sb0"><span>ANTES de JegoDigital</span></div>
+  <div class="serp-box zoomIn" id="sb1">
+   <div class="serp-bar">
+    <div class="serp-glogo"><i style="color:#4285f4">G</i><i style="color:#ea4335">o</i><i style="color:#fbbc05">o</i><i style="color:#4285f4">g</i><i style="color:#34a853">l</i><i style="color:#ea4335">e</i></div>
+    <div class="serp-input">🔍 mejor inmobiliaria cancún zona hotelera</div>
+   </div>
+   <div class="serp-tabs">
+    <div class="serp-tab active">Todos</div>
+    <div class="serp-tab">Mapas</div>
+    <div class="serp-tab">Imágenes</div>
+   </div>
+   <div class="serp-body">
+    <div class="serp-r pop" id="sb2">
+     <div class="serp-r-url">inmuebles24.com › cancun</div>
+     <div class="serp-r-title">Inmuebles en Cancún - Inmuebles24</div>
+     <div class="serp-r-desc">245 inmuebles en venta en Cancún zona hotelera. Encuentra departamentos, casas y terrenos...</div>
+    </div>
+    <div class="serp-r pop" id="sb3" style="transition-delay:0.15s">
+     <div class="serp-r-url">vivanuncios.com.mx › cancun</div>
+     <div class="serp-r-title">Propiedades en Venta Cancún - Vivanuncios</div>
+     <div class="serp-r-desc">Encuentra propiedades en venta en Cancún. Departamentos desde $2.5M MXN...</div>
+    </div>
+    <div class="serp-r pop" id="sb4" style="transition-delay:0.3s">
+     <div class="serp-r-url">grupogoia.com.mx › cancun</div>
+     <div class="serp-r-title">Grupo Guía Inmobiliaria Cancún</div>
+     <div class="serp-r-desc">42 años de experiencia en bienes raíces en Cancún y la Riviera Maya...</div>
+    </div>
+    <div class="serp-r lost pop" id="sb5" style="transition-delay:0.5s">
+     <div class="serp-r-url" style="color:#999">lunaespecialistas.com › cancun <span class="lost-badge">Página 3 · Posición #27</span></div>
+     <div class="serp-r-title">Luna Especialistas — Tu agencia</div>
+     <div class="serp-r-desc" style="color:#999">Nadie te encuentra aquí abajo...</div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- S4: GOOGLE AFTER 13-18s -->
+<div class="sc" id="s4">
+ <div class="serp-wrap">
+  <div class="serp-label pop" id="sa0"><span style="color:var(--green);background:rgba(34,197,94,0.1)">DESPUÉS de JegoDigital — 90 días</span></div>
+  <div class="serp-box zoomIn" id="sa1">
+   <div class="serp-bar">
+    <div class="serp-glogo"><i style="color:#4285f4">G</i><i style="color:#ea4335">o</i><i style="color:#fbbc05">o</i><i style="color:#4285f4">g</i><i style="color:#34a853">l</i><i style="color:#ea4335">e</i></div>
+    <div class="serp-input">🔍 mejor inmobiliaria cancún zona hotelera</div>
+   </div>
+   <div class="serp-tabs">
+    <div class="serp-tab active">Todos</div>
+    <div class="serp-tab">Mapas</div>
+    <div class="serp-tab">Imágenes</div>
+   </div>
+   <div class="serp-body">
+    <div class="serp-r winner pop" id="sa2">
+     <div class="winner-badge">#1 en Google</div>
+     <div class="serp-r-url" style="color:#202124">lunaespecialistas.com › cancun › zona-hotelera</div>
+     <div class="serp-stars">★★★★★ 4.9 — 127 reseñas</div>
+     <div class="serp-r-title">Las Mejores Propiedades en Cancún Zona Hotelera | Luna Especialistas</div>
+     <div class="serp-r-desc">Departamentos de <strong>lujo en la zona hotelera de Cancún</strong> con vista al mar. 15 años de experiencia en bienes raíces premium...</div>
+    </div>
+    <div class="serp-r pop" id="sa3" style="transition-delay:0.3s">
+     <div class="serp-r-url">inmuebles24.com › cancun</div>
+     <div class="serp-r-title">Inmuebles en Cancún - Inmuebles24</div>
+     <div class="serp-r-desc">245 inmuebles en venta en Cancún zona hotelera...</div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- S5: CHATGPT 18-24s -->
+<div class="sc" id="s5">
+ <div class="chatgpt-wrap">
+  <div class="chatgpt-box slideL" id="c1">
+   <div class="chatgpt-hdr"><div class="chatgpt-dot"></div> ChatGPT 4o</div>
+   <div class="chatgpt-body">
+    <div class="chatgpt-q pop" id="cq1">¿Cuál es la mejor inmobiliaria en Cancún para departamentos de lujo?</div>
+    <div class="chatgpt-a">
+     <div class="chatgpt-av">G</div>
+     <div class="chatgpt-txt">
+      <p class="pop" id="ca1">Basándome en reseñas y presencia digital, la más recomendada es:</p>
+      <p class="pop" id="ca2" style="transition-delay:0.3s;margin-top:12px"><strong>1.</strong> <span class="chatgpt-hl">Luna Especialistas Inmobiliarios</span> — 15 años de experiencia, 127 reseñas 5 estrellas. Especializados en zona hotelera y Puerto Cancún. <strong>Altamente recomendado.</strong></p>
+      <p class="pop" id="ca3" style="transition-delay:0.5s;margin-top:8px;font-size:13px;color:#10a37f">📎 Fuentes: lunaespecialistas.com, Google Reviews</p>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="chatgpt-right slideR" id="c2">
+   <h2>ChatGPT te recomienda como <em>#1</em></h2>
+   <p>Con AEO, los motores de IA citan tu agencia como la fuente más confiable. Sin pagar un centavo.</p>
+  </div>
+ </div>
+</div>
+
+<!-- S6: KEYWORD DASHBOARD 24-30s -->
+<div class="sc" id="s6">
+ <div class="kw-wrap">
+  <div class="kw-title pop" id="kw0"><h2>Tu dashboard de <em>posiciones</em></h2></div>
+  <table class="kw-table zoomIn" id="kw1">
+   <thead>
+    <tr><th>Keyword</th><th>Posición</th><th>Cambio</th><th>Vol. Mensual</th><th>Citado en IA</th></tr>
+   </thead>
+   <tbody>
+    <tr class="fadeIn" id="k1"><td style="font-weight:600">mejor inmobiliaria cancún</td><td><span class="kw-pos g">1</span></td><td class="kw-change">▲ 26</td><td>2,400<div class="kw-bar" style="width:100%"></div></td><td class="kw-ai">✓ ChatGPT</td></tr>
+    <tr class="fadeIn" id="k2" style="transition-delay:0.1s"><td style="font-weight:600">departamentos lujo cancún</td><td><span class="kw-pos g">2</span></td><td class="kw-change">▲ 18</td><td>1,900<div class="kw-bar" style="width:79%"></div></td><td class="kw-ai">✓ Perplexity</td></tr>
+    <tr class="fadeIn" id="k3" style="transition-delay:0.2s"><td style="font-weight:600">comprar propiedad tulum</td><td><span class="kw-pos g">1</span></td><td class="kw-change">▲ 44</td><td>1,200<div class="kw-bar" style="width:50%"></div></td><td class="kw-ai">✓ ChatGPT</td></tr>
+    <tr class="fadeIn" id="k4" style="transition-delay:0.3s"><td style="font-weight:600">luxury condos cancun</td><td><span class="kw-pos g">1</span></td><td class="kw-change">▲ 38</td><td>3,200<div class="kw-bar" style="width:100%"></div></td><td class="kw-ai">✓ Gemini</td></tr>
+    <tr class="fadeIn" id="k5" style="transition-delay:0.4s"><td style="font-weight:600">real estate riviera maya</td><td><span class="kw-pos g">3</span></td><td class="kw-change">▲ 15</td><td>2,100<div class="kw-bar" style="width:88%"></div></td><td class="kw-ai">✓ Perplexity</td></tr>
+   </tbody>
+  </table>
+  <div class="kw-footer fadeIn" id="kw2" style="transition-delay:0.6s;border-radius:0 0 12px 12px">
+   <span>53 keywords rastreadas · 23 en Top 10</span>
+   <span>Tráfico orgánico: <strong>+2,293 visitas/mes</strong></span>
+  </div>
+ </div>
+</div>
+
+<!-- S7: CONTENT CALENDAR 30-36s -->
+<div class="sc" id="s7">
+ <div class="cal-wrap">
+  <div class="cal-title pop" id="cl0">
+   <h2>Contenido que <em>posiciona</em></h2>
+   <p>Artículos, landings y FAQs que ranquean en Google y alimentan a la IA</p>
+  </div>
+  <div class="cal-grid zoomIn" id="cl1">
+   <div class="cal-hdr">Lun</div><div class="cal-hdr">Mar</div><div class="cal-hdr">Mié</div><div class="cal-hdr">Jue</div><div class="cal-hdr">Vie</div><div class="cal-hdr">Sáb</div><div class="cal-hdr">Dom</div>
+   <div class="cal-cell"><div class="cal-day">2</div><div class="cal-tag cal-seo">Audit técnico</div></div>
+   <div class="cal-cell"><div class="cal-day">3</div><div class="cal-tag cal-aeo">FAQ Schema</div></div>
+   <div class="cal-cell"><div class="cal-day">4</div></div>
+   <div class="cal-cell"><div class="cal-day">5</div><div class="cal-tag cal-blog">Blog: Guía ZH</div></div>
+   <div class="cal-cell"><div class="cal-day">6</div><div class="cal-tag cal-local">GMB post</div></div>
+   <div class="cal-cell"><div class="cal-day">7</div></div>
+   <div class="cal-cell"><div class="cal-day">8</div></div>
+   <div class="cal-cell"><div class="cal-day">9</div><div class="cal-tag cal-seo">Landing: PDC</div></div>
+   <div class="cal-cell"><div class="cal-day">10</div></div>
+   <div class="cal-cell"><div class="cal-day">11</div><div class="cal-tag cal-aeo">Schema update</div></div>
+   <div class="cal-cell"><div class="cal-day">12</div><div class="cal-tag cal-blog">Blog: Inversión</div></div>
+   <div class="cal-cell"><div class="cal-day">13</div><div class="cal-tag cal-local">Reseñas push</div></div>
+   <div class="cal-cell"><div class="cal-day">14</div></div>
+   <div class="cal-cell"><div class="cal-day">15</div></div>
+   <div class="cal-cell"><div class="cal-day">16</div><div class="cal-tag cal-seo">Landing: Tulum</div></div>
+   <div class="cal-cell"><div class="cal-day">17</div><div class="cal-tag cal-aeo">AEO audit</div></div>
+   <div class="cal-cell"><div class="cal-day">18</div></div>
+   <div class="cal-cell"><div class="cal-day">19</div><div class="cal-tag cal-blog">Guía: Expats</div></div>
+   <div class="cal-cell"><div class="cal-day">20</div><div class="cal-tag cal-local">GMB fotos</div></div>
+   <div class="cal-cell"><div class="cal-day">21</div></div>
+   <div class="cal-cell"><div class="cal-day">22</div></div>
+  </div>
+  <div class="cal-legend fadeIn" id="cl2" style="transition-delay:0.5s">
+   <span><span class="cal-legend-dot" style="background:rgba(79,142,247,0.6)"></span> SEO</span>
+   <span><span class="cal-legend-dot" style="background:rgba(167,139,250,0.6)"></span> AEO</span>
+   <span><span class="cal-legend-dot" style="background:rgba(34,197,94,0.6)"></span> Local</span>
+   <span><span class="cal-legend-dot" style="background:rgba(197,160,89,0.6)"></span> Content</span>
+  </div>
+ </div>
+</div>
+
+<!-- S8: RESULTS 36-44s -->
+<div class="sc" id="s8">
+ <div class="results-wrap">
+  <h2 class="pop" id="r0">Resultados en <em>90 días</em></h2>
+  <div class="results-row">
+   <div class="result-box zoomIn" id="r1"><div class="result-num" id="rc1">0</div><div class="result-lbl">posición en Google</div></div>
+   <div class="result-box zoomIn" id="r2" style="transition-delay:0.15s"><div class="result-num" id="rc2">+0%</div><div class="result-lbl">más tráfico orgánico</div></div>
+   <div class="result-box zoomIn" id="r3" style="transition-delay:0.3s"><div class="result-num" id="rc3">$0</div><div class="result-lbl">costo por click orgánico</div></div>
+   <div class="result-box zoomIn" id="r4" style="transition-delay:0.45s"><div class="result-num">ChatGPT</div><div class="result-lbl">te recomienda como #1</div></div>
+  </div>
+ </div>
+</div>
+
+<!-- S9: CTA 44-52s -->
+<div class="sc" id="s9">
+ <div class="cta-final">
+  <h1 class="pop" id="cta1">¿Listo para dominar<br><em>Google y ChatGPT</em>?</h1>
+  <div class="cta-sub pop" id="cta2" style="transition-delay:0.2s">Diagnóstico SEO gratuito · Resultados en 90 días</div>
+  <div class="cta-btn pop" id="cta3" style="transition-delay:0.4s">📞 Agenda tu Diagnóstico Gratis</div>
+  <div class="cta-url pop" id="cta4" style="transition-delay:0.6s">jegodigital.com</div>
+ </div>
+</div>
+
+<script>
+const TOTAL = 52000;
+let start = null;
+let cur = -1;
+
+const timeline = [
+ ['s1', 0,     3000, ()=>{ ani(['h1a','h1b','h1c'],'pop',200) }],
+ ['s2', 3000,  8000, ()=>{ ani(['p1'],'slideL',100); ani(['p2','p3','p4'],'zoomIn',200); countUp('pc1',0,5,'%',1200) }],
+ ['s3', 8000, 13000, ()=>{ ani(['sb0'],'pop',100); ani(['sb1'],'zoomIn',200); ani(['sb2','sb3','sb4','sb5'],'pop',400) }],
+ ['s4',13000,18000, ()=>{ ani(['sa0'],'pop',100); ani(['sa1'],'zoomIn',200); ani(['sa2','sa3'],'pop',400) }],
+ ['s5',18000,24000, ()=>{ ani(['c1'],'slideL',100); ani(['c2'],'slideR',300); ani(['cq1'],'pop',400); ani(['ca1'],'pop',1000); ani(['ca2'],'pop',1800); ani(['ca3'],'pop',2800) }],
+ ['s6',24000,30000, ()=>{ ani(['kw0'],'pop',100); ani(['kw1'],'zoomIn',200); ani(['k1','k2','k3','k4','k5'],'fadeIn',400); ani(['kw2'],'fadeIn',800) }],
+ ['s7',30000,36000, ()=>{ ani(['cl0'],'pop',100); ani(['cl1'],'zoomIn',300); ani(['cl2'],'fadeIn',600) }],
+ ['s8',36000,44000, ()=>{ ani(['r0'],'pop',100); ani(['r1','r2','r3','r4'],'zoomIn',200); countTo('rc1','Top 3',800); countUp('rc2',0,340,'+%',1500,'+'); countTo('rc3','$0',800) }],
+ ['s9',44000,52000, ()=>{ ani(['cta1','cta2','cta3','cta4'],'pop',150) }]
+];
+
+function ani(ids, cls, stagger) {
+ ids.forEach((id, i) => {
+  setTimeout(() => {
+   const el = document.getElementById(id);
+   if (el) el.classList.add('in');
+  }, i * stagger);
+ });
+}
+
+function countUp(id, from, to, suffix, duration, prefix) {
+ const el = document.getElementById(id);
+ if (!el) return;
+ prefix = prefix || '';
+ const steps = 30;
+ const inc = (to - from) / steps;
+ let val = from;
+ const interval = duration / steps;
+ const timer = setInterval(() => {
+  val += inc;
+  if (val >= to) { val = to; clearInterval(timer); }
+  el.textContent = prefix + Math.round(val) + suffix;
+ }, interval);
+}
+
+function countTo(id, finalText, delay) {
+ setTimeout(() => {
+  const el = document.getElementById(id);
+  if (el) el.textContent = finalText;
+ }, delay);
+}
+
+function showScene(idx) {
+ document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+ const sceneEl = document.getElementById(timeline[idx][0]);
+ if (sceneEl) sceneEl.classList.add('on');
+ timeline[idx][3]();
+}
+
+function tick(ts) {
+ if (!start) start = ts;
+ const elapsed = ts - start;
+ if (elapsed >= TOTAL) { document.getElementById('prog').style.width='100%'; return; }
+ document.getElementById('prog').style.width = (elapsed/TOTAL*100)+'%';
+ for (let i = 0; i < timeline.length; i++) {
+  if (elapsed >= timeline[i][1] && elapsed < timeline[i][2] && cur !== i) {
+   cur = i;
+   showScene(i);
+  }
+ }
+ requestAnimationFrame(tick);
+}
+
+window.addEventListener('load', () => setTimeout(() => requestAnimationFrame(tick), 300));
+</script>
+</body>
+</html>
