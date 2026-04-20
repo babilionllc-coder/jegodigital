@@ -912,16 +912,63 @@ exports.elevenLabsWebhook = functions.https.onRequest(async (req, res) => {
         const leadsRef = db.collection('leads');
         const snapshot = await leadsRef.where('call_id', '==', conversationId).limit(1).get();
 
+        // ---- Outcome classifier (used by both leads + call_analysis writes) ----
+        //
+        // coldCallReport reads call_analysis.outcome to classify positive/negative/
+        // neutral/unconnected. Before 2026-04-20 the webhook only wrote to the
+        // `leads` collection which meant coldCallReport saw every call as "pending".
+        // This block classifies ElevenLabs's `success_evaluation` + summary into
+        // the shape coldCallReport expects.
+        const evalRaw = (analysis?.success_evaluation || "").toString().toLowerCase();
+        const summaryRaw = (analysis?.transcript_summary || analysis?.summary || "").toString().toLowerCase();
+        const statusLc = (status || "").toString().toLowerCase();
+
+        let classifiedOutcome = "neutral";
+        if (statusLc.includes("failed") || statusLc.includes("no_answer") || statusLc.includes("busy") ||
+            statusLc.includes("voicemail") || statusLc.includes("disconnected")) {
+            classifiedOutcome = "unconnected";
+        } else if (evalRaw === "yes" || evalRaw.includes("success") || evalRaw.includes("positive") ||
+            evalRaw.includes("interested") ||
+            /interesad[oa]|quiere|agendar|audit|enviar|mándame|mandame|adelante|claro que sí/i.test(summaryRaw)) {
+            classifiedOutcome = "positive";
+        } else if (evalRaw === "no" || evalRaw.includes("fail") || evalRaw.includes("negative") ||
+            evalRaw.includes("not_interested") || evalRaw.includes("rejected") ||
+            /no gracias|no me interesa|no llamen|remueva|borra|quítame/i.test(summaryRaw)) {
+            classifiedOutcome = "negative";
+        }
+
+        // Always mirror into call_analysis/{conversationId} — coldCallReport depends on this
+        try {
+            await db.collection('call_analysis').doc(conversationId).set({
+                conversation_id: conversationId,
+                outcome: classifiedOutcome,
+                call_status: status || null,
+                success_evaluation: analysis?.success_evaluation || null,
+                summary: analysis?.transcript_summary || analysis?.summary || null,
+                duration_seconds: data.duration_seconds || 0,
+                recording_url: data.recording_url || null,
+                structured_data: analysis?.structured_data || null,
+                transcript: transcript ? transcript.map(t => ({
+                    role: t.role, message: t.message, time: t.time_in_call_secs
+                })) : null,
+                updated_at: admin.firestore.FieldValue.serverTimestamp(),
+            }, { merge: true });
+            functions.logger.info(`✅ call_analysis/${conversationId} updated — outcome=${classifiedOutcome}`);
+        } catch (err) {
+            functions.logger.error(`call_analysis write failed for ${conversationId}:`, err.message);
+        }
+
         if (snapshot.empty) {
-            functions.logger.warn(`⚠️ Lead not found for Call ID: ${conversationId}. Returning 200 to prevent auto-disable.`);
-            return res.status(200).send("Lead not found (Event ignored)");
+            functions.logger.warn(`⚠️ Lead not found for Call ID: ${conversationId}. call_analysis still updated.`);
+            return res.status(200).send("Lead not found, call_analysis updated");
         }
 
         const leadDoc = snapshot.docs[0];
         const updateData = {
             voice_status: status === 'completed' ? 'CALLED-SUCCESS' : 'CALLED-FAILED',
             call_duration: data.duration_seconds || 0,
-            voice_end_at: admin.firestore.FieldValue.serverTimestamp()
+            voice_end_at: admin.firestore.FieldValue.serverTimestamp(),
+            call_outcome: classifiedOutcome,
         };
 
         // Add Analysis if available
@@ -947,7 +994,7 @@ exports.elevenLabsWebhook = functions.https.onRequest(async (req, res) => {
         await leadDoc.ref.update(updateData);
         functions.logger.info(`✅ Updated Lead ${leadDoc.id} with Call Data.`);
 
-        res.json({ success: true });
+        res.json({ success: true, outcome: classifiedOutcome });
 
     } catch (error) {
         functions.logger.error("ElevenLabs Webhook Error", error);
@@ -1867,3 +1914,15 @@ exports.coldCallReport = coldCall.coldCallReport;
 // This IS the self-improvement layer. See SYSTEM.md §1.2.
 // ============================================================
 exports.autopilotReviewer = require("./autopilotReviewer").autopilotReviewer;
+
+// ============================================================
+// INSTANTLY REPLY WATCHER (added 2026-04-20)
+// Every 5 min — polls Instantly Unibox, classifies replies
+// (positive/negative/neutral/question/positive_with_objection),
+// auto-fires audit_requests for clean positives with email+website,
+// dedups via instantly_reply_activity/{replyId}, writes daily
+// rollups to instantly_reply_summaries/{YYYY-MM-DD}. Hot leads +
+// objections page Alex on Telegram. Closes the active-feed gap
+// where Instantly replies sat in Unibox with no downstream action.
+// ============================================================
+exports.instantlyReplyWatcher = require("./instantlyReplyWatcher").instantlyReplyWatcher;
