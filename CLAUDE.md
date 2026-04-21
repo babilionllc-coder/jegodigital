@@ -65,6 +65,10 @@ curl -sS -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $(grep '^INS
 # Must return 200. If blocked by cowork-egress → STOP.
 ```
 
+⚠️ **KNOWN QUIRK:** The sandbox's egress proxy allowlist is baked at session start. Toggling "Settings → Capabilities → Domain allowlist → All domains" during a running session does NOT apply — Alex must start a **new Cowork session** for the sandbox to inherit the new allowlist. If Check 2 fails after Alex confirms the UI toggle is on, tell him to start a fresh session OR use the Path A workaround below (script runs in Alex's own Terminal where network is unrestricted, dumps live data to a JSON file Claude reads via file tools).
+
+**Path A workaround (use when a new session isn't possible this run):** `bash /Users/mac/Desktop/Websites/jegodigital/tools/instantly_live_pull.sh` — pulls live v2 data to `tools/instantly_live_snapshot.json` which Claude reads with the Read tool. Still counts as "live data pulled this session" because it's a real API call to api.instantly.ai within this session's timeline, just run from Alex's shell instead of the sandbox.
+
 **Check 3 — Live data pulled this session?**
 Pull today's `/api/v2/campaigns/analytics/daily` for at least one active campaign. If the response isn't in your tool output from THIS session, you do not have live data.
 
@@ -585,7 +589,7 @@ When Alex says **"run seo content engine"** (or any variant: "write a blog post"
 - Styled stat cards, comparison tables, answer boxes
 - Match existing site design template exactly (Plus Jakarta Sans + CSS vars bg #0a0a0f + gold #C5A059)
 - E-E-A-T: author byline, date, source citations (inline `<a href>` to the study/doc, not just naming it)
-- Internal links: 3-5 to existing pages (verify they exist on disk before linking)
+- **Minimum 4 CONTEXTUAL in-body internal links** — see **🔗 INTERNAL-LINKS HARD RULE** below. Nav/footer boilerplate DOES NOT count. Each link must live inside a `<p>` or `<li>` inside the article body, with natural anchor text (not "click here").
 - Schema: BlogPosting + FAQPage + BreadcrumbList JSON-LD in `<head>`
 
 **🚫 NO-AI-IMAGES HARD RULE (added 2026-04-21 after Alex flagged fake hero + neon-heatmap in Google Maps post):**
@@ -619,6 +623,56 @@ echo "✅ image audit passed"
 ```
 If any image fails the check → REPLACE with a real screenshot from the whitelist. No exceptions.
 
+**🔗 INTERNAL-LINKS HARD RULE (added 2026-04-21 after Alex flagged 0 in-body links in Google Maps post):**
+
+BANNED:
+- Counting nav/header/footer boilerplate as "internal links" — they appear on EVERY page and carry zero topical signal
+- Self-loops (page linking to itself)
+- "Click here", "read more", "learn more" style anchors — anchor text must be descriptive and keyword-relevant
+- Links to pages that return 404 (verify on disk or HTTP 200 before shipping)
+- Dumping all links in a single "Related reading" block at the bottom — links must be woven through the body
+
+WHITELIST — every blog post MUST have **minimum 4 contextual in-body internal links**, each living inside a `<p>`, `<li>`, or `<blockquote>` within the article body (NOT in `<nav>`, `<header>`, `<footer>`, or the schema block). Verified-live JegoDigital targets:
+
+1. `/showcase` — client results page (natural anchors: "nuestros clientes reales", "Flamingo, Goza, Solik y GoodLife", "casos de éxito verificados")
+2. `/auditoria-gratis` — free audit CTA (natural anchors: "auditoría gratuita del perfil", "audit SEO gratis de tu sitio")
+3. `/how-it-works` — process page (natural anchors: "cómo trabajamos", "Los clientes que trabajan con nuestra agencia")
+4. `/servicios` — services page (verify with `curl -s -o /dev/null -w "%{http_code}" https://jegodigital.com/servicios` first — if 404, skip)
+5. Existing blog posts — verified on disk at `/website/blog/`:
+   - `/blog/seo-para-inmobiliarias-mexico-2026`
+   - `/blog/captura-leads-inmobiliarias-2026`
+   - `/blog/chatgpt-marketing-inmobiliario-2026`
+   - `/blog/inteligencia-artificial-inmobiliarias-mexico`
+   - Any other `*.html` file in `/website/blog/` — run `ls website/blog/*.html` before linking
+
+Anchor-text pattern (Spanish, descriptive, keyword-bearing):
+- ✅ "estrategia SEO completa para inmobiliarias mexicanas" → `/blog/seo-para-inmobiliarias-mexico-2026`
+- ✅ "sistema de captura de leads automatizado" → `/blog/captura-leads-inmobiliarias-2026`
+- ❌ "click aquí" / "lee más" / "este artículo" (generic, no keyword signal)
+
+Pre-ship internal-link audit (run before Step 5 push):
+```bash
+SLUG=website/blog/<slug>.html
+# Count in-body internal links (inside <p>, <li>, <blockquote>) pointing to jegodigital internal paths
+IN_BODY=$(python3 -c "
+import re, sys
+html = open('$SLUG').read()
+# Strip <nav>, <header>, <footer>, <script>, <style>
+for tag in ['nav', 'header', 'footer', 'script', 'style']:
+    html = re.sub(rf'<{tag}[^>]*>.*?</{tag}>', '', html, flags=re.DOTALL|re.IGNORECASE)
+# Count internal links (href starting with /, not /#, not external)
+links = re.findall(r'<a[^>]+href=\"(/[^\"#][^\"]*)\"[^>]*>([^<]+)</a>', html)
+unique = set(h for h, _ in links)
+print(len(unique))
+")
+if [ "$IN_BODY" -lt 4 ]; then
+  echo "❌ INTERNAL-LINK AUDIT FAILED: only $IN_BODY in-body internal links (need ≥4)"; exit 1
+fi
+echo "✅ internal-link audit passed ($IN_BODY unique in-body links)"
+# Also verify each target exists on disk or is a known route
+```
+If audit fails → weave more contextual links into existing paragraphs. Do NOT dump them in a separate "Related" block. No exceptions.
+
 **Step 4 — OPTIMIZE (score must be ≥80/100):**
 - Keyword placement (H1, first 100 words, H2, meta) = 20pts
 - Answer-first format = 20pts
@@ -639,7 +693,8 @@ If any image fails the check → REPLACE with a real screenshot from the whiteli
 - NEVER write a blog post from general knowledge without running API research
 - NEVER use AI-generated graphics, 3D neon renders, fake dashboards, or stock photos — see NO-AI-IMAGES HARD RULE above. Only real screenshots from the whitelist.
 - NEVER cite a stat/study without a linkable source `<a href>` to the original report (BrightLocal, Think with Google, HBR, etc.). Minimum 2 external authority links per post.
-- NEVER mark a post as "completed" without logging the optimization score (≥80) AND running the pre-ship image audit
+- NEVER ship a post with fewer than 4 contextual in-body internal links — see INTERNAL-LINKS HARD RULE above. Nav/footer boilerplate does NOT count. Each link must live inside a `<p>`, `<li>`, or `<blockquote>` in the article body with descriptive Spanish anchor text (no "click aquí").
+- NEVER mark a post as "completed" without logging the optimization score (≥80) AND running the pre-ship image audit AND the pre-ship internal-link audit
 - NEVER duplicate an existing blog post topic — always diff against `/website/blog/` first
 - NEVER report "verification passed" based on file sizes — verify actual content quality AND render a preview
 - NEVER fall back to asking Alex for approval at any gate — autonomous mode is default
