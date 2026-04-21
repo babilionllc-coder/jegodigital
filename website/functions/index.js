@@ -2058,6 +2058,33 @@ exports.eveningOpsReport = eveningOps.eveningOpsReport;
 exports.eveningOpsReportOnDemand = eveningOps.eveningOpsReportOnDemand;
 
 // ============================================================
+// MONDAY REVENUE REVIEW (added 2026-04-21 — HARD RULE #7)
+// Monday 09:00 CDMX — weekly cross-platform live pull of:
+//   - Cold email (Instantly v2 /campaigns/analytics/daily summed
+//     across the 7-day prior window per active campaign)
+//   - Cold calls (ElevenLabs /v1/convai/conversations paginated
+//     per offer A/B/C across the 7-day window)
+//   - Brevo transactional (/v3/smtp/statistics/aggregatedReport)
+//   - Calendly bookings (live API + Firestore fallback)
+//   - Audit requests (Firestore audit_requests)
+//   - Closed clients + MRR (Firestore clients_closed)
+//   - Phone leads pool (Firestore phone_leads)
+//   - Instagram (Meta Graph /insights + /media + /followers_count)
+// Computes conversion funnel (outreach→positive→booked→closed),
+// derives top 3 broken + top 3 fixed things from rule-based scoring.
+// Renders branded dark-theme HTML → PDF via Cloud Run mockup-renderer
+// → Firebase Storage (30-day signed URL) → Slack files.upload +
+// Telegram sendDocument. Snapshots 30+ fields to Firestore
+// business_reviews/{YYYY-WNN}. GSC + GA4 flagged as tech-debt
+// gaps until credentials wired (HARD RULE #11 — never silent).
+// HARD RULE #0 + #2 compliant: every number from a live API call
+// in the same execution. No memory snapshots. No fabrication.
+// ============================================================
+const mondayReview = require("./mondayRevenueReview");
+exports.mondayRevenueReview = mondayReview.mondayRevenueReview;
+exports.mondayRevenueReviewOnDemand = mondayReview.mondayRevenueReviewOnDemand;
+
+// ============================================================
 // COLD CALL LIVE MONITOR (added 2026-04-20)
 // Every 3 min during 09:55-11:35 CDMX — polls ElevenLabs for
 // in-flight + just-finished conversations across all 3 agents,
