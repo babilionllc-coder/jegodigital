@@ -2013,7 +2013,7 @@ exports.coldCallSlackOnDemand = coldCallSlack.coldCallSlackOnDemand;
 // the ElevenLabs conversation by CallSid and DELETE it so the
 // agent doesn't hold the SIP session to max_duration (90s).
 // Expected: cut zombie waste from 90s cap → ~3s actual.
-// See COLDCALL.md §10 for context + Twilio webhook config.
+// See SYSTEM.md §10.4 for context + Twilio webhook config.
 // ============================================================
 exports.twilioCallStatusCallback =
   require("./twilioCallStatusCallback").twilioCallStatusCallback;

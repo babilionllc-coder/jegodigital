@@ -1,7 +1,7 @@
 # JegoDigital — ACCESS Registry (source of truth for ALL credentials)
 
-**Last updated:** 2026-04-20 | **Maintained by:** Claude AI + Alex Jego
-**GitHub Secrets total:** 37 | **Repo:** `babilionllc-coder/jegodigital`
+**Last updated:** 2026-04-21 PM | **Maintained by:** Claude AI + Alex Jego
+**GitHub Secrets total:** 37 (live-verified via `GET /actions/secrets?per_page=100` on 2026-04-21 PM — every row in the registry below maps 1:1 to a secret that actually exists in `babilionllc-coder/jegodigital`) | **Repo:** `babilionllc-coder/jegodigital`
 
 > This file is the CONTRACT that `envAudit` Cloud Function enforces every morning at 6am UTC.
 > Every credential used anywhere in JegoDigital lives in GitHub Secrets AND is documented here.
@@ -133,6 +133,12 @@ These are referenced in code but NOT required. The code handles missing values g
   - This registry rewritten as comprehensive source of truth for all 37.
 - **2026-04-21** (earlier) — Added `SLACK_WEBHOOK_URL` + `INSTANTLY_API_KEY` to `deploy.yml` heredoc. Unblocks `dailyRollupSlack` + `dailyDigest`. Commit: `d6b205a4`.
 - **2026-04-21** — Documented autonomous-deploy recipe in `DEPLOY.md` after end-to-end proof (commit `db99362`: rename `/healthz` → `/health`, all 5 workflows green, live service verified). Clarified that `.secrets/github_token` is the Claude-in-sandbox autonomous-push PAT. Rule: Claude should never ask Alex to run `git commit` / `git push` / `firebase deploy` / `gcloud run deploy` — the Data API recipe in `DEPLOY.md` handles it.
+- **2026-04-21 PM** — Live-verified registry against GitHub API (37/37 rows present — no stranded, no missing). No secret ADD/REMOVE this session; only metadata reconciliation. Related infra changes that touched **existing** secrets' consumers (but required no new secret rows):
+  - `twilioCallStatusCallback` Cloud Function shipped — dual purpose: (1) forwards every Twilio status callback to `api.elevenlabs.io/twilio/status-callback` so their lifecycle tracking keeps working, (2) on terminal Twilio status, force-closes the linked ElevenLabs conversation via `DELETE /v1/convai/conversations/{id}`. Uses existing `TWILIO_AUTH_TOKEN` (row 8) for signature validation + existing `ELEVENLABS_API_KEY` (row 6) for force-close. Wired on Twilio phone `+52 998 387 1618` (SID `PN62b3ad78ab3c268cccf7a9230cb7fc46`). Context: SYSTEM.md §10.4.
+  - Afternoon cold-call batch DISABLED (`coldCallRunAfternoon` + `coldCallSlackAfternoon` now no-op stubs with `AFTERNOON_BATCH_SIZE=0`). No secret impact — both functions still export to avoid Cloud Scheduler 404 trap. Original bodies preserved as `_coldCallRunAfternoonOriginal_disabled` for re-enable.
+  - HARD RULES #0 + #2 added to `/CLAUDE.md`. Rule #0 bans fabricated numbers; Rule #2 forces live verification on ALL 8 platforms (ElevenLabs, Instantly, Brevo, Calendly, Firestore, Meta Graph, GSC, GA4) before ANY metric report. `coldEmailReportOnDemand` HTTPS function serves as the Instantly-proxy fallback when sandbox-direct is blocked.
+  - Planned crons added to `/SYSTEM.md` §2: `weeklyRevenueReview` (Monday 08:00 CDMX, HARD RULE #7 automation) and `verifyClientProofMonthly` (1st of month, HARD RULE #9 automation). Both unbuilt — planned builds at `website/functions/weeklyRevenueReview.js` and `website/functions/verifyClientProofMonthly.js`.
+  - `COLDCALL.md` folded into `SYSTEM.md` §10 (11 subsections). Source-code comments now reference SYSTEM.md §10.4. `COLDCALL.md` reduced to a 3-line redirect stub.
 
 ---
 
@@ -156,15 +162,47 @@ These are referenced in code but NOT required. The code handles missing values g
 4. Deprecate the old key at the provider
 5. Update this file's changelog
 
-## 🚑 EMERGENCY — I LOST MY LOCAL .env
+## 🚑 EMERGENCY — I LOST MY LOCAL .env (corrected 2026-04-21)
 
-Every production secret is backed up in GH Secrets. Recover the local `.env` by:
+**⚠️ THE OLD RECOVERY PROCEDURE WAS WRONG.** `deploy.yml`'s heredoc only populates the GitHub RUNNER's `.env` during the Actions run — it never copies back to Alex's Mac. Triggering a no-op deploy does NOT give you a local `.env`.
 
+### Correct local recovery path (pick the easiest one that works):
+
+**Option A — `gh` CLI (fastest if Alex has it logged in):**
 ```bash
-cd website/functions && rm -f .env
-# Trigger a no-op deploy to regenerate from GH Secrets
-git commit --allow-empty -m "chore: regenerate .env from secrets" && git push main
-# Wait for deploy.yml to finish, then re-download via firebase functions:config:get if needed
+cd /Users/mac/Desktop/Websites/jegodigital
+gh secret list --repo babilionllc-coder/jegodigital  # confirm key names, values are hidden
+# Values cannot be retrieved via CLI — GitHub never returns secret values.
+# So use Option B or C below.
+```
+
+**Option B — Paste from GitHub web UI (every session that needs it):**
+1. Open https://github.com/babilionllc-coder/jegodigital/settings/secrets/actions
+2. GitHub does NOT display values after save — Alex must paste from his password manager
+3. Into `/Users/mac/Desktop/Websites/jegodigital/website/functions/.env`, append:
+   ```
+   INSTANTLY_API_KEY=<paste>
+   ```
+
+**Option C — Download from a live Cloud Function (if functions are deployed):**
+```bash
+# Option C works because GH Actions writes .env into the function tarball on every deploy.
+# Download latest function source from Firebase:
+firebase functions:list --project jegodigital-e02fb
+# Then use Firebase Console → Functions → [function name] → Source → download → extract .env
+```
+
+**Option D — Rebuild from password manager (recommended long-term):**
+Alex keeps every production secret in 1Password / LastPass. The canonical rebuild is a Mac script that reads from the password manager and writes `website/functions/.env`. TODO: Write that script.
+
+### After recovery, VERIFY:
+```bash
+grep -c '^INSTANTLY_API_KEY=' /Users/mac/Desktop/Websites/jegodigital/website/functions/.env
+# Expected: 1
+
+KEY=$(grep '^INSTANTLY_API_KEY=' /Users/mac/Desktop/Websites/jegodigital/website/functions/.env | cut -d= -f2)
+curl -sS -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $KEY" https://api.instantly.ai/api/v2/campaigns?limit=1
+# Expected: 200
 ```
 
 Or for `website/.env` (dev scripts), consult this registry — every key value is listed by source column in the registry above.
@@ -176,17 +214,26 @@ Or for `website/.env` (dev scripts), consult this registry — every key value i
 | Path | Purpose |
 |---|---|
 | `/ACCESS.md` | **This file.** Registry + contract. Source of truth for credential metadata. |
-| `/SYSTEM.md` | Cloud Functions inventory, cron schedule, architecture. |
-| `/CLAUDE.md` | Session behavior rules, business context, workflows. |
-| `/DEPLOY.md` | Deploy procedures. Strict: no manual deploys ever. |
+| `/README.md` | Repo entry point — link map to every top-level doc (created 2026-04-21). |
+| `/ONBOARDING.md` | Single-entry bootstrap for new Claude sessions — the 4-file read order + session ritual (created 2026-04-21). |
+| `/NEXT_STEP.md` | Living priority queue. #1 item is today's big rock. Updated end-of-session (created 2026-04-21). |
+| `/OPERATING_RHYTHM.md` | Daily / weekly / monthly / quarterly cadence — who does what when (created 2026-04-21). |
+| `/DISASTER_LOG.md` | HARD RULE #10 format log of every failure/disaster with cause + patch (created 2026-04-21, 13 entries backfilled). |
+| `/BACKLOG.md` | P4 parking lot — do NOT start until NEXT_STEP P0–P3 empty (created 2026-04-21). |
+| `/SYSTEM.md` | Cloud Functions inventory, cron schedule, architecture, cold-call deep-dive (§10). |
+| `/CLAUDE.md` | Session behavior rules, business context, workflows. Home of HARD RULES #0–#10. |
+| `/DEPLOY.md` | Deploy procedures. Strict: no manual deploys ever. Autonomous Git Data API recipe. |
+| `/COLDCALL.md` | Redirect stub — content folded into `SYSTEM.md` §10 on 2026-04-21. |
 | `/.github/workflows/deploy.yml` | Runtime env var injection (heredoc). |
 | `/.github/workflows/deploy-cloudrun.yml` | Mockup renderer Cloud Run deploy. |
 | `/.github/workflows/auto-index.yml` | Post-deploy Indexing API + IndexNow submission. |
 | `/.github/workflows/smoke-test.yml` | Daily 08:00 UTC health check. |
 | `/website/functions/envAudit.js` | Runtime assertion that every REQUIRED_KEY is present. Alerts Slack if not. |
+| `/website/functions/twilioCallStatusCallback.js` | Zombie-call killer + ElevenLabs status-callback proxy (added 2026-04-21, SYSTEM.md §10.4). |
 | `/website/functions/.env` | Production Cloud Functions secrets (auto-generated on deploy, gitignored). |
 | `/website/.env` | Local dev scripts secrets (manual, gitignored). |
-| `/.secrets/` | Claude session-scoped credentials (gitignored). |
+| `/.secrets/` | Claude session-scoped credentials (gitignored). Includes `github_token` + `instantly_api_key` backup. |
+| `/tools/verify_access.sh` | HARD RULE #1 auto-verifier. Run at every session start. Auto-heals `.env` from `.secrets/` backup + live-pings Instantly. |
 
 ---
 
