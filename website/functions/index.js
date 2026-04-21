@@ -2006,3 +2006,12 @@ exports.envAuditNow = require("./envAudit").envAuditNow;
 // instantlyAuditNow -- on-demand Instantly campaign audit.
 // ============================================================
 exports.instantlyAuditNow = require("./instantlyAudit").instantlyAuditNow;
+
+// ============================================================
+// dailyStrategist -- 08:00 CDMX AI-recommendation agent.
+// Pulls audit, runs Lead Quality Audit, calls Claude strategist,
+// applies whitelisted safe fixes via Instantly API, posts digest
+// to #all-jegodigital + DMs Alex on critical red flags.
+// ============================================================
+exports.dailyStrategist = require("./dailyStrategist").dailyStrategist;
+exports.dailyStrategistNow = require("./dailyStrategist").dailyStrategistNow;
