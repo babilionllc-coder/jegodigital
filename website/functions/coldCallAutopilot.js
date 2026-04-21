@@ -124,7 +124,59 @@ exports.coldCallPrep = functions
             return aT - bT;
         });
 
-        const batch = candidates.slice(0, BATCH_SIZE);
+        let batch = candidates.slice(0, BATCH_SIZE);
+
+        // SELF-HEAL: phone_leads collection is empty → auto-fire seed once.
+        // Prevents the "today's 10 AM dialed zero leads because seed never ran"
+        // failure mode that happened 2026-04-20.
+        if (batch.length === 0 && leadsSnap.size === 0) {
+            functions.logger.warn("coldCallPrep: phone_leads empty, attempting auto-seed");
+            const seedSecret = process.env.SEED_SECRET;
+            if (seedSecret) {
+                try {
+                    const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || "jegodigital-e02fb";
+                    const seedUrl = `https://us-central1-${projectId}.cloudfunctions.net/seedPhoneLeadsOnce`;
+                    const axios = require("axios");
+                    const r = await axios.post(seedUrl, {}, {
+                        headers: { "X-Seed-Secret": seedSecret, "Content-Type": "application/json" },
+                        timeout: 30000,
+                    });
+                    const { upserts = 0, post_count = 0 } = r.data || {};
+                    functions.logger.info(`coldCallPrep: auto-seed succeeded — ${upserts} upserts, ${post_count} total`);
+                    await sendTelegram(`🌱 *coldCallPrep ${dateKey}* — auto-seed fired (${upserts} leads). Re-running prep...`);
+                    // Re-query now that seed ran
+                    const reSnap = await db.collection("phone_leads")
+                        .where("phone_verified", "==", true)
+                        .where("do_not_call", "==", false)
+                        .limit(500)
+                        .get();
+                    const reCandidates = [];
+                    reSnap.forEach((doc) => {
+                        const d = doc.data();
+                        const lastCalled = d.last_called_at?.toDate?.() || null;
+                        const okFreshness = !lastCalled || lastCalled < fourteenDaysAgo.toDate();
+                        if (okFreshness && d.phone) {
+                            reCandidates.push({
+                                id: doc.id, phone: d.phone,
+                                name: d.name || d.first_name || "allá",
+                                company: d.company || d.company_name || "",
+                                website: d.website || "", email: d.email || "",
+                                last_called_at: lastCalled,
+                            });
+                        }
+                    });
+                    reCandidates.sort((a, b) => (a.last_called_at?.getTime() || 0) - (b.last_called_at?.getTime() || 0));
+                    batch = reCandidates.slice(0, BATCH_SIZE);
+                } catch (seedErr) {
+                    functions.logger.error("coldCallPrep: auto-seed failed:", seedErr.message);
+                    await sendTelegram(`⚠️ *coldCallPrep ${dateKey}* — phone_leads empty AND auto-seed failed: ${seedErr.message}`);
+                    return null;
+                }
+            } else {
+                functions.logger.warn("coldCallPrep: SEED_SECRET missing, cannot self-heal");
+            }
+        }
+
         if (batch.length === 0) {
             await sendTelegram(`📞 *coldCallPrep ${dateKey}* — no phone_leads ready to dial. Queue empty.`);
             return null;

@@ -32,7 +32,7 @@ const axios = require("axios");
 const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
 const TG_CHAT_FALLBACK = "6637626501";
 
-async function sendSlack(text, blocks) {
+async function sendSlack(text, blocks, attachments) {
     const url = process.env.SLACK_WEBHOOK_URL;
     if (!url) {
         // Fallback: send to Telegram so we still know what happened
@@ -51,7 +51,14 @@ async function sendSlack(text, blocks) {
         return { ok: false, fallback: "telegram" };
     }
     try {
-        const payload = blocks ? { text, blocks } : { text };
+        // Slack requires `text` as a fallback for accessibility + notifications,
+        // even when we're sending attachments/blocks. Payload precedence:
+        //   - attachments (branded gold-bar layout) take priority if given
+        //   - blocks (unwrapped Block Kit) next
+        //   - text fallback always included
+        const payload = { text };
+        if (attachments) payload.attachments = attachments;
+        else if (blocks) payload.blocks = blocks;
         await axios.post(url, payload, { timeout: 10000 });
         return { ok: true };
     } catch (err) {
@@ -101,7 +108,7 @@ async function getColdCallToday(db, dateKey) {
 }
 
 // ============================================================
-// 2. Instantly cold-email stats (rolling 24h)
+// 2. Instantly cold-email stats (rolling 24h) — overview + per-campaign top 5
 // ============================================================
 async function getInstantlyStats() {
     const key = process.env.INSTANTLY_API_KEY;
@@ -109,15 +116,43 @@ async function getInstantlyStats() {
     try {
         const end = new Date();
         const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-        const r = await axios.get("https://api.instantly.ai/api/v2/campaigns/analytics/overview", {
-            headers: { Authorization: `Bearer ${key}` },
-            params: {
-                start_date: start.toISOString().slice(0, 10),
-                end_date: end.toISOString().slice(0, 10),
-            },
-            timeout: 15000,
-        });
-        const d = r.data || {};
+        const params = {
+            start_date: start.toISOString().slice(0, 10),
+            end_date: end.toISOString().slice(0, 10),
+        };
+        const headers = { Authorization: `Bearer ${key}` };
+
+        // Overview (account-wide rollup)
+        const ovr = await axios.get(
+            "https://api.instantly.ai/api/v2/campaigns/analytics/overview",
+            { headers, params, timeout: 15000 },
+        );
+        const d = ovr.data || {};
+
+        // Per-campaign breakdown — top 5 by emails sent in last 24h
+        let campaigns = [];
+        try {
+            const perC = await axios.get(
+                "https://api.instantly.ai/api/v2/campaigns/analytics",
+                { headers, params, timeout: 15000 },
+            );
+            const rows = Array.isArray(perC.data) ? perC.data : (perC.data?.items || []);
+            campaigns = rows
+                .map((c) => ({
+                    name: (c.campaign_name || c.name || c.campaign_id || "?").slice(0, 32),
+                    sent: c.emails_sent_count || c.sent || 0,
+                    replies: c.reply_count || c.replies || 0,
+                    bounces: c.bounced_count || c.bounces || 0,
+                    replyRate: (c.emails_sent_count || c.sent)
+                        ? Math.round((1000 * (c.reply_count || c.replies || 0)) / (c.emails_sent_count || c.sent)) / 10
+                        : 0,
+                }))
+                .sort((a, b) => b.sent - a.sent)
+                .slice(0, 5);
+        } catch (campErr) {
+            functions.logger.warn("Instantly per-campaign fetch failed:", campErr.message);
+        }
+
         return {
             sent: d.emails_sent_count || 0,
             opens: d.open_count || 0,
@@ -126,6 +161,7 @@ async function getInstantlyStats() {
             openRate: d.emails_sent_count ? Math.round((100 * (d.open_count || 0)) / d.emails_sent_count) : 0,
             replyRate: d.emails_sent_count ? Math.round((1000 * (d.reply_count || 0)) / d.emails_sent_count) / 10 : 0,
             bounceRate: d.emails_sent_count ? Math.round((1000 * (d.bounced_count || 0)) / d.emails_sent_count) / 10 : 0,
+            campaigns,
         };
     } catch (err) {
         return { error: err.response?.data?.message || err.message };
@@ -250,6 +286,121 @@ function estimateDailyCost({ instantly, fbAds, coldCall, audits, eleven }) {
 }
 
 // ============================================================
+// Branded Block Kit builder — JegoDigital gold (#C5A059) accent bar
+// ============================================================
+function buildBrandedBlocks({ dateKey, coldCall, instantly, audits, fbAds, eleven, cost }) {
+    const fmt = (v, suffix = "") => (v === undefined || v === null ? "—" : `${v}${suffix}`);
+    const errTag = (o) => (o && o.error ? `  ⚠️ _${String(o.error).slice(0, 90)}_` : "");
+
+    // Cold email campaign breakdown (top 5)
+    const campLines = (instantly.campaigns || []).length > 0
+        ? instantly.campaigns.map((c, i) => {
+            const health = c.replyRate >= 2 ? "🟢" : (c.replyRate >= 1 ? "🟡" : "🔴");
+            return `${health} *${c.name}* — ${c.sent} sent · ${c.replies} replies (${c.replyRate}%)`;
+        }).join("\n")
+        : "_No per-campaign data_";
+
+    const blocks = [
+        {
+            type: "header",
+            text: { type: "plain_text", text: `📊 JegoDigital · Close-of-Business`, emoji: true },
+        },
+        {
+            type: "context",
+            elements: [
+                { type: "mrkdwn", text: `*${dateKey}* · Autonomous daily rollup` },
+            ],
+        },
+        { type: "divider" },
+        // Cold calls
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*📞 Cold Calls*${errTag(coldCall)}` },
+            fields: [
+                { type: "mrkdwn", text: `*Queued / Fired*\n${fmt(coldCall.queued)} · ${fmt(coldCall.fired)}` },
+                { type: "mrkdwn", text: `*Failed*\n${fmt(coldCall.failed)}` },
+                { type: "mrkdwn", text: `*Positive / Neg / Neutral*\n🔥 ${fmt(coldCall.positive)} · ❌ ${fmt(coldCall.negative)} · ${fmt(coldCall.neutral)}` },
+                { type: "mrkdwn", text: `*Pending*\n${fmt(coldCall.pending)}` },
+                { type: "mrkdwn", text: `*Offer mix (A/B/C)*\n${fmt(coldCall.offer_counts?.A)} · ${fmt(coldCall.offer_counts?.B)} · ${fmt(coldCall.offer_counts?.C)}` },
+                { type: "mrkdwn", text: `*Audits auto-fired*\n${fmt(coldCall.audits_queued)}` },
+            ],
+        },
+        { type: "divider" },
+        // Cold email
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*📧 Cold Email · Last 24h*${errTag(instantly)}` },
+            fields: [
+                { type: "mrkdwn", text: `*Sent*\n${fmt(instantly.sent)}` },
+                { type: "mrkdwn", text: `*Opens*\n${fmt(instantly.opens)} (${fmt(instantly.openRate, "%")})` },
+                { type: "mrkdwn", text: `*Replies*\n${fmt(instantly.replies)} (${fmt(instantly.replyRate, "%")})` },
+                { type: "mrkdwn", text: `*Bounces*\n${fmt(instantly.bounces)} (${fmt(instantly.bounceRate, "%")})` },
+            ],
+        },
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*Top 5 campaigns*\n${campLines}` },
+        },
+        { type: "divider" },
+        // Audit pipeline
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*🔍 Audit Pipeline · Today*${errTag(audits)}` },
+            fields: [
+                { type: "mrkdwn", text: `*Requests*\n${fmt(audits.total)}` },
+                { type: "mrkdwn", text: `*By source*\n${Object.entries(audits.bySource || {}).map(([k, v]) => `${k}: ${v}`).join(" · ") || "—"}` },
+                { type: "mrkdwn", text: `*By status*\n${Object.entries(audits.byStatus || {}).map(([k, v]) => `${k}: ${v}`).join(" · ") || "—"}` },
+            ],
+        },
+        { type: "divider" },
+        // Meta Ads
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*💰 Meta Ads · Today*${errTag(fbAds)}` },
+            fields: [
+                { type: "mrkdwn", text: `*Spend*\n$${fmt(fbAds.spend)}` },
+                { type: "mrkdwn", text: `*Impressions*\n${fmt(fbAds.impressions)}` },
+                { type: "mrkdwn", text: `*Clicks / CTR*\n${fmt(fbAds.clicks)} · ${fmt(fbAds.ctr, "%")}` },
+                { type: "mrkdwn", text: `*Leads / CPC*\n${fmt(fbAds.leads)} · $${fmt(fbAds.cpc)}` },
+            ],
+        },
+        { type: "divider" },
+        // ElevenLabs + cost
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*🔊 ElevenLabs Credit*${errTag(eleven)}` },
+            fields: [
+                { type: "mrkdwn", text: `*Remaining*\n${fmt(eleven.remaining)} / ${fmt(eleven.limit)} (${fmt(eleven.pct, "%")})` },
+                { type: "mrkdwn", text: `*Tier*\n${fmt(eleven.tier)}` },
+            ],
+        },
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*💵 Cost of Day (approx USD)*` },
+            fields: [
+                { type: "mrkdwn", text: `*Fixed*\n$${cost.fixed_daily_usd}` },
+                { type: "mrkdwn", text: `*Variable*\n$${cost.variable_daily_usd}` },
+                { type: "mrkdwn", text: `*Total*\n*$${cost.total_daily_usd}*` },
+                { type: "mrkdwn", text: `*Breakdown*\nFB $${cost.breakdown.fb_ads} · EL $${Math.round(cost.breakdown.elevenlabs_calls * 100) / 100} · Twilio $${Math.round(cost.breakdown.twilio_calls * 100) / 100}` },
+            ],
+        },
+        {
+            type: "context",
+            elements: [
+                { type: "mrkdwn", text: `_JegoDigital Autopilot · ${new Date().toISOString()}_ · <https://jegodigital.com|jegodigital.com>` },
+            ],
+        },
+    ];
+
+    // Gold accent bar via attachment color
+    return {
+        attachments: [
+            { color: "#C5A059", blocks },
+        ],
+    };
+}
+
+// ============================================================
 // MAIN
 // ============================================================
 exports.dailyRollupSlack = functions
@@ -273,6 +424,7 @@ exports.dailyRollupSlack = functions
         const fmt = (v, suffix = "") => (v === undefined || v === null ? "—" : `${v}${suffix}`);
         const err = (o) => (o && o.error ? ` _(${o.error})_` : "");
 
+        // Fallback plain text (used by Telegram + notifications when blocks don't render)
         const lines = [
             `*📊 JegoDigital · Close-of-Business · ${dateKey}*`,
             ``,
@@ -304,7 +456,9 @@ exports.dailyRollupSlack = functions
         ];
         const text = lines.join("\n");
 
-        await sendSlack(text);
+        // Branded Block Kit payload (attachment with gold bar + fields grid)
+        const branded = buildBrandedBlocks({ dateKey, coldCall, instantly, audits, fbAds, eleven, cost });
+        await sendSlack(text, null, branded.attachments);
 
         // Always snapshot so autopilotReviewer has a 7d view
         try {
