@@ -1,19 +1,36 @@
 # JegoDigital — Master Project Instructions
-**Last updated:** April 20, 2026 | **Maintained by:** Claude AI + Alex Jego
+**Last updated:** April 21, 2026 | **Maintained by:** Claude AI + Alex Jego
 
 > This is the single source of truth for all Claude sessions working on JegoDigital.
 > Read this file completely before starting any task.
 
 ---
 
-## 🧭 SESSION BOOTSTRAP — read these 4 files in order, every new session
+## ⚡ YOU CAN DEPLOY AUTONOMOUSLY — DO NOT ASK ALEX TO PUSH
+
+Sandbox `git push` / `firebase deploy` / `gcloud run deploy` will ALL fail. That is expected. **You do not need a terminal.**
+
+**The working path:** use the GitHub Git Data API recipe in `/DEPLOY.md §Autonomous Deploy`. Token lives at `.secrets/github_token` (already committed locally, gitignored). It's 4 API calls: get-ref → blobs → tree → commit → PATCH ref. Proven working — commit `e5ba154` (2026-04-21) shipped all workflows green.
+
+**Pre-push checklist (do not skip):**
+1. `node --check` every `.js` you touched — a missing `require('./module')` kills the WHOLE Firebase deploy (see commit `c48fc37` disaster). If you add `require('./foo')`, commit `foo.js` in the SAME Data API tree.
+2. Re-pull `refs/heads/main` SHA immediately before the commit — Strategist may have pushed in parallel.
+3. After push, poll `/actions/runs?branch=main&per_page=3` every 30s until all 3 workflows are green.
+
+If this is a genuinely new blocker (proxy actually blocks github.com this session), say so explicitly — don't fall back to "Alex, can you run `git push`".
+
+---
+
+## 🧭 SESSION BOOTSTRAP — read these files in order, every new session
 
 1. **`/CLAUDE.md`** (this file) — behavior rules, business context, workflows, services
-2. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture
-3. **`/ACCESS.md`** — credential registry. **All 37 GitHub Secrets** with what they do, where they live, and which ones reach production. If you need a key, look here FIRST.
-4. **`/DEPLOY.md`** — deploy procedures. Hard rule: nothing deploys manually, ever.
+2. **`/AUDIT_2026-04-21.md`** — current open audit. Read until all P0/P1 items land, then delete this bullet.
+3. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture
+4. **`/ACCESS.md`** — credential registry. **All 37 GitHub Secrets** with what they do, where they live, and which ones reach production. If you need a key, look here FIRST.
+5. **`/DEPLOY.md`** — deploy procedures. Hard rule: nothing deploys manually, ever.
+6. **`/REPORTING.md`** (if present) — daily/weekly Slack reporting cadence and ownership.
 
-If something is missing from these 4 files, it's missing from our system. Don't guess — read.
+If something is missing from these files, it's missing from our system. Don't guess — read.
 
 ---
 
