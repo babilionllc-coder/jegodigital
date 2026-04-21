@@ -69,9 +69,14 @@
 
 ## ⏭️ ROLLED TO NEXT SESSION
 
-- Fix SYSTEM.md stale sections + add missing crons (task #28)
-- Update ACCESS.md with 3 updates + reconcile with `gh secret list` (task #29)
-- Push all doc changes via Git Data API (task #35)
+- None from this session's doc-cleanup arc — all of it shipped in commit `c3c9ad71` (2026-04-21 PM, all 3 workflows green).
+- Still pending from P0/P1 queue above: Apr 17 Calendly booking (#1), Instantly positive-reply harvest (#2), yesterday's 74 EL conversations review (#3), Instantly 0% open tracking diagnosis (#4), Agent B+C voicemail fix verification (#5), lead_finder v4 run (#6).
+
+## 📦 SHIPPED IN COMMIT c3c9ad71 (2026-04-21 PM)
+
+- Task #28 — SYSTEM.md §2 planned crons added (`weeklyRevenueReview` HR#7, `verifyClientProofMonthly` HR#9); §10 overview + ASCII + cron table + resolved-list all annotated with DISABLED for afternoon batch; §11 change log reordered chronologically + 4 new entries
+- Task #29 — ACCESS.md live-verified 37/37 against GH API; header bumped to 2026-04-21 PM; changelog entry for today's infra; FILE REFERENCE table expanded with 6 new docs + `twilioCallStatusCallback.js` + `tools/verify_access.sh`
+- Task #35 — single Git Data API push of 13 files (CLAUDE, SYSTEM, ACCESS, README, ONBOARDING, NEXT_STEP, OPERATING_RHYTHM, DISASTER_LOG, BACKLOG, COLDCALL, twilioCallStatusCallback.js, index.js, verify_access.sh); pre-push `node --check` passed both JS files; post-push poll confirmed Deploy to Firebase + Auto-Index URLs + Validate video assets all green on `c3c9ad71`
 
 ---
 
