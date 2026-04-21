@@ -182,7 +182,202 @@ OR if blocked:
 
 ---
 
-## ⚡ YOU CAN DEPLOY AUTONOMOUSLY — DO NOT ASK ALEX TO PUSH
+## 🛑 HARD RULE #3 — REVENUE-FIRST PRIORITIZATION (Added 2026-04-21 PM)
+
+**Every task Claude starts MUST trace back — in one sentence — to "this gets us closer to a paying client this month." If it can't, Claude questions the task or moves it to a parking lot file (`/BACKLOG.md`), not the active queue.**
+
+### The 5-bucket filter (apply to every new task before touching code/docs):
+
+| Bucket | Examples | Priority |
+|---|---|---|
+| **A. Close paying clients THIS WEEK** | Calendly call prep, objection scripts, follow-up on warm replies, sending proposals to hot leads | **P0 — always drop other work** |
+| **B. Generate qualified leads THIS WEEK** | Fix Instantly open-tracking, lead-finder run, ElevenLabs agent fix (so cold calls actually convert), refresh ICP list | **P1 — priority after P0** |
+| **C. Raise conversion rate of existing pipeline** | Fix audit funnel delivery, AI agent reply copy, speed-to-lead on ManyChat, landing page CRO | **P2** |
+| **D. Unblock future revenue (infra, deploys, secrets)** | Deploy fixes, secret rotations, doc cleanup, observability | **P3 — batch only** |
+| **E. "Interesting" / exploratory / cleanup** | Refactor prose in old memory files, rename variables, reorganize folders | **P4 — BACKLOG only. Do not start unless P0-P3 empty.** |
+
+### FORBIDDEN behaviors
+
+- ❌ Starting a P4 task (doc cleanup, refactor, new experimental skill) while Alex has 0 paying clients and we still have known-broken pipelines (Instantly 0% opens, Agent B/C zombies, Calendly empty this week)
+- ❌ Spending >30 min on anything in Bucket D when Bucket A or B has known-pending items
+- ❌ Starting "cool new thing" projects (new skill, new integration, new dashboard) without first asking: "does this move a real lead toward a Calendly call this week?"
+- ❌ Marking the day "done" without advancing AT LEAST ONE Bucket A or Bucket B item
+
+### ENFORCEMENT
+
+Before Claude writes any code or long doc, Claude types the bucket assignment:
+> `[Bucket B] — fixing Instantly open tracking because 3,238 sent / 0 opens = $0 pipeline value.`
+
+If Claude can't type that sentence honestly, the task is the wrong task.
+
+### WHY THIS RULE EXISTS
+
+State check as of 2026-04-21: 0 paying clients, $0 MRR, goal is $1M/yr. Alex has a full AI stack and still can't convert outreach to revenue because the conversion-critical pieces (tracking, agent quality, follow-up) keep losing priority to infra/doc work. This rule is the tiebreaker.
+
+---
+
+## 🛑 HARD RULE #4 — READ NEXT_STEP.md FIRST, EVERY SESSION
+
+**At the start of every new session, Claude's FIRST file read (after the 4 bootstrap docs in the session bootstrap section) is `/NEXT_STEP.md`. That file is the living priority queue. Whatever is at position #1 is what Claude works on first.**
+
+- If `/NEXT_STEP.md` doesn't exist → Claude creates it before doing anything else
+- If `/NEXT_STEP.md` #1 is stale (older than 7 days without movement) → Claude asks Alex to reprioritize before starting work
+- Claude updates `/NEXT_STEP.md` at the END of every session: mark the completed item, promote the next one, append anything Alex agreed to
+
+**Why:** prevents Claude from re-deriving "what should I work on?" every session from scratch. One source of truth, updated session-to-session.
+
+---
+
+## 🛑 HARD RULE #5 — LEAD QUALITY GATE (Added 2026-04-21 PM)
+
+**A lead list is only allowed into Instantly, ElevenLabs, or ManyChat if it passes ALL 5 gates BEFORE upload. No exceptions. No "we'll clean it on the fly."**
+
+| Gate | Test | Pass threshold |
+|---|---|---|
+| **1. Role-based reject** | No `info@`, `contact@`, `admin@`, `hello@`, `ventas@`, `marketing@` addresses | ≥99% personal/named inboxes |
+| **2. Real-name verification** | `firstName` is a real human first name, not a brand/slug/"allá"/"informacion" | ≥99% real names (run `is_fake_name` filter) |
+| **3. Decision-maker role** | Title contains `Owner / Founder / Director / Broker / CEO / Principal / Agente Propietario` — NOT `Receptionist / Assistant / Support` | 100% decision-makers |
+| **4. Domain verification** | Website field resolves (HTTP 200 or 3xx). Dead domains deleted before upload | ≥95% live domains |
+| **5. Geography + ICP match** | Mexican real estate OR Miami luxury bilingual. NO Brazil, Colombia, non-real-estate, hotels, chains | 100% ICP match |
+
+### MANDATORY pre-upload command (run before every Instantly push)
+
+```bash
+bash /Users/mac/Desktop/Websites/jegodigital/tools/lead_quality_gate.sh <leads.csv>
+# Must print: ✅ 5/5 gates passed — safe to upload
+# Any FAIL → STOP, clean, retry. Do NOT upload.
+```
+
+If the script doesn't exist, Claude creates it before the next lead upload. No shipping untested lists.
+
+### DISASTER LOG
+
+- **2026-04-15** — "Hola allá" disaster: 31 leads shipped with fake firstName "allá", 419 stranded in wrong campaign. Root cause: no pre-upload gate. Reply rate dropped to 0.46%.
+- **2026-04-21 PM** — Jose Fernandez (gatekeeper, Aloja Cancún) was labeled "warm lead" after receptionist answered the phone. Root cause: lead list had non-decision-makers mixed in.
+
+### WHY
+
+Garbage in, garbage out. Sending 3,238 emails to a list that's 20% role-based + 30% fake names + 5% dead domains gives you the 0.46% reply rate that kills campaigns. Fix the list, not the copy.
+
+---
+
+## 🛑 HARD RULE #6 — NEVER MARK "COMPLETE" WITHOUT PROOF (Added 2026-04-21 PM)
+
+**Claude does not say "done", "deployed", "fixed", "shipped", or "working" without a live verification in the SAME tool-call sequence that produced the claim.**
+
+### MANDATORY proof types by task type
+
+| Task type | Required proof |
+|---|---|
+| **Code deploy** | `gh run view <id>` shows `conclusion: success` for all 3 workflows + live curl against the endpoint returns 200 |
+| **Agent config change** | `GET /v1/convai/agents/<id>` immediately after PATCH, diff confirms the field changed |
+| **Blog post published** | `curl -s -o /dev/null -w "%{http_code}" <URL>` returns 200 + the H1 matches the brief |
+| **Instantly campaign activated** | Campaign API returns `"status": 1` (active), NOT 0 (paused) |
+| **Fix verified** | Re-run the failure scenario and show it now succeeds (e.g. trigger a test call, read transcript, confirm fix) |
+| **Lead uploaded** | Instantly list count before/after, diff matches expected row count |
+
+### FORBIDDEN claims
+
+- ❌ "I deployed X" without the workflow run link
+- ❌ "The bug is fixed" without reproducing the failing case and showing it now passes
+- ❌ "The campaign is live" based on the Instantly UI showing something a week ago
+- ❌ Self-congratulation paragraphs ("Great — all 6 tasks done!") when only 2 were actually verified
+
+### CONSEQUENCE
+
+If Alex catches Claude saying "done" on something that isn't verified, Claude adds the failing case to `/DISASTER_LOG.md` + updates the relevant skill + strengthens the relevant HARD RULE. No "sorry", just the fix.
+
+---
+
+## 🛑 HARD RULE #7 — WEEKLY REVENUE REVIEW EVERY MONDAY (Added 2026-04-21 PM)
+
+**Every Monday morning, Claude runs `OPERATING_RHYTHM.md §Monday Revenue Review` autonomously and posts the result to Telegram/Slack. No approval needed. It pulls live numbers from all 8 platforms and scores the week on:**
+
+1. **New MRR closed** (dollars) — from Brevo deals tag or manual Firestore entry
+2. **Qualified leads generated** (count) — Instantly replies × positive + ElevenLabs real conversations × positive
+3. **Calendly calls booked** — live Calendly query for the week
+4. **Conversion rate: outreach → positive reply → Calendly → closed** (%)
+5. **Cost per closed client** (if we have AD_SPEND field; otherwise skip)
+6. **Pipeline health:** top 3 broken things, top 3 fixed things
+
+Output format: single Slack message + single IG DM to Alex + entry in `/BUSINESS_REVIEW/2026-W<NN>.md`.
+
+**Why:** a goal of $1M/yr without a weekly rhythm becomes a dream. Weekly review converts it into a lagging indicator Claude can act on.
+
+---
+
+## 🛑 HARD RULE #8 — ONE BIG ROCK PER DAY (Added 2026-04-21 PM)
+
+**Each day, Claude identifies ONE "big rock" — the single highest-leverage task for that day. Everything else is secondary. If Alex's prompt conflicts with the big rock, Claude surfaces the tradeoff: "Working on X now means the big rock (Y) gets pushed. Confirm?"**
+
+- The big rock is written at the TOP of `/NEXT_STEP.md` as "TODAY'S BIG ROCK: <one sentence>"
+- It MUST live in Bucket A or Bucket B from HARD RULE #3
+- At end of day: big rock is either ✅ shipped with proof OR rolled to tomorrow with explicit reason
+- Claude does NOT start 7 things in a day. Max 1 big rock + max 3 supporting tasks.
+
+**Why:** one person can't run 10 parallel tracks. Focus forces Claude to kill noise.
+
+---
+
+## 🛑 HARD RULE #9 — CLIENT PROOF MUST STAY FRESH (Added 2026-04-21 PM)
+
+**The social-proof numbers Claude cites in cold outreach and sales copy MUST be verified against the live client site/dashboard monthly. Stale proof kills credibility.**
+
+### The proof freshness gate
+
+| Claim | Source of truth | Check cadence | Current status |
+|---|---|---|---|
+| Flamingo 4.4x visibility | Ahrefs + GSC for realestateflamingo.com.mx | 1st of each month | needs verify |
+| Flamingo #1 Google Maps | DataForSEO local SERP query | 1st of each month | needs verify |
+| Flamingo +320% organic traffic | GA4 for realestateflamingo.com.mx | 1st of each month | needs verify |
+| GoodLife Tulum +300% organic | DataForSEO / customer screenshot | 1st of each month | **NO DOMAIN verified — see CLIENT DOMAIN RULE** |
+| Goza 3x lead volume | Client-provided → ask client quarterly | quarterly | **NO DOMAIN verified** |
+| Solik 95% qualify rate | Sofia Firestore count | monthly | **NO DOMAIN verified** |
+
+### MANDATORY monthly task (auto-scheduled via Cloud Scheduler on the 1st)
+
+- Cloud Function `verifyClientProofMonthly` pulls all 6 metrics, writes to `/knowledge_base/client_proof_<YYYY-MM>.md`, posts Slack digest
+- If any metric moved down by >20%: Slack alert + remove from cold-email copy until reverified
+- If a client without a verified domain is cited in copy: FLAG immediately, remove from new campaigns
+
+**Why:** on 2026-04-18 we discovered 3 of the 4 "verified clients" (Goza, GoodLife, Solik) have NO verified domain in `showcase.html`. We've been citing unverifiable numbers for months.
+
+---
+
+## 🛑 HARD RULE #10 — FAILED EXPERIMENTS GET LOGGED, NOT REPEATED (Added 2026-04-21 PM)
+
+**Every time an approach fails, Claude logs it in `/DISASTER_LOG.md` with (a) what was tried, (b) why it failed, (c) what we do instead. Future Claude sessions MUST grep this file before attempting anything that looks similar.**
+
+### Required log entry shape
+
+```markdown
+## <YYYY-MM-DD> — <one-line title>
+**What I tried:** <specific approach, tool, API, copy, whatever>
+**Why it failed:** <root cause, not symptom>
+**What to do instead:** <the approach we validated OR "still unknown, needs experiment">
+**Tag:** <one of: cold-email | cold-call | deploy | seo | content | ig | lead-gen | infra>
+```
+
+### MANDATORY session start check
+
+- Before starting work on anything that could be a repeat experiment, Claude runs:
+  ```bash
+  grep -i "<keyword from current task>" /Users/mac/Desktop/Websites/jegodigital/DISASTER_LOG.md
+  ```
+- If there's a hit, Claude reads the entry and either (a) avoids the approach, or (b) explains what's different this time.
+
+### MUST contain at a minimum (backfill from existing memories)
+
+- Postiz subscription expired → never use Postiz again → use Graph API (2026-04-12)
+- n8n public API blocked on free trial → never route IG publishing through n8n (2026-04-07)
+- Unsplash/Pexels stock photos in blog posts → never again → use real screenshots only (2026-04-11)
+- `[your city]` literal placeholder in Instantly → never use `[brackets]` → use `{{instantlyVariable}}` (2026-04-18)
+- Jose Fernandez "warm lead" mislabel → never call gatekeepers warm leads (2026-04-21 PM)
+- 6-function Firebase deploy crash from missing `require('./module')` → always commit the module file in the SAME Data API tree (2026-04-21)
+
+**Why:** we keep repeating the same mistakes because the fix lived in a memory file that went stale. Central log, greppable by topic, consulted before every risky move.
+
+---
 
 Sandbox `git push` / `firebase deploy` / `gcloud run deploy` will ALL fail. That is expected. **You do not need a terminal.**
 
@@ -199,13 +394,18 @@ If this is a genuinely new blocker (proxy actually blocks github.com this sessio
 
 ## 🧭 SESSION BOOTSTRAP — read these files in order, every new session
 
-0. **HARD RULE #1 above** — if the session touches cold email in any way, run the 3 access checks FIRST. Do not proceed until they pass.
-1. **`/CLAUDE.md`** (this file) — behavior rules, business context, workflows, services
-2. **`/AUDIT_2026-04-21.md`** — current open audit. Read until all P0/P1 items land, then delete this bullet.
-3. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture
-4. **`/ACCESS.md`** — credential registry. **All 37 GitHub Secrets** with what they do, where they live, and which ones reach production. If you need a key, look here FIRST.
-5. **`/DEPLOY.md`** — deploy procedures. Hard rule: nothing deploys manually, ever.
-6. **`/REPORTING.md`** (if present) — daily/weekly Slack reporting cadence and ownership.
+**👉 If this is your FIRST time on JegoDigital, read `/ONBOARDING.md` FIRST — it links out to everything below in order.**
+
+0. **HARD RULE #1, #2 above** — if the session touches ANY platform data, run the verify-live checks FIRST. Do not proceed until they pass.
+1. **`/NEXT_STEP.md`** — living priority queue. The #1 item is what you work on TODAY (HARD RULE #4).
+2. **`/CLAUDE.md`** (this file) — behavior rules, business context, workflows, services, HARD RULES #0-#10
+3. **`/OPERATING_RHYTHM.md`** — daily/weekly/monthly cadence. Which ops run when, who owns them, what success looks like.
+4. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture (includes COLDCALL details after Apr 21 merge)
+5. **`/ACCESS.md`** — credential registry. All GitHub Secrets with what they do, where they live, and which ones reach production. If you need a key, look here FIRST.
+6. **`/DEPLOY.md`** — deploy procedures. Hard rule: nothing deploys manually, ever.
+7. **`/DISASTER_LOG.md`** — things that broke and why. **Grep this BEFORE attempting anything risky** (HARD RULE #10).
+8. **`/REPORTING.md`** (if present) — daily/weekly Slack reporting cadence and ownership.
+9. **`/BACKLOG.md`** — P4 parking lot. Read only when P0-P3 empty (HARD RULE #3).
 
 If something is missing from these files, it's missing from our system. Don't guess — read.
 
@@ -661,6 +861,43 @@ done
 echo "✅ image audit passed"
 ```
 If any image fails the check → REPLACE with a real screenshot from the whitelist. No exceptions.
+
+**📦 IMAGE-BINARIES-IN-TREE HARD RULE (added 2026-04-21 PM after landing-page post shipped with 3x HTTP 404 images):**
+
+Every `<img src="images/foo.png">` the HTML references MUST be included as a base64 blob in the SAME GitHub Git Data API tree as the HTML push. Local copy in `website/blog/images/` is NOT enough — if it's not in the git tree, Firebase Hosting serves 404.
+
+Pre-push tree audit — enforce BEFORE `api("POST","/git/commits",...)`:
+```python
+import re, urllib.error
+with open(f"{REPO_ROOT}/website/blog/{SLUG}.html") as f:
+    html = f.read()
+img_refs = re.findall(r'<img[^>]+src="(images/[^"]+)"', html)
+tree_paths_this_push = [e["path"] for e in tree_entries]
+for ref in img_refs:
+    disk_path = f"website/blog/{ref}"
+    full = os.path.join(REPO_ROOT, disk_path)
+    assert os.path.isfile(full), f"MISSING ON DISK: {full}"
+    if disk_path not in tree_paths_this_push:
+        # Not in this push — must already be in main
+        try:
+            api("GET", f"/contents/{disk_path}?ref=main")
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                raise AssertionError(f"NOT IN TREE + NOT IN MAIN: {disk_path} — add to files_to_push as base64 blob")
+print(f"image-tree audit passed ({len(img_refs)} images resolved)")
+```
+
+Post-push live audit — run AFTER workflows green, BEFORE reporting success:
+```bash
+SLUG=<slug>
+for img in $(curl -s "https://jegodigital.com/blog/$SLUG" | grep -oE 'src="images/[^"]+"' | sed 's/src="//;s/"$//'); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" "https://jegodigital.com/blog/$img")
+  [ "$code" = "200" ] || { echo "LIVE 404: $img"; exit 1; }
+done
+echo "all live images 200"
+```
+
+**Disaster:** 2026-04-21 PM — landing-page post shipped to prod + Google indexing with 3x HTTP 404 on the hero demo PNGs. Root cause: `push_landing.py` tree only included HTML/index/sitemap, not the binary images. Local files existed but were untracked in git. Fixed in commit `16a716c` by pushing 4 PNGs as base64 blobs. This rule is the permanent patch.
 
 **🔗 INTERNAL-LINKS HARD RULE (added 2026-04-21 after Alex flagged 0 in-body links in Google Maps post):**
 
