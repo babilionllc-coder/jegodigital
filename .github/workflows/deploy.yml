@@ -49,6 +49,8 @@ jobs:
           TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
           BREVO_SENDER_NAME=${{ secrets.BREVO_SENDER_NAME }}
           PAGESPEED_API_KEY=${{ secrets.PAGESPEED_API_KEY }}
+          SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+          INSTANTLY_API_KEY=${{ secrets.INSTANTLY_API_KEY }}
           ENVEOF
           # Clean leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env
