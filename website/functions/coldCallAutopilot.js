@@ -1,10 +1,12 @@
 /**
  * coldCallAutopilot — daily 50-call routine, no human gate.
  *
- * Three crons, one module:
- *   09:55 Mon-Fri  coldCallPrep   — queue 50 phone-ready leads with A/B/C offer rotation
- *   10:00 Mon-Fri  coldCallRun    — fire Sofia calls against today's queue
- *   13:00 Mon-Fri  coldCallReport — summarize outcomes, auto-fire audits for positives
+ * Five crons, one module:
+ *   09:55 Mon-Fri  coldCallPrep           — queue 50 phone-ready leads with A/B/C offer rotation (includes 24h failed-call retry)
+ *   10:00 Mon-Fri  coldCallRun            — fire Sofia calls against today's queue
+ *   10:15 Mon-Fri  coldCallMidBatchCheck  — Telegram alert if failed > 15/50 during run
+ *   13:00 Mon-Fri  coldCallReport         — summarize outcomes, auto-fire audits for positives
+ *   16:00 Mon-Fri  coldCallRunAfternoon   — retry morning no-answers (max 25 leads)
  *
  * Design rule (per Alex 2026-04-20): NO approve-before-fire gate. Cron
  * fires, everything logs richly, dailyDigest + systemHealthAudit surface
@@ -46,7 +48,9 @@ async function sendTelegram(text) {
 const EL_API_KEY_FALLBACK = "335ed6b73e0b9281175a6b360eab9cbc0765bae4d55a9d8b95010d8642b8d673";
 const MX_PHONE_ID = "phnum_8801kp77en3ee56t0t291zyv40ne"; // +52 998 387 1618 (Sofia MX)
 const BATCH_SIZE = 50;
-const FIRE_INTERVAL_MS = 12000; // 12s between API fires — respects ElevenLabs + Twilio concurrency
+const AFTERNOON_BATCH_SIZE = 25;      // retry batch at 16:00 — smaller, afternoon hours
+const FIRE_INTERVAL_MS = 12000;       // 12s between API fires — respects ElevenLabs + Twilio concurrency
+const MID_BATCH_FAIL_THRESHOLD = 15;  // >15/50 failures at 10:15 → Telegram alarm
 
 // Offer rotation agents (created 2026-04-16, see CLAUDE.md §AI Cold Calling)
 const OFFERS = {
@@ -123,6 +127,36 @@ exports.coldCallPrep = functions
             const bT = b.last_called_at?.getTime() || 0;
             return aT - bT;
         });
+
+        // 24h retry — surface yesterday's failed/no-answer leads to top of today's queue (max 1 retry).
+        // Prevents leads that missed a single connection from waiting 14 days for the next touch.
+        try {
+            const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000 - 6 * 60 * 60 * 1000);
+            const yesterdayKey = yesterday.toISOString().slice(0, 10);
+            const failSnap = await db.collection("call_queue").doc(yesterdayKey).collection("leads")
+                .where("status", "in", ["failed", "no_answer"]).limit(20).get();
+            let retrySurfaced = 0;
+            failSnap.forEach((doc) => {
+                const d = doc.data();
+                if ((d.retry_count || 0) >= 1) return; // only one retry per lead
+                if (!d.phone) return;
+                // Drop dup + prepend
+                const existsIdx = candidates.findIndex((c) => c.id === doc.id);
+                if (existsIdx >= 0) candidates.splice(existsIdx, 1);
+                candidates.unshift({
+                    id: doc.id, phone: d.phone, name: d.name || "allá",
+                    company: d.company || "", website: d.website || "", email: d.email || "",
+                    last_called_at: d.last_called_at?.toDate?.() || null,
+                    is_retry: true, retry_count: (d.retry_count || 0) + 1,
+                });
+                retrySurfaced++;
+            });
+            if (retrySurfaced > 0) {
+                functions.logger.info(`coldCallPrep ${dateKey}: surfaced ${retrySurfaced} 24h-retry leads`);
+            }
+        } catch (retryErr) {
+            functions.logger.warn(`coldCallPrep: 24h retry pull failed: ${retryErr.message}`);
+        }
 
         let batch = candidates.slice(0, BATCH_SIZE);
 
@@ -428,5 +462,184 @@ exports.coldCallReport = functions
         }
         await sendTelegram(lines.join("\n"));
         functions.logger.info(`coldCallReport ${dateKey}: total=${total} positive=${positive} audits=${auditsQueued}`);
+        return null;
+    });
+
+// =====================================================================
+// 4) coldCallMidBatchCheck — 10:15 Mon-Fri CDMX
+//    Run 15 min into the morning batch. If > MID_BATCH_FAIL_THRESHOLD
+//    leads have status=failed, send Telegram so Alex can abort the batch
+//    before it burns through credits. Read-only — does NOT pause.
+// =====================================================================
+exports.coldCallMidBatchCheck = functions
+    .runWith({ timeoutSeconds: 60, memory: "256MB" })
+    .pubsub.schedule("15 10 * * 1-5")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        const db = admin.firestore();
+        const dateKey = cdmxTodayKey();
+
+        const snap = await db.collection("call_queue").doc(dateKey).collection("leads").get();
+        if (snap.empty) return null;
+
+        let failed = 0, dialed = 0, queued = 0;
+        const failSamples = [];
+        snap.forEach((doc) => {
+            const d = doc.data();
+            if (d.status === "failed") {
+                failed++;
+                if (failSamples.length < 3) failSamples.push(`${d.name || doc.id}: ${(d.error || "").slice(0, 60)}`);
+            } else if (d.status === "dialed") dialed++;
+            else if (d.status === "queued") queued++;
+        });
+
+        if (failed > MID_BATCH_FAIL_THRESHOLD) {
+            const lines = [
+                `🚨 *coldCallMidBatchCheck ${dateKey}* — HIGH FAILURE RATE`,
+                `   Failed: *${failed}* · Dialed: ${dialed} · Still queued: ${queued}`,
+                `   Threshold: ${MID_BATCH_FAIL_THRESHOLD}`,
+                "",
+                "_First failures:_",
+                ...failSamples.map((s) => `   • ${s}`),
+                "",
+                "Check ElevenLabs credits, Twilio status, or pause the batch.",
+            ];
+            await sendTelegram(lines.join("\n"));
+        } else {
+            functions.logger.info(`coldCallMidBatchCheck ${dateKey}: healthy (failed=${failed}, dialed=${dialed}, queued=${queued})`);
+        }
+        return null;
+    });
+
+// =====================================================================
+// 5) coldCallRunAfternoon — 16:00 Mon-Fri CDMX
+//    Retry morning no-answers + failed calls. Max AFTERNOON_BATCH_SIZE leads,
+//    same agent as morning (retry_count increments). Afternoon hours have
+//    better pickup rate for independent brokers in MX.
+// =====================================================================
+exports.coldCallRunAfternoon = functions
+    .runWith({ timeoutSeconds: 540, memory: "1GB" })
+    .pubsub.schedule("0 16 * * 1-5")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        const db = admin.firestore();
+        const dateKey = cdmxTodayKey();
+        const EL_KEY = process.env.ELEVENLABS_API_KEY || EL_API_KEY_FALLBACK;
+
+        functions.logger.info(`coldCallRunAfternoon ${dateKey}: starting`);
+
+        // Pull today's no-answer + failed leads that haven't been retried yet
+        const snap = await db.collection("call_queue").doc(dateKey).collection("leads")
+            .where("status", "in", ["no_answer", "failed", "dialed"])
+            .get();
+
+        // Filter: dialed-no-answer OR failed AND no retry yet
+        const retryCandidates = [];
+        snap.forEach((doc) => {
+            const d = doc.data();
+            if ((d.afternoon_retry_count || 0) >= 1) return;
+            if (d.status === "failed" || d.status === "no_answer") {
+                retryCandidates.push({ id: doc.id, ref: doc.ref, ...d });
+            }
+            // If `dialed` but call_analysis marked voicemail/no_answer, also retry
+            if (d.status === "dialed" && d.conversation_id) {
+                // Pull call_analysis
+                retryCandidates.push({ id: doc.id, ref: doc.ref, ...d, _needs_outcome_check: true });
+            }
+        });
+
+        // Check call_analysis for `dialed` candidates
+        const toRetry = [];
+        for (const c of retryCandidates) {
+            if (c._needs_outcome_check) {
+                try {
+                    const caSnap = await db.collection("call_analysis").doc(c.conversation_id).get();
+                    const outcome = (caSnap.data()?.outcome || "").toLowerCase();
+                    if (outcome.includes("voicemail") || outcome.includes("no_answer") || outcome === "pending") {
+                        toRetry.push(c);
+                    }
+                } catch (_) { /* skip */ }
+            } else {
+                toRetry.push(c);
+            }
+        }
+
+        const batch = toRetry.slice(0, AFTERNOON_BATCH_SIZE);
+        if (batch.length === 0) {
+            functions.logger.info(`coldCallRunAfternoon ${dateKey}: no retry candidates`);
+            return null;
+        }
+
+        let fired = 0, failed = 0;
+        for (const lead of batch) {
+            try {
+                const phoneToCall = lead.phone.startsWith("+") ? lead.phone : `+52${lead.phone}`;
+                const firstMessage = `Hola ${lead.name || ""}, soy Sofia de JegoDigital. ¿Tienes un momento?`;
+
+                const elRes = await axios.post(
+                    "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
+                    {
+                        agent_id: lead.agent_id,
+                        to_number: phoneToCall,
+                        agent_phone_number_id: MX_PHONE_ID,
+                        conversation_config_override: {
+                            agent: { language: "es", first_message: firstMessage },
+                            conversation: {
+                                max_duration_seconds: 300,
+                                client_inactivity_timeout_seconds: 30,
+                            },
+                        },
+                        dynamic_variables: {
+                            lead_name: lead.name || "",
+                            lead_company: lead.company || "",
+                            lead_website: lead.website || "",
+                            lead_email: lead.email || "",
+                            offer: lead.offer,
+                        },
+                    },
+                    { headers: { "xi-api-key": EL_KEY, "Content-Type": "application/json" }, timeout: 20000 }
+                );
+
+                const conversationId = elRes.data?.conversation_id;
+                await lead.ref.update({
+                    status: "dialed",
+                    dialed_at_afternoon: admin.firestore.FieldValue.serverTimestamp(),
+                    afternoon_retry_count: (lead.afternoon_retry_count || 0) + 1,
+                    afternoon_conversation_id: conversationId || null,
+                });
+                if (conversationId) {
+                    await db.collection("call_analysis").doc(conversationId).set({
+                        lead_id: lead.id,
+                        phone: phoneToCall,
+                        offer: lead.offer,
+                        agent_id: lead.agent_id,
+                        date_key: dateKey,
+                        is_afternoon_retry: true,
+                        created_at: admin.firestore.FieldValue.serverTimestamp(),
+                        outcome: "pending",
+                    }, { merge: true });
+                }
+                fired++;
+            } catch (err) {
+                const msg = err.response?.data?.detail || err.message;
+                functions.logger.error(`coldCallRunAfternoon fire failed for ${lead.id}:`, msg);
+                failed++;
+            }
+            await new Promise((r) => setTimeout(r, FIRE_INTERVAL_MS));
+        }
+
+        await db.collection("call_queue_summaries").doc(dateKey).set({
+            afternoon_run_at: admin.firestore.FieldValue.serverTimestamp(),
+            afternoon_fired: fired,
+            afternoon_failed: failed,
+            afternoon_candidates: toRetry.length,
+        }, { merge: true });
+
+        await sendTelegram([
+            `🔁 *coldCallRunAfternoon ${dateKey}*`,
+            `   Retried: *${fired}* · Failed: ${failed} · Pool: ${toRetry.length}`,
+        ].join("\n"));
+
+        functions.logger.info(`coldCallRunAfternoon ${dateKey}: fired=${fired} failed=${failed}`);
         return null;
     });

@@ -1902,6 +1902,8 @@ const coldCall = require("./coldCallAutopilot");
 exports.coldCallPrep = coldCall.coldCallPrep;
 exports.coldCallRun = coldCall.coldCallRun;
 exports.coldCallReport = coldCall.coldCallReport;
+exports.coldCallMidBatchCheck = coldCall.coldCallMidBatchCheck;
+exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;
 
 // ============================================================
 // AUTOPILOT REVIEWER (added 2026-04-20)
