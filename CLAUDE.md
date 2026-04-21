@@ -829,7 +829,8 @@ When Alex says **"run seo content engine"** (or any variant: "write a blog post"
 - Match existing site design template exactly (Plus Jakarta Sans + CSS vars bg #0a0a0f + gold #C5A059)
 - E-E-A-T: author byline, date, source citations (inline `<a href>` to the study/doc, not just naming it)
 - **Minimum 4 CONTEXTUAL in-body internal links** — see **🔗 INTERNAL-LINKS HARD RULE** below. Nav/footer boilerplate DOES NOT count. Each link must live inside a `<p>` or `<li>` inside the article body, with natural anchor text (not "click here").
-- Schema: BlogPosting + FAQPage + BreadcrumbList JSON-LD in `<head>`
+- Schema: BlogPosting + FAQPage + BreadcrumbList + **VideoObject** JSON-LD in `<head>` — see YOUTUBE-EMBED HARD RULE below
+- **Mandatory topically-relevant @JegoDigitalchannel YouTube embed** — responsive 16:9 iframe woven into article body (not at top, not at very bottom) with matching VideoObject JSON-LD. See YOUTUBE-EMBED HARD RULE below for video library + audits.
 
 **🚫 NO-AI-IMAGES HARD RULE (added 2026-04-21 after Alex flagged fake hero + neon-heatmap in Google Maps post):**
 
@@ -899,6 +900,98 @@ echo "all live images 200"
 
 **Disaster:** 2026-04-21 PM — landing-page post shipped to prod + Google indexing with 3x HTTP 404 on the hero demo PNGs. Root cause: `push_landing.py` tree only included HTML/index/sitemap, not the binary images. Local files existed but were untracked in git. Fixed in commit `16a716c` by pushing 4 PNGs as base64 blobs. This rule is the permanent patch.
 
+**▶ YOUTUBE-EMBED HARD RULE (added 2026-04-21 PM — every blog post MUST embed a relevant JegoDigital YouTube video):**
+
+Every blog post shipped to ANY site (JegoDigital or client) MUST include a topically-relevant YouTube embed from the @JegoDigitalchannel library. Non-negotiable. Video content is a ranking signal (Google prefers multimedia pages), boosts dwell time, and recycles existing @JegoDigitalchannel production work.
+
+MANDATORY components — every post must have ALL four:
+
+1. **VideoObject JSON-LD schema** in `<head>` — alongside BlogPosting + FAQPage + BreadcrumbList:
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": "<video title>",
+  "description": "<1-2 sentence Spanish description matching post topic>",
+  "thumbnailUrl": "https://img.youtube.com/vi/<VIDEO_ID>/maxresdefault.jpg",
+  "uploadDate": "<YYYY-MM-DD>",
+  "contentUrl": "https://www.youtube.com/watch?v=<VIDEO_ID>",
+  "embedUrl": "https://www.youtube.com/embed/<VIDEO_ID>",
+  "publisher": { "@type": "Organization", "name": "JegoDigital", "logo": { "@type": "ImageObject", "url": "https://jegodigital.com/logo.png" } }
+}
+</script>
+```
+
+2. **Responsive 16:9 iframe** placed inside `<article>` body (NOT at top, NOT at very bottom — weave it after Section 1 or 2 where it's topically relevant):
+```html
+<div class="video-embed">
+    <div class="video-embed-wrapper">
+        <iframe src="https://www.youtube.com/embed/<VIDEO_ID>" title="<video title>"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="video-embed-caption">
+        <span class="yt-icon">&#9654;</span> <1-sentence Spanish caption tying video to post topic>.
+    </div>
+</div>
+```
+
+3. **CSS rules** in `<style>` block (canonical from real-estate-marketing-agency-mexico.html):
+```css
+.video-embed { margin: 40px 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: var(--bg-card); box-shadow: 0 14px 38px rgba(0,0,0,0.4); }
+.video-embed-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+.video-embed-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.video-embed-caption { padding: 14px 22px; font-size: 13px; color: var(--text-muted); text-align: center; font-style: italic; border-top: 1px solid var(--border); }
+.video-embed-caption .yt-icon { color: var(--gold); margin-right: 6px; font-style: normal; }
+```
+
+4. **Video-topic match** — video topic MUST relate to post topic. Do NOT embed a property-tour video on an SEO post. Video library (verified 2026-04-21 on @JegoDigitalchannel):
+
+| Video ID | Title / Topic | Best-fit blog topics |
+|---|---|---|
+| `T0my_KRp4PQ` | Real Estate Marketing Strategy 2026 | landing pages, SEO, AI lead capture, overall marketing |
+| (add as new videos publish) | | |
+
+If no existing video matches the post topic → STOP. Tell Alex: "No existing @JegoDigitalchannel video matches this post's topic. Options: (a) pick a different blog topic, (b) produce a new video first, (c) ship without embed and flag as tech debt." Do NOT embed a mismatched video.
+
+MANDATORY pre-ship audit — run BEFORE `api("POST","/git/commits",...)`:
+```python
+import re, urllib.request
+with open(f"{REPO_ROOT}/website/blog/{SLUG}.html") as f:
+    html = f.read()
+# 1) iframe present
+assert 'youtube.com/embed/' in html, "MISSING: no youtube iframe in article"
+embed_id = re.search(r'youtube\.com/embed/([A-Za-z0-9_-]{11})', html).group(1)
+# 2) VideoObject schema present
+assert '"@type": "VideoObject"' in html or '"@type":"VideoObject"' in html, "MISSING: VideoObject JSON-LD schema"
+# 3) schema embedUrl matches iframe
+assert f'/embed/{embed_id}' in html, "MISMATCH: schema embedUrl != iframe src"
+# 4) embed URL reachable (HTTP 200)
+req = urllib.request.Request(f"https://www.youtube.com/embed/{embed_id}", headers={"User-Agent":"jegodigital-audit"})
+code = urllib.request.urlopen(req).getcode()
+assert code == 200, f"EMBED URL {code} — video removed or private"
+# 5) thumbnail reachable
+tcode = urllib.request.urlopen(f"https://img.youtube.com/vi/{embed_id}/maxresdefault.jpg").getcode()
+assert tcode == 200, f"THUMBNAIL {tcode}"
+print(f"youtube-embed audit passed (video {embed_id})")
+```
+
+MANDATORY post-push live audit — run AFTER workflows green, BEFORE reporting success:
+```bash
+SLUG=<slug>
+LIVE=$(curl -s "https://jegodigital.com/blog/$SLUG")
+echo "$LIVE" | grep -q 'youtube.com/embed/' || { echo "LIVE PAGE MISSING IFRAME"; exit 1; }
+echo "$LIVE" | grep -q '"VideoObject"' || { echo "LIVE PAGE MISSING VideoObject schema"; exit 1; }
+VID=$(echo "$LIVE" | grep -oE 'youtube\.com/embed/[A-Za-z0-9_-]{11}' | head -1 | sed 's|youtube.com/embed/||')
+curl -sI "https://www.youtube.com/embed/$VID" | head -1 | grep -q '200' || { echo "EMBED URL DEAD"; exit 1; }
+echo "youtube-embed live audit passed ($VID)"
+```
+
+If the embed is missing, the schema is missing, or the embed URL returns non-200 → FIX IT. Do not mark post as shipped until both audits pass.
+
+**Disaster:** 2026-04-21 PM — landing-page post shipped without YouTube embed (video T0my_KRp4PQ added after Alex caught it). Fixed before Google crawled the embed schema. This rule is the permanent patch so every future post ships with VideoObject + iframe on first deploy.
+
 **🔗 INTERNAL-LINKS HARD RULE (added 2026-04-21 after Alex flagged 0 in-body links in Google Maps post):**
 
 BANNED:
@@ -954,7 +1047,7 @@ If audit fails → weave more contextual links into existing paragraphs. Do NOT 
 - Answer-first format = 20pts
 - Readability (<4 sentences/paragraph) = 15pts
 - Fact density (>5 claims/100 words) = 15pts
-- Schema validity (BlogPosting + FAQPage JSON-LD) = 15pts
+- Schema validity (BlogPosting + FAQPage + VideoObject JSON-LD, all valid) = 15pts
 - Competitive coverage (beat top 3 on topics) = 15pts
 - Compute score programmatically, log it. If <80, Claude fixes it before proceeding — no approval needed.
 
@@ -970,7 +1063,8 @@ If audit fails → weave more contextual links into existing paragraphs. Do NOT 
 - NEVER use AI-generated graphics, 3D neon renders, fake dashboards, or stock photos — see NO-AI-IMAGES HARD RULE above. Only real screenshots from the whitelist.
 - NEVER cite a stat/study without a linkable source `<a href>` to the original report (BrightLocal, Think with Google, HBR, etc.). Minimum 2 external authority links per post.
 - NEVER ship a post with fewer than 4 contextual in-body internal links — see INTERNAL-LINKS HARD RULE above. Nav/footer boilerplate does NOT count. Each link must live inside a `<p>`, `<li>`, or `<blockquote>` in the article body with descriptive Spanish anchor text (no "click aquí").
-- NEVER mark a post as "completed" without logging the optimization score (≥80) AND running the pre-ship image audit AND the pre-ship internal-link audit
+- NEVER ship a post without a topically-matched @JegoDigitalchannel YouTube embed + VideoObject JSON-LD schema + responsive iframe + live HTTP 200 check — see YOUTUBE-EMBED HARD RULE above.
+- NEVER mark a post as "completed" without logging the optimization score (≥80) AND running the pre-ship image audit AND the pre-ship internal-link audit AND the pre-ship YouTube-embed audit
 - NEVER duplicate an existing blog post topic — always diff against `/website/blog/` first
 - NEVER report "verification passed" based on file sizes — verify actual content quality AND render a preview
 - NEVER fall back to asking Alex for approval at any gate — autonomous mode is default
