@@ -50,7 +50,25 @@ If a number sneaks out and Alex flags it: stop. Don't justify. Re-pull the real 
 
 **Every cold-email task — audit, report, recommendation, "how are we doing" — REQUIRES verified live access to the Instantly v2 API. No exceptions. No fallbacks. No "past numbers". No "estimated reply rates". No recycled snapshots from auto-memory.**
 
-### BEFORE writing ONE LINE about cold email, run these 3 checks IN ORDER:
+### 🤖 AUTO-VERIFY FIRST (added 2026-04-21 evening)
+
+**Before anything else, run the bootstrap verifier — it does all 3 checks in one shot and self-heals if the key is missing:**
+
+```bash
+bash /Users/mac/Desktop/Websites/jegodigital/tools/verify_access.sh
+```
+
+- Exit 0 + "HTTP 200" → proceed with cold-email work using live data
+- Exit 1 → read the script's error message and follow its specific fix. Do NOT write any cold-email report.
+
+The script:
+1. Reads `website/functions/.env` — if `INSTANTLY_API_KEY` missing, **auto-restores from `.secrets/instantly_api_key`** (gitignored backup)
+2. Syncs the backup file with `.env` (whichever was edited most recently wins)
+3. Pings `api.instantly.ai/api/v2/campaigns?limit=1` with the key — validates it's not rotated/rejected
+
+**When the key gets rotated:** update BOTH `website/functions/.env` AND `.secrets/instantly_api_key`, then also rotate it in GitHub Secrets (row 4 of ACCESS.md) so `deploy.yml` picks it up on the next push.
+
+### Manual checks (if you need to debug what verify_access.sh is reporting):
 
 **Check 1 — Local key present?**
 ```bash
@@ -550,6 +568,27 @@ If zero hits: **stop, ask Alex for the real URL. Do not proceed.**
   `flamingorealestate.mx`, `gozarealestate.com`, `soliktulum.com`. Real Flamingo
   domain is `realestateflamingo.com.mx` (in `showcase.html` since forever).
   Misdiagnosed Firecrawl quality because half the test URLs didn't exist.
+
+---
+
+## 🎯 SEO SKILLS ROUTING (Added 2026-04-21 after Alex flagged overlap)
+
+**The rule:** There are 3 SEO skills installed. Use ONLY the right one for the job. Do not daisy-chain them.
+
+| Task | Skill to use | Why |
+|---|---|---|
+| **Blog post (any site)** — write, publish, fix, research, plan | **`seo-content-engine`** | Strict 5-step autonomous gate with quality scoring, NO-AI-IMAGES rule, INTERNAL-LINKS rule, external-authority-link rule. Born from the 2026-04-11 amateur-post disaster. Mirrors this CLAUDE.md § BLOG POST QUALITY GATE (which wins on conflict). |
+| Full-domain SEO/AEO audit, keyword research, backlinks, rank tracking, AEO visibility monitor, competitor intel, client monthly reports | `seo-engine` | Master orchestrator with 8 modules. Ignore its `modules/content-engine.md` — deprecated. |
+| Detailed 12 SEO + 8 AEO checklist reference | ~~`seo-aeo-audit`~~ — **DEPRECATED** | `seo-engine`'s own SKILL.md says *"the standalone seo-aeo-audit skill has been fully absorbed"*. Do NOT trigger it. Do NOT run it for blog posts — it's a site-level tool, not a post-level one. If you need the 12+8 detail, read `seo-engine/modules/audit.md` instead. |
+
+**Hard rules:**
+
+1. Blog posts ONLY run `seo-content-engine`. Never run `seo-aeo-audit` or `seo-engine` for a blog post task — they'll produce site-wide audit noise that's irrelevant at the post level.
+2. `seo-content-engine` has its own Step 4 optimization score (0-100) which IS the post-level quality gate. That is the only quality check a blog post needs.
+3. If Alex says "run seo content engine", trigger `seo-content-engine` autonomously and produce a shipped URL. Don't also trigger `seo-engine` "just in case".
+4. `seo-engine` and `seo-content-engine` are peers, not parent-child. `seo-content-engine` is more strict and production-tested for blog work — it wins.
+
+**Why this section exists:** On 2026-04-21 Alex asked "why do we have both? should we merge?". The answer is no-merge-but-clarify: the skills have genuinely different scopes (post-level vs site-level) but the descriptions and `seo-engine/modules/content-engine.md` suggested overlap. This routing table is the arbiter.
 
 ---
 
