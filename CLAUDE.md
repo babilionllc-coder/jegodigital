@@ -6,6 +6,160 @@
 
 ---
 
+## 🛑 HARD RULE #0 — NEVER FABRICATE NUMBERS, EVER (Added 2026-04-21 PM after Alex disaster #2)
+
+**Every number in every report, every recommendation, every sentence Claude writes about JegoDigital MUST come from a live API call, Firestore query, file read, or shell command executed in THIS session. No exceptions. No estimates. No extrapolations. No "industry averages". No rounding-up of historical snapshots. No fabrication for any reason — not even to make a story flow better.**
+
+### What counts as fabrication (ALL of these are violations):
+
+- ❌ "30% conversation rate" when no test of that size has run
+- ❌ "120 dials × ~30% real-conversation rate = ~36 conversations"
+- ❌ "Historical positive rate from A's 4 real convos = ~10–15% interest"
+- ❌ "Mathematically realistic" / "in range" claims based on extrapolation
+- ❌ "Around X" / "approximately Y" / "roughly Z" when the real number can be queried
+- ❌ "We typically see…" / "industry average is…" without a sourced citation
+- ❌ "Probably 40-60%" — pick a number from real data or refuse to estimate
+- ❌ Calling something a "warm lead" / "hot lead" / "qualified" without reading the full transcript
+- ❌ Naming a person as a "warm lead" because they answered the phone (gatekeepers ≠ leads)
+
+### MANDATORY before writing ANY number about cold call / cold email / leads / conversions:
+
+1. **Identify the source query.** Before typing the number, name the exact API/Firestore/grep that produced it. If you can't, the number doesn't exist yet — go run the query.
+
+2. **Quote the raw response.** Show Alex the curl + the JSON field the number came from, OR say explicitly "I have no data on this — X test/measurement has never run."
+
+3. **Distinguish data from belief.** If you must speculate, the sentence MUST start with "**Speculation (no data):**" or "**Hypothesis to test:**". Anything else is a violation.
+
+4. **Confirmed warm leads require:**
+   - Read the full transcript (not just summary or first turn)
+   - Lead must explicitly say "yes I want X" or "send me Y" — not "hold on", not "tell me more", not "OK"
+   - Decision-maker confirmed (gatekeepers, receptionists, generic switchboard people are NOT warm leads)
+   - Document promised: must have actually been sent (Brevo/email/WhatsApp delivery confirmed)
+
+### Disaster Log
+
+- **2026-04-21 PM** — Claude told Alex Jose Fernandez (Aloja Cancún) was a "warm lead" and quoted "30% conversation rate" + "2-3 YES bookings in range" without any data supporting either claim. Real transcript: Jose was a receptionist who said "permanece en la línea" (hold on). Sofia ignored him. Nothing was promised, nothing was sent. Alex's quote: *"do not give me fake numbers ever... do not ever fabricate numbers... make sure this never happens again"*. The patch is this rule + a permanent memory entry, not an apology.
+
+### Recovery script when caught
+
+If a number sneaks out and Alex flags it: stop. Don't justify. Re-pull the real number with a live query. Show the curl + response. State the gap. Update this disaster log.
+
+---
+
+## 🛑 HARD RULE #1 — NEVER RUN BLIND ON COLD EMAIL (Added 2026-04-21 after Alex disaster)
+
+**Every cold-email task — audit, report, recommendation, "how are we doing" — REQUIRES verified live access to the Instantly v2 API. No exceptions. No fallbacks. No "past numbers". No "estimated reply rates". No recycled snapshots from auto-memory.**
+
+### BEFORE writing ONE LINE about cold email, run these 3 checks IN ORDER:
+
+**Check 1 — Local key present?**
+```bash
+grep -c '^INSTANTLY_API_KEY=' /Users/mac/Desktop/Websites/jegodigital/website/functions/.env
+# Must return 1. If 0 → STOP.
+```
+
+**Check 2 — Sandbox can reach api.instantly.ai?**
+```bash
+# From sandbox bash:
+curl -sS -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $(grep '^INSTANTLY_API_KEY=' website/functions/.env | cut -d= -f2)" https://api.instantly.ai/api/v2/campaigns?limit=1
+# Must return 200. If blocked by cowork-egress → STOP.
+```
+
+**Check 3 — Live data pulled this session?**
+Pull today's `/api/v2/campaigns/analytics/daily` for at least one active campaign. If the response isn't in your tool output from THIS session, you do not have live data.
+
+### IF ANY CHECK FAILS — STOP AND TELL ALEX EXACTLY THIS:
+
+> "I cannot audit Instantly right now. Missing: [Check 1 | Check 2 | Check 3]. To fix in 60 seconds:
+> 1. Paste the Instantly v2 API key into `/Users/mac/Desktop/Websites/jegodigital/website/functions/.env` as `INSTANTLY_API_KEY=<key>` (key lives in GitHub Secrets row 4 of ACCESS.md, or I can pull it with your paste).
+> 2. Open Cowork → Settings → Capabilities → add these to network allowlist: `api.instantly.ai`, `api.github.com`, `*.cloudfunctions.net`, `graph.facebook.com`.
+> 3. Reply 'access granted' and I'll re-run the 3 checks and pull live numbers.
+>
+> I will NOT produce a cold-email report until all 3 checks pass. No fake numbers, no past snapshots."
+
+### FORBIDDEN BEHAVIORS (every one of these is a fireable offense per Alex 2026-04-21):
+
+- ❌ Writing a reply-rate / open-rate / booking number without a live API call in THIS session
+- ❌ Recycling numbers from `MEMORY.md`, `cold_email_cleanup_2026_04_15.md`, `instantly_manychat_pipeline.md`, or any `.md` snapshot
+- ❌ Saying "based on the last measurement…" or "historically we're at…" as a substitute for live data
+- ❌ Estimating, inferring, or triangulating numbers from Telegram logs / Slack digests when the primary API is blocked
+- ❌ Silently falling back to stale data because the sandbox is blocked — loudly refuse instead
+
+### WHY THIS RULE EXISTS
+
+On 2026-04-21 a full Cowork session was wasted because I wrote cold-email status from stale April 15 data (0.46% reply rate) instead of verifying live access. Alex's quote: *"how you running blind?? … do not give fake numbers or past numbers … do not ever do this again."* The fix is this check-first protocol, not a better apology after the fact.
+
+### RECOVERY AUTOMATION (run once, never again)
+
+If Check 1 fails, the correct local recovery is:
+```bash
+# Get key from GitHub Secrets via gh CLI (if Alex has it logged in):
+gh secret list --repo babilionllc-coder/jegodigital | grep INSTANTLY
+# OR: Alex pastes from https://github.com/babilionllc-coder/jegodigital/settings/secrets/actions
+# Then:
+echo "INSTANTLY_API_KEY=<value>" >> /Users/mac/Desktop/Websites/jegodigital/website/functions/.env
+```
+
+**The `deploy.yml` heredoc only populates the GitHub runner's `.env` during deploys — it DOES NOT touch Alex's local Mac.** The local file must be maintained manually. See `/ACCESS.md §EMERGENCY — I LOST MY LOCAL .env` for the full path.
+
+---
+
+## 🛑 HARD RULE #2 — UNIVERSAL VERIFY-LIVE RULE (Added 2026-04-21 PM after Alex push)
+
+**This rule extends HARD RULE #1 from cold-email to EVERY platform JegoDigital touches. Claude NEVER reports a number from ANY system without a live API call, Chrome MCP read, or Firestore query executed in THIS session. Memory snapshots, `.md` docs, Telegram logs, and Slack digests are NOT data — they are history. If Alex asks "how are we doing on X", Claude MUST pull live from X's canonical source before typing a single metric.**
+
+### The 8 platforms + their primary verify route
+
+| Platform | Primary verify route | Fallback (cloud function proxy) |
+|---|---|---|
+| **ElevenLabs (cold calls)** | `GET api.elevenlabs.io/v1/convai/conversations?agent_id=<id>&page_size=100` with `xi-api-key` header | `coldCallSlackOnDemand` HTTPS function |
+| **Instantly (cold email)** | `GET api.instantly.ai/api/v2/campaigns/analytics/daily` with `Bearer INSTANTLY_API_KEY` | `coldEmailReportOnDemand?date=YYYY-MM-DD&notify=0` HTTPS function (works when sandbox-direct blocked) |
+| **Brevo (email marketing)** | `GET api.brevo.com/v3/smtp/statistics/aggregatedReport` + `/v3/smtp/emails` with `api-key` header | — |
+| **Calendly (bookings)** | `GET api.calendly.com/scheduled_events?user=<uri>&min_start_time=<ISO>` with Bearer token | — |
+| **Firestore (leads / audits / conversations)** | `firebase-admin` via a Cloud Function or direct Firestore REST | — |
+| **Meta Graph (Instagram)** | `GET graph.facebook.com/v22.0/<IG_ID>/insights` + `/media` with IG_GRAPH_TOKEN | — |
+| **Google Search Console (rankings)** | `POST searchconsole.googleapis.com/v1/sites/<site>/searchAnalytics/query` | — |
+| **GA4 (site traffic)** | `POST analyticsdata.googleapis.com/v1beta/properties/<id>:runReport` | — |
+
+### MANDATORY before writing ANY metric about ANY platform:
+
+1. **Pick the platform.** Identify which of the 8 the number lives in.
+2. **Run the primary verify route** — curl / Node / Python with the live API key. Show the raw JSON field the number came from.
+3. **If sandbox-direct is blocked** (cowork egress), pivot to the HTTPS cloud function proxy (which has the key injected at deploy time) — Instantly has one today, build one for other platforms as needed.
+4. **If BOTH are blocked** — refuse to answer. Tell Alex: "Cannot verify <platform> live. Paste the API key into `website/functions/.env` as `<KEY_NAME>=<value>` OR add `<hostname>` to Cowork network allowlist. I will not report <platform> numbers from memory."
+
+### FORBIDDEN (applies to all 8 platforms)
+
+- ❌ Quoting a call count, reply rate, open rate, booking count, follower count, ranking, traffic number from memory/`.md` docs
+- ❌ "Based on yesterday's digest…" / "according to MEMORY.md…" / "historically we see…"
+- ❌ Calling a conversation "warm" / "positive" / "qualified" without reading the FULL transcript from the platform's API THIS session
+- ❌ Reporting "X emails sent today" without a live `/analytics/daily` call dated today
+- ❌ Extrapolating: "if 10 dials = 3 convos, then 50 dials = 15 convos" (HARD RULE #0 covers this, restating for clarity)
+
+### CHROME MCP AS A LEGITIMATE FALLBACK
+
+When a platform has no usable REST API from sandbox AND no cloud-function proxy exists, `mcp__Claude_in_Chrome__*` counts as a live source — but ONLY if:
+- You actually navigate + read the live dashboard page in THIS session
+- You copy the visible numbers from the `read_page` / `get_page_text` output
+- You cite the URL + timestamp of the page read
+
+Screenshots alone are not data (they may be cached/stale). Always pair with `get_page_text` to confirm the number rendered.
+
+### DISASTER LOG (for HARD RULE #2)
+
+- **2026-04-21 PM** — Claude reported on cold-call stats from memory ("30 convos / 1 real"). Real API pull: 74 conversations / 12 real / 20 initiated / 38 failed / 16 done in last 24h. Memory was 40+ hours stale. Alex's response: *"do not give me reports based on our documents. i need you actually go in and check elevenlabs through api and see real reports."* This rule is the patch.
+
+### RECOVERY PHRASE
+
+If Alex asks "how are we doing on X" and Claude does NOT have live-this-session data for X, the ONLY acceptable response is:
+> "I have no live data for X in this session. Pulling now via <primary route>…"
+> [actually run the call] → [quote raw response] → [then answer]
+
+OR if blocked:
+> "Cannot reach X from this sandbox. Primary route <route> returned <error>. Fallback <proxy> returned <error>. I need you to <specific 30-second fix> before I can report on X."
+
+---
+
 ## ⚡ YOU CAN DEPLOY AUTONOMOUSLY — DO NOT ASK ALEX TO PUSH
 
 Sandbox `git push` / `firebase deploy` / `gcloud run deploy` will ALL fail. That is expected. **You do not need a terminal.**
@@ -23,6 +177,7 @@ If this is a genuinely new blocker (proxy actually blocks github.com this sessio
 
 ## 🧭 SESSION BOOTSTRAP — read these files in order, every new session
 
+0. **HARD RULE #1 above** — if the session touches cold email in any way, run the 3 access checks FIRST. Do not proceed until they pass.
 1. **`/CLAUDE.md`** (this file) — behavior rules, business context, workflows, services
 2. **`/AUDIT_2026-04-21.md`** — current open audit. Read until all P0/P1 items land, then delete this bullet.
 3. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture
