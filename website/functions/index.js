@@ -1991,6 +1991,9 @@ exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;
 // 3-strikes auto-DNC sweep — daily 14:00 CDMX (added 2026-04-21)
 // See cold-call-lead-finder skill HARD RULE #4
 exports.coldCallPostRunSweep = coldCall.coldCallPostRunSweep;
+// Calibration cron — daily 14:30 CDMX. Reads 7d of call_analysis to
+// recommend coverage-gate + offer-routing tweaks (added 2026-04-21)
+exports.coldCallCalibrationDaily = coldCall.coldCallCalibrationDaily;
 
 // ============================================================
 // COLD CALL SLACK REPORTS (added 2026-04-20)
@@ -2031,6 +2034,28 @@ const coldEmailDaily = require("./coldEmailDailyReport");
 exports.coldEmailDailyReport = coldEmailDaily.coldEmailDailyReport;
 exports.coldEmailWeeklyReport = coldEmailDaily.coldEmailWeeklyReport;
 exports.coldEmailReportOnDemand = coldEmailDaily.coldEmailReportOnDemand;
+
+// ============================================================
+// EVENING OPS REPORT (added 2026-04-21)
+// Single comprehensive 21:00 CDMX report covering last 24h of:
+//   - Cold email (Instantly v2 per-campaign analytics)
+//   - Calendly bookings / cancels / no-shows
+//   - ManyChat/Sofia WA+IG conversations
+//   - Cold call outcomes per offer (A/B/C) from call_analysis
+//   - Free audit requests by source (ig, wa, cold_email)
+// Delivery: branded HTML → PDF via Cloud Run mockup-renderer
+// /renderPdf → Firebase Storage (7-day signed URL) → Slack
+// files.upload + Telegram sendDocument. AI Analysis Agent
+// (aiAnalysisAgent.js) auto-fixes safe issues (pause high-
+// bounce campaigns, throttle unhealthy accounts) and escalates
+// uncertain items as a second "🤖 AI Agent — Review Needed"
+// Slack post. Every auto-fix / escalate / block is logged to
+// ai_agent_actions/{YYYY-MM-DD}/entries/{autoId}. HARD RULE #11
+// compliant: never silently fails, always finds a path forward.
+// ============================================================
+const eveningOps = require("./eveningOpsReport");
+exports.eveningOpsReport = eveningOps.eveningOpsReport;
+exports.eveningOpsReportOnDemand = eveningOps.eveningOpsReportOnDemand;
 
 // ============================================================
 // COLD CALL LIVE MONITOR (added 2026-04-20)

@@ -199,6 +199,101 @@ async function enrichEmailViaHunter(hunterKey, domain) {
     }
 }
 
+// ---- Firecrawl agency-signal enrichment ----
+// v3 2026-04-21: real Firecrawl scrape that populates fc_* signals on
+// phone_leads. Used by smart offer routing in coldCallAutopilot — high
+// active_listings + stale blog → Offer B (audit), strong IG + no WhatsApp →
+// Offer C (setup), default → Offer A (SEO pitch). Also enables coverage gates
+// to filter out abandoned/orphan agency sites.
+//
+// Returns null on any failure — phone_leads.set() will write nulls and the
+// downstream router falls back to default rotation. NEVER let Firecrawl
+// failures block the lead-finder run.
+async function firecrawlAgencySignals(domain) {
+    if (!domain || isPortal(domain)) return null;
+    const key = process.env.FIRECRAWL_API_KEY;
+    if (!key) {
+        functions.logger.warn("Firecrawl: FIRECRAWL_API_KEY missing — skipping signal enrichment");
+        return null;
+    }
+    try {
+        const r = await axios.post("https://api.firecrawl.dev/v1/scrape", {
+            url: `https://${domain}`,
+            formats: ["markdown", "html"],
+            onlyMainContent: false,
+            waitFor: 1500,
+            timeout: 25000,
+        }, {
+            headers: { Authorization: `Bearer ${key}` },
+            timeout: 30000,
+        });
+        const md = (r.data?.data?.markdown || "").toLowerCase();
+        const html = (r.data?.data?.html || "").toLowerCase();
+        const combined = md + "\n" + html;
+
+        // Active listings — count typical property-card markers. Real estate
+        // sites usually surface "$" or "MXN" or "USD" prices in card grids.
+        // Cheap signal: if the homepage shows >5 prices, they have active
+        // inventory. <2 → likely abandoned or showcase-only.
+        const priceMatches = (md.match(/\$\s?[\d,]{3,}|mxn\s?[\d,]{3,}|usd\s?[\d,]{3,}/g) || []).length;
+        const fc_active_listings = priceMatches;
+
+        // Last blog post date — scan for ISO dates near "blog" / "article"
+        // anchors. Returns YYYY-MM-DD or null.
+        let fc_last_blog_post_date = null;
+        const blogMatch = md.match(/(20\d{2}-[01]\d-[0-3]\d)[^\n]{0,140}(blog|art[ií]culo|news)/i);
+        if (blogMatch) fc_last_blog_post_date = blogMatch[1];
+        else {
+            const altMatch = md.match(/(blog|art[ií]culo|news)[^\n]{0,140}(20\d{2}-[01]\d-[0-3]\d)/i);
+            if (altMatch) fc_last_blog_post_date = altMatch[2];
+        }
+
+        // Instagram handle
+        let fc_instagram_handle = null;
+        const igMatch = combined.match(/instagram\.com\/([a-z0-9._]{2,30})/i);
+        if (igMatch && !["p", "reel", "explore", "accounts"].includes(igMatch[1].toLowerCase())) {
+            fc_instagram_handle = igMatch[1];
+        }
+
+        // WhatsApp link / wa.me
+        let fc_whatsapp_link = null;
+        const waMatch = combined.match(/(wa\.me\/[\d+]+|api\.whatsapp\.com\/send\?phone=[\d+]+)/i);
+        if (waMatch) fc_whatsapp_link = waMatch[1];
+
+        // Chat widget detection — common loaders
+        const chatMarkers = [
+            "tawk.to", "intercom", "drift.com", "crisp.chat", "livechatinc.com",
+            "zendesk.com/embeddable", "tidio", "hubspot.com/usemessages",
+            "manychat.com", "chatwoot",
+        ];
+        const fc_has_chat_widget = chatMarkers.some((m) => combined.includes(m));
+
+        // Site stack — coarse detection of the platform
+        let fc_site_stack = "unknown";
+        if (combined.includes("wp-content") || combined.includes("wp-includes")) fc_site_stack = "wordpress";
+        else if (combined.includes("squarespace")) fc_site_stack = "squarespace";
+        else if (combined.includes("wixstatic.com") || combined.includes("wix.com")) fc_site_stack = "wix";
+        else if (combined.includes("shopify")) fc_site_stack = "shopify";
+        else if (combined.includes("webflow")) fc_site_stack = "webflow";
+        else if (combined.includes("__next") || combined.includes("nextjs")) fc_site_stack = "nextjs";
+
+        return {
+            fc_active_listings,
+            fc_last_blog_post_date,
+            fc_instagram_handle,
+            fc_instagram_followers: null, // requires IG Graph hit, deferred
+            fc_whatsapp_link,
+            fc_has_chat_widget,
+            fc_pagespeed_mobile: null, // requires PSI hit, deferred to v4
+            fc_site_stack,
+            fc_enriched_at: admin.firestore.FieldValue.serverTimestamp(),
+        };
+    } catch (err) {
+        functions.logger.warn(`Firecrawl signal enrich failed for ${domain}:`, err.message);
+        return null;
+    }
+}
+
 // =====================================================================
 // leadFinderAutoTopUp — Daily 08:00 CDMX
 // =====================================================================
@@ -309,6 +404,10 @@ exports.leadFinderAutoTopUp = functions
                 // so coldCallPrep can choose to down-rank name-less leads in the gate.
                 skippedNoOwner++;
             }
+            // v3: real Firecrawl signals — runs in parallel intent with Hunter
+            // (sequential, but cheap per-domain ~1.5s + 350ms throttle = ~2s overhead)
+            // Failures return null and the lead is still written with null fc_* fields.
+            const fcSignals = await firecrawlAgencySignals(c.domain);
             const phoneClean = c.phone.replace(/[^\d+]/g, "");
             const phoneE164 = phoneClean.startsWith("+") ? phoneClean : `+52${phoneClean.slice(-10)}`;
             const docId = phoneE164.replace(/\D/g, "");
@@ -332,26 +431,25 @@ exports.leadFinderAutoTopUp = functions
                     discovered_at: admin.firestore.FieldValue.serverTimestamp(),
                     // Explicitly unset last_called_at so coldCallPrep sees "never called"
                     last_called_at: null,
-                    // Firecrawl signal scaffold (v1). Extractors land in v2 via a
-                    // separate firecrawlEnrichPhoneLeads cron. Leaving nulls now so
-                    // coldCallPrep/autopilot can read them without undefined checks.
-                    fc_active_listings: null,
-                    fc_last_blog_post_date: null,
-                    fc_instagram_handle: null,
-                    fc_instagram_followers: null,
-                    fc_whatsapp_link: null,
-                    fc_has_chat_widget: null,
-                    fc_pagespeed_mobile: null,
+                    // Firecrawl signals (v3 2026-04-21) — populated by firecrawlAgencySignals().
+                    // Used by coldCallAutopilot smart-routing for offer A/B/C selection.
+                    fc_active_listings: fcSignals?.fc_active_listings ?? null,
+                    fc_last_blog_post_date: fcSignals?.fc_last_blog_post_date ?? null,
+                    fc_instagram_handle: fcSignals?.fc_instagram_handle ?? null,
+                    fc_instagram_followers: fcSignals?.fc_instagram_followers ?? null,
+                    fc_whatsapp_link: fcSignals?.fc_whatsapp_link ?? null,
+                    fc_has_chat_widget: fcSignals?.fc_has_chat_widget ?? null,
+                    fc_pagespeed_mobile: fcSignals?.fc_pagespeed_mobile ?? null,
                     fc_maps_rating: c.rating || null,
                     fc_maps_review_count: c.rating_count || null,
-                    fc_site_stack: null,
-                    fc_enriched_at: null,
+                    fc_site_stack: fcSignals?.fc_site_stack ?? null,
+                    fc_enriched_at: fcSignals?.fc_enriched_at ?? null,
                 }, { merge: true });
                 written++;
             } catch (err) {
                 functions.logger.warn(`phone_leads upsert failed for ${docId}:`, err.message);
             }
-            await new Promise((r) => setTimeout(r, 350)); // throttle Hunter
+            await new Promise((r) => setTimeout(r, 350)); // throttle Hunter + Firecrawl
         }
 
         // ---- Step 6: post-check + alarm if still under floor ----

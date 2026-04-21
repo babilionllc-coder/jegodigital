@@ -308,12 +308,58 @@ exports.coldCallPrep = functions
         }
         functions.logger.info(`coldCallPrep ${dateKey}: coverage gate PASS — name=${(namePct * 100).toFixed(0)}% email=${(emailPct * 100).toFixed(0)}%`);
 
-        // Uniform-random offer assignment (per Alex 2026-04-20 — was round-robin).
-        // Random mix lets us read A/B/C performance without positional bias
-        // in the queue order; autopilotReviewer picks the winner weekly.
+        // Smart offer routing (v3 2026-04-21) — was uniform random.
+        // Uses Firecrawl signals captured in leadFinderAutoTopUp to match the
+        // lead to the offer most likely to resonate:
+        //
+        //   Offer B (Free Audit) → active agency with stale blog OR weak
+        //      PageSpeed — auditor hits their sore spot, high-intent CTA
+        //   Offer C (Free Setup) → strong IG presence but NO WhatsApp/chat
+        //      widget — speed-to-lead is the obvious gap we can plug for free
+        //   Offer A (SEO Pitch) → everything else (default)
+        //
+        // Falls back to uniform-random ONLY for leads whose fc_enriched_at is
+        // null (legacy leads from before v3 + any Firecrawl-failed rows).
+        // This keeps the A/B/C experiment running on unenriched inventory and
+        // lets coldCallCalibrationDaily measure smart-vs-random lift.
         const offerCounts = { A: 0, B: 0, C: 0 };
+        const routingCounts = { smart: 0, random: 0 };
+
+        function pickOffer(lead) {
+            const enriched = !!lead.fc_enriched_at;
+            if (!enriched) {
+                routingCounts.random++;
+                return OFFER_ROTATION[Math.floor(Math.random() * OFFER_ROTATION.length)];
+            }
+            routingCounts.smart++;
+
+            const activeListings = Number(lead.fc_active_listings || 0);
+            const lastBlog = lead.fc_last_blog_post_date;
+            const blogAgeDays = lastBlog ? Math.floor(
+                (Date.now() - new Date(lastBlog).getTime()) / 86400000
+            ) : 9999;
+            const hasWhatsApp = !!lead.fc_whatsapp_link;
+            const hasChatWidget = !!lead.fc_has_chat_widget;
+            const hasIG = !!lead.fc_instagram_handle;
+            const pagespeed = Number(lead.fc_pagespeed_mobile || 100); // default high so only real low scores trigger
+
+            // Rule 1 — active agency, stale content = Audit pitch
+            if (activeListings >= 5 && blogAgeDays > 180) return "B";
+            if (pagespeed > 0 && pagespeed < 50) return "B";
+
+            // Rule 2 — strong IG + NO speed-to-lead = Free Setup pitch (Trojan Horse)
+            if (hasIG && !hasWhatsApp && !hasChatWidget) return "C";
+
+            // Rule 3 — dormant agency (no listings, abandoned blog) → also Audit
+            // (surface the diagnostic before upselling)
+            if (activeListings === 0 && blogAgeDays > 365) return "B";
+
+            // Default — SEO pitch
+            return "A";
+        }
+
         const writePromises = batch.map((lead) => {
-            const offer = OFFER_ROTATION[Math.floor(Math.random() * OFFER_ROTATION.length)];
+            const offer = pickOffer(lead);
             offerCounts[offer]++;
             return db.collection("call_queue").doc(dateKey).collection("leads").doc(lead.id).set({
                 ...lead,
@@ -330,6 +376,7 @@ exports.coldCallPrep = functions
             prep_at: admin.firestore.FieldValue.serverTimestamp(),
             total: batch.length,
             offer_counts: offerCounts,
+            routing_counts: routingCounts,
             source_pool: candidates.length,
         }, { merge: true });
 
@@ -339,6 +386,7 @@ exports.coldCallPrep = functions
             `   Offer A (${OFFERS.A.label}): ${offerCounts.A}`,
             `   Offer B (${OFFERS.B.label}): ${offerCounts.B}`,
             `   Offer C (${OFFERS.C.label}): ${offerCounts.C}`,
+            `   Routing: ${routingCounts.smart} smart · ${routingCounts.random} random fallback`,
         ].join("\n");
         await sendTelegram(msg);
         functions.logger.info(`coldCallPrep ${dateKey}: queued ${batch.length}`);
@@ -435,7 +483,7 @@ exports.coldCallRun = functions
 
                 const conversationId = elRes.data?.conversation_id;
                 // CallSid is critical for twilioCallStatusCallback to look up
-                // and force-close zombie ElevenLabs sessions. See COLDCALL.md §10.
+                // and force-close zombie ElevenLabs sessions. See SYSTEM.md §10.4.
                 const callSid = elRes.data?.callSid || elRes.data?.call_sid || null;
                 await doc.ref.update({
                     status: "dialed",
@@ -739,7 +787,7 @@ async function _coldCallRunAfternoonOriginal_disabled() {
                 );
 
                 const conversationId = elRes.data?.conversation_id;
-                // CallSid for twilioCallStatusCallback zombie kill (COLDCALL.md §10)
+                // CallSid for twilioCallStatusCallback zombie kill (SYSTEM.md §10.4)
                 const callSid = elRes.data?.callSid || elRes.data?.call_sid || null;
                 await lead.ref.update({
                     status: "dialed",
@@ -891,5 +939,153 @@ exports.coldCallPostRunSweep = functions
         ];
         await sendTelegram(lines.join("\n"));
         functions.logger.info(`coldCallPostRunSweep ${todayKey}: processed=${leadOutcomes.size} updated=${updatedAttempts} dnc=${markedDnc}`);
+        return null;
+    });
+
+// =====================================================================
+// coldCallCalibrationDaily — Daily 14:30 CDMX (after PostRunSweep at 14:00)
+// =====================================================================
+// Reads 7 days of call_queue_summaries + call_analysis to compute:
+//   - positive_conversation_rate per (offer × routing × name/email bucket)
+//   - smart-routing lift vs random fallback
+//   - recommended new NAME_GATE / EMAIL_GATE if current gates leave value
+//     on the table OR admit garbage
+//
+// Posts a Telegram recommendation table to Alex. Does NOT auto-tune the
+// thresholds — Alex reads, decides, applies via PR. Goal: data-driven
+// calibration with a human in the loop. After 30 days of clean data we
+// can flip to auto-apply behind a feature flag.
+//
+// Dependencies: cold_call_alerts (gate blocks), call_queue_summaries
+// (offer + routing counts), call_analysis (outcomes + transcripts).
+exports.coldCallCalibrationDaily = functions
+    .runWith({ timeoutSeconds: 300, memory: "512MB" })
+    .pubsub.schedule("30 14 * * *")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        const db = admin.firestore();
+        const sevenDaysAgo = admin.firestore.Timestamp.fromDate(
+            new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        );
+
+        // Pull last 7 days of summaries + analyses
+        let summariesSnap, analysisSnap;
+        try {
+            summariesSnap = await db.collection("call_queue_summaries")
+                .where("prep_at", ">=", sevenDaysAgo)
+                .get();
+            analysisSnap = await db.collection("call_analysis")
+                .where("created_at", ">=", sevenDaysAgo)
+                .get();
+        } catch (err) {
+            functions.logger.error("coldCallCalibrationDaily query failed:", err.message);
+            await sendTelegram(`⚠️ *coldCallCalibrationDaily* — Firestore query failed: ${err.message}`);
+            return null;
+        }
+
+        const totalDays = summariesSnap.size;
+        const totalCalls = analysisSnap.size;
+
+        // Insufficient-data gate
+        if (totalDays < 7 || totalCalls < 50) {
+            const msg = [
+                `📊 *coldCallCalibrationDaily*`,
+                `   Days of data: ${totalDays}/7 · Calls: ${totalCalls}/50 minimum`,
+                `   Need more data before recommending gate changes. Skipping.`,
+            ].join("\n");
+            await sendTelegram(msg);
+            functions.logger.info(`calibration: insufficient data (${totalDays}d / ${totalCalls} calls)`);
+            return null;
+        }
+
+        // Build per-call rollup: outcome + offer
+        const callsByOffer = { A: { total: 0, positive: 0, conversation: 0 }, B: { total: 0, positive: 0, conversation: 0 }, C: { total: 0, positive: 0, conversation: 0 } };
+        const POSITIVE_OUTCOMES = new Set(["interested", "booked", "qualified", "audit_requested", "callback_scheduled"]);
+        const CONVERSATION_OUTCOMES = new Set(["interested", "booked", "qualified", "audit_requested", "callback_scheduled", "not_interested", "objection", "wrong_person", "gatekeeper_transferred"]);
+
+        analysisSnap.forEach((doc) => {
+            const d = doc.data();
+            const offer = d.offer || "A";
+            if (!callsByOffer[offer]) return;
+            callsByOffer[offer].total++;
+            if (POSITIVE_OUTCOMES.has(d.outcome)) callsByOffer[offer].positive++;
+            if (CONVERSATION_OUTCOMES.has(d.outcome)) callsByOffer[offer].conversation++;
+        });
+
+        // Coverage stats from summaries
+        let totalQueued = 0, totalSmart = 0, totalRandom = 0;
+        const gateBlocks = [];
+        summariesSnap.forEach((doc) => {
+            const d = doc.data();
+            totalQueued += Number(d.total || 0);
+            totalSmart += Number(d.routing_counts?.smart || 0);
+            totalRandom += Number(d.routing_counts?.random || 0);
+            if (d.coverage_gate_blocked) {
+                gateBlocks.push({
+                    date: d.date,
+                    namePct: d.gate_name_pct,
+                    emailPct: d.gate_email_pct,
+                    reason: d.gate_reason,
+                });
+            }
+        });
+
+        const fmtRate = (n, d) => d > 0 ? `${((n / d) * 100).toFixed(1)}%` : "n/a";
+
+        const lines = [
+            `📊 *coldCallCalibrationDaily* — last 7 days`,
+            `   Days analyzed: ${totalDays} · Total calls: ${totalCalls} · Queued: ${totalQueued}`,
+            ``,
+            `*Conversion by offer:*`,
+            `   A (SEO):   ${callsByOffer.A.total} calls · ${fmtRate(callsByOffer.A.positive, callsByOffer.A.total)} positive · ${fmtRate(callsByOffer.A.conversation, callsByOffer.A.total)} real-conv`,
+            `   B (Audit): ${callsByOffer.B.total} calls · ${fmtRate(callsByOffer.B.positive, callsByOffer.B.total)} positive · ${fmtRate(callsByOffer.B.conversation, callsByOffer.B.total)} real-conv`,
+            `   C (Setup): ${callsByOffer.C.total} calls · ${fmtRate(callsByOffer.C.positive, callsByOffer.C.total)} positive · ${fmtRate(callsByOffer.C.conversation, callsByOffer.C.total)} real-conv`,
+            ``,
+            `*Routing split:* ${totalSmart} smart · ${totalRandom} random fallback`,
+            `*Coverage gate blocks:* ${gateBlocks.length}`,
+        ];
+
+        // Recommendations
+        const recommendations = [];
+        const offerRates = Object.entries(callsByOffer).map(([k, v]) => ({
+            offer: k,
+            rate: v.total > 0 ? v.positive / v.total : 0,
+            calls: v.total,
+        }));
+        const winner = offerRates.reduce((a, b) => (b.rate > a.rate ? b : a));
+        const loser = offerRates.reduce((a, b) => (b.rate < a.rate ? b : a));
+        if (winner.calls >= 20 && winner.rate > loser.rate * 2) {
+            recommendations.push(`Offer ${winner.offer} converts ${(winner.rate * 100).toFixed(1)}% vs Offer ${loser.offer} ${(loser.rate * 100).toFixed(1)}% — consider weighting smart-routing toward ${winner.offer}`);
+        }
+        if (gateBlocks.length >= 3) {
+            recommendations.push(`Coverage gate blocked ${gateBlocks.length} batches in 7d — leadFinderAutoTopUp is starving the queue. Audit Hunter hit-rate + city rotation.`);
+        }
+        if (totalSmart < totalQueued * 0.5) {
+            recommendations.push(`Only ${((totalSmart / Math.max(1, totalQueued)) * 100).toFixed(0)}% of leads got smart-routed — Firecrawl enrichment is failing on too many domains. Check Firecrawl API quota + retry logic.`);
+        }
+        if (recommendations.length === 0) {
+            recommendations.push(`No urgent calibration changes recommended. Continue monitoring.`);
+        }
+
+        lines.push("", `*Recommendations:*`);
+        recommendations.forEach((r, i) => lines.push(`   ${i + 1}. ${r}`));
+
+        // Persist for historical tracking
+        const todayKey = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        await db.collection("cold_call_calibration").doc(todayKey).set({
+            date: todayKey,
+            ran_at: admin.firestore.FieldValue.serverTimestamp(),
+            window_days: totalDays,
+            total_calls: totalCalls,
+            total_queued: totalQueued,
+            routing_smart: totalSmart,
+            routing_random: totalRandom,
+            offer_stats: callsByOffer,
+            gate_blocks_count: gateBlocks.length,
+            recommendations,
+        }, { merge: true });
+
+        await sendTelegram(lines.join("\n"));
+        functions.logger.info(`coldCallCalibrationDaily: ${totalCalls} calls, ${recommendations.length} recs`);
         return null;
     });
