@@ -115,6 +115,7 @@ exports.coldCallPrep = functions
                     name: d.name || d.first_name || "allá",
                     company: d.company || d.company_name || "",
                     website: d.website || "",
+                    city: d.city || d.ciudad || "",
                     email: d.email || "",
                     last_called_at: lastCalled,
                 });
@@ -292,19 +293,28 @@ exports.coldCallRun = functions
                         agent_id: lead.agent_id,
                         to_number: phoneToCall,
                         agent_phone_number_id: MX_PHONE_ID,
-                        conversation_config_override: {
-                            agent: { language: "es", first_message: firstMessage },
-                            conversation: {
-                                max_duration_seconds: 300, // 5 min hard cap
-                                client_inactivity_timeout_seconds: 30,
+                        conversation_initiation_client_data: {
+                            // CRITICAL: dynamic_variables must be nested here, NOT at top level.
+                            // ElevenLabs rejects top-level dynamic_variables with
+                            // "Missing required dynamic variables in first message" — see
+                            // conv_2901kpq1zmk9fy18ncpmck5nd4a0 success vs conv_0101kpq1n5t9e7092h83jhqy8q1d fail.
+                            // Variable names MUST match {{placeholders}} in agent prompts:
+                            // {{lead_name}}, {{company_name}}, {{website_url}}, {{city}}, {{lead_email}}
+                            dynamic_variables: {
+                                lead_name: lead.name || "allá",
+                                company_name: lead.company || "tu inmobiliaria",
+                                website_url: lead.website || "tu sitio web",
+                                city: lead.city || "tu ciudad",
+                                lead_email: lead.email || "",
+                                offer: lead.offer,
                             },
-                        },
-                        dynamic_variables: {
-                            lead_name: lead.name || "",
-                            lead_company: lead.company || "",
-                            lead_website: lead.website || "",
-                            lead_email: lead.email || "",
-                            offer: lead.offer,
+                            conversation_config_override: {
+                                agent: { language: "es", first_message: firstMessage },
+                                conversation: {
+                                    max_duration_seconds: 300, // 5 min hard cap
+                                    client_inactivity_timeout_seconds: 30,
+                                },
+                            },
                         },
                     },
                     {
@@ -582,19 +592,23 @@ exports.coldCallRunAfternoon = functions
                         agent_id: lead.agent_id,
                         to_number: phoneToCall,
                         agent_phone_number_id: MX_PHONE_ID,
-                        conversation_config_override: {
-                            agent: { language: "es", first_message: firstMessage },
-                            conversation: {
-                                max_duration_seconds: 300,
-                                client_inactivity_timeout_seconds: 30,
+                        conversation_initiation_client_data: {
+                            // Same wrapper as coldCallRun — ElevenLabs requires it.
+                            dynamic_variables: {
+                                lead_name: lead.name || "allá",
+                                company_name: lead.company || "tu inmobiliaria",
+                                website_url: lead.website || "tu sitio web",
+                                city: lead.city || "tu ciudad",
+                                lead_email: lead.email || "",
+                                offer: lead.offer,
                             },
-                        },
-                        dynamic_variables: {
-                            lead_name: lead.name || "",
-                            lead_company: lead.company || "",
-                            lead_website: lead.website || "",
-                            lead_email: lead.email || "",
-                            offer: lead.offer,
+                            conversation_config_override: {
+                                agent: { language: "es", first_message: firstMessage },
+                                conversation: {
+                                    max_duration_seconds: 300,
+                                    client_inactivity_timeout_seconds: 30,
+                                },
+                            },
                         },
                     },
                     { headers: { "xi-api-key": EL_KEY, "Content-Type": "application/json" }, timeout: 20000 }
