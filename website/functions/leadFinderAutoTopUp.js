@@ -66,16 +66,77 @@ function pickTodayCities() {
     return CITY_ROTATION[doy % CITY_ROTATION.length];
 }
 
-// Cheap contamination filter (same rules as lead-finder-v4 Iron Rule 7)
-const PORTAL_DOMAINS = [
-    "inmuebles24.com", "vivanuncios.com.mx", "lamudi.com.mx", "propiedades.com",
-    "century21.com.mx", "remax.com.mx", "metroscubicos.com", "mitula.com.mx",
-    "trovit.com.mx", "booking.com", "airbnb.com", "expedia.com", "hotels.com",
-    "linktr.ee", "linkin.bio", "beacons.ai", "instabio.cc",
+// Cheap contamination filter (same rules as lead-finder-v4 ENTERPRISE_DOMAINS — 41 entries)
+// v2 2026-04-21: expanded from 14→41 to match lead_finder_v4_lean.py. See
+// /.claude/skills/cold-call-lead-finder/SKILL.md for the full rationale.
+const ENTERPRISE_DOMAINS = [
+    // Franchises + brokerages (corporate marketing, not single-agent decision makers)
+    "cbre.com", "colliers.com", "jll.com", "nmrk.com",
+    "kwmexico.mx", "cbcmexico.mx", "cushwake.com",
+    "remax.net", "remax.com", "remax.com.mx",
+    "century21.com", "century21global.com", "century21.com.mx",
+    "coldwellbanker.com",
+    // Portals + marketplaces (scraping = call center, not owner)
+    "inmuebles24.com", "vivanuncios.com.mx", "propiedades.com",
+    "metroscubicos.com", "casasyterrenos.com", "lamudi.com.mx",
+    "trovit.com.mx", "mercadolibre.com.mx", "mitula.com.mx",
+    // Travel + rental (not real estate buyers)
+    "airbnb.com", "booking.com", "expedia.com", "vrbo.com",
+    "trivago.com", "hotels.com", "tripadvisor.com",
+    // US portals
+    "zillow.com", "realtor.com", "redfin.com",
+    // Social / linkhouses (no owner signal)
+    "facebook.com", "instagram.com", "linktr.ee", "linkin.bio",
+    "beacons.ai", "instabio.cc", "bio.link",
+    "wixsite.com", "squarespace.com", "godaddysites.com",
+    "blogspot.com", "wordpress.com", "tumblr.com", "linkedin.com",
 ];
+// Back-compat alias — older code paths reference PORTAL_DOMAINS
+const PORTAL_DOMAINS = ENTERPRISE_DOMAINS;
 function isPortal(domain) {
     const d = (domain || "").toLowerCase();
-    return PORTAL_DOMAINS.some((p) => d.endsWith(p) || d.includes(`.${p}`));
+    return ENTERPRISE_DOMAINS.some((p) => d.endsWith(p) || d.includes(`.${p}`));
+}
+
+// Decision-maker HARD filter (Hunter position must match, else reject — not rank)
+// Bilingual ES/EN: owner/ceo/director/founder/president/broker/principal/
+// dueño/propietario/socio/partner/gerente/head/lead
+const TITLE_WHITELIST_RE = /owner|ceo|director|founder|cofound|presiden|broker|principal|due[nñ]|propietari|socio|partner|gerente|head|lead/i;
+function isDecisionMaker(position) {
+    if (!position) return false;
+    return TITLE_WHITELIST_RE.test(position);
+}
+
+// FAKE_FIRST_NAMES — drop if Hunter's first_name matches one of these role aliases
+const FAKE_FIRST_NAMES = new Set([
+    "info", "contact", "contacto", "admin", "sales", "marketing", "hello", "hola",
+    "ventas", "ventas1", "support", "soporte", "noreply", "no-reply", "mail", "email",
+    "webmaster", "team", "office", "gerencia", "recepcion", "rh", "reception",
+    "test", "user", "account", "billing",
+]);
+function isFakeFirstName(name) {
+    if (!name) return false;
+    return FAKE_FIRST_NAMES.has(name.toLowerCase().trim());
+}
+
+// Cross-channel dedup — if the domain is already in Instantly as an active/delivered
+// lead, skip writing a phone_lead for it. We don't want email+phone same-week.
+// Fails open on missing key / network error (better to write a dupe than block a batch).
+async function isInInstantly(domain) {
+    const apiKey = process.env.INSTANTLY_API_KEY;
+    if (!apiKey || !domain) return false;
+    try {
+        const resp = await axios.get("https://api.instantly.ai/api/v2/leads", {
+            params: { limit: 1, search: domain },
+            headers: { Authorization: `Bearer ${apiKey}` },
+            timeout: 8000,
+        });
+        const items = resp.data?.items || resp.data?.data || [];
+        return Array.isArray(items) && items.length > 0;
+    } catch (err) {
+        functions.logger.warn(`Instantly dedup check failed for ${domain}: ${err.message}`);
+        return false;
+    }
 }
 
 // ---- DataForSEO Maps discovery ----
@@ -105,26 +166,33 @@ async function fetchAgenciesForCity(dfsLogin, dfsPass, city, limit) {
 }
 
 // ---- Hunter.io email enrichment ----
+// v2 2026-04-21: HARD filter on decision-maker titles (TITLE_WHITELIST_RE).
+// No more ranking — if the top match isn't an owner/CEO/director/broker, we
+// return null. Also drops FAKE_FIRST_NAMES (info@, ventas@, etc).
+// This replaces the soft-rank that was returning "marketing" + "sales" leads
+// whose phones went to gatekeepers (see 2026-04-21 Jose Fernandez disaster).
 async function enrichEmailViaHunter(hunterKey, domain) {
     if (!domain || isPortal(domain)) return null;
     try {
         const r = await axios.get("https://api.hunter.io/v2/domain-search", {
-            params: { domain, api_key: hunterKey, limit: 5, type: "personal" },
+            params: { domain, api_key: hunterKey, limit: 10, type: "personal" },
             timeout: 15000,
         });
         const emails = r.data?.data?.emails || [];
-        // Prefer decision-maker titles
-        const ranked = emails.filter((e) => e.confidence >= 70).sort((a, b) => {
-            const score = (e) => {
-                const pos = (e.position || "").toLowerCase();
-                if (/owner|founder|ceo|director|presiden/i.test(pos)) return 3;
-                if (/manager|gerente|jefe|head/i.test(pos)) return 2;
-                if (/market|sales|ventas/i.test(pos)) return 1;
-                return 0;
-            };
-            return score(b) - score(a);
+        // HARD filter: confidence ≥70 + decision-maker title + not a fake first name
+        const keepers = emails.filter((e) => {
+            if ((e.confidence || 0) < 70) return false;
+            if (!isDecisionMaker(e.position)) return false;
+            if (isFakeFirstName(e.first_name)) return false;
+            return true;
         });
-        return ranked[0] || null;
+        if (keepers.length === 0) {
+            functions.logger.info(`Hunter: ${domain} → ${emails.length} emails but 0 decision-makers (rejected)`);
+            return null;
+        }
+        // Prefer higher confidence among keepers
+        keepers.sort((a, b) => (b.confidence || 0) - (a.confidence || 0));
+        return keepers[0];
     } catch (err) {
         functions.logger.warn(`Hunter enrich failed for ${domain}:`, err.message);
         return null;
@@ -224,10 +292,23 @@ exports.leadFinderAutoTopUp = functions
         functions.logger.info(`leadFinderAutoTopUp: ${fresh.length} fresh after dedup`);
 
         // ---- Step 5: enrich + write ----
-        let written = 0, enriched = 0;
+        let written = 0, enriched = 0, skippedInstantly = 0, skippedNoOwner = 0;
         for (const c of fresh.slice(0, 60)) { // hard cap 60/day to respect Hunter quota
+            // Cross-channel dedup: skip if domain is already an active Instantly lead.
+            // Fails open on missing INSTANTLY_API_KEY (logged in helper).
+            if (await isInInstantly(c.domain)) {
+                skippedInstantly++;
+                continue;
+            }
             const hunter = await enrichEmailViaHunter(HUNTER_KEY, c.domain);
-            if (hunter && hunter.value) enriched++;
+            if (hunter && hunter.value) {
+                enriched++;
+            } else {
+                // Hunter returned no decision-maker. We still write the lead (phone-only
+                // outreach is valid — receptionist can transfer to owner) but we tag it
+                // so coldCallPrep can choose to down-rank name-less leads in the gate.
+                skippedNoOwner++;
+            }
             const phoneClean = c.phone.replace(/[^\d+]/g, "");
             const phoneE164 = phoneClean.startsWith("+") ? phoneClean : `+52${phoneClean.slice(-10)}`;
             const docId = phoneE164.replace(/\D/g, "");
@@ -241,6 +322,7 @@ exports.leadFinderAutoTopUp = functions
                     first_name: hunter?.first_name || "",
                     email: hunter?.value || "",
                     position: hunter?.position || "",
+                    is_decision_maker: !!(hunter && isDecisionMaker(hunter.position)),
                     company: c.title || "",
                     company_name: c.title || "",
                     website: c.domain ? `https://${c.domain}` : "",
@@ -250,6 +332,20 @@ exports.leadFinderAutoTopUp = functions
                     discovered_at: admin.firestore.FieldValue.serverTimestamp(),
                     // Explicitly unset last_called_at so coldCallPrep sees "never called"
                     last_called_at: null,
+                    // Firecrawl signal scaffold (v1). Extractors land in v2 via a
+                    // separate firecrawlEnrichPhoneLeads cron. Leaving nulls now so
+                    // coldCallPrep/autopilot can read them without undefined checks.
+                    fc_active_listings: null,
+                    fc_last_blog_post_date: null,
+                    fc_instagram_handle: null,
+                    fc_instagram_followers: null,
+                    fc_whatsapp_link: null,
+                    fc_has_chat_widget: null,
+                    fc_pagespeed_mobile: null,
+                    fc_maps_rating: c.rating || null,
+                    fc_maps_review_count: c.rating_count || null,
+                    fc_site_stack: null,
+                    fc_enriched_at: null,
                 }, { merge: true });
                 written++;
             } catch (err) {
@@ -285,6 +381,8 @@ exports.leadFinderAutoTopUp = functions
             candidates_found: candidates.length,
             fresh_after_dedup: fresh.length,
             enriched_with_hunter: enriched,
+            skipped_instantly_overlap: skippedInstantly,
+            skipped_no_owner: skippedNoOwner,
             written: written,
             topup_fired: true,
             ran_at: admin.firestore.FieldValue.serverTimestamp(),
@@ -295,6 +393,7 @@ exports.leadFinderAutoTopUp = functions
             `   Pool was ${eligibleCount} (threshold ${TARGET_POOL_SIZE}), ran top-up.`,
             `   Cities: ${cities.join(" + ")}`,
             `   Candidates: ${candidates.length} · Fresh: ${fresh.length} · Enriched: ${enriched} · Written: *${written}*`,
+            `   Skipped: Instantly-overlap ${skippedInstantly} · no-owner ${skippedNoOwner}`,
             `   Pool now: *${postCount}*`,
         ];
         if (postCount < HARD_FLOOR) {

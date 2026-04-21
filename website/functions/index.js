@@ -1988,6 +1988,9 @@ exports.coldCallRun = coldCall.coldCallRun;
 exports.coldCallReport = coldCall.coldCallReport;
 exports.coldCallMidBatchCheck = coldCall.coldCallMidBatchCheck;
 exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;
+// 3-strikes auto-DNC sweep — daily 14:00 CDMX (added 2026-04-21)
+// See cold-call-lead-finder skill HARD RULE #4
+exports.coldCallPostRunSweep = coldCall.coldCallPostRunSweep;
 
 // ============================================================
 // COLD CALL SLACK REPORTS (added 2026-04-20)

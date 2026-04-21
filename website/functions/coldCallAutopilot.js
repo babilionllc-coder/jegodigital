@@ -255,6 +255,59 @@ exports.coldCallPrep = functions
             return null;
         }
 
+        // Pre-dispatch coverage gate (v1 2026-04-21 — see cold-call-lead-finder skill).
+        // Blocks the batch if too many leads lack a real first name OR an email.
+        // Prevents the "dispatch 120 gatekeepers" failure mode observed 2026-04-21.
+        const FAKE_FIRST_NAMES_GATE = new Set([
+            "info", "contact", "contacto", "admin", "sales", "marketing", "hello", "hola",
+            "ventas", "ventas1", "support", "soporte", "noreply", "no-reply", "mail", "email",
+            "webmaster", "team", "office", "gerencia", "recepcion", "rh", "reception",
+            "test", "user", "account", "billing", "allá",
+        ]);
+        const realNameCount = batch.filter((l) => {
+            const nm = (l.name || l.first_name || "").toLowerCase().trim().split(/\s+/)[0];
+            return nm && !FAKE_FIRST_NAMES_GATE.has(nm);
+        }).length;
+        const hasEmailCount = batch.filter((l) => l.email && l.email.includes("@")).length;
+        const namePct = realNameCount / batch.length;
+        const emailPct = hasEmailCount / batch.length;
+        const NAME_GATE = 0.70;
+        const EMAIL_GATE = 0.60;
+        if (namePct < NAME_GATE || emailPct < EMAIL_GATE) {
+            const reason = namePct < NAME_GATE ? "name_pct_too_low" : "email_pct_too_low";
+            await db.collection("cold_call_alerts").add({
+                type: "coverage_gate_block",
+                date: dateKey,
+                planned: batch.length,
+                real_name_pct: namePct,
+                has_email_pct: emailPct,
+                reason,
+                name_gate: NAME_GATE,
+                email_gate: EMAIL_GATE,
+                created_at: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            await db.collection("call_queue_summaries").doc(dateKey).set({
+                date: dateKey,
+                prep_at: admin.firestore.FieldValue.serverTimestamp(),
+                coverage_gate_blocked: true,
+                real_name_pct: namePct,
+                has_email_pct: emailPct,
+                gate_reason: reason,
+                total: 0,
+            }, { merge: true });
+            await sendTelegram([
+                `🚨 *coldCallPrep ${dateKey}* — BATCH BLOCKED by coverage gate`,
+                `   Planned: ${batch.length} leads`,
+                `   Real-name %: *${(namePct * 100).toFixed(0)}%* (need ≥${(NAME_GATE * 100).toFixed(0)}%)`,
+                `   Has-email %: *${(emailPct * 100).toFixed(0)}%* (need ≥${(EMAIL_GATE * 100).toFixed(0)}%)`,
+                `   Reason: ${reason}`,
+                `   Action: leadFinderAutoTopUp will re-run tomorrow 08:00; manual fire: \`gcloud scheduler jobs run firebase-schedule-leadFinderAutoTopUp-us-central1 --location=us-central1\``,
+            ].join("\n"));
+            functions.logger.warn(`coldCallPrep ${dateKey}: BLOCKED — name=${(namePct * 100).toFixed(0)}% email=${(emailPct * 100).toFixed(0)}%`);
+            return null;
+        }
+        functions.logger.info(`coldCallPrep ${dateKey}: coverage gate PASS — name=${(namePct * 100).toFixed(0)}% email=${(emailPct * 100).toFixed(0)}%`);
+
         // Uniform-random offer assignment (per Alex 2026-04-20 — was round-robin).
         // Random mix lets us read A/B/C performance without positional bias
         // in the queue order; autopilotReviewer picks the winner weekly.
@@ -732,3 +785,111 @@ async function _coldCallRunAfternoonOriginal_disabled() {
         functions.logger.info(`coldCallRunAfternoon ${dateKey}: fired=${fired} failed=${failed}`);
         return null;
 }
+
+// =====================================================================
+// coldCallPostRunSweep — daily 14:00 CDMX (after all morning dispatches settled)
+// 3-strikes auto-DNC. Reads recent call_analysis outcomes, increments
+// phone_leads.call_attempts_count, marks do_not_call=true when a lead has
+// 3+ attempts in last 30 days AND all were no_answer / failed / voicemail.
+// Added 2026-04-21 per cold-call-lead-finder skill HARD RULE #4.
+// =====================================================================
+exports.coldCallPostRunSweep = functions
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
+    .pubsub.schedule("0 14 * * *")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        const db = admin.firestore();
+        const todayKey = cdmxTodayKey();
+        const thirtyDaysAgo = admin.firestore.Timestamp.fromDate(
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        );
+
+        // Pull call_analysis from last 36h — covers yesterday's morning batch
+        // plus any mid-day on-demand fires.
+        const cutoff = admin.firestore.Timestamp.fromDate(
+            new Date(Date.now() - 36 * 60 * 60 * 1000)
+        );
+        let analysisSnap;
+        try {
+            analysisSnap = await db.collection("call_analysis")
+                .where("created_at", ">=", cutoff)
+                .limit(500)
+                .get();
+        } catch (err) {
+            functions.logger.error("coldCallPostRunSweep: call_analysis query failed:", err.message);
+            await sendTelegram(`⚠️ *coldCallPostRunSweep ${todayKey}* — call_analysis query failed: ${err.message}`);
+            return null;
+        }
+
+        // Group by lead_id → outcomes
+        const leadOutcomes = new Map();
+        analysisSnap.forEach((doc) => {
+            const d = doc.data();
+            if (!d.lead_id) return;
+            const list = leadOutcomes.get(d.lead_id) || [];
+            list.push({
+                outcome: d.outcome || "unknown",
+                at: d.created_at?.toDate?.() || null,
+                conversation_id: doc.id,
+            });
+            leadOutcomes.set(d.lead_id, list);
+        });
+
+        let markedDnc = 0, updatedAttempts = 0, skippedRecent = 0;
+        const NO_CONNECT_OUTCOMES = new Set([
+            "no_answer", "failed", "voicemail", "busy", "canceled", "pending",
+        ]);
+
+        for (const [leadId, outcomes] of leadOutcomes.entries()) {
+            const leadRef = db.collection("phone_leads").doc(leadId);
+            const leadSnap = await leadRef.get();
+            if (!leadSnap.exists) continue;
+            const lead = leadSnap.data();
+            if (lead.do_not_call === true) continue; // already DNC'd
+
+            // Merge new outcomes into call_attempts (dedupe by conversation_id)
+            const existing = lead.call_attempts || [];
+            const existingIds = new Set(existing.map((a) => a.conversation_id).filter(Boolean));
+            const newAttempts = outcomes.filter((o) => !existingIds.has(o.conversation_id));
+            if (newAttempts.length === 0) { skippedRecent++; continue; }
+
+            const merged = [...existing, ...newAttempts].slice(-20); // keep last 20
+
+            // Count attempts in last 30 days
+            const last30 = merged.filter((a) => a.at && a.at >= thirtyDaysAgo.toDate());
+            const allNoConnect = last30.length > 0 &&
+                last30.every((a) => NO_CONNECT_OUTCOMES.has(a.outcome));
+
+            const updates = {
+                call_attempts: merged,
+                call_attempts_count: merged.length,
+            };
+            if (last30.length >= 3 && allNoConnect) {
+                updates.do_not_call = true;
+                updates.dnc_reason = "3_no_connects_in_30d";
+                updates.dnc_at = admin.firestore.FieldValue.serverTimestamp();
+                markedDnc++;
+            }
+            await leadRef.update(updates);
+            updatedAttempts++;
+        }
+
+        await db.collection("cold_call_daily_summaries").doc(todayKey).set({
+            date: todayKey,
+            sweep_ran_at: admin.firestore.FieldValue.serverTimestamp(),
+            leads_processed: leadOutcomes.size,
+            attempts_updated: updatedAttempts,
+            skipped_already_logged: skippedRecent,
+            marked_dnc: markedDnc,
+        }, { merge: true });
+
+        const lines = [
+            `🧹 *coldCallPostRunSweep ${todayKey}*`,
+            `   Leads processed: ${leadOutcomes.size}`,
+            `   Attempts updated: *${updatedAttempts}* · Already-logged: ${skippedRecent}`,
+            `   Marked DNC (3+ no-connects in 30d): *${markedDnc}*`,
+        ];
+        await sendTelegram(lines.join("\n"));
+        functions.logger.info(`coldCallPostRunSweep ${todayKey}: processed=${leadOutcomes.size} updated=${updatedAttempts} dnc=${markedDnc}`);
+        return null;
+    });
