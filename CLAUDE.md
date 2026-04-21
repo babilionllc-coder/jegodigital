@@ -425,12 +425,44 @@ When Alex says **"run seo content engine"** (or any variant: "write a blog post"
 - Brief still saved to `/content/briefs/<slug>_<YYYY-MM-DD>_brief.md` for traceability
 
 **Step 3 — WRITE (following the brief):**
-- Minimum 4 real images — reuse existing `/website/blog/images/*.webp` or `/website/proofs/*.png` (ProofScreenshots, Flamingo proofs, WhatsApp proofs). NEVER Unsplash/Pexels/AI-generated as the ONLY images.
+- Minimum 4 REAL images — see **🚫 NO-AI-IMAGES HARD RULE** below. ONLY real screenshots allowed: client SERPs, PageSpeed reports, WhatsApp/ManyChat flows, portfolio shots, jegodigital.com UI captures.
+- **Minimum 2 external authority links** (BrightLocal, Think with Google, Harvard Business Review, GMB/Google docs, Statista, WebFX, etc.). NEVER cite stats without a linkable source URL.
 - Styled stat cards, comparison tables, answer boxes
 - Match existing site design template exactly (Plus Jakarta Sans + CSS vars bg #0a0a0f + gold #C5A059)
-- E-E-A-T: author byline, date, source citations
+- E-E-A-T: author byline, date, source citations (inline `<a href>` to the study/doc, not just naming it)
 - Internal links: 3-5 to existing pages (verify they exist on disk before linking)
 - Schema: BlogPosting + FAQPage + BreadcrumbList JSON-LD in `<head>`
+
+**🚫 NO-AI-IMAGES HARD RULE (added 2026-04-21 after Alex flagged fake hero + neon-heatmap in Google Maps post):**
+
+BANNED forever in blog posts:
+- 3D neon isometric cityscapes, glowing tower graphics, sci-fi skylines, fake "heatmap" renders
+- Fake dashboard UI mockups with invented metrics ("RANK #1", "REVIEW MOAT: 125 vs 10")
+- AI-generated luxury condo interiors / beach sunsets used as heroes or section illustrations
+- Any image with telltale AI artifacts (plasticky skin, impossible architecture, warped text, six fingers, melted logos)
+- Unsplash/Pexels stock photos as the PRIMARY visual asset
+
+WHITELIST — the ONLY acceptable image sources:
+1. Real client SERP screenshots → `/website/blog/images/*-google-ranking.png`, `*-google-maps.png`
+2. Real PageSpeed / analytics screenshots → `/website/blog/images/proof-*.png`, `proof-pagespeed-*.png`
+3. Real WhatsApp / ManyChat flow screenshots → `proof-whatsapp-*.png`, `proof-ai-chatbot-*.png`
+4. Real portfolio shots → `/website/images/portfolio/*.png`, `/website/assets/screenhots/*.png`
+5. Fresh screenshots of jegodigital.com itself — take with Chrome MCP when needed
+
+Pre-ship image audit (run before Step 5 push):
+```bash
+grep -oE 'src="images/[^"]+"' website/blog/<slug>.html | while read s; do
+  fn=$(echo "$s" | sed -E 's/src="images\/|"//g')
+  # Flag any filename suggesting AI/concept/render art
+  if echo "$fn" | grep -qiE 'neon|isometric|3d-|concept|render-|ai-generated|heatmap'; then
+    echo "❌ BANNED IMAGE: $fn"; exit 1
+  fi
+  # Must exist on disk
+  [ -f "website/blog/images/$fn" ] || { echo "❌ MISSING: $fn"; exit 1; }
+done
+echo "✅ image audit passed"
+```
+If any image fails the check → REPLACE with a real screenshot from the whitelist. No exceptions.
 
 **Step 4 — OPTIMIZE (score must be ≥80/100):**
 - Keyword placement (H1, first 100 words, H2, meta) = 20pts
@@ -450,10 +482,11 @@ When Alex says **"run seo content engine"** (or any variant: "write a blog post"
 
 ### HARD RULES:
 - NEVER write a blog post from general knowledge without running API research
-- NEVER use AI-generated graphics or stock photos as the ONLY images — reuse real proof screenshots from `/website/blog/images/` or `/website/proofs/`
-- NEVER mark a post as "completed" without logging the optimization score (≥80)
+- NEVER use AI-generated graphics, 3D neon renders, fake dashboards, or stock photos — see NO-AI-IMAGES HARD RULE above. Only real screenshots from the whitelist.
+- NEVER cite a stat/study without a linkable source `<a href>` to the original report (BrightLocal, Think with Google, HBR, etc.). Minimum 2 external authority links per post.
+- NEVER mark a post as "completed" without logging the optimization score (≥80) AND running the pre-ship image audit
 - NEVER duplicate an existing blog post topic — always diff against `/website/blog/` first
-- NEVER report "verification passed" based on file sizes — verify actual content quality
+- NEVER report "verification passed" based on file sizes — verify actual content quality AND render a preview
 - NEVER fall back to asking Alex for approval at any gate — autonomous mode is default
 - If APIs are down, TELL ALEX instead of proceeding without data (the only valid bail-out)
 
