@@ -324,10 +324,14 @@ exports.coldCallRun = functions
                 );
 
                 const conversationId = elRes.data?.conversation_id;
+                // CallSid is critical for twilioCallStatusCallback to look up
+                // and force-close zombie ElevenLabs sessions. See COLDCALL.md §10.
+                const callSid = elRes.data?.callSid || elRes.data?.call_sid || null;
                 await doc.ref.update({
                     status: "dialed",
                     dialed_at: admin.firestore.FieldValue.serverTimestamp(),
                     conversation_id: conversationId || null,
+                    callSid: callSid,
                 });
                 // Seed call_analysis so coldCallReport can reconcile even if webhook is slow
                 if (conversationId) {
@@ -337,6 +341,7 @@ exports.coldCallRun = functions
                         offer: lead.offer,
                         agent_id: lead.agent_id,
                         date_key: dateKey,
+                        callSid: callSid,
                         created_at: admin.firestore.FieldValue.serverTimestamp(),
                         outcome: "pending",
                     }, { merge: true });
@@ -346,6 +351,7 @@ exports.coldCallRun = functions
                     last_called_at: admin.firestore.FieldValue.serverTimestamp(),
                     last_offer: lead.offer,
                     last_conversation_id: conversationId || null,
+                    last_call_sid: callSid,
                 }, { merge: true });
 
                 fired++;
@@ -615,11 +621,14 @@ exports.coldCallRunAfternoon = functions
                 );
 
                 const conversationId = elRes.data?.conversation_id;
+                // CallSid for twilioCallStatusCallback zombie kill (COLDCALL.md §10)
+                const callSid = elRes.data?.callSid || elRes.data?.call_sid || null;
                 await lead.ref.update({
                     status: "dialed",
                     dialed_at_afternoon: admin.firestore.FieldValue.serverTimestamp(),
                     afternoon_retry_count: (lead.afternoon_retry_count || 0) + 1,
                     afternoon_conversation_id: conversationId || null,
+                    afternoon_call_sid: callSid,
                 });
                 if (conversationId) {
                     await db.collection("call_analysis").doc(conversationId).set({
@@ -628,6 +637,7 @@ exports.coldCallRunAfternoon = functions
                         offer: lead.offer,
                         agent_id: lead.agent_id,
                         date_key: dateKey,
+                        callSid: callSid,
                         is_afternoon_retry: true,
                         created_at: admin.firestore.FieldValue.serverTimestamp(),
                         outcome: "pending",

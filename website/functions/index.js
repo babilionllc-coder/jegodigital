@@ -2002,6 +2002,32 @@ exports.coldCallSlackAfternoon = coldCallSlack.coldCallSlackAfternoon;
 exports.coldCallSlackOnDemand = coldCallSlack.coldCallSlackOnDemand;
 
 // ============================================================
+// TWILIO STATUS CALLBACK → ELEVENLABS ZOMBIE KILLER (2026-04-21)
+// Twilio POSTs here on every call status change. On terminal
+// statuses (completed/failed/no-answer/busy/canceled) we look up
+// the ElevenLabs conversation by CallSid and DELETE it so the
+// agent doesn't hold the SIP session to max_duration (90s).
+// Expected: cut zombie waste from 90s cap → ~3s actual.
+// See COLDCALL.md §10 for context + Twilio webhook config.
+// ============================================================
+exports.twilioCallStatusCallback =
+  require("./twilioCallStatusCallback").twilioCallStatusCallback;
+
+// ============================================================
+// COLD EMAIL DAILY REPORT (added 2026-04-21)
+// 07:05 CDMX daily — yesterday's Instantly performance to
+// Slack + Telegram (Block Kit + Markdown). Weekly rollup every
+// Monday 08:00 CDMX. On-demand HTTPS endpoint for replay /
+// single-day debug (hit with ?date=YYYY-MM-DD[&notify=1]).
+// Mirrors coldCallSlackReport design. Fully autonomous —
+// all secrets already in runtime env via deploy.yml.
+// ============================================================
+const coldEmailDaily = require("./coldEmailDailyReport");
+exports.coldEmailDailyReport = coldEmailDaily.coldEmailDailyReport;
+exports.coldEmailWeeklyReport = coldEmailDaily.coldEmailWeeklyReport;
+exports.coldEmailReportOnDemand = coldEmailDaily.coldEmailReportOnDemand;
+
+// ============================================================
 // COLD CALL LIVE MONITOR (added 2026-04-20)
 // Every 3 min during 09:55-11:35 CDMX — polls ElevenLabs for
 // in-flight + just-finished conversations across all 3 agents,
