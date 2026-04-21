@@ -2,11 +2,11 @@
  * coldCallAutopilot — daily 50-call routine, no human gate.
  *
  * Five crons, one module:
- *   09:55 Mon-Fri  coldCallPrep           — queue 50 phone-ready leads with A/B/C offer rotation (includes 24h failed-call retry)
+ *   09:55 Mon-Fri  coldCallPrep           — queue 120 phone-ready leads with A/B/C offer rotation (includes 24h failed-call retry)
  *   10:00 Mon-Fri  coldCallRun            — fire Sofia calls against today's queue
- *   10:15 Mon-Fri  coldCallMidBatchCheck  — Telegram alert if failed > 15/50 during run
+ *   10:15 Mon-Fri  coldCallMidBatchCheck  — Telegram alert if failed > 30/120 during run
  *   13:00 Mon-Fri  coldCallReport         — summarize outcomes, auto-fire audits for positives
- *   16:00 Mon-Fri  coldCallRunAfternoon   — retry morning no-answers (max 25 leads)
+ *   16:00 Mon-Fri  coldCallRunAfternoon   — DISABLED 2026-04-21 (no-op stub; morning-only until 3 YES/day)
  *
  * Design rule (per Alex 2026-04-20): NO approve-before-fire gate. Cron
  * fires, everything logs richly, dailyDigest + systemHealthAudit surface
@@ -47,10 +47,10 @@ async function sendTelegram(text) {
 // ---- Config ----
 const EL_API_KEY_FALLBACK = "335ed6b73e0b9281175a6b360eab9cbc0765bae4d55a9d8b95010d8642b8d673";
 const MX_PHONE_ID = "phnum_8801kp77en3ee56t0t291zyv40ne"; // +52 998 387 1618 (Sofia MX)
-const BATCH_SIZE = 50;
-const AFTERNOON_BATCH_SIZE = 25;      // retry batch at 16:00 — smaller, afternoon hours
+const BATCH_SIZE = 120;               // Morning batch — bumped from 50 to 120 (2026-04-21, Alex wants morning-only cadence until 3 YES/day)
+const AFTERNOON_BATCH_SIZE = 0;       // DISABLED 2026-04-21 — afternoon batch is a no-op. Export retained to avoid Scheduler 404 deploy trap (see firebase_deploy_traps memory).
 const FIRE_INTERVAL_MS = 12000;       // 12s between API fires — respects ElevenLabs + Twilio concurrency
-const MID_BATCH_FAIL_THRESHOLD = 15;  // >15/50 failures at 10:15 → Telegram alarm
+const MID_BATCH_FAIL_THRESHOLD = 30;  // >30/120 failures at 10:15 → Telegram alarm (scaled with batch)
 
 // Offer rotation agents (created 2026-04-16, see CLAUDE.md §AI Cold Calling)
 const OFFERS = {
@@ -528,16 +528,24 @@ exports.coldCallMidBatchCheck = functions
     });
 
 // =====================================================================
-// 5) coldCallRunAfternoon — 16:00 Mon-Fri CDMX
-//    Retry morning no-answers + failed calls. Max AFTERNOON_BATCH_SIZE leads,
-//    same agent as morning (retry_count increments). Afternoon hours have
-//    better pickup rate for independent brokers in MX.
+// 5) coldCallRunAfternoon — DISABLED 2026-04-21
+//    Afternoon batch killed per Alex: morning-only cadence until we hit
+//    3 YES clients/day. Export + scheduler retained as no-op to avoid
+//    Cloud Scheduler 404 deploy trap (see firebase_deploy_traps memory).
+//    To re-enable: set AFTERNOON_BATCH_SIZE > 0 + restore body.
 // =====================================================================
 exports.coldCallRunAfternoon = functions
-    .runWith({ timeoutSeconds: 540, memory: "1GB" })
+    .runWith({ timeoutSeconds: 60, memory: "256MB" })
     .pubsub.schedule("0 16 * * 1-5")
     .timeZone("America/Mexico_City")
     .onRun(async () => {
+        functions.logger.info(`coldCallRunAfternoon: DISABLED (no-op stub) — see coldCallAutopilot.js comment`);
+        return null;
+    });
+
+// Original implementation preserved below for restore reference (unreachable).
+// eslint-disable-next-line no-unused-vars
+async function _coldCallRunAfternoonOriginal_disabled() {
         const db = admin.firestore();
         const dateKey = cdmxTodayKey();
         const EL_KEY = process.env.ELEVENLABS_API_KEY || EL_API_KEY_FALLBACK;
@@ -666,4 +674,4 @@ exports.coldCallRunAfternoon = functions
 
         functions.logger.info(`coldCallRunAfternoon ${dateKey}: fired=${fired} failed=${failed}`);
         return null;
-    });
+}
