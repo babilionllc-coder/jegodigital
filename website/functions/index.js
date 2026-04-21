@@ -716,13 +716,15 @@ exports.onLeadCreated = functions.firestore.document('leads/{leadId}').onCreate(
                                     first_message: firstMessage,
                                     prompt: { prompt: systemPrompt } // <--- INJECTED
                                 },
+                                // Webhook URL removed 2026-04-21 — the workspace-level post-call
+                                // webhook (id c76a00db45ff4b948e7dc63db2f777fb → elevenLabsWebhook)
+                                // handles all conversations for all 3 agents. The legacy
+                                // handleCallAnalysis function only writes to `leads`, not
+                                // `call_analysis`, so any trigger using that URL corrupted metrics.
+                                // client_inactivity_timeout_seconds is a fake field silently dropped
+                                // by the API — real silence control is conversation_config.turn.
                                 conversation: {
                                     max_duration_seconds: 180,
-                                    client_inactivity_timeout_seconds: 30,
-                                    analysis: {
-                                        post_call_webhook_url: "https://us-central1-jegodigital-e02fb.cloudfunctions.net/handleCallAnalysis",
-                                        post_call_webhook_data: { "source": "firebase_auto" }
-                                    }
                                 }
                             }
                         }, {
