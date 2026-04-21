@@ -16,15 +16,16 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Cloud Run - mockup-renderer /healthz
+      - name: Cloud Run - mockup-renderer /health
         run: |
-          URL="https://mockup-renderer-wfmydylowa-uc.a.run.app/healthz"
+          # /healthz is reserved by Google's Cloud Run edge layer — probe /health.
+          URL="https://mockup-renderer-wfmydylowa-uc.a.run.app/health"
           echo "Testing $URL"
           RESPONSE=$(curl -s -o /tmp/body -w "%{http_code}" "$URL")
           echo "HTTP $RESPONSE"
           cat /tmp/body
           if [ "$RESPONSE" != "200" ]; then
-            echo "::error::Cloud Run mockup-renderer /healthz returned $RESPONSE"
+            echo "::error::Cloud Run mockup-renderer /health returned $RESPONSE"
             exit 1
           fi
 
@@ -88,7 +89,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| Cloud Run /healthz | ${{ steps.cloudrun.outcome || 'see above' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cloud Run /health | ${{ steps.cloudrun.outcome || 'see above' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| submitAuditRequest preflight | see above |" >> $GITHUB_STEP_SUMMARY
           echo "| jegodigital.com | see above |" >> $GITHUB_STEP_SUMMARY
           echo "| /auditoria-gratis | see above |" >> $GITHUB_STEP_SUMMARY

@@ -29,9 +29,10 @@ All in `.github/workflows/`. All trigger on `push` to `main` with `paths:` filte
   1. Authenticates to GCP via `GCP_SA_KEY` secret
   2. `gcloud run deploy mockup-renderer --source=./website/mockup-renderer ...`
   3. Forces `allUsers → roles/run.invoker` IAM binding (fixes the silent-404 bug where `--allow-unauthenticated` gets ignored)
-  4. Smoke-tests `/healthz` with 5 retries — fails the build if it doesn't return 200
+  4. Smoke-tests `/health` with 5 retries — fails the build if it doesn't return 200
 - **Service URL:** `https://mockup-renderer-wfmydylowa-uc.a.run.app`
-- **Verify a deploy worked:** `curl https://mockup-renderer-wfmydylowa-uc.a.run.app/healthz` → `{"ok":true,...}`
+- **Verify a deploy worked:** `curl https://mockup-renderer-wfmydylowa-uc.a.run.app/health` → `{"ok":true,...}`
+- **NOTE:** Google's Cloud Run edge layer **reserves `/healthz`** (intercepts it with a Google-branded 404 before it reaches the container). Always use `/health`. The server keeps `/healthz` as a backward-compatible alias but only `/health` is reliably reachable from outside the edge.
 
 ### 2. `deploy.yml` — Firebase (Functions + Hosting)
 - **Fires when:** `website/**` changes (or manual `workflow_dispatch`)
@@ -97,7 +98,7 @@ After pushing to main, wait ~4-6 minutes, then:
 
 ```bash
 # 1. Cloud Run
-curl -s https://mockup-renderer-wfmydylowa-uc.a.run.app/healthz
+curl -s https://mockup-renderer-wfmydylowa-uc.a.run.app/health
 # Expect: {"ok":true,"service":"mockup-renderer","version":"1.0.0"}
 
 # 2. Firebase Functions
@@ -121,9 +122,9 @@ If any of these fail, **do not deploy a fix manually**. Open the failing workflo
 
 ## Common Failure Modes (and the Fix)
 
-### Cloud Run returns Google's 404 HTML page instead of `/healthz`
-- Root cause: `--allow-unauthenticated` silently fails when GCP org policy blocks public services
-- Fix: The `Force public access` step in `deploy-cloudrun.yml` explicitly applies the `allUsers → run.invoker` binding. If you see this error again, check that step's logs.
+### Cloud Run returns Google's 404 HTML page instead of `/health`
+- Root cause #1: `--allow-unauthenticated` silently fails when GCP org policy blocks public services. Fix: The `Force public access` step in `deploy-cloudrun.yml` explicitly applies the `allUsers → run.invoker` binding. If you see this error again, check that step's logs.
+- Root cause #2: Google's Cloud Run edge layer **reserves the `/healthz` path** and returns its own 404 before the container sees the request — even if the service has a `/healthz` route registered. We probe `/health` instead. If a new deploy ever regresses on `/health`, **do not** fall back to `/healthz` to "test" — that will always 404 at the edge and tell you nothing about the container.
 
 ### Container crashes with `browserType.launch: Timeout`
 - Root cause: Cloud Run sandbox restricts inotify, dbus, NETLINK — Playwright hangs trying to talk to them

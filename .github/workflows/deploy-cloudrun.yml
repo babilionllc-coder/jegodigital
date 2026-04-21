@@ -70,18 +70,21 @@ jobs:
       - name: Smoke test
         run: |
           URL="${{ steps.deploy.outputs.url }}"
-          echo "Testing $URL/healthz"
+          # NOTE: /healthz is reserved by Google's Cloud Run edge layer (never
+          # reaches the container), so we probe /health which the service exposes
+          # as the canonical health endpoint.
+          echo "Testing $URL/health"
           for i in 1 2 3 4 5; do
-            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$URL/healthz")
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$URL/health")
             if [ "$RESPONSE" = "200" ]; then
-              echo "✓ Healthz returned 200"
-              curl -s "$URL/healthz"
+              echo "✓ /health returned 200"
+              curl -s "$URL/health"
               exit 0
             fi
             echo "Attempt $i: got $RESPONSE, retrying in 5s..."
             sleep 5
           done
-          echo "::error::Healthz never returned 200 after 5 attempts"
+          echo "::error::/health never returned 200 after 5 attempts"
           exit 1
 
       - name: Write summary
@@ -92,4 +95,4 @@ jobs:
           echo "- **Region:** $REGION" >> $GITHUB_STEP_SUMMARY
           echo "- **Project:** $PROJECT_ID" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Healthz endpoint: ${{ steps.deploy.outputs.url }}/healthz" >> $GITHUB_STEP_SUMMARY
+          echo "Health endpoint: ${{ steps.deploy.outputs.url }}/health" >> $GITHUB_STEP_SUMMARY

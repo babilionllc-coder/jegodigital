@@ -9,7 +9,7 @@
  *   calls over HTTP.
  *
  * Endpoints:
- *   GET  /healthz       → {ok:true}
+ *   GET  /health        → {ok:true}   (also aliased at /healthz for legacy)
  *   POST /render        → { html, width?, height?, dpr?, fullPage? } → image/png
  *
  * Defaults tuned for Instagram-ratio deliverables:
@@ -102,9 +102,15 @@ function waitForSlot() {
     });
 }
 
-app.get("/healthz", (req, res) => {
+// Health check — Google's Cloud Run edge layer reserves /healthz (intercepts it
+// before reaching the container), so we expose /health as the canonical path
+// and keep /healthz as a legacy alias for any old callers.
+const healthHandler = (req, res) => {
     res.json({ ok: true, service: "mockup-renderer", version: "1.0.0" });
-});
+};
+app.get("/health", healthHandler);
+app.get("/healthz", healthHandler);
+app.get("/", healthHandler);
 
 app.post("/render", async (req, res) => {
     const started = Date.now();
