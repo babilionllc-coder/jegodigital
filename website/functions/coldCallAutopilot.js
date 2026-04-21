@@ -310,9 +310,14 @@ exports.coldCallRun = functions
                             },
                             conversation_config_override: {
                                 agent: { language: "es", first_message: firstMessage },
+                                // Hard cap 60s: if voicemail_detection misfires, limit the
+                                // monologue loss instead of wasting 300s. Real qualified
+                                // calls finish well under 60s (avg 35-45s). See AUDIT
+                                // 2026-04-21 CC-8 — 14/30 calls hit 90s max on voicemails
+                                // with 0-message transcripts. Was: 300s + dead
+                                // client_inactivity_timeout_seconds (silently dropped by API).
                                 conversation: {
-                                    max_duration_seconds: 300, // 5 min hard cap
-                                    client_inactivity_timeout_seconds: 30,
+                                    max_duration_seconds: 60,
                                 },
                             },
                         },
