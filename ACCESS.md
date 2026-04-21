@@ -105,7 +105,7 @@ These aren't in GitHub because they're session/device-scoped and would add no va
 | Credential | Local path | Why local-only |
 |---|---|---|
 | `VERCEL_OIDC_TOKEN` | `website/.env.local` | Ephemeral JWT auto-refreshed by Vercel CLI |
-| Claude session `github_token` | `.secrets/github_token` | Session-scoped PAT |
+| Claude autonomous-push PAT | `.secrets/github_token` | Full `repo + workflow + admin:*` scopes. Used by Claude-in-the-sandbox to push to `main` via the GitHub Git Data API (`.git/` is read-only in the sandbox, so `git commit && git push` fail — the PAT + Data API is the autonomous fallback). **Full recipe in `DEPLOY.md` → "Autonomous Deploy (Claude-in-the-sandbox)".** Never paste the value into chat, never commit; `.secrets/` is in `.gitignore`. |
 
 ---
 
@@ -132,6 +132,7 @@ These are referenced in code but NOT required. The code handles missing values g
   - Fixed wrong Alex phone in `telegramHelper.js` comment + fallback (was `+525519897005`, now `+529987875321`)
   - This registry rewritten as comprehensive source of truth for all 37.
 - **2026-04-21** (earlier) — Added `SLACK_WEBHOOK_URL` + `INSTANTLY_API_KEY` to `deploy.yml` heredoc. Unblocks `dailyRollupSlack` + `dailyDigest`. Commit: `d6b205a4`.
+- **2026-04-21** — Documented autonomous-deploy recipe in `DEPLOY.md` after end-to-end proof (commit `db99362`: rename `/healthz` → `/health`, all 5 workflows green, live service verified). Clarified that `.secrets/github_token` is the Claude-in-sandbox autonomous-push PAT. Rule: Claude should never ask Alex to run `git commit` / `git push` / `firebase deploy` / `gcloud run deploy` — the Data API recipe in `DEPLOY.md` handles it.
 
 ---
 

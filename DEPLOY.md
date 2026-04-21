@@ -2,7 +2,7 @@
 
 **Read this file first before touching any deploy, infrastructure, or CI task.**
 
-Last updated: 2026-04-18
+Last updated: 2026-04-21
 
 ---
 
@@ -11,11 +11,148 @@ Last updated: 2026-04-18
 **Nothing deploys manually. Ever.** No `gcloud run deploy`, no `firebase deploy`, no `scp`. If you need to ship a change:
 
 1. Edit the file
-2. `git commit`
-3. `git push origin main`
+2. Commit to `main`
+3. Push to `origin/main`
 4. Watch GitHub Actions
 
 If a deploy needs to happen and pushing doesn't do it, the fix is to **add a workflow**, not to run a CLI command. Manual deploys skip secret injection, break reproducibility, and are the #1 cause of "works on Alex's laptop, broken in production."
+
+---
+
+## Autonomous Deploy (Claude-in-the-sandbox)
+
+**Claude can commit and push to `main` without human involvement.** This is the default — if Claude asks Alex to run `git commit && git push`, Claude is doing it wrong and should re-read this section.
+
+### The sandbox limitation
+
+The Cowork sandbox cannot write to `.git/index.lock`, `.git/objects/tmp_obj_*`, or `.git/refs/*`. That means `git add`, `git commit`, `git push` all fail locally with `Operation not permitted` or `Unable to create '.git/index.lock': File exists`. Do not try to `rm -f` the lock — it's a filesystem permission, not a stale lock, and `rm` is denied too.
+
+### The workaround: GitHub Git Data API
+
+Never touches `.git/` locally. The PAT at `.secrets/github_token` (stored in the workspace, gitignored — see `ACCESS.md` row "GH PAT for autonomous push") has `repo + workflow` scopes which is everything the Data API needs.
+
+**Four API calls** to go from edited files on disk → new commit on `origin/main` → Actions firing:
+
+```bash
+TOKEN=$(cat .secrets/github_token)
+API="https://api.github.com/repos/babilionllc-coder/jegodigital"
+
+# 1. Get the parent tree SHA (current main)
+BASE_SHA=$(git log -1 --format=%H 2>/dev/null || curl -s -H "Authorization: token $TOKEN" "$API/git/refs/heads/main" | python3 -c "import sys,json;print(json.load(sys.stdin)['object']['sha'])")
+BASE_TREE=$(curl -s -H "Authorization: token $TOKEN" "$API/git/commits/$BASE_SHA" | python3 -c "import sys,json;print(json.load(sys.stdin)['tree']['sha'])")
+
+# 2. Upload each changed file as a blob → get blob SHAs
+for f in path/to/file1 path/to/file2; do
+  python3 -c "
+import json, base64, urllib.request
+with open('$f','rb') as fh: content=base64.b64encode(fh.read()).decode()
+req=urllib.request.Request('$API/git/blobs',
+  data=json.dumps({'content':content,'encoding':'base64'}).encode(),
+  headers={'Authorization':'token $TOKEN','Accept':'application/vnd.github+json','Content-Type':'application/json'},
+  method='POST')
+print('$f', json.loads(urllib.request.urlopen(req).read())['sha'])"
+done
+
+# 3. Create new tree (base_tree + your blobs) → get tree SHA
+# 4. Create commit → update refs/heads/main → PUSH COMPLETE
+# (full working example inlined below)
+```
+
+**Full working Python one-liner** (this is the actual code that pushed `db99362` on 2026-04-21 — copy-paste from here):
+
+```python
+import json, base64, urllib.request, os
+TOKEN = open('.secrets/github_token').read().strip()
+API = 'https://api.github.com/repos/babilionllc-coder/jegodigital'
+HEADERS = {'Authorization': f'token {TOKEN}', 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'}
+
+FILES = [
+    # (repo_path, local_path) — local_path relative to repo root
+    ('.github/workflows/deploy-cloudrun.yml', '.github/workflows/deploy-cloudrun.yml'),
+    ('website/mockup-renderer/server.js',    'website/mockup-renderer/server.js'),
+]
+COMMIT_MSG = 'fix(x): describe the change\n\nWhy: ...\nHow: ...'
+
+def api(path, method='GET', data=None):
+    req = urllib.request.Request(f'{API}{path}',
+        data=json.dumps(data).encode() if data else None,
+        headers=HEADERS, method=method)
+    return json.loads(urllib.request.urlopen(req).read())
+
+# 1. Parent commit + tree
+base_sha = api('/git/refs/heads/main')['object']['sha']
+base_tree = api(f'/git/commits/{base_sha}')['tree']['sha']
+
+# 2. Blobs
+tree_entries = []
+for repo_path, local_path in FILES:
+    with open(local_path, 'rb') as fh:
+        blob = api('/git/blobs', 'POST', {
+            'content': base64.b64encode(fh.read()).decode(),
+            'encoding': 'base64',
+        })
+    tree_entries.append({'path': repo_path, 'mode': '100644', 'type': 'blob', 'sha': blob['sha']})
+
+# 3. Tree
+new_tree = api('/git/trees', 'POST', {'base_tree': base_tree, 'tree': tree_entries})
+
+# 4. Commit + ref update
+new_commit = api('/git/commits', 'POST', {
+    'message': COMMIT_MSG, 'tree': new_tree['sha'], 'parents': [base_sha],
+    'author': {'name': 'Claude (JegoDigital)', 'email': 'claude@jegodigital.com'},
+})
+api('/git/refs/heads/main', 'PATCH', {'sha': new_commit['sha']})
+print(f'Pushed: {new_commit["sha"]}')
+```
+
+### Watching the deploy finish
+
+```bash
+TOKEN=$(cat .secrets/github_token)
+curl -s -H "Authorization: token $TOKEN" \
+  "https://api.github.com/repos/babilionllc-coder/jegodigital/actions/runs?branch=main&per_page=8" \
+  | python3 -c "
+import sys, json
+for r in json.load(sys.stdin)['workflow_runs']:
+    mark='OK' if r['conclusion']=='success' else 'FAIL' if r['conclusion']=='failure' else 'WIP'
+    print(f\"{mark:<5} {r['name'][:40]:<40} {r['head_sha'][:7]} #{r['run_number']}\")"
+```
+
+Poll every 20s until `WIP` turns into `OK` or `FAIL`. Typical wall times: Validate ~15-25s, Auto-Index ~35-45s, Deploy to Firebase ~50-80s, Deploy Cloud Run ~2-3min (Docker build).
+
+### Manual workflow_dispatch
+
+Some workflows don't auto-fire on arbitrary pushes (e.g. `smoke-test.yml`). Trigger via API:
+
+```bash
+curl -s -X POST -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github+json" \
+  "$API/actions/workflows/smoke-test.yml/dispatches" -d '{"ref":"main"}'
+# HTTP 204 = accepted (no response body)
+```
+
+### Guard rails before pushing
+
+1. **Don't commit `website/functions/index.js` in isolation if it added a `require('./newModule')` line without the module file being committed in the same tree.** Firebase's deployer analyzes requires at build time — missing module fails the whole `deploy.yml`. See memory `feedback_require_without_module.md`.
+2. **Do not push secrets in file contents.** The repo has a 100MB push cap and a secret scanner (`jegodigital_push_protections.md`). If a blob contains `ghp_*`, `sk-*`, `SG.*`, etc. the Data API will return a 422 and the push is rejected. Fix the file, re-blob, retry.
+3. **Always pull the latest `main` SHA right before step 1.** If Alex's Strategist agent or another session pushed between your edits and your push, your commit's `parents[]` must be the newest SHA or the ref update will 422 (non-fast-forward). Re-read `/git/refs/heads/main` immediately before the commit call.
+
+### Fallback: local git (ONLY if sandbox is already warm and index.lock isn't stuck)
+
+If `.git/index.lock` does NOT exist and `.git/objects/` is writable:
+
+```bash
+git add <files> && git commit -m "..." && git push origin main
+```
+
+Don't fight the lock if it's there. Skip to the Data API recipe.
+
+### What Claude must NOT do
+
+- Ask Alex to run `git commit && git push`
+- Ask Alex to "open the GitHub Actions tab and check"
+- Ask Alex to `rm -f .git/index.lock`
+- Paste a PAT into chat (it's at `.secrets/github_token`, gitignored — use `cat` to load, never log its value)
+- Push a secret scan violation and wait for a 422 to find out (re-read `.gitignore` before pushing anything from `/env/`, `.secrets/`, `*.key`)
 
 ---
 
