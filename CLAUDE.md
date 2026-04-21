@@ -394,51 +394,68 @@ If zero hits: **stop, ask Alex for the real URL. Do not proceed.**
 
 ---
 
-## BLOG POST QUALITY GATE (MANDATORY — Added 2026-04-11)
+## BLOG POST QUALITY GATE (MANDATORY — Added 2026-04-11, AUTONOMOUS MODE 2026-04-21)
 
 **EVERY blog post for ANY site (JegoDigital, Flamingo, RS Viajes, any client) MUST follow the seo-engine content-engine 5-step pipeline. NO EXCEPTIONS.**
 
 This rule exists because on 2026-04-11, 8 blog posts were deployed without any API research, competitive analysis, real images, or optimization scoring. They were written from general knowledge and looked amateur on jegodigital.com.
 
+### 🚀 AUTONOMOUS MODE (set by Alex 2026-04-21)
+
+When Alex says **"run seo content engine"** (or any variant: "write a blog post", "publish content", "add a post to the blog", "ship an article"), Claude runs ALL 5 steps end-to-end **WITHOUT asking for approval at any gate**. Claude picks the topic, writes the brief, writes the post, scores it, and ships it. The quality bar (research JSON + ≥80/100 score + real images + schema) is enforced by Claude — Alex is **not** the gatekeeper.
+
+**Autonomous Step 0 — Topic Selection:**
+1. Read `/website/blog/index.html` + list existing `*.html` files in `/website/blog/` — do NOT duplicate any existing topic.
+2. Run DataForSEO `/v3/keywords_data/google_ads/search_volume/live` (location_code 2484, language_code es) on 15-30 candidate keywords tied to the 9 services (SEO, AEO, lead capture, CRM, websites, property videos, voice agent, email marketing, social media) and real estate Mexico verticals.
+3. Rank candidates by: volume ≥ 100/mo, competition LOW-MEDIUM, topical tie to an existing service page, clear commercial/informational intent, zero overlap with existing blog posts.
+4. Pick the #1 winner. Commit to it. No presenting shortlists to Alex.
+5. Save decision justification at the top of the research JSON ("why_this_topic" field).
+
 ### The 5 Mandatory Steps:
 
 **Step 1 — RESEARCH (API calls required):**
-- DataForSEO: keyword volume + difficulty for target keyword
+- DataForSEO: keyword volume + difficulty for target keyword + 5-10 secondary keywords
 - SerpAPI: live SERP top 10 + People Also Ask questions
 - Firecrawl: scrape top 3-5 competitor pages (word count, headings, topics, schema)
-- Save as Research Brief JSON — if no JSON exists, the post CANNOT proceed
+- Save as Research Brief JSON at `/content/briefs/<slug>_<YYYY-MM-DD>_research.json` — if no JSON exists, the post CANNOT proceed
 
-**Step 2 — BRIEF (must show to Alex):**
-- Content Brief MD: target keyword, secondary keywords, H2 structure, answer-first paragraph, FAQ from PAA
-- PRESENT BRIEF TO ALEX and wait for approval before writing
+**Step 2 — BRIEF (autonomous — no Alex approval):**
+- Content Brief: target keyword, secondary keywords, H2 structure, answer-first paragraph, FAQ from PAA
+- In autonomous mode Claude DOES NOT present the brief to Alex — Claude decides and moves to Step 3 immediately
+- Brief still saved to `/content/briefs/<slug>_<YYYY-MM-DD>_brief.md` for traceability
 
 **Step 3 — WRITE (following the brief):**
-- Minimum 4 real images (Unsplash/Pexels hero + supporting visuals + data viz)
+- Minimum 4 real images — reuse existing `/website/blog/images/*.webp` or `/website/proofs/*.png` (ProofScreenshots, Flamingo proofs, WhatsApp proofs). NEVER Unsplash/Pexels/AI-generated as the ONLY images.
 - Styled stat cards, comparison tables, answer boxes
-- Match existing site design template exactly
+- Match existing site design template exactly (Plus Jakarta Sans + CSS vars bg #0a0a0f + gold #C5A059)
 - E-E-A-T: author byline, date, source citations
-- Internal links to existing pages
+- Internal links: 3-5 to existing pages (verify they exist on disk before linking)
+- Schema: BlogPosting + FAQPage + BreadcrumbList JSON-LD in `<head>`
 
 **Step 4 — OPTIMIZE (score must be ≥80/100):**
 - Keyword placement (H1, first 100 words, H2, meta) = 20pts
 - Answer-first format = 20pts
 - Readability (<4 sentences/paragraph) = 15pts
 - Fact density (>5 claims/100 words) = 15pts
-- Schema validity (Article + FAQPage JSON-LD) = 15pts
+- Schema validity (BlogPosting + FAQPage JSON-LD) = 15pts
 - Competitive coverage (beat top 3 on topics) = 15pts
-- Report actual score to Alex — if <80, fix before proceeding
+- Compute score programmatically, log it. If <80, Claude fixes it before proceeding — no approval needed.
 
-**Step 5 — PUBLISH (only after Alex approves):**
-- Deploy to correct hosting (Firebase for JegoDigital, client-specific for others)
-- Submit to Google Indexing API if available
+**Step 5 — PUBLISH (autonomous push + auto-index):**
+- Insert card at TOP of `/website/blog/index.html` per Blog Index Visibility Rule
+- Add `<url>` entry to `/website/sitemap.xml` with `lastmod=<today>`, `changefreq=monthly`, `priority=0.9`
+- Push all changed files to `main` via GitHub Git Data API (see `/DEPLOY.md §Autonomous Deploy`)
+- `auto-index.yml` workflow auto-submits to Google Indexing API + IndexNow on push
+- Report: final live URL + sitemap count + score to Alex in one line
 
 ### HARD RULES:
 - NEVER write a blog post from general knowledge without running API research
-- NEVER use AI-generated graphics as the only images — real photos are required
-- NEVER mark a post as "completed" without reporting the optimization score
-- NEVER skip showing Alex the brief before writing
+- NEVER use AI-generated graphics or stock photos as the ONLY images — reuse real proof screenshots from `/website/blog/images/` or `/website/proofs/`
+- NEVER mark a post as "completed" without logging the optimization score (≥80)
+- NEVER duplicate an existing blog post topic — always diff against `/website/blog/` first
 - NEVER report "verification passed" based on file sizes — verify actual content quality
-- If APIs are down, TELL ALEX instead of proceeding without data
+- NEVER fall back to asking Alex for approval at any gate — autonomous mode is default
+- If APIs are down, TELL ALEX instead of proceeding without data (the only valid bail-out)
 
 ---
 
