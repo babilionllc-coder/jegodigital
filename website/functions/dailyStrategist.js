@@ -3,7 +3,7 @@
  *
  * Runs every morning, pulls the live `instantlyAuditNow` payload,
  * runs the Lead Quality Audit Playbook programmatically, sends the
- * combined diagnostic to Claude via the Anthropic SDK, and then:
+ * combined diagnostic to Gemini 3.1 Flash Lite for analysis, and then:
  *
  *   1. Applies whitelisted "safe fixes" autonomously via Instantly API
  *      (delete fake-name leads, pause dead variants, patch fallback bugs,
@@ -22,7 +22,7 @@
  *
  * Env required:
  *   INSTANTLY_API_KEY           (to read audit + apply safe fixes)
- *   ANTHROPIC_API_KEY           (Claude strategist call)
+ *   GEMINI_API_KEY              (LLM strategist call — Gemini 3.1 Flash Lite Preview)
  *   SLACK_WEBHOOK_URL           (post to #all-jegodigital)
  *   SLACK_BOT_TOKEN             (optional — DM escalation to U0A6U6GLP27)
  *   CLOUD_FUNCTIONS_BASE_URL    (default: https://us-central1-jegodigital-e02fb.cloudfunctions.net)
@@ -34,8 +34,10 @@ const fs = require("fs");
 const path = require("path");
 
 const INSTANTLY_API = "https://api.instantly.ai/api/v2";
-const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
-const CLAUDE_MODEL = "claude-opus-4-6";
+// Gemini 3.1 Flash Lite Preview — same model the ElevenLabs cold-calling agent
+// uses (per CLAUDE.md). Cheaper than Claude for JSON-output strategist analysis.
+const GEMINI_MODEL = "gemini-3.1-flash-lite-preview";
+const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const SLACK_CHANNEL_ID = "C0A7USSJU72"; // #all-jegodigital
 const ALEX_SLACK_ID = "U0A6U6GLP27";
 
@@ -139,7 +141,7 @@ async function runLeadQualityAudit(activeCampaigns) {
 }
 
 // ============================================================
-// 2. STRATEGIST — call Claude with locked system prompt
+// 2. STRATEGIST — call Gemini 3.1 Flash Lite with locked system prompt
 // ============================================================
 
 function loadSystemPrompt() {
@@ -154,30 +156,36 @@ function loadSystemPrompt() {
 
 async function callStrategist(payload) {
     const system = loadSystemPrompt();
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY not set");
+
     const { data } = await axios.post(
-        ANTHROPIC_API,
+        `${GEMINI_API}?key=${apiKey}`,
         {
-            model: CLAUDE_MODEL,
-            max_tokens: 4096,
-            system,
-            messages: [
+            systemInstruction: { parts: [{ text: system }] },
+            contents: [
                 {
                     role: "user",
-                    content: `Here is today's audit payload. Return JSON per the schema in your system prompt.\n\n${JSON.stringify(payload, null, 2)}`,
+                    parts: [{
+                        text: `Here is today's audit payload. Return JSON per the schema in your system prompt.\n\n${JSON.stringify(payload, null, 2)}`,
+                    }],
                 },
             ],
+            generationConfig: {
+                responseMimeType: "application/json",
+                maxOutputTokens: 4096,
+                temperature: 0.3,
+            },
         },
         {
-            headers: {
-                "x-api-key": process.env.ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             timeout: 60000,
         },
     );
-    const raw = data.content?.[0]?.text || "{}";
-    // Extract JSON from response (strategist may wrap in ```json ... ```)
+
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    // With responseMimeType=application/json Gemini returns clean JSON, but
+    // keep the fence-stripping fallback for defensiveness.
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("Strategist returned no JSON");
     return JSON.parse(jsonMatch[0]);
@@ -319,7 +327,7 @@ function renderDigest(strategist, fixesApplied) {
     blocks.push({
         type: "context",
         elements: [
-            { type: "mrkdwn", text: `_Strategist · ${new Date().toISOString()} · ${CLAUDE_MODEL}_` },
+            { type: "mrkdwn", text: `_Strategist · ${new Date().toISOString()} · ${GEMINI_MODEL}_` },
         ],
     });
 

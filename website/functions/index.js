@@ -1781,6 +1781,26 @@ exports.sendCalendlyLink = functions.https.onRequest(async (req, res) => {
  *
  * No API keys exposed to the browser.
  */
+// Validate a website_url string: must contain a dot, look domain-ish, not be
+// a company-name blob. Returns { ok, normalized, reason }.
+function validateWebsiteUrl(raw) {
+    if (!raw || typeof raw !== "string") return { ok: false, reason: "missing" };
+    let s = raw.trim();
+    if (s.length < 4) return { ok: false, reason: "too_short" };
+    // Reject anything with spaces (e.g. "Inmobiliaria Flamingo") — domains don't have spaces
+    if (/\s/.test(s)) return { ok: false, reason: "has_spaces" };
+    // Must contain a dot
+    if (!s.includes(".")) return { ok: false, reason: "no_dot" };
+    // Strip protocol + trailing slash + path
+    s = s.replace(/^https?:\/\//i, "").replace(/^www\./i, "").split("/")[0].toLowerCase();
+    // Final sanity — must still have a dot + valid TLD-ish suffix (2-24 chars)
+    if (!/^[a-z0-9][a-z0-9-]*(\.[a-z0-9-]+)+\.[a-z]{2,24}$/i.test(s) &&
+        !/^[a-z0-9][a-z0-9-]*\.[a-z]{2,24}$/i.test(s)) {
+        return { ok: false, reason: "not_domain_format" };
+    }
+    return { ok: true, normalized: "https://" + s };
+}
+
 exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -1789,30 +1809,71 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
     if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
     try {
-        const { website_url, name, email, city } = req.body || {};
+        let { website_url, name, email, city, source, company } = req.body || {};
+        // Source can come from JSON body OR query string (?source=cold_call_elevenlabs).
+        // ElevenLabs cold-call agents don't include `source` in the tool schema,
+        // so we hardcode it on their endpoint URL via query param. Fixes the routing
+        // gap that was sending cold-call signups to web-form list 29 → triggering
+        // wrong-context Automation #8 ("Gracias por contactar").
+        if (!source && req.query?.source) source = req.query.source;
+        source = (source || "auditoria-gratis").toString().slice(0, 64);
 
         if (!website_url || !name || !email) {
             return res.status(400).json({ error: "Missing required fields: website_url, name, email" });
         }
 
-        const firstName = name.split(" ")[0];
-        const lastName = name.split(" ").slice(1).join(" ") || "";
+        // URL validation — reject obvious garbage so the ElevenLabs agent
+        // retries and asks the lead for the real URL instead of generating a
+        // broken audit report.
+        const v = validateWebsiteUrl(website_url);
+        if (!v.ok) {
+            functions.logger.warn(`❌ submitAuditRequest rejected: website_url="${website_url}" reason=${v.reason} source=${source}`);
+            // Best-effort Telegram alert — agent passed junk, we want Alex to see it
+            try {
+                const { notify } = require("./telegramHelper");
+                await notify(
+                    `🔴 *AUDIT REQUEST REJECTED* \n` +
+                    `Source: \`${source}\`\n` +
+                    `Name: ${name}\n` +
+                    `Email: ${email}\n` +
+                    `website_url (invalid): \`${website_url}\`\n` +
+                    `Reason: \`${v.reason}\`\n\n` +
+                    `_Agent probably passed company name instead of URL. Fix prompt or check agent reasoning._`,
+                    { critical: false }
+                );
+            } catch (e) { /* notify failures shouldn't break the API */ }
+            return res.status(400).json({
+                error: "Invalid website_url — must be a domain like 'realestateflamingo.com.mx'",
+                reason: v.reason
+            });
+        }
+        website_url = v.normalized;
 
-        // 1. Save to Firestore
+        const firstName = (name.split(" ")[0]) || "Hola";
+        const lastName = name.split(" ").slice(1).join(" ") || "";
+        const isColdCall = /cold_call|cold-call|elevenlabs/i.test(source);
+
+        // 1. Save to Firestore — processAuditRequest (onCreate trigger) handles the rest
         const db = admin.firestore();
         const docRef = await db.collection("audit_requests").add({
             website_url,
             name,
             email,
             city: city || "",
-            source: "auditoria-gratis",
+            company: company || "",
+            source,
             status: "pending",
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
-        functions.logger.info(`✅ Audit request saved: ${docRef.id} for ${website_url}`);
+        functions.logger.info(`✅ Audit request saved: ${docRef.id} for ${website_url} (source=${source})`);
 
-        // 2. Add to Brevo list 29 (triggers Automation #8)
+        // 2. Brevo contact add — route to DIFFERENT lists based on source so
+        //    web-form leads and cold-call leads don't get the same generic
+        //    "Gracias por contactar" email (which doesn't fit phone conversions).
+        //    Web form → list 29 (existing Automation #8 "Gracias por contactar" web-form nurture)
+        //    Cold call → list 34 "Cold Call - Audit Leads" (dedicated, avoids wrong-context email)
         const BREVO_KEY = process.env.BREVO_API_KEY;
+        const targetListId = isColdCall ? 34 : 29;
         if (BREVO_KEY) {
             try {
                 await axios.post("https://api.brevo.com/v3/contacts", {
@@ -1820,13 +1881,14 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
                     attributes: {
                         FIRSTNAME: firstName,
                         LASTNAME: lastName,
-                        LEAD_SOURCE: "website",
-                        CAMPAIGN_SOURCE: "auditoria_gratis",
+                        LEAD_SOURCE: isColdCall ? "cold_call" : "website",
+                        CAMPAIGN_SOURCE: source,
                         GEO_INTEREST: city || "",
-                        LEAD_TEMPERATURE: "Warm",
+                        COMPANY: company || "",
+                        LEAD_TEMPERATURE: isColdCall ? "Hot" : "Warm",
                         LANGUAGE_PREF: "es"
                     },
-                    listIds: [29],
+                    listIds: [targetListId],
                     updateEnabled: true
                 }, {
                     headers: {
@@ -1836,13 +1898,33 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
                     },
                     timeout: 8000
                 });
-                functions.logger.info(`✅ Brevo: ${email} added to list 29`);
+                functions.logger.info(`✅ Brevo: ${email} added to list ${targetListId} (${isColdCall ? "cold-call" : "web-form"})`);
             } catch (brevoErr) {
                 const e = brevoErr.response?.data || brevoErr.message;
                 functions.logger.warn("⚠️ Brevo add failed (lead still in Firestore):", e);
             }
         } else {
             functions.logger.warn("⚠️ BREVO_API_KEY not set — skipping Brevo add");
+        }
+
+        // 3. Telegram hot-lead alert — fire-and-forget, per-channel visibility
+        try {
+            const { notify } = require("./telegramHelper");
+            const emoji = isColdCall ? "🔥 *COLD CALL SIGNUP*" : "🟢 *WEB FORM SIGNUP*";
+            await notify(
+                `${emoji}\n` +
+                `Name: ${name}\n` +
+                (company ? `Company: ${company}\n` : "") +
+                `Email: ${email}\n` +
+                `Website: ${website_url}\n` +
+                (city ? `City: ${city}\n` : "") +
+                `Source: \`${source}\`\n` +
+                `Audit ID: \`${docRef.id}\`\n\n` +
+                `_Audit report emailing in ~45-60 min. Lead is in Brevo list ${targetListId}._`,
+                { critical: isColdCall } // cold-call conversions escalate via SMS if Telegram fails
+            );
+        } catch (e) {
+            functions.logger.warn("telegramHelper failed:", e.message);
         }
 
         return res.status(200).json({
@@ -1904,6 +1986,30 @@ exports.coldCallRun = coldCall.coldCallRun;
 exports.coldCallReport = coldCall.coldCallReport;
 exports.coldCallMidBatchCheck = coldCall.coldCallMidBatchCheck;
 exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;
+
+// ============================================================
+// COLD CALL SLACK REPORTS (added 2026-04-20)
+// 12:30 CDMX (after morning batch) and 18:30 CDMX (after afternoon batch)
+// Pulls conversations from ElevenLabs API for each of the 3 agents,
+// categorizes outcomes (voicemail/instant_hangup/engaged/positive),
+// counts audit_signups + calendly_bookings via tool_calls, posts a
+// JegoDigital-branded gold #C5A059 Slack Block Kit attachment.
+// Plus on-demand HTTP variant for manual debug.
+// ============================================================
+const coldCallSlack = require("./coldCallSlackReport");
+exports.coldCallSlackMorning = coldCallSlack.coldCallSlackMorning;
+exports.coldCallSlackAfternoon = coldCallSlack.coldCallSlackAfternoon;
+exports.coldCallSlackOnDemand = coldCallSlack.coldCallSlackOnDemand;
+
+// ============================================================
+// COLD CALL LIVE MONITOR (added 2026-04-20)
+// Every 3 min during 09:55-11:35 CDMX — polls ElevenLabs for
+// in-flight + just-finished conversations across all 3 agents,
+// flags instant hangups / tool_call failures / agent loops,
+// posts diagnostic alerts to Telegram with recommended fixes.
+// Lets Alex catch issues mid-batch instead of finding out next day.
+// ============================================================
+exports.coldCallLiveMonitor = require("./coldCallLiveMonitor").coldCallLiveMonitor;
 
 // ============================================================
 // AUTOPILOT REVIEWER (added 2026-04-20)
