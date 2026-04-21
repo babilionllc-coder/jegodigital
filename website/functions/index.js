@@ -1905,6 +1905,13 @@ exports.coldCallReport = coldCall.coldCallReport;
 exports.coldCallMidBatchCheck = coldCall.coldCallMidBatchCheck;
 exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;
 
+// Cold-call Slack post-batch reports + live mid-batch monitor (re-added 2026-04-21)
+const coldCallSlack = require("./coldCallSlackReport");
+exports.coldCallSlackMorning = coldCallSlack.coldCallSlackMorning;
+exports.coldCallSlackAfternoon = coldCallSlack.coldCallSlackAfternoon;
+exports.coldCallSlackOnDemand = coldCallSlack.coldCallSlackOnDemand;
+exports.coldCallLiveMonitor = require("./coldCallLiveMonitor").coldCallLiveMonitor;
+
 // ============================================================
 // AUTOPILOT REVIEWER (added 2026-04-20)
 // Sunday 20:00 CDMX — 7-day self-improvement pass.
