@@ -380,12 +380,14 @@ Autonomous dialer — 50 MX real estate agencies/day, Mon-Fri, 10:00 CDMX. Slack
 | ~~16:00~~ | ~~`coldCallRunAfternoon`~~ | 🚫 DISABLED 2026-04-21 | No-op stub. `AFTERNOON_BATCH_SIZE=0`. Re-enable by restoring `_coldCallRunAfternoonOriginal_disabled` body. |
 | ~~18:30~~ | ~~`coldCallSlackAfternoon`~~ | 🚫 DISABLED 2026-04-21 | No-op — nothing to report since morning-only cadence. Export retained to avoid Scheduler 404 deploy trap. |
 | 18:00 | `dailyRollupSlack` | Daily | End-of-day 5-source cost+performance digest (replaces afternoon cold-call coverage) |
+| **21:00** | **`eveningOpsReport`** | **Daily** | **Comprehensive 24h ops PDF → Slack + Telegram. Covers cold email (Instantly v2 per-campaign), Calendly bookings / cancels / no-shows, ManyChat WA+IG conversations, cold-call outcomes per A/B/C offer, free audit requests by source. Fires `aiAnalysisAgent` which auto-pauses bounce>5% campaigns, throttles <90% health accounts, escalates uncertain items as a second "🤖 AI Agent — Review Needed" Slack post. Every action logged to `ai_agent_actions/{YYYY-MM-DD}`. HARD RULE #11 compliant.** |
 
 **HTTPS endpoints:**
 - `coldCallSlackOnDemand` — manual fire: `?date=YYYY-MM-DD&window=morning|afternoon|all`
 - `voiceAgentCall` — one-off dial: `{ phone, name, offer, ... }`
 - `elevenLabsWebhook` — post-call ingest from ElevenLabs workspace webhook
 - `seedPhoneLeadsOnce` — one-shot seeder (protected by `X-Seed-Secret`)
+- `eveningOpsReportOnDemand` — manual fire of the 21:00 report: `?date=YYYY-MM-DD&skipAi=1` (skipAi suppresses auto-fixes for dry-run)
 
 ### 10.3 ElevenLabs setup — the 3 Sofia agents
 
@@ -759,6 +761,9 @@ gcloud scheduler jobs resume firebase-schedule-coldCallRun-us-central1 --locatio
 | `website/tools/audit_elevenlabs_calls.cjs` | Audit call history + zombie detection |
 | `website/functions/_dispatch_only.cjs` | Ad-hoc N-call test dispatcher (NOT in git — rebuild each session) |
 | `_phone_leads_seed_data.js` | Hardcoded DIAL_READY list |
+| `website/functions/eveningOpsReport.js` | 21:00 CDMX comprehensive 24h ops report (5 sources, branded PDF, Slack + TG) |
+| `website/functions/aiAnalysisAgent.js` | Gemini 2.0 Flash auto-fix + escalate agent — called by eveningOpsReport |
+| `website/mockup-renderer/server.js` (`/renderPdf`) | Playwright HTML→PDF endpoint used by eveningOpsReport |
 
 ### 10.10 Always-recommended next steps (ROI-ordered)
 

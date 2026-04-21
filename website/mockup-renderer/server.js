@@ -112,6 +112,74 @@ app.get("/health", healthHandler);
 app.get("/healthz", healthHandler);
 app.get("/", healthHandler);
 
+// ---- PDF rendering ----------------------------------------------------------
+// Used by eveningOpsReport + jegodigital-reporting skill to produce branded
+// client/internal PDFs from a single HTML string. Playwright's page.pdf() only
+// works in Chromium headless; --single-process makes this cheap (~2-3s per PDF)
+// once the shared browser is warm.
+app.post("/renderPdf", async (req, res) => {
+    const started = Date.now();
+    try {
+        const {
+            html,
+            format = "Letter",            // or "A4"
+            printBackground = true,       // dark-theme backgrounds must render
+            landscape = false,
+            margin = { top: "0.4in", bottom: "0.4in", left: "0.4in", right: "0.4in" },
+            waitMs = 800,
+        } = req.body || {};
+
+        if (!html || typeof html !== "string") {
+            return res.status(400).json({ error: "Missing 'html' string in body" });
+        }
+        if (html.length > 5 * 1024 * 1024) {
+            return res.status(413).json({ error: "HTML too large (>5MB)" });
+        }
+
+        await waitForSlot();
+
+        const browser = await getBrowser();
+        // PDF doesn't need a fixed viewport — page.pdf() uses the `format`.
+        const context = await browser.newContext({
+            userAgent:
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
+                "(KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+        });
+
+        let buffer;
+        try {
+            const page = await context.newPage();
+            await page.setContent(html, {
+                waitUntil: "networkidle",
+                timeout: 30000,
+            });
+            await page.waitForTimeout(waitMs);
+
+            buffer = await page.pdf({
+                format,
+                printBackground,
+                landscape,
+                margin,
+                preferCSSPageSize: false,
+            });
+        } finally {
+            await context.close().catch(() => {});
+            inflight = Math.max(0, inflight - 1);
+        }
+
+        res.set("Content-Type", "application/pdf");
+        res.set("X-Render-Time-Ms", String(Date.now() - started));
+        res.send(buffer);
+    } catch (err) {
+        inflight = Math.max(0, inflight - 1);
+        console.error("PDF render failed:", err);
+        res.status(500).json({
+            error: "pdf_render_failed",
+            message: err.message,
+        });
+    }
+});
+
 app.post("/render", async (req, res) => {
     const started = Date.now();
     try {

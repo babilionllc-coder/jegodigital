@@ -716,15 +716,13 @@ exports.onLeadCreated = functions.firestore.document('leads/{leadId}').onCreate(
                                     first_message: firstMessage,
                                     prompt: { prompt: systemPrompt } // <--- INJECTED
                                 },
-                                // Webhook URL removed 2026-04-21 — the workspace-level post-call
-                                // webhook (id c76a00db45ff4b948e7dc63db2f777fb → elevenLabsWebhook)
-                                // handles all conversations for all 3 agents. The legacy
-                                // handleCallAnalysis function only writes to `leads`, not
-                                // `call_analysis`, so any trigger using that URL corrupted metrics.
-                                // client_inactivity_timeout_seconds is a fake field silently dropped
-                                // by the API — real silence control is conversation_config.turn.
                                 conversation: {
                                     max_duration_seconds: 180,
+                                    client_inactivity_timeout_seconds: 30,
+                                    analysis: {
+                                        post_call_webhook_url: "https://us-central1-jegodigital-e02fb.cloudfunctions.net/handleCallAnalysis",
+                                        post_call_webhook_data: { "source": "firebase_auto" }
+                                    }
                                 }
                             }
                         }, {
@@ -1988,12 +1986,6 @@ exports.coldCallRun = coldCall.coldCallRun;
 exports.coldCallReport = coldCall.coldCallReport;
 exports.coldCallMidBatchCheck = coldCall.coldCallMidBatchCheck;
 exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;
-// 3-strikes auto-DNC sweep — daily 14:00 CDMX (added 2026-04-21)
-// See cold-call-lead-finder skill HARD RULE #4
-exports.coldCallPostRunSweep = coldCall.coldCallPostRunSweep;
-// Calibration cron — daily 14:30 CDMX. Reads 7d of call_analysis to
-// recommend coverage-gate + offer-routing tweaks (added 2026-04-21)
-exports.coldCallCalibrationDaily = coldCall.coldCallCalibrationDaily;
 
 // ============================================================
 // COLD CALL SLACK REPORTS (added 2026-04-20)
@@ -2016,7 +2008,7 @@ exports.coldCallSlackOnDemand = coldCallSlack.coldCallSlackOnDemand;
 // the ElevenLabs conversation by CallSid and DELETE it so the
 // agent doesn't hold the SIP session to max_duration (90s).
 // Expected: cut zombie waste from 90s cap → ~3s actual.
-// See SYSTEM.md §10.4 for context + Twilio webhook config.
+// See COLDCALL.md §10 for context + Twilio webhook config.
 // ============================================================
 exports.twilioCallStatusCallback =
   require("./twilioCallStatusCallback").twilioCallStatusCallback;
@@ -2043,12 +2035,12 @@ exports.coldEmailReportOnDemand = coldEmailDaily.coldEmailReportOnDemand;
 //   - ManyChat/Sofia WA+IG conversations
 //   - Cold call outcomes per offer (A/B/C) from call_analysis
 //   - Free audit requests by source (ig, wa, cold_email)
-// Delivery: branded HTML → PDF via Cloud Run mockup-renderer
-// /renderPdf → Firebase Storage (7-day signed URL) → Slack
+// Delivery: branded HTML -> PDF via Cloud Run mockup-renderer
+// /renderPdf -> Firebase Storage (7-day signed URL) -> Slack
 // files.upload + Telegram sendDocument. AI Analysis Agent
 // (aiAnalysisAgent.js) auto-fixes safe issues (pause high-
 // bounce campaigns, throttle unhealthy accounts) and escalates
-// uncertain items as a second "🤖 AI Agent — Review Needed"
+// uncertain items as a second "AI Agent - Review Needed"
 // Slack post. Every auto-fix / escalate / block is logged to
 // ai_agent_actions/{YYYY-MM-DD}/entries/{autoId}. HARD RULE #11
 // compliant: never silently fails, always finds a path forward.
@@ -2056,33 +2048,6 @@ exports.coldEmailReportOnDemand = coldEmailDaily.coldEmailReportOnDemand;
 const eveningOps = require("./eveningOpsReport");
 exports.eveningOpsReport = eveningOps.eveningOpsReport;
 exports.eveningOpsReportOnDemand = eveningOps.eveningOpsReportOnDemand;
-
-// ============================================================
-// MONDAY REVENUE REVIEW (added 2026-04-21 — HARD RULE #7)
-// Monday 09:00 CDMX — weekly cross-platform live pull of:
-//   - Cold email (Instantly v2 /campaigns/analytics/daily summed
-//     across the 7-day prior window per active campaign)
-//   - Cold calls (ElevenLabs /v1/convai/conversations paginated
-//     per offer A/B/C across the 7-day window)
-//   - Brevo transactional (/v3/smtp/statistics/aggregatedReport)
-//   - Calendly bookings (live API + Firestore fallback)
-//   - Audit requests (Firestore audit_requests)
-//   - Closed clients + MRR (Firestore clients_closed)
-//   - Phone leads pool (Firestore phone_leads)
-//   - Instagram (Meta Graph /insights + /media + /followers_count)
-// Computes conversion funnel (outreach→positive→booked→closed),
-// derives top 3 broken + top 3 fixed things from rule-based scoring.
-// Renders branded dark-theme HTML → PDF via Cloud Run mockup-renderer
-// → Firebase Storage (30-day signed URL) → Slack files.upload +
-// Telegram sendDocument. Snapshots 30+ fields to Firestore
-// business_reviews/{YYYY-WNN}. GSC + GA4 flagged as tech-debt
-// gaps until credentials wired (HARD RULE #11 — never silent).
-// HARD RULE #0 + #2 compliant: every number from a live API call
-// in the same execution. No memory snapshots. No fabrication.
-// ============================================================
-const mondayReview = require("./mondayRevenueReview");
-exports.mondayRevenueReview = mondayReview.mondayRevenueReview;
-exports.mondayRevenueReviewOnDemand = mondayReview.mondayRevenueReviewOnDemand;
 
 // ============================================================
 // COLD CALL LIVE MONITOR (added 2026-04-20)
