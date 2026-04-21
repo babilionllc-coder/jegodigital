@@ -11,8 +11,6 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "videos/**",
-      "!videos/*.webm",
       "website/tiktok vids/**",
       "tiktok vids/**",
       "website/tools/**",

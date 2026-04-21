@@ -98,9 +98,16 @@ jobs:
           import json, sys
           cfg = json.load(open('firebase.json'))
           ignore = cfg.get('hosting', {}).get('ignore', [])
+          # NB: hosting.public = "website", so patterns are relative to it.
+          # That means bare "videos/**" blocks website/videos/**. Same for
+          # the other asset folders. Keep both bare + prefixed forms here.
           bad = [r for r in ignore
-                 if r in ('website/videos/**', 'website/assets/video/**',
-                          'assets/video/**', 'website/img/showcase/**')]
+                 if r in ('videos/**', 'website/videos/**',
+                          'assets/video/**', 'website/assets/video/**',
+                          'assets/videos/**', 'website/assets/videos/**',
+                          'cf-videos/**', 'website/cf-videos/**',
+                          'img/showcase/**', 'website/img/showcase/**',
+                          '!videos/*.webm')]
           print('\n'.join(bad))
           PY
           )
