@@ -44,6 +44,44 @@ async function sendTelegram(text) {
     }
 }
 
+// ---- Twilio Lookup — pre-dial phone validation ----
+// On 2026-04-21, 8/30 calls had 0s duration (bad numbers) and burned dial budget.
+// Lookup v2 is FREE up to 5000/mo; we dial ~60/day = 1800/mo → no cost.
+// Returns { valid: true, type: "mobile"|"landline"|null } or { valid: false, reason }.
+// On Lookup API failure we default to { valid: true } — fail-open so outages don't zero the batch.
+async function twilioLookup(e164) {
+    const sid = process.env.TWILIO_ACCOUNT_SID;
+    const tok = process.env.TWILIO_AUTH_TOKEN;
+    if (!sid || !tok) {
+        functions.logger.warn("twilioLookup: TWILIO_ACCOUNT_SID/AUTH_TOKEN missing, skipping pre-dial check");
+        return { valid: true, reason: "no_creds" };
+    }
+    try {
+        const url = `https://lookups.twilio.com/v2/PhoneNumbers/${encodeURIComponent(e164)}?Fields=line_type_intelligence`;
+        const r = await axios.get(url, {
+            auth: { username: sid, password: tok },
+            timeout: 8000,
+            validateStatus: () => true,
+        });
+        if (r.status === 404) return { valid: false, reason: "number_not_found" };
+        if (r.status !== 200) {
+            functions.logger.warn(`twilioLookup ${e164}: HTTP ${r.status}, failing open`);
+            return { valid: true, reason: `lookup_http_${r.status}` };
+        }
+        const d = r.data || {};
+        const valid = d.valid === true;
+        const type = d.line_type_intelligence?.type || d.carrier?.type || null;
+        // Reject "voip" + "nonFixedVoip" — these are virtual numbers that usually go nowhere
+        if (valid && type && /voip/i.test(type)) {
+            return { valid: false, reason: `voip_line:${type}`, type };
+        }
+        return valid ? { valid: true, type } : { valid: false, reason: "twilio_invalid", type };
+    } catch (err) {
+        functions.logger.error(`twilioLookup ${e164} error:`, err.message);
+        return { valid: true, reason: "lookup_exception" }; // fail-open
+    }
+}
+
 // ---- Config ----
 const EL_API_KEY_FALLBACK = "335ed6b73e0b9281175a6b360eab9cbc0765bae4d55a9d8b95010d8642b8d673";
 const MX_PHONE_ID = "phnum_8801kp77en3ee56t0t291zyv40ne"; // +52 998 387 1618 (Sofia MX)
@@ -286,6 +324,20 @@ exports.coldCallRun = functions
             try {
                 const phoneToCall = lead.phone.startsWith("+") ? lead.phone : `+52${lead.phone}`;
                 const firstMessage = `Hola ${lead.name || ""}, soy Sofia de JegoDigital. ¿Tienes un momento?`;
+
+                // Pre-dial Twilio Lookup — skip known-bad numbers before burning ElevenLabs budget
+                const lookup = await twilioLookup(phoneToCall);
+                if (!lookup.valid) {
+                    await doc.ref.update({
+                        status: "invalid_phone",
+                        skipped_at: admin.firestore.FieldValue.serverTimestamp(),
+                        skip_reason: lookup.reason,
+                    });
+                    failed += 1;
+                    failures.push(`${lead.name || "(no name)"} — ${lookup.reason}`);
+                    functions.logger.info(`Skipped ${phoneToCall} — ${lookup.reason}`);
+                    continue;
+                }
 
                 const elRes = await axios.post(
                     "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
