@@ -11,8 +11,6 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "website/videos/**",
-      "!website/videos/*.webm",
       "videos/**",
       "!videos/*.webm",
       "website/tiktok vids/**",
@@ -20,9 +18,7 @@
       "website/tools/**",
       "tools/**",
       "website/functions/**",
-      "functions/**",
-      "website/assets/video/**",
-      "assets/video/**"
+      "functions/**"
     ],
     "cleanUrls": true,
     "trailingSlash": false,

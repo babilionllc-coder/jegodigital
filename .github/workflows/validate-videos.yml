@@ -1,0 +1,117 @@
+name: Validate video assets
+
+# Prevents the 2026-04-20 disaster from repeating.
+#
+# What broke: a nuclear `*.mp4 / *.mov / *.webm` .gitignore rule was added
+# to bypass GitHub's 100MB push-reject. That silently stripped every video
+# from the repo, so Firebase Hosting served 404s for every <video> on
+# jegodigital.com.
+#
+# What this workflow does:
+#   1. Greps every website/**/*.html for <video>/<source> src/data-src refs.
+#   2. Verifies each referenced file actually exists on disk.
+#   3. Verifies the file is NOT ignored by .gitignore or firebase.json.
+#   4. Verifies every .mp4/.mov/.webm under website/ is < 95MB
+#      (GitHub's hard push limit is 100MB).
+# Build fails if any check fails — so a bad push never reaches production.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check video refs resolve to real files
+        run: |
+          set -euo pipefail
+
+          echo "=== Scanning website/**/*.html for <video>/<source> refs ==="
+          refs=$(grep -rhoE '(src|data-src|poster)="[^"]*\.(mp4|MP4|mov|MOV|webm)"' \
+                 website/ --include='*.html' \
+                 | sed -E 's/.*="([^"]+)".*/\1/' \
+                 | sort -u)
+
+          if [ -z "$refs" ]; then
+            echo "No video refs found."
+            exit 0
+          fi
+
+          missing=0
+          while IFS= read -r ref; do
+            # Normalise leading slash → relative to website/
+            path="website/${ref#/}"
+            # If ref is already relative (no leading slash), it's website/<ref>
+            [[ "$ref" == /* ]] || path="website/${ref}"
+
+            if [ ! -f "$path" ]; then
+              echo "MISSING: $ref  (expected at $path)"
+              missing=$((missing + 1))
+            fi
+          done <<< "$refs"
+
+          if [ "$missing" -gt 0 ]; then
+            echo ""
+            echo "ERROR: $missing video reference(s) point to files not in the repo."
+            echo "Either add the file, update the HTML ref, or host the video externally"
+            echo "and rewrite the ref to a Storage/CDN URL."
+            exit 1
+          fi
+
+          echo "OK: every video ref resolves."
+
+      - name: Check no video exceeds GitHub's 100MB push limit
+        run: |
+          set -euo pipefail
+
+          echo "=== Scanning website/ for oversized media ==="
+          over=$(find website/ \
+                   \( -name '*.mp4' -o -name '*.MP4' \
+                      -o -name '*.mov' -o -name '*.MOV' \
+                      -o -name '*.webm' \) \
+                   -size +95M -print || true)
+
+          if [ -n "$over" ]; then
+            echo "ERROR: files above 95MB — GitHub rejects anything >100MB."
+            echo "Compress with ffmpeg or host externally:"
+            echo "$over"
+            exit 1
+          fi
+
+          echo "OK: every video is under the 95MB threshold."
+
+      - name: Check firebase.json doesn't re-ignore video folders
+        run: |
+          set -euo pipefail
+
+          echo "=== Scanning firebase.json hosting.ignore ==="
+          # The 2026-04-20 issue was that `website/videos/**` and
+          # `website/assets/video/**` were ignored by Firebase Hosting even
+          # though the files shipped in git. Guard against that being
+          # re-added by mistake.
+          forbidden=$(python3 - <<'PY'
+          import json, sys
+          cfg = json.load(open('firebase.json'))
+          ignore = cfg.get('hosting', {}).get('ignore', [])
+          bad = [r for r in ignore
+                 if r in ('website/videos/**', 'website/assets/video/**',
+                          'assets/video/**', 'website/img/showcase/**')]
+          print('\n'.join(bad))
+          PY
+          )
+
+          if [ -n "$forbidden" ]; then
+            echo "ERROR: firebase.json hosting.ignore contains rules that"
+            echo "would block videos from deploying:"
+            echo "$forbidden"
+            echo ""
+            echo "See .github/workflows/validate-videos.yml header for context."
+            exit 1
+          fi
+
+          echo "OK: firebase.json does not block video folders."

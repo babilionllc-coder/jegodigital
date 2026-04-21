@@ -569,33 +569,17 @@
                     <div class="w-full lg:w-1/3">
                         <div
                             class="relative w-full aspect-[9/16] rounded-[2rem] p-[2px] bg-gradient-to-b from-[#C5A059]/50 to-transparent overflow-hidden shadow-[0_0_50px_rgba(197,160,89,0.2)]">
-                            <video id="video-goza" class="lazy-video w-full h-full object-cover rounded-[1.8rem]"
-                                autoplay loop muted playsinline>
-                                <source data-src="img/showcase/goza/out_goza_showcase_final_gold.mp4" type="video/mp4">
-                            </video>
-
-                            <!-- Unmute Toggle Overlay -->
-                            <div class="absolute bottom-6 left-6 z-20"> <!-- Left aligned for reverse layout -->
-                                <button
-                                    onclick="const v=document.getElementById('video-goza'); v.muted=!v.muted; this.innerHTML = v.muted ? '<i data-lucide=\'volume-x\' class=\'text-white w-5 h-5\'></i>' : '<i data-lucide=\'volume-2\' class=\'text-white w-5 h-5\'></i>'; lucide.createIcons();"
-                                    class="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur text-white hover:bg-[#C5A059] transition-colors shadow-2xl border border-white/20 hover:scale-110">
-                                    <i data-lucide="volume-x" class="text-white w-5 h-5"></i>
-                                </button>
-                            </div>
+                            <!-- Goza has no cinematic video yet — showing the premium-website hero screenshot instead -->
+                            <img src="img/showcase/goza/gozapremiumwebsite.png"
+                                alt="Goza Real Estate premium website"
+                                class="w-full h-full object-cover object-top rounded-[1.8rem]"
+                                loading="lazy">
                         </div>
                     </div>
                     <div class="w-full lg:w-2/3">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                             <h2 class="text-3xl md:text-4xl font-bold text-white">Goza <span class="text-[#C5A059]">Real
                                     Estate</span></h2>
-                            <!-- Language Toggle -->
-                            <div
-                                class="flex items-center bg-black/40 border border-white/10 rounded-full p-1 self-start md:self-auto">
-                                <button onclick="switchVideo('goza', 'en')" id="btn-goza-en"
-                                    class="px-4 py-1.5 rounded-full text-sm font-bold bg-[#C5A059] text-black transition-all">English</button>
-                                <button onclick="switchVideo('goza', 'es')" id="btn-goza-es"
-                                    class="px-4 py-1.5 rounded-full text-sm font-bold text-white/50 hover:text-white transition-all">Español</button>
-                            </div>
                         </div>
                         <p class="text-brand-gray mb-4">Focusing on high-end property tracking and management, Goza's
                             ecosystem features seamless listing integrations, cinematic branding, and property
@@ -2046,26 +2030,25 @@
             }
         });
 
+        // NOTE: Several Spanish showcase videos haven't been rendered yet.
+        // Fall back to the English version so the player doesn't 404. Swap in
+        // the real ES file once it's dropped into the matching folder.
         const videoSources = {
             flamingo: {
                 en: "img/showcase/flamingo/out_flamingo_showcaseenglish.mp4",
-                es: "img/showcase/flamingo/out_flamingo_showcase_es.mp4"
-            },
-            goza: {
-                en: "img/showcase/goza/out_goza_showcase_final_gold.mp4",
-                es: "img/showcase/goza/out_goza_showcase_es.mp4"
+                es: "img/showcase/flamingo/out_flamingo_showcaseenglish.mp4"
             },
             goodlife: {
                 en: "img/showcase/goodlife/goodlifeshowcaseenglish.mp4",
-                es: "img/showcase/goodlife/goodlifeshowcasespanish.mp4"
+                es: "img/showcase/goodlife/goodlifeshowcaseenglish.mp4"
             },
             solik: {
                 en: "img/showcase/solik/SolikShowcaseenglish.mp4",
-                es: "img/showcase/solik/SolikShowcaseES.mp4"
+                es: "img/showcase/solik/SolikShowcaseenglish.mp4"
             },
             piedra: {
                 en: "img/showcase/piedra/PiedraDeMarPromo_EN.mp4",
-                es: "img/showcase/piedra/PiedraDeMarPromo_ES.mp4"
+                es: "img/showcase/piedra/PiedraDeMarPromo_EN.mp4"
             }
         };
 

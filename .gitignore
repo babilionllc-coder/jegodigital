@@ -14,40 +14,31 @@ env.txt
 jegodigital-e02fb-*.json
 .secrets/
 
-# Large media — NEVER commit. GitHub hard-rejects anything >100MB
-# (Solik showcase 147MB killed a push on 2026-04-20). Videos must be hosted
-# on Firebase Storage / Cloud CDN, not in the git tree.
-# Directory wildcards ignore only the VIDEO/AUDIO extensions — small poster
-# jpgs and thumbnails stay tracked so HTML video player posters don't 404.
-website/cf-videos/*.mp4
-website/cf-videos/*.mov
-website/cf-videos/*.webm
-website/cf-videos/*.MP4
-website/cf-videos/*.MOV
-website/videos/**/*.mp4
-website/videos/**/*.mov
-website/videos/**/*.webm
-website/videos/**/*.MP4
-website/videos/**/*.MOV
-website/videos/**/*.mp3
-website/videos/**/*.gif
-website/assets/video/**/*.mp4
-website/assets/video/**/*.mov
-website/assets/video/**/*.MP4
-website/assets/videos/**/*.mp4
-website/assets/videos/**/*.mov
-website/assets/videos/**/*.MP4
-website/assets/videos/**/*.MOV
-website/img/showcase/**/*.mp4
-website/img/showcase/**/*.mov
-website/img/showcase/**/*.webm
-website/img/showcase/**/*.MP4
-*.mp4
-*.mov
-*.webm
-*.MP4
-*.MOV
-*.WEBM
+# --- Video strategy (rewritten 2026-04-21 after homepage videos went dark) ---
+#
+# Background: On 2026-04-20 a nuclear `*.mp4 / *.mov / *.webm` rule was added
+# after GitHub rejected the 147MB Solik push. That rule stripped EVERY video
+# from the repo — GitHub Actions deploys from git, so Firebase Hosting
+# immediately served 404s for every <video> on jegodigital.com.
+#
+# Fix: ignore by SIZE, not by extension. Videos under GitHub's 100MB file cap
+# live in git and ship to Firebase Hosting via the deploy pipeline. Anything
+# larger is blocked per-file by name AND pre-push hook
+# (scripts/check-large-files.sh, flags any >90MB blob in `git diff --cached`).
+#
+# The top-level /videos/ folder is a Remotion dev project with node_modules —
+# never ship its raw sources; finished renders are copied into website/videos/.
+
+# Remotion dev project at repo root (source + node_modules + intermediate renders)
+/videos/
+!videos/*.webm
+!videos/*.mov
+
+# Specific per-file excludes for anything that has exceeded the 90MB threshold.
+# Add new lines here when a new master render tops the limit; do NOT go back
+# to extension wildcards. Each entry is a conscious "host this elsewhere"
+# decision — not a blanket ban.
+# (currently: all referenced assets fit under the limit, nothing excluded)
 
 .secrets/
 

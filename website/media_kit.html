@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière Media Kit & Live Previews</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Glass Effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Pure CSS iPhone 15 Pro Frame */
+        .iphone-frame {
+            width: 300px;
+            /* Scaled down 300/393 = 0.76 */
+            height: 610px;
+            /* Scaled down 610/852 = 0.71 */
+            background: #1a1a1a;
+            border-radius: 45px;
+            padding: 12px;
+            box-shadow:
+                0 0 0 2px #3a3a3a,
+                0 0 0 4px #1a1a1a,
+                0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            margin: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .iphone-frame:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 0 0 2px #d4af37,
+                /* Gold shimmer on hover */
+                0 0 0 4px #1a1a1a,
+                0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Dynamic Island */
+        .dynamic-island {
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 24px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 20;
+        }
+
+        /* Screen Area */
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 35px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Iframe Scaling */
+        /* To make a 390px content fit into a 276px container (300px - 24px padding) */
+        /* Scale factor: 276 / 390 = 0.707 */
+        .iphone-iframe {
+            width: 390px;
+            /* Standard Mobile Width */
+            height: 844px;
+            /* Standard Mobile Height */
+            border: none;
+            transform: scale(0.707);
+            transform-origin: 0 0;
+            background: #f0f0f0;
+        }
+
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f1115;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0f1115] text-white min-h-screen">
+
+    <!-- Nav -->
+    <nav
+        class="fixed w-full z-50 transition-all duration-300 bg-[#0f1115]/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="lumiere.html" class="flex items-center space-x-2">
+                    <span
+                        class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-amber-500">Lumière</span>
+                    <span class="text-white/60 text-sm tracking-widest font-light ml-2">MEDIA KIT</span>
+                </a>
+                <a href="lumiere.html"
+                    class="px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 transition-colors text-sm">
+                    Back to Demo
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="pt-32 pb-12 text-center px-4">
+        <h1 class="text-4xl md:text-5xl font-serif text-white mb-4">Lumière Media Kit</h1>
+        <p class="text-white/60 text-lg max-w-2xl mx-auto">
+            Professional assets for your sales presentations, pitch decks, and client proposals.
+        </p>
+    </div>
+
+    <!-- Section 1: Desktop Assets (Downloadable Images) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+        <div class="flex items-center space-x-4 mb-8">
+            <h2 class="text-3xl font-serif text-white">Desktop Assets</h2>
+            <div class="h-px bg-white/10 flex-grow"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Jewelry -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/thumb_jewelry.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/thumb_jewelry.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    La
+                    Isla Maison</div>
+            </div>
+            <!-- Real Estate -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/thumb_realestate.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/thumb_realestate.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Lumière Estates</div>
+            </div>
+            <!-- MedSpa -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/thumb_medspa.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/thumb_medspa.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Aura
+                    MedSpa</div>
+            </div>
+            <!-- Auto -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/thumb_auto.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/thumb_auto.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Velocity Motors</div>
+            </div>
+            <!-- Hotel -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/thumb_hotel.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/thumb_hotel.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    The
+                    Grand Onyx</div>
+            </div>
+
+            <!-- Yacht -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_yacht.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_yacht.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Azure Charters</div>
+            </div>
+
+            <!-- Wedding -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_wedding.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_wedding.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Eternal Vows</div>
+            </div>
+
+            <!-- Nightlife -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_nightlife.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_nightlife.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Nocturne VIP</div>
+            </div>
+
+            <!-- Dental -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_dental.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_dental.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Smile Riviera</div>
+            </div>
+
+            <!-- Eco -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_ecotourism.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_ecotourism.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Maya Adventures</div>
+            </div>
+
+            <!-- Restaurant -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_restaurant.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_restaurant.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Savoria</div>
+            </div>
+
+            <!-- Spa -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_spa.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_spa.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    Serenity Haven</div>
+            </div>
+
+            <!-- Barber -->
+            <div class="group relative rounded-xl overflow-hidden border border-white/10">
+                <img src="images/demos/mockup_barber.png"
+                    class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                <div
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                    <a href="images/demos/mockup_barber.png" download
+                        class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-gray-200">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </a>
+                </div>
+                <div class="absolute bottom-4 left-4 text-xs font-mono text-white/50 bg-black/50 px-2 py-1 rounded">
+                    The Gentry</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Mobile Interactive -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div class="flex items-center space-x-4 mb-8">
+            <h2 class="text-3xl font-serif text-white">Mobile Interactions (Live)</h2>
+            <div class="h-px bg-white/10 flex-grow"></div>
+        </div>
+        <p class="text-white/60 mb-12">
+            Interactive iPhone 15 Pro simulators running direct live code.
+            <br>Screenshot this section to create your own "Mobile App Suite" visuals.
+        </p>
+    </div>
+
+    <!-- Gallery Grid (Mobile) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 justify-center">
+
+            <!-- 1. Jewelry -->
+            <div class="flex flex-col items-center space-y-6">
+                <!-- iPhone Frame -->
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_jewelry.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <!-- Brand Card -->
+                        <div
+                            class="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4 ring-1 ring-amber-500/50">
+                            <i class="fas fa-gem text-amber-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-amber-200 text-xl mb-1">La Isla</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">High Jewelry</p>
+
+                        <!-- CTA -->
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Real Estate -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_realestate.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-[#C5A059]/20 flex items-center justify-center mb-4 ring-1 ring-blue-500/50">
+                            <i class="fas fa-building text-[#C5A059] text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-blue-200 text-xl mb-1">Lumière Estates</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Real Estate</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. MedSpa -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_medspa.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-teal-500/20 flex items-center justify-center mb-4 ring-1 ring-teal-500/50">
+                            <i class="fas fa-spa text-teal-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-teal-200 text-xl mb-1">Aura MedSpa</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Wellness</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Automotive -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_auto.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-4 ring-1 ring-red-500/50">
+                            <i class="fas fa-car text-red-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-red-200 text-xl mb-1">Velocity Motors</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Supercars</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Hotel -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_hotel.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4 ring-1 ring-amber-500/50">
+                            <i class="fas fa-hotel text-amber-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-amber-200 text-xl mb-1">The Grand Onyx</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Hospitality</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Yacht -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_yacht.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-cyan-500/20 flex items-center justify-center mb-4 ring-1 ring-cyan-500/50">
+                            <i class="fas fa-ship text-cyan-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-cyan-200 text-xl mb-1">Azure Charters</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Luxury Travel
+                        </p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Wedding -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_wedding.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center mb-4 ring-1 ring-rose-500/50">
+                            <i class="fas fa-heart text-rose-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-rose-200 text-xl mb-1">Eternal Vows</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Events</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Nightlife -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_nightlife.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4 ring-1 ring-purple-500/50">
+                            <i class="fas fa-martini-glass-citrus text-purple-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-purple-200 text-xl mb-1">Nocturne VIP</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Nightlife</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. Dental -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_dental.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-sky-500/20 flex items-center justify-center mb-4 ring-1 ring-sky-500/50">
+                            <i class="fas fa-tooth text-sky-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-sky-200 text-xl mb-1">Smile Riviera</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Medical</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Eco -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_ecotourism.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 ring-1 ring-emerald-500/50">
+                            <i class="fas fa-leaf text-emerald-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-emerald-200 text-xl mb-1">Maya Adventures</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Eco-Tourism</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11. Restaurant -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_restaurant.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center mb-4 ring-1 ring-rose-500/50">
+                            <i class="fas fa-utensils text-rose-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-rose-200 text-xl mb-1">Savoria</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Fine Dining</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 12. Spa -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_spa.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4 ring-1 ring-purple-500/50">
+                            <i class="fas fa-spa text-purple-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-purple-200 text-xl mb-1">Serenity Haven</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Luxury Spa</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13. Barber -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="iphone-frame group cursor-pointer transition-transform hover:-translate-y-2"
+                    onclick="window.open('demo_barber.html', '_blank')">
+                    <div class="dynamic-island"></div>
+                    <div
+                        class="iphone-screen relative bg-[#0f1115] flex flex-col items-center justify-center text-center p-6">
+                        <div
+                            class="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mb-4 ring-1 ring-orange-500/50">
+                            <i class="fas fa-cut text-orange-500 text-2xl"></i>
+                        </div>
+                        <h4 class="font-serif text-orange-200 text-xl mb-1">The Gentry</h4>
+                        <p class="text-white/40 text-xs uppercase tracking-widest mb-6">Barbershop</p>
+                        <div class="px-4 py-2 bg-white/10 rounded-full text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-play mr-2"></i> Launch Demo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- White Label Reseller Section (New) -->
+    <section id="reseller" class="py-24 relative overflow-hidden bg-[#0f1115] border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <span
+                    class="inline-block py-1 px-3 rounded-full bg-indigo-500/10 border border-[#C5A059]/30 text-[#C5A059] text-xs font-bold tracking-widest uppercase mb-4">
+                    Partner Program
+                </span>
+                <h2 class="text-4xl md:text-5xl font-serif text-white mb-6">
+                    White Label Website <span class="itallic font-light text-slate-400">Reselling</span>
+                </h2>
+                <p class="text-xl text-slate-400 max-w-2xl mx-auto">
+                    Sell these 13 premium industry websites to your clients under your own brand.
+                    We build, you sell.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fas fa-box-open text-6xl text-[#C5A059]"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Turnkey Assets</h3>
+                    <p class="text-slate-400 mb-6">Get full access to all 13 HTML/Tailwind templates. customizable and
+                        ready to deploy.</p>
+                    <ul class="space-y-3 mb-8 text-sm text-slate-300">
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> All 13 Industry
+                            Demos</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Source Code
+                            Included</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Figma Files
+                            (Optional)</li>
+                    </ul>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group border-[#C5A059]/30">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-xl opacity-0 group-hover:opacity-100 transition duration-700">
+                    </div>
+                    <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fas fa-project-diagram text-6xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 relative z-10">Client Dashboard</h3>
+                    <p class="text-slate-400 mb-6 relative z-10">Brand the client portal with your agency logo. Give
+                        clients real-time analytics.</p>
+                    <ul class="space-y-3 mb-8 text-sm text-slate-300 relative z-10">
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Whitelabel
+                            Dashboard</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Client Login
+                            Portal</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Monthly Reports
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition">
+                        <i class="fas fa-hand-holding-usd text-6xl text-emerald-400"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">High Margins</h3>
+                    <p class="text-slate-400 mb-6">Sell for $3k-$10k, pay us a fraction per deployment. Scalable
+                        revenue.</p>
+                    <ul class="space-y-3 mb-8 text-sm text-slate-300">
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Wholesale Pricing
+                        </li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Priority Support
+                        </li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2"></i> Fast Delivery
+                            (48h)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <a href="https://wa.me/529982023263?text=I%20am%20interested%20in%20the%20Reseller%20Program"
+                    target="_blank"
+                    class="inline-flex items-center px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-slate-200 transition transform hover:-translate-y-1">
+                    Apply for Partner Program
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/5 bg-black">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500">© 2024 JegoDigital. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>
