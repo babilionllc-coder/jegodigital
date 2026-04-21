@@ -1994,8 +1994,21 @@ exports.seedPhoneLeadsOnce = require("./seedPhoneLeadsOnce").seedPhoneLeadsOnce;
 // ============================================================
 exports.dailyRollupSlack = require("./dailyRollupSlack").dailyRollupSlack;
 
+// ============================================================
 // envAudit — 06:00 UTC daily key-integrity check. Runs 1 hour
 // before dailyDigest. Reads REQUIRED_KEYS list from envAudit.js
+// (mirror of /ACCESS.md), checks every production key is
+// present + live-pingable. Posts green check or red alert to
+// Slack. This is the contract that prevents silent missing-key
+// bugs like the Apr 2026 dailyDigest zeros. Also exports
 // envAuditNow HTTPS endpoint for manual verify.
+// ============================================================
 exports.envAudit = require("./envAudit").envAudit;
 exports.envAuditNow = require("./envAudit").envAuditNow;
+
+// ============================================================
+// instantlyAuditNow — on-demand audit of Instantly campaigns,
+// daily analytics, and account health. HTTPS only, not cron.
+// Diagnostic endpoint for quick performance check.
+// ============================================================
+exports.instantlyAuditNow = require("./instantlyAudit").instantlyAuditNow;

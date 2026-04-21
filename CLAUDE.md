@@ -1,8 +1,19 @@
 # JegoDigital — Master Project Instructions
-**Last updated:** April 18, 2026 | **Maintained by:** Claude AI + Alex Jego
+**Last updated:** April 20, 2026 | **Maintained by:** Claude AI + Alex Jego
 
 > This is the single source of truth for all Claude sessions working on JegoDigital.
 > Read this file completely before starting any task.
+
+---
+
+## 🧭 SESSION BOOTSTRAP — read these 4 files in order, every new session
+
+1. **`/CLAUDE.md`** (this file) — behavior rules, business context, workflows, services
+2. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture
+3. **`/ACCESS.md`** — credential registry. **All 37 GitHub Secrets** with what they do, where they live, and which ones reach production. If you need a key, look here FIRST.
+4. **`/DEPLOY.md`** — deploy procedures. Hard rule: nothing deploys manually, ever.
+
+If something is missing from these 4 files, it's missing from our system. Don't guess — read.
 
 ---
 
@@ -420,15 +431,17 @@ This rule exists because on 2026-04-11, 8 blog posts were deployed without any A
 
 **IG Business User ID:** `17841424426942739` | **Graph API:** v22.0 | **Account:** @jegodigital
 
-### Access Token (long-lived, embedded for instant use)
-```
-EAAQdn3Rd3T0BRNX1ZBVkyzACZChW3Bffm09VIEZBDjWOtosJ5S6Ou3vBkdXGv5Lak9Jn0TM225GCwUPsGfXeqMtzLrOS6hRvGAC0w5VgeygfkrewgNYddVZBb0kh6wdR3dtsP7URUcWyhNLVBU9ESoD8Ty6sjKLM2ced3YSZARiZAmf5DDnmNDxSBGNPcDIOZBL
-```
-Backup at `/sessions/epic-gracious-bohr/mnt/.auto-memory/meta_tokens.md`. Verify before publishing:
+### Access Token (long-lived)
+
+Stored as `IG_GRAPH_TOKEN` in **GitHub Secrets** (see `/ACCESS.md` row 25) and injected into Cloud Functions runtime via `deploy.yml`. Local dev reads it from `website/functions/.env` (auto-generated on each deploy). For one-off CLI use:
+
 ```bash
+export TOKEN=$(grep IG_GRAPH_TOKEN website/functions/.env | cut -d= -f2)
 curl -s "https://graph.facebook.com/v22.0/17841424426942739?fields=username&access_token=$TOKEN"
 # expect: {"username":"jegodigital",...}
 ```
+
+If `website/functions/.env` doesn't exist locally, recover via the GH Actions deploy (see `/ACCESS.md` "EMERGENCY — I LOST MY LOCAL .env" section).
 
 ### NEVER attempt these (all confirmed dead ends 2026-04-07):
 1. n8n public API — free trial blocks it (`/settings/api` says "Upgrade to use API")

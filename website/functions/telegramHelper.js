@@ -7,7 +7,7 @@
  *
  *   1. Primary: Telegram Markdown → plain-text fallback → same handling as before.
  *   2. Secondary: if Telegram fails AND the alert is marked critical=true,
- *      fire a Twilio SMS to Alex's personal number (+52 998 202 3263).
+ *      fire a Twilio SMS to Alex's personal number (+52 998 787 5321).
  *
  * Existing modules keep their own sendTelegram() for now (non-breaking). New
  * critical-path crons should import this.
@@ -15,14 +15,14 @@
  * Env vars:
  *   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID       — primary channel
  *   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN,
- *   TWILIO_SMS_FROM, ALEX_PERSONAL_PHONE       — SMS fallback
+ *   TWILIO_FROM, ALEX_PERSONAL_PHONE           — SMS fallback
  */
 const functions = require("firebase-functions");
 const axios = require("axios");
 
 const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
 const TG_CHAT_FALLBACK = "6637626501";
-const ALEX_PERSONAL_FALLBACK = "+525519897005"; // fallback, prefer env var
+const ALEX_PERSONAL_FALLBACK = "+529987875321"; // Alex WA, fallback; prefer ALEX_PERSONAL_PHONE env var
 
 async function sendTelegramRaw(token, chatId, text, markdown = true) {
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
@@ -35,7 +35,7 @@ async function sendTelegramRaw(token, chatId, text, markdown = true) {
 async function sendSMSFallback(body) {
     const sid = process.env.TWILIO_ACCOUNT_SID;
     const tok = process.env.TWILIO_AUTH_TOKEN;
-    const from = process.env.TWILIO_SMS_FROM;
+    const from = process.env.TWILIO_FROM;
     const to = process.env.ALEX_PERSONAL_PHONE || ALEX_PERSONAL_FALLBACK;
 
     if (!sid || !tok || !from) {
