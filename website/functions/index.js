@@ -1993,3 +1993,9 @@ exports.seedPhoneLeadsOnce = require("./seedPhoneLeadsOnce").seedPhoneLeadsOnce;
 // is not configured. Snapshots to daily_rollups/{YYYY-MM-DD}.
 // ============================================================
 exports.dailyRollupSlack = require("./dailyRollupSlack").dailyRollupSlack;
+
+// envAudit — 06:00 UTC daily key-integrity check. Runs 1 hour
+// before dailyDigest. Reads REQUIRED_KEYS list from envAudit.js
+// envAuditNow HTTPS endpoint for manual verify.
+exports.envAudit = require("./envAudit").envAudit;
+exports.envAuditNow = require("./envAudit").envAuditNow;
