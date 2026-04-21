@@ -85,11 +85,12 @@ async function pingElevenLabs(key) {
     } catch (e) { return false; }
 }
 async function pingSlack(url) {
-    // Slack doesn't have a GET ping — a HEAD returns 200 on valid webhook URLs
+    // Slack's incoming-webhook host rejects HEAD/GET with various codes depending on region
+    // (observed: 200, 302, 400, 405). Any of those proves the URL is reachable at the right host.
+    // The only true failures are: DNS/network error (caught below) or a 404 (dead webhook URL).
     try {
         const r = await axios.head(url, { timeout: 5000, validateStatus: () => true });
-        // Slack returns 405 on HEAD for valid webhooks (only POST allowed) — that still proves the URL exists
-        return r.status === 200 || r.status === 405;
+        return r.status !== 404 && r.status < 500;
     } catch (e) { return false; }
 }
 
