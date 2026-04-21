@@ -2097,6 +2097,27 @@ exports.instantlyReplyWatcher = require("./instantlyReplyWatcher").instantlyRepl
 exports.callTranscriptReviewer = require("./callTranscriptReviewer").callTranscriptReviewer;
 
 // ============================================================
+// MONDAY REVENUE REVIEW (added 2026-04-21 — HARD RULE #7)
+// Monday 09:00 CDMX — weekly cross-platform live pull of:
+//   - Cold email (Instantly v2 /campaigns/analytics/daily summed 7d)
+//   - Cold calls (ElevenLabs /v1/convai/conversations paginated A/B/C)
+//   - Brevo transactional (/v3/smtp/statistics/aggregatedReport)
+//   - Calendly bookings (live API + Firestore fallback)
+//   - Audit requests (Firestore audit_requests)
+//   - Closed clients + MRR (Firestore clients_closed)
+//   - Phone leads pool (Firestore phone_leads)
+//   - Instagram (Meta Graph /insights + /media + /followers_count)
+// Outputs: Firestore business_reviews/{YYYY-WNN}, branded PDF via
+// Cloud Run /renderPdf, Slack files.upload, Telegram sendDocument.
+// Honors HARD RULE #0 (no fabrication), #2 (8-platform verify),
+// #6 (verbose proof response), #11 (broken platforms surface as
+// "Broken Things" with recommended fix, never silently fail).
+// ============================================================
+const mondayReview = require("./mondayRevenueReview");
+exports.mondayRevenueReview = mondayReview.mondayRevenueReview;
+exports.mondayRevenueReviewOnDemand = mondayReview.mondayRevenueReviewOnDemand;
+
+// ============================================================
 // LEAD FINDER AUTO TOP UP (added 2026-04-20)
 // 08:00 CDMX — keeps phone_leads pool above HARD_FLOOR (100),
 // targets TARGET_POOL_SIZE (150). Uses 7-day CITY_ROTATION
