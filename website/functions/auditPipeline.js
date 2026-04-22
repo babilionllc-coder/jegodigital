@@ -1013,6 +1013,50 @@ function generateReportHTML(audit, leadName, leadCity) {
             <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);color:#C5A059;text-align:center;">${k.volume || 0}</td>
         </tr>`).join("");
 
+    // 3-STEP ROADMAP — derived from detected issues (critico > alto > medio > bajo priority)
+    const issueToAction = (iss) => {
+        const s = (iss.issue || '').toLowerCase();
+        if (s.includes('google maps')) return { title: 'Alta en Google Maps y Google Business Profile', why: 'El 46% de busquedas locales pasan por Maps. Sin presencia pierdes casi la mitad de tus leads potenciales.' };
+        if (s.includes('schema') || s.includes('localbusiness') || s.includes('realestate')) return { title: 'Implementar Schema LocalBusiness + RealEstateAgent', why: 'Schema estructurado es requisito para aparecer en ChatGPT, Gemini y Perplexity cuando alguien busca inmobiliarias.' };
+        if (s.includes('pagespeed') || s.includes('velocidad') || s.includes('carga')) return { title: 'Optimizar PageSpeed a 90+ en movil', why: 'Cada segundo extra de carga pierde 53% de visitantes moviles. Mejorar velocidad = mas leads capturados.' };
+        if (s.includes('analytics') || s.includes('tag manager') || s.includes('ga4') || s.includes('medicion')) return { title: 'Instalar Google Analytics 4 + Tag Manager', why: 'No puedes mejorar lo que no mides. Analytics muestra exactamente donde pierdes leads.' };
+        if (s.includes('hsts') || s.includes('csp') || s.includes('seguridad') || s.includes('https') || s.includes('ssl')) return { title: 'Activar headers de seguridad (HSTS + CSP)', why: 'Protegen a tus visitantes, evitan hackeos y mejoran tu ranking de confianza en Google.' };
+        if (s.includes('backlinks') || s.includes('autoridad') || s.includes('dominio')) return { title: 'Estrategia de backlinks y autoridad de dominio', why: 'Sin backlinks de calidad no subes posicion, por mejor que sea tu contenido. Es la base del SEO competitivo.' };
+        if (s.includes('whatsapp')) return { title: 'Integrar captura WhatsApp visible en cada pagina', why: 'En Mexico, WhatsApp es el canal #1 para leads inmobiliarios. Visible = mas conversaciones iniciadas.' };
+        if (s.includes('formulario') || s.includes('captura')) return { title: 'Agregar formulario de captura de leads optimizado', why: 'Sin formulario pierdes leads que no llaman por telefono. Cada visita debe tener forma de convertirse.' };
+        if (s.includes('contenido') || s.includes('palabras')) return { title: 'Plan de contenido SEO mensual (+1000 palabras por articulo)', why: 'Google premia paginas profundas. Contenido mensual consistente es lo que construye posicionamiento sostenible.' };
+        if (s.includes('titulo') || s.includes('meta desc')) return { title: 'Optimizar meta titulos y descripciones con keywords locales', why: 'Es lo primero que Google y los usuarios ven. Mal optimizado = menos clics desde resultados de busqueda.' };
+        if (s.includes('alt')) return { title: 'Agregar alt text a todas las imagenes', why: 'Mejora accesibilidad, SEO, y te posiciona en Google Images — canal gratuito de trafico.' };
+        if (s.includes('canonica') || s.includes('duplicado')) return { title: 'Configurar URL canonicas para evitar contenido duplicado', why: 'Consolida la autoridad de tus paginas en una sola URL. Evita que Google te penalice.' };
+        if (s.includes('h1')) return { title: 'Corregir estructura H1 unica por pagina', why: 'Google espera 1 H1 claro por pagina para entender de que trata cada URL.' };
+        if (s.includes('ia') || s.includes('aeo')) return { title: 'Optimizar para respuestas en ChatGPT, Gemini y Perplexity', why: 'El 34% de busquedas inmobiliarias ya pasan por IA. Si no apareces ahi, pierdes ese trafico completamente.' };
+        return { title: iss.issue, why: iss.detail || '' };
+    };
+    const impactOrder = { critico: 0, alto: 1, medio: 2, bajo: 3 };
+    const sortedIssues = [...(audit.issues || [])].sort((a, b) => (impactOrder[a.impact] ?? 99) - (impactOrder[b.impact] ?? 99));
+    const roadmapSteps = [];
+    const addedTitles = new Set();
+    for (const iss of sortedIssues) {
+        if (roadmapSteps.length >= 3) break;
+        const action = issueToAction(iss);
+        if (addedTitles.has(action.title)) continue;
+        addedTitles.add(action.title);
+        roadmapSteps.push(action);
+    }
+    const roadmapHTML = roadmapSteps.length > 0 ? `
+<div class="card" style="border-color:rgba(197,160,89,0.2);">
+    <h2 class="section-title gold">Tu Roadmap de 3 Pasos</h2>
+    <p style="color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:24px;line-height:1.6;">Basado en los problemas detectados, este es el orden recomendado de prioridad para recuperar trafico organico y leads de tu zona.</p>
+    ${roadmapSteps.map((step, i) => `
+    <div style="display:flex;gap:16px;padding:16px 0;${i < roadmapSteps.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.05);' : ''}">
+        <div style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#C5A059,#a8863d);display:flex;align-items:center;justify-content:center;color:#0f1115;font-weight:800;font-size:18px;">${i + 1}</div>
+        <div style="flex:1;">
+            <div style="color:#fff;font-weight:700;font-size:15px;margin-bottom:6px;line-height:1.4;">${step.title}</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;">${step.why}</div>
+        </div>
+    </div>`).join('')}
+</div>` : '';
+
     // Missing keywords
     const missingKwHTML = audit.competitors.missingKeywords.map(k => `
         <tr>
@@ -1161,18 +1205,18 @@ ${crawlCard}
             <div class="metric-value" style="color:${audit.speed.performance !== null ? (audit.speed.performance >= 80 ? '#22c55e' : audit.speed.performance >= 50 ? '#C5A059' : '#ef4444') : 'rgba(255,255,255,0.3)'};">${audit.speed.performance !== null ? audit.speed.performance : 'N/D'}${audit.speed.performance !== null && audit.speed.estimated ? '*' : ''}</div>
             <div class="metric-label">PageSpeed (Movil)${audit.speed.estimated ? ' *estimado' : ''}</div>
         </div>
-        <div class="metric-box">
-            <div class="metric-value" style="color:${audit.authority.domainRank !== null && audit.authority.domainRank > 0 ? '#C5A059' : 'rgba(255,255,255,0.3)'};">${audit.authority.domainRank !== null ? audit.authority.domainRank : 'N/D'}</div>
+        ${audit.authority.domainRank !== null && audit.authority.domainRank > 0 ? `<div class="metric-box">
+            <div class="metric-value" style="color:#C5A059;">${audit.authority.domainRank}</div>
             <div class="metric-label">Autoridad de Dominio</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-value" style="color:${audit.authority.totalKeywords !== null && audit.authority.totalKeywords > 0 ? '#C5A059' : 'rgba(255,255,255,0.3)'};">${audit.authority.totalKeywords !== null ? audit.authority.totalKeywords : 'N/D'}</div>
+        </div>` : ''}
+        ${audit.authority.totalKeywords !== null && audit.authority.totalKeywords > 0 ? `<div class="metric-box">
+            <div class="metric-value" style="color:#C5A059;">${audit.authority.totalKeywords}</div>
             <div class="metric-label">Keywords Posicionadas</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-value" style="color:${audit.authority.totalBacklinks !== null && audit.authority.totalBacklinks > 0 ? '#C5A059' : 'rgba(255,255,255,0.3)'};">${audit.authority.totalBacklinks !== null ? audit.authority.totalBacklinks : 'N/D'}</div>
+        </div>` : ''}
+        ${audit.authority.totalBacklinks !== null && audit.authority.totalBacklinks > 0 ? `<div class="metric-box">
+            <div class="metric-value" style="color:#C5A059;">${audit.authority.totalBacklinks}</div>
             <div class="metric-label">Backlinks</div>
-        </div>
+        </div>` : ''}
         <div class="metric-box">
             <div class="metric-value" style="color:${audit.speed.seo !== null ? ((audit.speed.seo >= 80) ? '#22c55e' : '#C5A059') : 'rgba(255,255,255,0.3)'};">${audit.speed.seo !== null ? audit.speed.seo : 'N/D'}</div>
             <div class="metric-label">SEO Score (Google)</div>
@@ -1255,14 +1299,18 @@ ${audit.wins.length > 0 ? `
 </div>
 
 <!-- KEYWORDS -->
-${audit.authority.topKeywords.length > 0 ? `
+${audit.authority.topKeywords.length > 0 && audit.authority.topKeywords.some(k => (k.position && k.position > 0) || (k.volume && k.volume > 0)) ? `
 <div class="card">
     <h2 class="section-title">Tus Keywords Posicionadas</h2>
     <table>
         <thead><tr><th>Keyword</th><th style="text-align:center;">Posicion</th><th style="text-align:center;">Volumen/mes</th></tr></thead>
         <tbody>${kwHTML}</tbody>
     </table>
-</div>` : ""}
+</div>` : (audit.authority.totalKeywords && audit.authority.totalKeywords > 0 ? `
+<div class="card">
+    <h2 class="section-title">Keywords Indexadas</h2>
+    <p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.7;">Google ha indexado <strong style="color:#C5A059;">${audit.authority.totalKeywords}</strong> keywords de tu sitio, pero aun sin posiciones estables en el top 100. <strong style="color:#fff;">Esto es una oportunidad grande</strong> — con la estrategia SEO correcta podemos capturar posiciones en las keywords mas valiosas de tu zona.</p>
+</div>` : "")}
 
 <!-- MISSING KEYWORDS -->
 ${audit.competitors.missingKeywords.length > 0 ? `
@@ -1293,6 +1341,9 @@ ${audit.aiVerdict ? `
     <h2 class="section-title gold">Veredicto del Analisis</h2>
     <p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.8;">${audit.aiVerdict}</p>
 </div>` : ""}
+
+<!-- 3-STEP ROADMAP -->
+${roadmapHTML}
 
 <!-- CTA -->
 <div class="cta-box">
