@@ -716,13 +716,15 @@ exports.onLeadCreated = functions.firestore.document('leads/{leadId}').onCreate(
                                     first_message: firstMessage,
                                     prompt: { prompt: systemPrompt } // <--- INJECTED
                                 },
+                                // Webhook URL removed 2026-04-21 — the workspace-level post-call
+                                // webhook (id c76a00db45ff4b948e7dc63db2f777fb → elevenLabsWebhook)
+                                // handles all conversations for all 3 agents. The legacy
+                                // handleCallAnalysis function only writes to `leads`, not
+                                // `call_analysis`, so any trigger using that URL corrupted metrics.
+                                // client_inactivity_timeout_seconds is a fake field silently dropped
+                                // by the API — real silence control is conversation_config.turn.
                                 conversation: {
                                     max_duration_seconds: 180,
-                                    client_inactivity_timeout_seconds: 30,
-                                    analysis: {
-                                        post_call_webhook_url: "https://us-central1-jegodigital-e02fb.cloudfunctions.net/handleCallAnalysis",
-                                        post_call_webhook_data: { "source": "firebase_auto" }
-                                    }
                                 }
                             }
                         }, {
@@ -1927,6 +1929,80 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
             functions.logger.warn("telegramHelper failed:", e.message);
         }
 
+        // 4. Slack hot-lead alert — posts to #all-jegodigital via SLACK_WEBHOOK_URL
+        try {
+            const slackUrl = process.env.SLACK_WEBHOOK_URL;
+            if (slackUrl) {
+                const titleEmoji = isColdCall ? "🔥 COLD CALL SIGNUP" : "🟢 WEB FORM SIGNUP";
+                const fields = [
+                    { type: "mrkdwn", text: `*Name:*\n${name}` }
+                ];
+                if (company) fields.push({ type: "mrkdwn", text: `*Company:*\n${company}` });
+                fields.push({ type: "mrkdwn", text: `*Email:*\n<mailto:${email}|${email}>` });
+                fields.push({ type: "mrkdwn", text: `*Website:*\n<https://${website_url}|${website_url}>` });
+                if (city) fields.push({ type: "mrkdwn", text: `*City:*\n${city}` });
+                fields.push({ type: "mrkdwn", text: `*Source:*\n\`${source}\`` });
+                fields.push({ type: "mrkdwn", text: `*Audit ID:*\n\`${docRef.id}\`` });
+
+                await axios.post(slackUrl, {
+                    text: `${titleEmoji} — ${name} (${email})`,
+                    blocks: [
+                        { type: "header", text: { type: "plain_text", text: titleEmoji, emoji: true } },
+                        { type: "section", fields: fields },
+                        { type: "context", elements: [{ type: "mrkdwn", text: `_Audit report emailing in ~45-60 min. Lead is in Brevo list ${targetListId} (${isColdCall ? "cold-call" : "web-form"})._` }] }
+                    ],
+                    unfurl_links: false,
+                    unfurl_media: false
+                }, { timeout: 8000 });
+                functions.logger.info(`✅ Slack: posted ${isColdCall ? "cold-call" : "web-form"} alert for ${email}`);
+            } else {
+                functions.logger.warn("⚠️ SLACK_WEBHOOK_URL not set — skipping Slack alert");
+            }
+        } catch (slackErr) {
+            functions.logger.warn("⚠️ Slack post failed (non-fatal):", slackErr.response?.data || slackErr.message);
+        }
+
+        // 5. Alex email — Brevo transactional so a new lead also lands in babilionllc@gmail.com inbox
+        try {
+            const alexEmail = process.env.ALEX_EMAIL || "jegoalexdigital@gmail.com";
+            if (BREVO_KEY) {
+                const subjectPrefix = isColdCall ? "🔥 COLD-CALL LEAD" : "🟢 WEB-FORM LEAD";
+                const htmlBody = `
+                    <div style="font-family:Arial,sans-serif;max-width:600px">
+                      <h2 style="color:${isColdCall ? "#c53030" : "#2f855a"}">${isColdCall ? "🔥 Cold-Call Signup" : "🟢 Web-Form Signup"}</h2>
+                      <table cellpadding="8" style="border-collapse:collapse;font-size:14px;width:100%">
+                        <tr><td style="background:#f7f7f7"><strong>Name</strong></td><td>${name}</td></tr>
+                        ${company ? `<tr><td style="background:#f7f7f7"><strong>Company</strong></td><td>${company}</td></tr>` : ""}
+                        <tr><td style="background:#f7f7f7"><strong>Email</strong></td><td><a href="mailto:${email}">${email}</a></td></tr>
+                        <tr><td style="background:#f7f7f7"><strong>Website</strong></td><td><a href="https://${website_url}">${website_url}</a></td></tr>
+                        ${city ? `<tr><td style="background:#f7f7f7"><strong>City</strong></td><td>${city}</td></tr>` : ""}
+                        <tr><td style="background:#f7f7f7"><strong>Source</strong></td><td><code>${source}</code></td></tr>
+                        <tr><td style="background:#f7f7f7"><strong>Audit ID</strong></td><td><code>${docRef.id}</code></td></tr>
+                        <tr><td style="background:#f7f7f7"><strong>Brevo list</strong></td><td>${targetListId} (${isColdCall ? "cold-call" : "web-form"})</td></tr>
+                      </table>
+                      <p style="color:#666;font-size:12px;margin-top:20px"><em>The audit report will be emailed to the lead in ~45-60 min via Automation #8. This notification is for your awareness only.</em></p>
+                    </div>
+                `;
+                await axios.post("https://api.brevo.com/v3/smtp/email", {
+                    sender: { name: "JegoDigital Leads", email: process.env.BREVO_SENDER_EMAIL || "hello@jegodigital.com" },
+                    to: [{ email: alexEmail, name: "Alex Jego" }],
+                    subject: `${subjectPrefix}: ${name} (${website_url})`,
+                    htmlContent: htmlBody,
+                    tags: ["lead-alert", isColdCall ? "cold-call" : "web-form"]
+                }, {
+                    headers: {
+                        "api-key": BREVO_KEY,
+                        "Content-Type": "application/json",
+                        accept: "application/json"
+                    },
+                    timeout: 8000
+                });
+                functions.logger.info(`✅ Alex email: lead notification sent to ${alexEmail}`);
+            }
+        } catch (emailErr) {
+            functions.logger.warn("⚠️ Alex email failed (non-fatal):", emailErr.response?.data || emailErr.message);
+        }
+
         return res.status(200).json({
             success: true,
             id: docRef.id,
@@ -1986,6 +2062,12 @@ exports.coldCallRun = coldCall.coldCallRun;
 exports.coldCallReport = coldCall.coldCallReport;
 exports.coldCallMidBatchCheck = coldCall.coldCallMidBatchCheck;
 exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;
+// 3-strikes auto-DNC sweep — daily 14:00 CDMX (added 2026-04-21)
+// See cold-call-lead-finder skill HARD RULE #4
+exports.coldCallPostRunSweep = coldCall.coldCallPostRunSweep;
+// Calibration cron — daily 14:30 CDMX. Reads 7d of call_analysis to
+// recommend coverage-gate + offer-routing tweaks (added 2026-04-21)
+exports.coldCallCalibrationDaily = coldCall.coldCallCalibrationDaily;
 
 // ============================================================
 // COLD CALL SLACK REPORTS (added 2026-04-20)
@@ -2008,7 +2090,7 @@ exports.coldCallSlackOnDemand = coldCallSlack.coldCallSlackOnDemand;
 // the ElevenLabs conversation by CallSid and DELETE it so the
 // agent doesn't hold the SIP session to max_duration (90s).
 // Expected: cut zombie waste from 90s cap → ~3s actual.
-// See COLDCALL.md §10 for context + Twilio webhook config.
+// See SYSTEM.md §10.4 for context + Twilio webhook config.
 // ============================================================
 exports.twilioCallStatusCallback =
   require("./twilioCallStatusCallback").twilioCallStatusCallback;
@@ -2035,12 +2117,12 @@ exports.coldEmailReportOnDemand = coldEmailDaily.coldEmailReportOnDemand;
 //   - ManyChat/Sofia WA+IG conversations
 //   - Cold call outcomes per offer (A/B/C) from call_analysis
 //   - Free audit requests by source (ig, wa, cold_email)
-// Delivery: branded HTML -> PDF via Cloud Run mockup-renderer
-// /renderPdf -> Firebase Storage (7-day signed URL) -> Slack
+// Delivery: branded HTML → PDF via Cloud Run mockup-renderer
+// /renderPdf → Firebase Storage (7-day signed URL) → Slack
 // files.upload + Telegram sendDocument. AI Analysis Agent
 // (aiAnalysisAgent.js) auto-fixes safe issues (pause high-
 // bounce campaigns, throttle unhealthy accounts) and escalates
-// uncertain items as a second "AI Agent - Review Needed"
+// uncertain items as a second "🤖 AI Agent — Review Needed"
 // Slack post. Every auto-fix / escalate / block is logged to
 // ai_agent_actions/{YYYY-MM-DD}/entries/{autoId}. HARD RULE #11
 // compliant: never silently fails, always finds a path forward.
@@ -2048,6 +2130,33 @@ exports.coldEmailReportOnDemand = coldEmailDaily.coldEmailReportOnDemand;
 const eveningOps = require("./eveningOpsReport");
 exports.eveningOpsReport = eveningOps.eveningOpsReport;
 exports.eveningOpsReportOnDemand = eveningOps.eveningOpsReportOnDemand;
+
+// ============================================================
+// MONDAY REVENUE REVIEW (added 2026-04-21 — HARD RULE #7)
+// Monday 09:00 CDMX — weekly cross-platform live pull of:
+//   - Cold email (Instantly v2 /campaigns/analytics/daily summed
+//     across the 7-day prior window per active campaign)
+//   - Cold calls (ElevenLabs /v1/convai/conversations paginated
+//     per offer A/B/C across the 7-day window)
+//   - Brevo transactional (/v3/smtp/statistics/aggregatedReport)
+//   - Calendly bookings (live API + Firestore fallback)
+//   - Audit requests (Firestore audit_requests)
+//   - Closed clients + MRR (Firestore clients_closed)
+//   - Phone leads pool (Firestore phone_leads)
+//   - Instagram (Meta Graph /insights + /media + /followers_count)
+// Computes conversion funnel (outreach→positive→booked→closed),
+// derives top 3 broken + top 3 fixed things from rule-based scoring.
+// Renders branded dark-theme HTML → PDF via Cloud Run mockup-renderer
+// → Firebase Storage (30-day signed URL) → Slack files.upload +
+// Telegram sendDocument. Snapshots 30+ fields to Firestore
+// business_reviews/{YYYY-WNN}. GSC + GA4 flagged as tech-debt
+// gaps until credentials wired (HARD RULE #11 — never silent).
+// HARD RULE #0 + #2 compliant: every number from a live API call
+// in the same execution. No memory snapshots. No fabrication.
+// ============================================================
+const mondayReview = require("./mondayRevenueReview");
+exports.mondayRevenueReview = mondayReview.mondayRevenueReview;
+exports.mondayRevenueReviewOnDemand = mondayReview.mondayRevenueReviewOnDemand;
 
 // ============================================================
 // COLD CALL LIVE MONITOR (added 2026-04-20)
@@ -2095,27 +2204,6 @@ exports.instantlyReplyWatcher = require("./instantlyReplyWatcher").instantlyRepl
 // Price leak >5% escalates 🚨 in Telegram.
 // ============================================================
 exports.callTranscriptReviewer = require("./callTranscriptReviewer").callTranscriptReviewer;
-
-// ============================================================
-// MONDAY REVENUE REVIEW (added 2026-04-21 — HARD RULE #7)
-// Monday 09:00 CDMX — weekly cross-platform live pull of:
-//   - Cold email (Instantly v2 /campaigns/analytics/daily summed 7d)
-//   - Cold calls (ElevenLabs /v1/convai/conversations paginated A/B/C)
-//   - Brevo transactional (/v3/smtp/statistics/aggregatedReport)
-//   - Calendly bookings (live API + Firestore fallback)
-//   - Audit requests (Firestore audit_requests)
-//   - Closed clients + MRR (Firestore clients_closed)
-//   - Phone leads pool (Firestore phone_leads)
-//   - Instagram (Meta Graph /insights + /media + /followers_count)
-// Outputs: Firestore business_reviews/{YYYY-WNN}, branded PDF via
-// Cloud Run /renderPdf, Slack files.upload, Telegram sendDocument.
-// Honors HARD RULE #0 (no fabrication), #2 (8-platform verify),
-// #6 (verbose proof response), #11 (broken platforms surface as
-// "Broken Things" with recommended fix, never silently fail).
-// ============================================================
-const mondayReview = require("./mondayRevenueReview");
-exports.mondayRevenueReview = mondayReview.mondayRevenueReview;
-exports.mondayRevenueReviewOnDemand = mondayReview.mondayRevenueReviewOnDemand;
 
 // ============================================================
 // LEAD FINDER AUTO TOP UP (added 2026-04-20)
