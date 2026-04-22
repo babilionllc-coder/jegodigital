@@ -65,8 +65,54 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Deploy Functions to Firebase
-        run: firebase deploy --only functions --force --token "$FIREBASE_TOKEN"
+      # --------------------------------------------------------------
+      # BATCH SPLIT — avoid GCF "60 function updates per 100s" quota
+      # --------------------------------------------------------------
+      # Disaster 2026-04-22: 6 functions (dailyDigest, coldCallRun,
+      # coldCallMidBatchCheck, coldCallRunAfternoon, contentPublisher,
+      # sofiaConversationAudit) hit "Quota Exceeded" on a single-batch
+      # deploy of 60+ functions. Firebase CLI retries 3x then reports
+      # "Function deployment failed due to a health check failure" —
+      # a misleading generic error. True cause = GCF deploy-rate
+      # throttling.
+      #
+      # Fix: auto-discover exports from index.js, split alphabetically
+      # into two halves, deploy each with --only, pause 120s between
+      # (quota window is 100s — 120s gives headroom).
+      # --------------------------------------------------------------
+      - name: Build batched --only flags from index.js exports
+        id: exports
+        run: |
+          cd website/functions
+          grep -oE '^exports\.[a-zA-Z_][a-zA-Z0-9_]*' index.js \
+            | sed 's/exports\.//' \
+            | sort -u > /tmp/fn_list.txt
+          TOTAL=$(wc -l < /tmp/fn_list.txt)
+          HALF=$(( (TOTAL + 1) / 2 ))
+          head -n "$HALF" /tmp/fn_list.txt > /tmp/fn_batch1.txt
+          tail -n +"$((HALF + 1))" /tmp/fn_list.txt > /tmp/fn_batch2.txt
+          B1=$(paste -sd, /tmp/fn_batch1.txt | sed 's/^/functions:/;s/,/,functions:/g')
+          B2=$(paste -sd, /tmp/fn_batch2.txt | sed 's/^/functions:/;s/,/,functions:/g')
+          echo "TOTAL=$TOTAL  BATCH1=$(wc -l < /tmp/fn_batch1.txt)  BATCH2=$(wc -l < /tmp/fn_batch2.txt)"
+          {
+            echo "batch1<<EOF"
+            echo "$B1"
+            echo "EOF"
+            echo "batch2<<EOF"
+            echo "$B2"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Functions BATCH 1
+        run: firebase deploy --only "${{ steps.exports.outputs.batch1 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Wait 120s for GCF deploy-rate quota window to reset
+        run: sleep 120
+
+      - name: Deploy Functions BATCH 2
+        run: firebase deploy --only "${{ steps.exports.outputs.batch2 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
