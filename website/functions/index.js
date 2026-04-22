@@ -2373,3 +2373,29 @@ exports.dailyStrategistNow = require("./dailyStrategist").dailyStrategistNow;
 // hourly by processScheduledEmails), logs to cold_call_leads Firestore.
 // ============================================================
 exports.saveColdCallLead = require("./saveColdCallLead").saveColdCallLead;
+
+// ============================================================
+// Money Machine — Reddit-to-revenue opportunity pipeline.
+//   redditScraper (hourly cron) → /opportunities
+//   opportunityClassifier (onCreate) → scores 0-100, qualifies ≥70
+//   opportunityDrafter (onUpdate) → writes value-first reply
+//   telegramApprovalBot → pushes to Alex, posts on tap
+// Full spec: /docs/MONEY_MACHINE.md
+// ============================================================
+const redditScraper = require("./redditScraper");
+exports.redditScraper = redditScraper.redditScraper;
+exports.redditScraperNow = redditScraper.redditScraperNow;
+
+const opportunityClassifier = require("./opportunityClassifier");
+exports.opportunityClassifier = opportunityClassifier.opportunityClassifier;
+exports.opportunityClassifierNow = opportunityClassifier.opportunityClassifierNow;
+
+const opportunityDrafter = require("./opportunityDrafter");
+exports.opportunityDrafter = opportunityDrafter.opportunityDrafter;
+exports.opportunityDrafterNow = opportunityDrafter.opportunityDrafterNow;
+
+const telegramApprovalBot = require("./telegramApprovalBot");
+exports.pushDraftToTelegram = telegramApprovalBot.pushDraftToTelegram;
+exports.telegramApprovalCallback = telegramApprovalBot.telegramApprovalCallback;
+exports.setTelegramWebhook = telegramApprovalBot.setTelegramWebhook;
+exports.pushPendingDraftsToTelegram = telegramApprovalBot.pushPendingDraftsToTelegram;
