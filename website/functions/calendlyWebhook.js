@@ -495,12 +495,29 @@ exports.calendlyWebhook = functions.https.onRequest(async (req, res) => {
                 tags: ["calendly-briefing", "internal"],
             });
 
+            // Cancel any pending Brevo nurture touches for this email —
+            // they booked, nurture goal is achieved.
+            let nurtureCanceled = 0;
+            try {
+                if (email) {
+                    const brevoNurture = require("./brevoNurture");
+                    const c = await brevoNurture.cancelTrackForEmail(email, "calendly_booked");
+                    nurtureCanceled = c.canceled || 0;
+                    if (nurtureCanceled > 0) {
+                        functions.logger.info(`Canceled ${nurtureCanceled} pending nurture touches for ${email}`);
+                    }
+                }
+            } catch (cancelErr) {
+                functions.logger.warn("nurture cancel on booking failed:", cancelErr.message);
+            }
+
             return res.status(200).json({
                 success: true, event: eventType,
                 telegram: tgResult.ok,
                 brevo_contact: brevoResult.ok,
                 lead_email: leadEmailResult.ok,
                 briefing_email: briefingResult.ok,
+                nurture_canceled: nurtureCanceled,
             });
         }
 

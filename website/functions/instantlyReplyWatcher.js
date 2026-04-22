@@ -34,6 +34,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
+const brevoNurture = require("./brevoNurture");
 
 // ---- Telegram ----
 const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
@@ -218,6 +219,27 @@ exports.instantlyReplyWatcher = functions
                 }
             }
 
+            // Start Brevo nurture Track A — fires on clean positive OR
+            // positive_with_objection (objection handling is part of nurture).
+            // Idempotent — startTrackA skips if already enrolled.
+            let nurtureStarted = false;
+            if ((outcome === "positive" || outcome === "positive_with_objection") && ctx.email) {
+                try {
+                    const n = await brevoNurture.startTrackA({
+                        email: ctx.email,
+                        firstName: ctx.firstName || "",
+                        company: ctx.company || "",
+                        campaignId: em.campaign || em.campaign_id || null,
+                        replyId,
+                        replyBody: body,
+                        replyDate: em.timestamp_email || em.timestamp || em.created_at || null,
+                    });
+                    if (n.ok && !n.skipped) nurtureStarted = true;
+                } catch (err) {
+                    functions.logger.warn(`brevo nurture start failed for ${replyId}:`, err.message);
+                }
+            }
+
             // Hot-alert criteria: positive OR positive_with_objection OR question with
             // decision-maker signals. These all go to Telegram so Alex can respond fast.
             if (outcome === "positive" || outcome === "positive_with_objection") {
@@ -247,6 +269,7 @@ exports.instantlyReplyWatcher = functions
                 body_preview: body.slice(0, 500),
                 outcome,
                 audit_queued: auditQueued,
+                brevo_nurture_started: nurtureStarted,
                 processed_at: admin.firestore.FieldValue.serverTimestamp(),
             });
         }
