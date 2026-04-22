@@ -2365,3 +2365,11 @@ exports.instantlyAuditNow = require("./instantlyAudit").instantlyAuditNow;
 // ============================================================
 exports.dailyStrategist = require("./dailyStrategist").dailyStrategist;
 exports.dailyStrategistNow = require("./dailyStrategist").dailyStrategistNow;
+
+// ============================================================
+// saveColdCallLead -- ElevenLabs Offer A + C cold-call capture.
+// Upserts Brevo contact (list 35 for Offer A, list 36 for Offer C),
+// enqueues matching 5-email nurture into scheduled_emails (picked up
+// hourly by processScheduledEmails), logs to cold_call_leads Firestore.
+// ============================================================
+exports.saveColdCallLead = require("./saveColdCallLead").saveColdCallLead;
