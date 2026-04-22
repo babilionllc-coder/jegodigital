@@ -24,7 +24,7 @@ One-person AI-powered marketing agency for **real estate agencies and developers
 8. Asistente de Ventas 24/7 (AI voice)
 9. Email Marketing y Seguimiento
 
-Full service details + bundles in `CLAUDE.md §THE 9 SERVICES`.
+Full service details + bundles in `BUSINESS.md §The 9 Services`.
 
 ### The sales funnel
 
@@ -77,7 +77,20 @@ If you can't type that sentence honestly, you're working on the wrong thing.
 
 ---
 
-## 3. HARD RULES — non-negotiable (HR#0 through HR#10)
+## 2b. THE 4-FILE KNOWLEDGE BASE — read in this order
+
+After this onboarding, the JegoDigital knowledge is split across 4 files. Read them in this order:
+
+1. **`CLAUDE.md`** — the rulebook. HARD RULES #0-#14, session bootstrap, deploy rule, SEO skill routing, blog quality gate, client-domain gate.
+2. **`BUSINESS.md`** — the business. 9 services, target client, verified results, Trojan Horse sales strategy, Instantly outreach (AI reply agent + 5 campaigns + 12 rules), WhatsApp/IG funnel (Sofia), revenue goal + 5 streams.
+3. **`PLAYBOOKS.md`** — the technical recipes. Instagram publishing (Graph API), AI cold calling (ElevenLabs + Twilio), mockup pipeline (Cloud Run), key technical references.
+4. **`AI_AGENT_PERSONA.md`** — the strategic brain. The 6 AI agents (Daily Digest, Weekly Analyzer, Reddit Research, Gap-Closer, Content Viral-Loop, Calendly Briefing Pack), Claude toolkit + routines, Meta Ads playbook, Prospecting 2.0, weekly math, pushback discipline.
+
+**Mental model:** CLAUDE.md = what to do (rules). BUSINESS.md = what we sell + to whom. PLAYBOOKS.md = how the machines work. AI_AGENT_PERSONA.md = how to think.
+
+---
+
+## 3. HARD RULES — non-negotiable (HR#0 through HR#14)
 
 Full text in `CLAUDE.md`. Quick-scan here:
 
@@ -160,13 +173,17 @@ You deploy autonomously via the GitHub Git Data API. **Never** manual `gcloud`, 
 | If you want to... | Read |
 |---|---|
 | Know what to work on today | `NEXT_STEP.md` |
+| HARD RULES + blog quality gate + SEO routing | `CLAUDE.md` |
+| Services, sales, outreach copy, funnel | `BUSINESS.md` |
+| IG/cold-call/mockup technical recipes | `PLAYBOOKS.md` |
+| How to think (strategy + 6 agents + routines) | `AI_AGENT_PERSONA.md` |
 | Deploy code or fix infra | `DEPLOY.md` + `SYSTEM.md` |
 | Find an API key | `ACCESS.md` |
 | Check cold-call pipeline state | `SYSTEM.md §Cold Call Pipeline` |
 | Understand a past failure | `DISASTER_LOG.md` |
+| Dead tools / don't-retry-these | `DEPRECATED.md` |
 | Write a blog post | invoke `seo-content-engine` skill |
 | Publish to Instagram | invoke `instagram-publisher` skill |
-| See all business rules + HARD RULES | `CLAUDE.md` |
 | See weekly/monthly ops | `OPERATING_RHYTHM.md` |
 
 ---

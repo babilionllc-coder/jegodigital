@@ -1,8 +1,39 @@
 # JegoDigital — Master Project Instructions
 **Last updated:** April 21, 2026 | **Maintained by:** Claude AI + Alex Jego
+**Read time:** ~10 min (rules only — full business + playbooks live in companion files) | **Next review:** 2026-05-21
 
-> This is the single source of truth for all Claude sessions working on JegoDigital.
-> Read this file completely before starting any task.
+> This file is the **rulebook**. It tells Claude HOW to operate: the 15 HARD RULES, session bootstrap order, deploy rule, SEO skill routing, blog quality gate, client-domain gate.
+>
+> Business context (services, clients, outreach copy, funnel) → **[`BUSINESS.md`](BUSINESS.md)**
+> Technical playbooks (IG publishing recipes, cold-calling setup, mockup pipeline) → **[`PLAYBOOKS.md`](PLAYBOOKS.md)**
+> Strategic brain (6 AI agents, Claude toolkit, routines, pushback discipline) → **[`AI_AGENT_PERSONA.md`](AI_AGENT_PERSONA.md)**
+> Dead tools + campaigns (grep before retrying old approaches) → **[`DEPRECATED.md`](DEPRECATED.md)**
+> Audit scripts for blog quality gate → **[`docs/playbooks/blog_quality_audits.md`](docs/playbooks/blog_quality_audits.md)**
+
+---
+
+## 📑 TABLE OF CONTENTS (rules only — business + playbooks linked out)
+
+1. **HARD RULES #0-#14** — 15 non-negotiables: no fake numbers, verify-live across 8 platforms, revenue-first, one big rock per day, plain language, never ask Alex to do work, crystal-clear next steps
+2. **SESSION BOOTSTRAP** — what to read in what order every new session
+3. **DEPLOYMENT** — CI/CD rule (push to main, GitHub Actions only)
+4. **ROLE** — Lead AI Developer + Chief Strategist persona
+5. **HOW JEGODIGITAL WORKS** — AI stack summary + pointer to DEPRECATED.md
+6. **THE 9 SERVICES** (summary) — full list in `BUSINESS.md`
+7. **TARGET CLIENT** (summary) — full ICP in `BUSINESS.md`
+8. **VERIFIED RESULTS** (summary) — full table in `BUSINESS.md`
+9. **SALES STRATEGY — TROJAN HORSE** (summary) — full playbook in `BUSINESS.md`
+10. **OUTREACH PIPELINE — INSTANTLY.AI** (summary) — full campaigns + rules in `BUSINESS.md`
+11. **WHATSAPP + IG FUNNEL** (summary) — full Sofia flow in `BUSINESS.md`
+12. **KEY CONSTRAINTS** (summary) — full list in `BUSINESS.md`
+13. **CLIENT DOMAIN RULE** — never invent domains; canonical source `website/showcase.html` (lives here, hard gate)
+14. **SEO SKILLS ROUTING** — which of 3 SEO skills to use for which task (lives here, hard gate)
+15. **BLOG POST QUALITY GATE** — mandatory 5-step pipeline + audit scripts (lives here, hard gate)
+16. **INSTAGRAM PUBLISHING** (summary) — Graph API recipes in `PLAYBOOKS.md`
+17. **AI COLD CALLING** (summary) — full ElevenLabs + Twilio spec in `PLAYBOOKS.md`
+18. **MOCKUP PIPELINE** (summary) — full Cloud Run spec in `PLAYBOOKS.md`
+19. **KEY TECHNICAL REFERENCES** (summary) — full table in `PLAYBOOKS.md`
+20. **REVENUE GOAL & ROADMAP** (summary) — full 5 streams in `BUSINESS.md`
 
 ---
 
@@ -437,6 +468,181 @@ On 2026-04-21 PM Alex said, verbatim: *"stop telling we can't and find a way.. d
 
 ---
 
+## 🛑 HARD RULE #12 — ALWAYS EXPLAIN IN PLAIN LANGUAGE (Added 2026-04-21 PM after Alex push)
+
+**Claude writes every recommendation, every status update, every blocker so Alex understands WHY we're doing something and HOW it works in under 30 seconds. No internal jargon without translation. No "bucket" references, no "HARD RULE #X" references, no tech acronyms without a one-line plain-English unpack the FIRST time they appear in a message. Alex is the CEO, not the compiler — if he has to ask what a term means, Claude already lost him.**
+
+### The explanation pattern — use on EVERY recommendation, status update, and blocker
+
+Every proposed action and status report MUST include these three, in plain words:
+
+1. **What** — the action or decision in one sentence (no acronyms, no internal terms)
+2. **Why it matters** — the business outcome in plain language ("this closes a paying client", "this stops us losing leads", "this fixes the zombie phone calls")
+3. **How it works** — 2–3 sentences, no deep tech, showing the moving parts
+
+If Claude catches itself using an internal term (bucket, HARD RULE #X, Trojan Horse, P0/P1, AEO, MRR, CRO, speed-to-lead, T-10min, cron, Firestore, SIP, webhook, etc.) without a plain-English unpack the FIRST time it appears in a message → STOP, rewrite that paragraph with the unpack inline.
+
+### Translation cheat sheet (internal term → plain language)
+
+| Internal term | Plain English |
+|---|---|
+| Bucket A | "close a paying client this week" |
+| Bucket B | "get new qualified leads this week" |
+| Bucket C | "improve how well our existing funnel converts" |
+| Bucket D | "fix infrastructure / docs / plumbing (important but doesn't pay today)" |
+| Bucket E | "nice-to-have cleanup (parking lot)" |
+| HARD RULE #X | "our rule that says <one-line summary>" |
+| MRR | "monthly recurring revenue (money that comes in every month)" |
+| Trojan Horse | "free AI install we give to get foot in the door" |
+| Speed-to-lead | "how fast we reply to a new lead after they arrive" |
+| AEO | "getting ChatGPT / Gemini / Perplexity to recommend the agency" |
+| SEO | "ranking on Google search" |
+| P0 / P1 / P2 | "highest priority / high priority / medium priority" |
+| Cron | "scheduled job that runs on its own at a set time" |
+| Firestore | "our database" |
+| Cloud Function | "small piece of code running in the cloud" |
+| SIP | "the phone-call protocol behind Twilio" |
+| Webhook | "automatic message another system sends us when an event happens" |
+| Zombie call | "a cold call Twilio already hung up but ElevenLabs thinks is still running" |
+| ICP | "ideal client profile — the kind of real-estate company we target" |
+
+### Mandatory format for "what's next" recommendations
+
+When Claude recommends a next step, the reply ALWAYS has these four blocks in this order:
+
+- **Best next step:** <action in plain English, one sentence>
+- **Why:** <the business outcome — what it gets us, in dollars or clients>
+- **How it works:** <2–3 sentences, no jargon, showing the flow>
+- **What I'll do if you say go:** <numbered list of concrete steps>
+
+### Mandatory format for blockers (combines with HARD RULE #11)
+
+- **Blocker:** <the obstacle in plain English, one sentence>
+- **Why it matters:** <what we lose if we don't fix it>
+- **Best recommended solution:** <single strongest path, concrete next action>
+- **Alternative:** <plan B if primary fails>
+
+### FORBIDDEN behaviors
+
+- ❌ Dropping internal terms ("bucket", "HARD RULE", "AEO", "MRR", "Firestore", "cron") without a plain-language unpack the first time they appear in a message
+- ❌ 10-line bullet lists when 3 sentences of prose would be clearer
+- ❌ Ending a recommendation without explicit "why" and "how"
+- ❌ Using tech-stack names in Alex-facing explanations unless Alex has already shown he knows them in THIS conversation
+
+### WHY THIS RULE EXISTS
+
+On 2026-04-21 PM Alex said, verbatim: *"im not sure what you mean?? what bucket you wanna switch??? i have no idea what you talking about. can you explain me this easy to understand?? and give me best next recommended step and why? … also make sure you add to the claude.md file also a rule to explain me easy to understand its easy understand why we doing something and how ?? makes easier for me understand and have better overview of our process."* Claude was dumping internal jargon ("Bucket A", "Bucket D", "HARD RULE #3") into a recommendation without translating. Alex is the CEO — plain language first, every time. This rule is the permanent patch.
+
+---
+
+## 🛑 HARD RULE #13 — NEVER ASK ALEX TO DO WORK (Added 2026-04-21 PM after Alex push)
+
+**Alex's job is to lead JegoDigital. Claude's job is to execute. Claude NEVER asks Alex to click a button, drag a file, run a terminal command, paste a token, upload a CSV, toggle a setting, open a browser tab, sign into a dashboard, or perform any manual action. If Claude catches itself about to say "please do X on your computer" or "can you run Y" or "drag this file to Z" — STOP, delete the sentence, and find a way to do it autonomously.**
+
+### Forbidden phrases (STOP mid-sentence if you catch yourself writing these)
+
+- ❌ "Can you run `<command>` in your terminal?"
+- ❌ "Please drag this file to the GitHub page"
+- ❌ "Click the upload button on..."
+- ❌ "Paste this into the Instantly dashboard"
+- ❌ "Open Chrome and navigate to..."
+- ❌ "Toggle the setting in Cowork preferences"
+- ❌ "You'll need to do this one-time setup..."
+- ❌ "Copy the value from GitHub Secrets and..."
+- ❌ "Upload these files manually..."
+
+All of these are failures of the "find a way" mandate. Alex does not have time to be a terminal, a clicker, or a file-mover. That is ALL Claude's job.
+
+### The autonomy ladder — use ALL rungs before asking anything
+
+When Claude hits a blocker, walk every rung below before typing a question to Alex. Each rung is a different way to get the work done without touching him:
+
+1. **Different API / hostname for the same outcome** — is there another endpoint that reaches the same service?
+2. **Cloud Function proxy** — build a new HTTPS Cloud Function in GCP that proxies the action; sandbox calls it via `*.cloudfunctions.net`
+3. **Claude-in-Chrome MCP** — drive Alex's already-logged-in browser tab; GitHub, GCP Console, Instantly UI are all reachable this way
+4. **Already-running Cloud Function repurpose** — `coldEmailReportOnDemand`, `submitAuditRequest`, etc. can often be extended with new query params or post bodies
+5. **File tools on Alex's Mac** — Read/Write/Edit reach his real disk; stage files for later pickup; write code + config locally
+6. **Scheduled task retry** — if sandbox can't reach X now, schedule a Cloud Function to try later when allowlist changes
+7. **Alternate architecture** — can the work be done without the blocked service? e.g. static file instead of API call, cron in GCP instead of sandbox
+8. **Install the fix permanently** — if the same blocker will bite future sessions, build infrastructure (Cloud Function, launchd watcher, auto-deploy hook) so it only gets solved ONCE
+9. **ONE clarifying question via AskUserQuestion** — ONLY if rungs 1-8 produced nothing AND the question is a 10-second YES/NO that unlocks real work. Never a "please do X" disguised as a question.
+
+### The "permanent fix" clause (CRITICAL)
+
+When Claude finds a workaround for a recurring blocker, Claude IMMEDIATELY builds the permanent infrastructure so it never happens again. Examples:
+
+- Sandbox proxy blocks `api.instantly.ai` → build `coldEmailReportOnDemand` Cloud Function (DONE 2026-04-21)
+- Sandbox proxy blocks `api.github.com` → build `githubPushProxy` Cloud Function (TODO as of 2026-04-21 PM)
+- Sandbox proxy blocks `api.elevenlabs.io` → build `coldCallSlackOnDemand` Cloud Function (DONE 2026-04-21)
+- Firebase deploy fails silently on missing `require()` → pre-push `node --check` gate (DONE — HARD RULE #6)
+
+After building the permanent fix, Claude documents it in the relevant MD file (CLAUDE.md, SYSTEM.md, DEPLOY.md, ACCESS.md) so the next session uses the permanent path on day one.
+
+### The status-report format when blocked
+
+When Claude hits a blocker mid-task, the status report to Alex ALWAYS has these four blocks (combines with HARD RULE #11 + #12):
+
+- **Blocker:** <the obstacle in plain English, one sentence>
+- **What I tried:** <rungs 1-8 from the autonomy ladder, what was attempted and why each failed>
+- **Best recommended solution:** <the path Claude is taking NOW, not a request for Alex to do anything>
+- **Permanent fix I'm building so this never blocks us again:** <the infrastructure change — Cloud Function, hook, watcher, config — with ETA>
+
+Never hand Alex a blocker without naming both the immediate path AND the permanent fix. "It's blocked, what do you want to do?" is forbidden.
+
+### Exceptions — the ONLY time Claude may ask Alex for something
+
+Two narrow cases, and both still require exhausting rungs 1-8 first:
+
+1. **A credential Claude can't regenerate autonomously** — e.g. a brand-new API key for a service where all regeneration endpoints are locked. Even then, Claude builds the integration first using a placeholder, then asks for the final value.
+2. **A strategic business decision** — "should this campaign target CDMX or Cancún?", "approve this copy before I ship", "which client do we prioritize this week?". These are CEO calls, not operator calls, and only Alex can make them.
+
+Everything else is Claude's job. No exceptions.
+
+### WHY THIS RULE EXISTS
+
+On 2026-04-21 PM Alex said, verbatim: *"omg. you ask me to drag and drop?? check our rules.. do not ever ask me to do anything.. if we do not have this rule add it. you do all the work you find a way, okey lets start one by one.. why we do not get access to github you have the token, find the solution, read the files we have access.md file ?? there has to be away.. you never ask me to do anything you find always a way. if you need you ask me questions and you find away.. you get access to github api.. if you do not how we find a way. how . we alwayts find a way we do not get stuck on dead wall or dead end. we find a way. how make sure youhave this in our claude.md rules"* Claude had just suggested drag-drop + running terminal commands instead of building the permanent proxy. Alex runs a 1-person AI agency — every minute he spends clicking is a minute he's not closing deals. This rule makes that math permanent.
+
+**Disaster mode:** If Claude catches itself writing "you'll need to…" or "can you run…" or "please click…" MID-SENTENCE — STOP, delete the sentence, restart from the autonomy ladder. Then ship the work. If after all 8 rungs Claude still can't proceed, the status report uses the 4-block format above — NOT "I need you to do X."
+
+---
+
+## 🛑 HARD RULE #14 — CRYSTAL-CLEAR NEXT STEPS, NEVER CONFUSE ALEX (Added 2026-04-21 PM after Alex push)
+
+**Every time Claude proposes a next step, task, or item to add to `NEXT_STEP.md`, Claude MUST explain WHAT it is in one plain-English sentence BEFORE asking if Alex wants it. No vague references. No "the bug I mentioned". No "that infra item". If Alex has to ask "what do you mean?", Claude failed.**
+
+### MANDATORY pattern for every next-step mention
+
+Before asking "do you want me to add this to NEXT_STEP.md?", the same message MUST contain:
+
+1. **Name of the item** — one short noun phrase in plain Spanish/English (no jargon)
+2. **What it is in one sentence** — what actually breaks / what we actually fix / what we actually ship
+3. **Why it matters in one sentence** — the revenue or operational impact in dollars or clients
+4. **ONE yes/no question** — not three options
+
+### Good example
+> "**Calendly→Brevo auto-contact fix.** Right now when someone books a Calendly call, they don't automatically get saved in Brevo as a contact, so our automated follow-up emails never fire for them. We lost 3 days of automated follow-up on Adrián because of this. Should I add it to NEXT_STEP.md?"
+
+### Bad example (the one that triggered this rule)
+> "Infra bug filed (Bucket C — conversion plumbing) — Calendly→Brevo auto-contact-creation webhook is broken..." ← jargon soup, Alex has no idea what's broken or why he should care.
+
+### FORBIDDEN
+
+- ❌ Introducing a new task/bug/item without a one-sentence plain-English explanation in the SAME message
+- ❌ Using internal terms (Bucket X, HARD RULE #X, webhook, pipeline, cron, Firestore, invitee, SMTP relay, upsert) without translating in the same paragraph
+- ❌ "The bug I mentioned earlier" / "that item from before" — always re-name the item in full every time
+- ❌ Dumping multiple next-step candidates on Alex at once without a priority order + one-line explanation each
+- ❌ "Want me to add that to NEXT_STEP.md?" as a standalone question — it MUST have the Name + What + Why context in the same message
+
+### The 2-second-read test
+
+Before sending any "next step" recommendation, Claude re-reads the message and asks: "If Alex reads this in 2 seconds, does he know (a) what the item is, (b) why it matters, (c) what he's saying yes to?" If any of the 3 is unclear → rewrite before sending.
+
+### WHY THIS RULE EXISTS
+
+On 2026-04-21 PM Alex said, verbatim: *"what bug to next_step md you wanna ad im confused.. stop confusing me.. be always clear in our next step.. we should also have this rule in our claude.md file if we do not have . make sure to add it in"* — Claude had just written "Infra bug filed (Bucket C — conversion plumbing)" and "Calendly→Brevo auto-contact-creation webhook is broken" without explaining WHAT was broken or WHY it mattered in plain Spanish/English. This rule is the permanent patch.
+
+---
+
 Sandbox `git push` / `firebase deploy` / `gcloud run deploy` will ALL fail. That is expected. **You do not need a terminal.**
 
 **The working path:** use the GitHub Git Data API recipe in `/DEPLOY.md §Autonomous Deploy`. Token lives at `.secrets/github_token` (already committed locally, gitignored). It's 4 API calls: get-ref → blobs → tree → commit → PATCH ref. Proven working — commit `e5ba154` (2026-04-21) shipped all workflows green.
@@ -456,14 +662,18 @@ If this is a genuinely new blocker (proxy actually blocks github.com this sessio
 
 0. **HARD RULE #1, #2 above** — if the session touches ANY platform data, run the verify-live checks FIRST. Do not proceed until they pass.
 1. **`/NEXT_STEP.md`** — living priority queue. The #1 item is what you work on TODAY (HARD RULE #4).
-2. **`/CLAUDE.md`** (this file) — behavior rules, business context, workflows, services, HARD RULES #0-#10
-3. **`/OPERATING_RHYTHM.md`** — daily/weekly/monthly cadence. Which ops run when, who owns them, what success looks like.
-4. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture (includes COLDCALL details after Apr 21 merge)
-5. **`/ACCESS.md`** — credential registry. All GitHub Secrets with what they do, where they live, and which ones reach production. If you need a key, look here FIRST.
-6. **`/DEPLOY.md`** — deploy procedures. Hard rule: nothing deploys manually, ever.
-7. **`/DISASTER_LOG.md`** — things that broke and why. **Grep this BEFORE attempting anything risky** (HARD RULE #10).
-8. **`/REPORTING.md`** (if present) — daily/weekly Slack reporting cadence and ownership.
-9. **`/BACKLOG.md`** — P4 parking lot. Read only when P0-P3 empty (HARD RULE #3).
+2. **`/CLAUDE.md`** (this file) — behavior rules, HARD RULES #0-#14, blog quality gate, SEO skill routing, client-domain gate
+3. **`/BUSINESS.md`** — the 9 services, target client, Trojan Horse sales strategy, Instantly outreach campaigns + rules, WhatsApp/IG funnel (Sofia), revenue goal + 5 streams
+4. **`/PLAYBOOKS.md`** — Instagram publishing recipes, AI cold-calling spec (ElevenLabs + Twilio), mockup pipeline (Cloud Run), key technical references
+5. **`/AI_AGENT_PERSONA.md`** — strategic brain. Refined persona, the 6 AI agents, Claude toolkit + routines, Meta Ads playbook, Prospecting 2.0, weekly math, pushback discipline. **Read this after CLAUDE.md + BUSINESS.md — it's the "how to think" layer.**
+6. **`/OPERATING_RHYTHM.md`** — daily/weekly/monthly cadence. Which ops run when, who owns them, what success looks like.
+7. **`/SYSTEM.md`** — Cloud Functions inventory, cron schedule, architecture (includes COLDCALL details after Apr 21 merge)
+8. **`/ACCESS.md`** — credential registry. All GitHub Secrets with what they do, where they live, and which ones reach production. If you need a key, look here FIRST.
+9. **`/DEPLOY.md`** — deploy procedures. Hard rule: nothing deploys manually, ever.
+10. **`/DISASTER_LOG.md`** — things that broke and why. **Grep this BEFORE attempting anything risky** (HARD RULE #10).
+11. **`/DEPRECATED.md`** — dead tools/campaigns/syntax patterns. Grep before retrying anything that looks like an old approach.
+12. **`/REPORTING.md`** (if present) — daily/weekly Slack reporting cadence and ownership.
+13. **`/BACKLOG.md`** — P4 parking lot. Read only when P0-P3 empty (HARD RULE #3).
 
 If something is missing from these files, it's missing from our system. Don't guess — read.
 
@@ -510,292 +720,84 @@ Alex operates with a full AI stack that lets one person deliver like a 10-person
 - **ElevenLabs** → Voiceovers for property videos + AI Cold Calling (Conversational AI + Twilio)
 - **Cloud Run mockup-renderer** → Dedicated HTML→PNG microservice for dynamic CSS mockups (fake "ugly before" sites, complex layouts with fonts + gradients + backgrounds). Endpoint: `https://mockup-renderer-wfmydylowa-uc.a.run.app/render`. Auto-deploys via `.github/workflows/deploy-cloudrun.yml` on push to main. See Mockup Pipeline section below.
 
-### DEAD TOOLS — NEVER USE (Updated April 12, 2026)
-- **Postiz** → REMOVED. Subscription expired. All `schedule_postiz_*.cjs` scripts are dead. Instagram publishing goes through **Graph API directly** (see `instagram-publisher` skill). NEVER reference Postiz in any workflow, script, or automation.
-- **n8n Public API** → Free trial blocks API access. Cannot trigger workflows programmatically.
-- **Meta Business Suite via Chrome** → Opens native OS file picker, unreachable from automation.
-- **instagram.com web login** → Password rules block it.
+### DEAD TOOLS — NEVER USE
+
+Full list of deprecated tools, campaigns, syntax patterns, and deploy paths lives in [`DEPRECATED.md`](DEPRECATED.md). **Grep before trying anything that looks similar to an old approach** (HARD RULE #10).
+
+Quick-hits (read DEPRECATED.md for the why + replacement):
+- **Postiz** (expired) → use Graph API via `instagram-publisher` skill
+- **n8n Public API** (blocked on free trial) → use Graph API / Cloud Functions
+- **Meta Business Suite via Chrome MCP** (native file picker unreachable) → use Graph API
+- **instagram.com web login** (bot detection) → long-lived `IG_GRAPH_TOKEN`
+- **Firebase Storage as IG image host** (404s on graph.facebook.com fetch) → catbox.moe
+- **Apollo.io / Clay.com** (never enabled, DIY-stack policy) → SerpAPI + Hunter + Firecrawl + DataForSEO + PSI
+- **OpenClaw for outreach** (deliverability) → Instantly.ai for all outbound
 
 ---
 
-## THE 9 SERVICES (The ONLY services we sell)
+## THE 9 SERVICES (summary)
 
-### CRITICAL PRICING RULE
-**NEVER reveal pricing in any automated channel** — not WhatsApp, not email, not cold outreach, not in writing. Pricing is ONLY discussed live on a Calendly call with Alex.
+We sell exactly 9 services. Service 1 (Captura de Leads 24/7 con IA) is the Trojan Horse — offered with FREE setup to remove all friction. Service 2 is SEO Local, 3 is AEO (ChatGPT/Perplexity), 4 is Social Media, 5 is High-Performance Website, 6 is Property Videos, 7 is CRM + Admin Panel, 8 is 24/7 AI Sales Assistant, 9 is Email Marketing. Bundles: **Pack Crecimiento** (1+2+4), **Pack Dominacion** (1+2+3+4+6).
 
-### Entry "Trojan Horse" — Always lead with this
-**Service 1: Captura de Leads 24/7 con IA** — offered with FREE setup to get foot in the door.
+**PRICING RULE (do not violate):** never quote price in ANY automated channel — WhatsApp, email, cold outreach, in writing. Price is discussed ONLY on a live Calendly call with Alex.
 
-| # | Service | Description |
-|---|---|---|
-| 1 | **Captura de Leads 24/7 con IA** | AI responds via WhatsApp, SMS, web chat in seconds. Qualifies leads, books appointments, alerts broker on hot prospects. Setup: GRATIS. |
-| 2 | **Posicionamiento SEO Local** | #1 Google Maps ranking. Technical SEO, schema markup, 4 blog articles/month, Google Business Profile optimization, monthly rankings report. |
-| 3 | **Presencia en Buscadores Inteligentes (AEO)** | Get ChatGPT, Gemini, Perplexity to recommend the agency. AEO audit, answer-first content, 2 AEO articles/month, monthly visibility report. |
-| 4 | **Gestion de Redes Sociales** | 12 posts/month across Instagram, Facebook & TikTok. Content strategy, editorial calendar, optimal scheduling, hashtag strategy, monthly report. |
-| 5 | **Sitio Web de Alto Rendimiento** | Custom mobile-first website, <2s load time, SEO structure, lead capture forms, WhatsApp integration, 98+ PageSpeed. One-time project. |
-| 6 | **Videos de Propiedades** | Cinematic videos from just photos. Motion, transitions, professional music. 6 videos/month, delivered in 48 hours. Optimized for Reels, TikTok, Shorts. |
-| 7 | **CRM + Panel Admin** | Custom dashboard for leads, sales pipeline, agent performance, WhatsApp + email integration. |
-| 8 | **Asistente de Ventas 24/7** | AI voice agent that handles outbound/inbound calls, qualifies prospects, books appointments 24/7. |
-| 9 | **Email Marketing y Seguimiento** | Automated nurture sequences, monthly newsletters, re-engagement campaigns, lead segmentation, open/click analytics. |
-
-**Bundles:**
-- **Pack Crecimiento** (1+2+4) — bundled discount
-- **Pack Dominacion** (1+2+3+4+6) — bundled discount
+Full service list + descriptions + bundle logic → **[`BUSINESS.md §The 9 Services`](BUSINESS.md#the-9-services)**.
 
 ---
 
-## TARGET CLIENT
+## TARGET CLIENT (summary)
 
-- Real estate agency or developer **anywhere in Mexico** (CDMX, Cancún, GDL, MTY, Playa del Carmen, Tulum, and all other cities)
-- Has WhatsApp but loses leads to missed calls
-- Website exists but invisible on Google/AI search
-- Decision maker: Owner, Director, or Marketing Manager
-- Monthly budget: $3,000–$20,000 MXN
-- Pain: Not enough qualified leads, wasting time on cold leads
+Real-estate agency or developer anywhere in Mexico (CDMX, Cancún, GDL, MTY, Playa del Carmen, Tulum, and all other cities). Has WhatsApp but loses leads. Decision maker: Owner / Director / Marketing Manager. Monthly budget $3K-$20K MXN. Default copy phrase: "inmobiliarias en México" — NEVER "Riviera Maya" in mass templates. Secondary market: Miami luxury (bilingual).
 
-**CRITICAL:** Default to "inmobiliarias en México" in ALL outreach. **NEVER say "Riviera Maya" in mass templates.** Only use if running a geo-targeted campaign for that specific region.
-
-**Secondary market:** Miami luxury real estate (bilingual need)
+Full ICP → **[`BUSINESS.md §Target Client`](BUSINESS.md#target-client)**.
 
 ---
 
-## VERIFIED RESULTS (Social Proof)
+## VERIFIED RESULTS (Social Proof — summary)
 
-| Client | Results |
-|---|---|
-| **Flamingo Real Estate** (Cancún) — ACTIVE | 4.4x search visibility, #1 Google Maps, +320% organic traffic, 88% leads automated |
-| **GoodLife Tulum** | +300% organic traffic ← **Primary cold email social proof** |
-| **Goza Real Estate** | 3x lead volume, 98 PageSpeed, 24/7 AI coverage |
-| **Solik Real Estate** | 95% lead qualify rate, #1 Maps, bilingual AI |
+**Flamingo** (Cancún, ACTIVE): 4.4x visibility, #1 Google Maps, +320% organic, 88% leads automated. **GoodLife Tulum:** +300% organic traffic (primary cold-email hook). **Goza:** 3x leads, 98 PageSpeed. **Solik:** 95% qualify rate, #1 Maps, bilingual AI.
 
-All results: jegodigital.com/showcase | instagram.com/jegodigital
+Per HARD RULE #9 — verify these numbers monthly against live client data. Goza / GoodLife / Solik have NO verified domain in `showcase.html` (never cite a URL for them).
+
+Full table → **[`BUSINESS.md §Verified Results`](BUSINESS.md#verified-results)**.
 
 ---
 
 ## SALES STRATEGY — THE TROJAN HORSE
 
-1. Lead in → Sofia qualifies on WhatsApp
-2. Offer free setup for Service 1 (Captura de Leads 24/7) — remove all friction
-3. They see immediate ROI (captured a lead they would have lost)
-4. Follow up in 2 weeks → "You captured X leads you would have lost"
-5. Upsell to SEO Local (Service 2) or Pack Crecimiento bundle
-6. **Never quote full price on WhatsApp** — push to Calendly call
-7. **Anchor with results** (Flamingo 4.4x, GoodLife 300%) before any price discussion
+Lead in → Sofia qualifies → offer free setup of Service 1 (Captura de Leads 24/7) → they see instant ROI → follow up in 2 weeks with lead count → upsell to SEO Local or Pack Crecimiento. Never quote price on WhatsApp — always push to Calendly. Anchor with Flamingo 4.4x / GoodLife 300% before any price conversation.
 
-**Objection responses:**
-- "No tengo presupuesto" → "Empezamos gratis — sin costo de instalación"
-- "¿Cuánto cuesta?" → "Depende de tu zona. ¿15 minutos esta semana? calendly.com/jegoalexdigital/30min"
-- "Mándame información" → 3 bullet points max + Calendly link. **NEVER a PDF. NEVER pricing.**
+Full 7-step playbook + objection-response scripts → **[`BUSINESS.md §Sales Strategy — The Trojan Horse`](BUSINESS.md#sales-strategy--the-trojan-horse)**.
 
 ---
 
 ## OUTREACH PIPELINE — INSTANTLY.AI
 
-**Sending domain:** aichatsy.com (separate from jegodigital.com to protect main domain)
+Cold-email sending runs on `aichatsy.com` (separate domain, protects jegodigital.com reputation). The AI reply agent leads with a **free 45-min audit** on every positive reply (URL: `jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply`), drops 1-line social proof (Flamingo 4.4x / GoodLife +300%), proposes Calendly AFTER the audit lands, and never quotes price.
 
-### AI Reply Agent Guidance (UPDATED April 19, 2026 — AUDIT-FIRST funnel replaces demo-video-first)
+5 active Step-1 templates: Trojan Horse, SEO + Visibilidad, World Cup 2026 (kill July 1), ChatGPT Angle, Speed-to-Lead. Redes Sociales is DELETED — do not recreate.
 
-> Always reply in the same language as the lead. Spanish if they write in Spanish, English if they write in English.
->
-> If the reply is positive or shows interest, do the following in ONE reply:
->
-> 1. **Offer the free audit FIRST — it's the strongest hook.** It arrives in 45 minutes and covers PageSpeed, Google Maps presence, ChatGPT/Perplexity visibility, and the 3 biggest gaps costing them leads. Send them this personalized one-click link (Instantly auto-merges the variables):
->    - Spanish: `https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply`
->    - English: `https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply`
->    - Say exactly: "Dale click al link de abajo y te llega a tu correo en 45 minutos — sin costo." / "Click the link below and the full audit arrives in your inbox in 45 minutes — free."
->
-> 2. **Drop the social proof in one line.** Spanish: "Flamingo Real Estate: 4.4x visibilidad y #1 en Google Maps. GoodLife Tulum: +300% tráfico orgánico." English: "Flamingo Real Estate: 4.4x visibility and #1 on Google Maps. GoodLife Tulum: +300% organic traffic."
->
-> 3. **Propose a Calendly call AFTER the audit lands.** Spanish: "Cuando te llegue el audit, ¿te parece que lo revisemos juntos 15 minutos el martes o jueves? calendly.com/jegoalexdigital/30min" English: "Once the audit arrives, want to walk through it together — 15 minutes Tuesday or Thursday? calendly.com/jegoalexdigital/30min"
->
-> 4. **Include WhatsApp as backup:** +52 998 787 5321.
->
-> 5. **If the lead specifically asks for a demo video instead of an audit**, send the matching demo URL (see Demo Video URL Map) AND still offer the audit as a follow-up ("también te puedo mandar una auditoría gratis de {{website}} en 45 minutos, te muestra exactamente dónde perder leads").
->
-> Keep the full reply to 6-8 lines. Never mention pricing. Never reveal any automation tools or software names (no "Claude", no "ManyChat", no "Firecrawl", no "DataForSEO").
->
-> If the reply is negative, respond briefly and professionally, thank them for their time, and remove them from the sequence.
+12 cold-email rules (no pricing / 1-3 word subjects / 60-80 word bodies / `Hola,` default greeting / never use `[brackets]` / build Steps 2-5 / match personalization to list quality) + full sequences → **[`BUSINESS.md §Outreach Pipeline — Instantly.ai`](BUSINESS.md#outreach-pipeline--instantlyai)**.
 
-**⚠️ WHY THIS CHANGED (April 19, 2026):** The old guidance sent demo videos first. Video demos convert ~0.3% to booked calls. The free audit is a much stronger lead magnet — it delivers tangible value (PageSpeed score, Google Maps position, ChatGPT visibility, 3 concrete fixes) within 45 minutes. The one-click pre-filled URL closes the friction gap that was forcing Alex to manually trigger audits for every positive reply. Now the lead clicks once, the audit fires, and Calendly becomes the natural next step AFTER they've seen the deliverable. Reference Apr 19 memory: `audit_pipeline_dual_fetch.md`.
-
-**Short version for Instantly UI (paste this verbatim into the AI agent prompt):**
-```
-Always match the lead's language (ES or EN).
-
-POSITIVE REPLY → do all in ONE reply:
-1. Offer free audit. Send this personalized link (vars auto-merge):
-   https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply
-   Say: "Dale click y te llega en 45 minutos, sin costo." / "Click it, audit arrives in 45 min, free."
-2. Social proof: "Flamingo Real Estate: 4.4x visibility, #1 Google Maps. GoodLife Tulum: +300% organic traffic."
-3. Propose Calendly AFTER audit: "Cuando te llegue, ¿15 min el martes/jueves? calendly.com/jegoalexdigital/30min"
-4. WhatsApp backup: +52 998 787 5321.
-5. If they specifically ask for a demo video (not audit), send matching demo URL AND offer audit as add-on.
-
-NEVER mention pricing. NEVER reveal tool names. 6-8 lines max.
-
-NEGATIVE REPLY → thanks + remove from sequence. Brief, professional.
-```
-
-### Demo Video URL Map
-| Service | URL |
-|---|---|
-| AI Lead Capture / WhatsApp | jegodigital.com/lead-capture-demo |
-| SEO / Google / AEO | jegodigital.com/seo-aeo-demo |
-| Social Media | jegodigital.com/social-media-demo |
-| Property Videos | jegodigital.com/property-videos-demo |
-| AI Voice Agent | jegodigital.com/ai-voice-agent-demo |
-| CRM / Admin | jegodigital.com/admin-crm-demo |
-| Fallback | jegodigital.com/lead-capture-demo |
-
-**RULE:** Demo videos only sent AFTER positive reply. NEVER in Step 1 cold emails.
-
-### Cold Email Rules (Updated April 19, 2026)
-1. No pricing ever in any email — not even a hint
-2. **No Calendly links in Step 1 cold emails.** CTA depends on campaign type:
-   - **Demo campaigns** (Trojan, SEO, WhatsApp, Staging): "¿Te mando un video demo de 1 minuto?"
-   - **Audit campaigns** (Auditoría Gratis, Supersearch, Hispanic-Bilingual): "¿Te mando la auditoría en 45 minutos?" — NO link in Step 1, but Steps 2-5 MUST include the pre-filled one-click URL: `https://jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=cold_email_mx`
-3. **Calendly IS required in positive reply responses** — but AFTER offering the audit first (see AI agent guidance above). For audit-offer campaigns, the audit link IS the primary CTA, Calendly is the follow-up after delivery.
-4. Sign as "Alex" only, then "JegoDigital" — never full name
-5. Language matching — Spanish default, English if they write in English
-6. Always use "inmobiliarias en México" — never "Riviera Maya" in mass templates
-7. **Subject lines: 1–3 words maximum** (research: 2 words = best open rates)
-8. **Greeting: default `Hola,` for scraped/unverified lists.** Exception: `Hola {{firstName}},` is allowed ONLY when the campaign's lead list has been audited and firstName is ≥99% populated with real names (e.g. post-April-15 Trojan 100%, Campaign F 100%, US-Hispanic-Bilingual 100%). Verify with `is_fake_name` filter before enabling. On any non-verified list the variable renders blank and destroys trust — see April 15 disaster.
-9. **Body: 60–80 words maximum** for Step 1 (research: 50–75 words = 12% reply rate)
-10. **Build Steps 2–5 for every campaign** — 42% of all replies come from follow-ups
-11. **NEVER use `[bracket placeholders]`** — `[your city]`, `[your company]`, `[your name]` etc. Instantly does NOT interpret square brackets, they send literally. Use a valid `{{instantlyVariable}}` (`{{firstName}}`, `{{companyName}}`, `{{website}}`) or rewrite the sentence generically ("your area", "your market"). **Disaster:** April 18, 2026 — US-Hispanic-Bilingual-Audit Steps 1 & 4 shipped with `[your city]` hardcoded. Caught before activation by Alex. Pre-ship grep `grep -oE '\[[a-z ]+\]' <bodies>` must return zero. See `cold-email-sequences-2026.md` Disaster Log.
-12. **Match personalization depth to list quality.** Level 2 (`{{firstName}}` + `{{companyName}}`) is the MINIMUM for Explorium/Hunter-verified lists where every row has verified first name + company. Shipping "Hi," on a verified list is wasted personalization potential — every field in the upload CSV should be used.
-
-**Full 5-step sequences for all campaigns:** see `cold-email-sequences-2026.md` (root of jegodigital folder).
-This is the single source of truth for all campaign copy, timing, and Instantly build instructions.
-
-### Active Campaign Templates — Step 1 Only (Quick Reference)
-
-**Trojan Horse** — Subject: `¿Pierdes leads?`
-```
-Hola,
-
-Ayudamos a inmobiliarias en México a capturar más leads y cerrar más ventas con sistemas de IA que responden en segundos.
-
-GoodLife Tulum logró un 300% más de tráfico orgánico trabajando con nosotros. Puedes ver más casos en nuestra página.
-
-Te instalamos el sistema sin costo de configuración.
-
-¿Te mando un video demo de 1 minuto para que veas cómo funciona?
-
-Alex
-JegoDigital
-```
-
-**SEO + Visibilidad** — Subject: `Tu competencia`
-```
-Hola,
-
-Ayudamos a inmobiliarias en México a generar más leads y ventas con posicionamiento orgánico en Google, Google Maps y buscadores con IA como ChatGPT y Perplexity.
-
-GoodLife Tulum logró un 300% más de tráfico orgánico trabajando con nosotros. Puedes ver más casos de éxito en nuestra página.
-
-Te posicionamos por encima de tu competencia en búsquedas orgánicas, sin pagar publicidad.
-
-¿Te mando un video demo de 1 minuto para que veas cómo funciona?
-
-Alex
-JegoDigital
-```
-
-**World Cup 2026** — Subject: `Mundial 2026`
-```
-Hola,
-
-En junio, México recibirá más turistas extranjeros que en cualquier otro mes del año por el Mundial 2026.
-
-Muchos de ellos buscan propiedades. La pregunta no es si habrá demanda — es si tu inmobiliaria aparecerá cuando la busquen.
-
-GoodLife Tulum logró 300% más tráfico orgánico trabajando con nosotros. Tu ventana para posicionarte antes del Mundial se cierra pronto.
-
-¿Te mando un video demo de 1 minuto?
-
-Alex
-JegoDigital
-```
-⚠️ Kill this campaign July 1, 2026.
-
-**ChatGPT Angle (replaces Campaign A)** — Subject: `ChatGPT y tú`
-```
-Hola,
-
-Haz esta prueba: abre ChatGPT y escribe "¿cuál es la mejor inmobiliaria en [tu ciudad]?"
-
-Si tu agencia no aparece, tienes un problema que va a crecer. El 34% de búsquedas inmobiliarias ya pasan por ChatGPT, Gemini o Perplexity — y ese número sube cada mes.
-
-Ayudamos a inmobiliarias en México a aparecer en esas respuestas.
-
-¿Te mando un video demo de 1 minuto?
-
-Alex
-JegoDigital
-```
-
-**Speed-to-Lead (fix Campaign B)** — Subject: `5 minutos`
-```
-Hola,
-
-¿Sabes cuánto tarda tu inmobiliaria en responder a un lead nuevo?
-
-Los leads contactados en menos de 5 minutos tienen 21 veces más probabilidad de cerrar. La mayoría de inmobiliarias responde en 12 horas o más.
-
-GoodLife Tulum logró 300% más tráfico orgánico y automatizó el 88% de su seguimiento trabajando con nosotros.
-
-¿Te mando un video de 1 minuto para que veas cómo funciona?
-
-Alex
-JegoDigital
-```
-
-**⛔ Redes Sociales** — CAMPAIGN DELETED April 2026. Do not recreate. Do not reference.
+Full 5-step campaign copy lives in `cold-email-sequences-2026.md` (root). For audits/stats/activation remember HARD RULE #1 — run `bash tools/verify_access.sh` first, pull live from `api.instantly.ai/api/v2/campaigns/analytics/daily`, never quote stale numbers.
 
 ---
 
-## WHATSAPP FUNNEL (ManyChat)
+## WHATSAPP + IG FUNNEL (ManyChat + Sofia)
 
-**Flow URL:** https://app.manychat.com/fb4452446/cms/files/wa_default/edit
+Sofia is our AI agent on WhatsApp and Instagram via ManyChat. Her #1 job is to get the lead to agree to a free digital audit (delivered in 60 min by the `submitAuditRequest` Cloud Function), #2 is to book a Calendly call. Sofia NEVER collects name/email — ManyChat already has them.
 
-**3 buttons → all route to AI Step (Sofia):**
-- Ver Servicios → AI Step ✅
-- Quiero mas leads → AI Step ✅
-- Hablar con Alex → AI Step ✅
+3 ice breakers live, Calendly `calendly.com/jegoalexdigital/30min`, Alex WhatsApp `+52 998 787 5321`.
 
-**Sofia handles:** qualification, audit offer, Calendly push. Alex steps in manually when lead is hot.
-
-**Sofia's End Goals (Updated April 17, 2026 ~00:20 CST):**
-- **Primary:** Get lead to AGREE to free digital audit → confirm we have name/email → ask ONLY for website URL → audit delivered to email in 60 min
-- **Secondary:** Book Calendly call to review audit results with Alex
-- Sofia does NOT collect name or email — ManyChat already has them
-
-**Ice Breakers (live, published — 3 total, updated April 16, 2026):**
-1. Quiero generar mas leads para mi agencia → WhatsApp Default Reply
-2. Auditoría gratis de mi sitio web → WhatsApp Default Reply
-3. Agendar consultoría gratuita de 30 min → WhatsApp Default Reply
-
-**Calendly:** calendly.com/jegoalexdigital/30min
-**Alex WhatsApp:** +52 998 787 5321
-
-### Audit Funnel — In-Chat (LIVE — April 17, 2026 ~00:20 CST)
-
-**IG flow (fully automated):** Lead says "AUDITORIA" → collects email → collects website URL → fires `submitAuditRequest` API → audit report generated (~37s) → emailed to lead → Calendly upsell
-**WA flow:** Sofia offers audit → confirms info → asks for URL → sends to jegodigital.com/auditoria-gratis (Phase 2: direct API call TODO)
-**Cloud Function:** `https://us-central1-jegodigital-e02fb.cloudfunctions.net/submitAuditRequest`
-
-**DEPLOY NEEDED:** Run `firebase deploy --only functions:submitAuditRequest` to enable `source` tracking (manychat_instagram vs auditoria-gratis).
+Full flow (ManyChat URL, Sofia's goals, ice breakers, IG automated flow vs WA semi-manual flow, `submitAuditRequest` endpoint) → **[`BUSINESS.md §WhatsApp + Instagram Funnel`](BUSINESS.md#whatsapp--instagram-funnel)**.
 
 ---
 
 ## KEY CONSTRAINTS
 
-- **Focus on OUTCOMES:** more showings, more deals, less time chasing leads
-- **Client-facing language:** always Spanish, premium tone, zero AI/tech jargon
-- **No PDFs to prospects** — max 3 bullet points + Calendly link
-- **Never reveal AI stack** to clients
-- **Prioritize executable tasks** over theory
+Always: outcomes-focused (more deals, less chasing), Spanish + premium tone client-facing, zero AI/tech jargon to clients, no PDFs to prospects (3 bullets + Calendly only), never reveal the AI stack.
+
+Full list → **[`BUSINESS.md §Key Constraints`](BUSINESS.md#key-constraints)**.
 
 ---
 
@@ -906,55 +908,20 @@ WHITELIST — the ONLY acceptable image sources:
 4. Real portfolio shots → `/website/images/portfolio/*.png`, `/website/assets/screenhots/*.png`
 5. Fresh screenshots of jegodigital.com itself — take with Chrome MCP when needed
 
-Pre-ship image audit (run before Step 5 push):
-```bash
-grep -oE 'src="images/[^"]+"' website/blog/<slug>.html | while read s; do
-  fn=$(echo "$s" | sed -E 's/src="images\/|"//g')
-  # Flag any filename suggesting AI/concept/render art
-  if echo "$fn" | grep -qiE 'neon|isometric|3d-|concept|render-|ai-generated|heatmap'; then
-    echo "❌ BANNED IMAGE: $fn"; exit 1
-  fi
-  # Must exist on disk
-  [ -f "website/blog/images/$fn" ] || { echo "❌ MISSING: $fn"; exit 1; }
-done
-echo "✅ image audit passed"
-```
+**Pre-ship image audit** — run before Step 5 push.
+Script: [`docs/playbooks/blog_quality_audits.md#1-no-ai-images-pre-ship-audit`](docs/playbooks/blog_quality_audits.md#1-no-ai-images-pre-ship-audit)
+
 If any image fails the check → REPLACE with a real screenshot from the whitelist. No exceptions.
 
 **📦 IMAGE-BINARIES-IN-TREE HARD RULE (added 2026-04-21 PM after landing-page post shipped with 3x HTTP 404 images):**
 
 Every `<img src="images/foo.png">` the HTML references MUST be included as a base64 blob in the SAME GitHub Git Data API tree as the HTML push. Local copy in `website/blog/images/` is NOT enough — if it's not in the git tree, Firebase Hosting serves 404.
 
-Pre-push tree audit — enforce BEFORE `api("POST","/git/commits",...)`:
-```python
-import re, urllib.error
-with open(f"{REPO_ROOT}/website/blog/{SLUG}.html") as f:
-    html = f.read()
-img_refs = re.findall(r'<img[^>]+src="(images/[^"]+)"', html)
-tree_paths_this_push = [e["path"] for e in tree_entries]
-for ref in img_refs:
-    disk_path = f"website/blog/{ref}"
-    full = os.path.join(REPO_ROOT, disk_path)
-    assert os.path.isfile(full), f"MISSING ON DISK: {full}"
-    if disk_path not in tree_paths_this_push:
-        # Not in this push — must already be in main
-        try:
-            api("GET", f"/contents/{disk_path}?ref=main")
-        except urllib.error.HTTPError as e:
-            if e.code == 404:
-                raise AssertionError(f"NOT IN TREE + NOT IN MAIN: {disk_path} — add to files_to_push as base64 blob")
-print(f"image-tree audit passed ({len(img_refs)} images resolved)")
-```
+**Pre-push tree audit** — enforce BEFORE `api("POST","/git/commits",...)`.
+Script: [`docs/playbooks/blog_quality_audits.md#2-image-binaries-in-tree-pre-push-audit`](docs/playbooks/blog_quality_audits.md#2-image-binaries-in-tree-pre-push-audit)
 
-Post-push live audit — run AFTER workflows green, BEFORE reporting success:
-```bash
-SLUG=<slug>
-for img in $(curl -s "https://jegodigital.com/blog/$SLUG" | grep -oE 'src="images/[^"]+"' | sed 's/src="//;s/"$//'); do
-  code=$(curl -s -o /dev/null -w "%{http_code}" "https://jegodigital.com/blog/$img")
-  [ "$code" = "200" ] || { echo "LIVE 404: $img"; exit 1; }
-done
-echo "all live images 200"
-```
+**Post-push live audit** — run AFTER workflows green, BEFORE reporting success.
+Script: [`docs/playbooks/blog_quality_audits.md#3-image-binaries-in-tree-post-push-live-audit`](docs/playbooks/blog_quality_audits.md#3-image-binaries-in-tree-post-push-live-audit)
 
 **Disaster:** 2026-04-21 PM — landing-page post shipped to prod + Google indexing with 3x HTTP 404 on the hero demo PNGs. Root cause: `push_landing.py` tree only included HTML/index/sitemap, not the binary images. Local files existed but were untracked in git. Fixed in commit `16a716c` by pushing 4 PNGs as base64 blobs. This rule is the permanent patch.
 
@@ -1013,38 +980,9 @@ MANDATORY components — every post must have ALL four:
 
 If no existing video matches the post topic → STOP. Tell Alex: "No existing @JegoDigitalchannel video matches this post's topic. Options: (a) pick a different blog topic, (b) produce a new video first, (c) ship without embed and flag as tech debt." Do NOT embed a mismatched video.
 
-MANDATORY pre-ship audit — run BEFORE `api("POST","/git/commits",...)`:
-```python
-import re, urllib.request
-with open(f"{REPO_ROOT}/website/blog/{SLUG}.html") as f:
-    html = f.read()
-# 1) iframe present
-assert 'youtube.com/embed/' in html, "MISSING: no youtube iframe in article"
-embed_id = re.search(r'youtube\.com/embed/([A-Za-z0-9_-]{11})', html).group(1)
-# 2) VideoObject schema present
-assert '"@type": "VideoObject"' in html or '"@type":"VideoObject"' in html, "MISSING: VideoObject JSON-LD schema"
-# 3) schema embedUrl matches iframe
-assert f'/embed/{embed_id}' in html, "MISMATCH: schema embedUrl != iframe src"
-# 4) embed URL reachable (HTTP 200)
-req = urllib.request.Request(f"https://www.youtube.com/embed/{embed_id}", headers={"User-Agent":"jegodigital-audit"})
-code = urllib.request.urlopen(req).getcode()
-assert code == 200, f"EMBED URL {code} — video removed or private"
-# 5) thumbnail reachable
-tcode = urllib.request.urlopen(f"https://img.youtube.com/vi/{embed_id}/maxresdefault.jpg").getcode()
-assert tcode == 200, f"THUMBNAIL {tcode}"
-print(f"youtube-embed audit passed (video {embed_id})")
-```
+**MANDATORY pre-ship audit** — run BEFORE `api("POST","/git/commits",...)`. Script: [docs/playbooks/blog_quality_audits.md#4-youtube-embed-pre-ship-audit](docs/playbooks/blog_quality_audits.md#4-youtube-embed-pre-ship-audit)
 
-MANDATORY post-push live audit — run AFTER workflows green, BEFORE reporting success:
-```bash
-SLUG=<slug>
-LIVE=$(curl -s "https://jegodigital.com/blog/$SLUG")
-echo "$LIVE" | grep -q 'youtube.com/embed/' || { echo "LIVE PAGE MISSING IFRAME"; exit 1; }
-echo "$LIVE" | grep -q '"VideoObject"' || { echo "LIVE PAGE MISSING VideoObject schema"; exit 1; }
-VID=$(echo "$LIVE" | grep -oE 'youtube\.com/embed/[A-Za-z0-9_-]{11}' | head -1 | sed 's|youtube.com/embed/||')
-curl -sI "https://www.youtube.com/embed/$VID" | head -1 | grep -q '200' || { echo "EMBED URL DEAD"; exit 1; }
-echo "youtube-embed live audit passed ($VID)"
-```
+**MANDATORY post-push live audit** — run AFTER workflows green, BEFORE reporting success. Script: [docs/playbooks/blog_quality_audits.md#5-youtube-embed-post-push-live-audit](docs/playbooks/blog_quality_audits.md#5-youtube-embed-post-push-live-audit)
 
 If the embed is missing, the schema is missing, or the embed URL returns non-200 → FIX IT. Do not mark post as shipped until both audits pass.
 
@@ -1077,27 +1015,8 @@ Anchor-text pattern (Spanish, descriptive, keyword-bearing):
 - ✅ "sistema de captura de leads automatizado" → `/blog/captura-leads-inmobiliarias-2026`
 - ❌ "click aquí" / "lee más" / "este artículo" (generic, no keyword signal)
 
-Pre-ship internal-link audit (run before Step 5 push):
-```bash
-SLUG=website/blog/<slug>.html
-# Count in-body internal links (inside <p>, <li>, <blockquote>) pointing to jegodigital internal paths
-IN_BODY=$(python3 -c "
-import re, sys
-html = open('$SLUG').read()
-# Strip <nav>, <header>, <footer>, <script>, <style>
-for tag in ['nav', 'header', 'footer', 'script', 'style']:
-    html = re.sub(rf'<{tag}[^>]*>.*?</{tag}>', '', html, flags=re.DOTALL|re.IGNORECASE)
-# Count internal links (href starting with /, not /#, not external)
-links = re.findall(r'<a[^>]+href=\"(/[^\"#][^\"]*)\"[^>]*>([^<]+)</a>', html)
-unique = set(h for h, _ in links)
-print(len(unique))
-")
-if [ "$IN_BODY" -lt 4 ]; then
-  echo "❌ INTERNAL-LINK AUDIT FAILED: only $IN_BODY in-body internal links (need ≥4)"; exit 1
-fi
-echo "✅ internal-link audit passed ($IN_BODY unique in-body links)"
-# Also verify each target exists on disk or is a known route
-```
+**Pre-ship internal-link audit** — run before Step 5 push. Script: [docs/playbooks/blog_quality_audits.md#6-internal-links-pre-ship-audit](docs/playbooks/blog_quality_audits.md#6-internal-links-pre-ship-audit)
+
 If audit fails → weave more contextual links into existing paragraphs. Do NOT dump them in a separate "Related" block. No exceptions.
 
 **Step 4 — OPTIMIZE (score must be ≥80/100):**
@@ -1130,236 +1049,48 @@ If audit fails → weave more contextual links into existing paragraphs. Do NOT 
 
 ---
 
-## 📸 INSTAGRAM PUBLISHING (use this, never n8n / Business Suite / IG web)
+## 📸 INSTAGRAM PUBLISHING (Graph API — never n8n / Business Suite / IG web)
 
-**Trigger:** any request to post / publish / schedule / upload anything to @jegodigital Instagram (single image, carousel, Reel, Story).
+**Trigger:** any request to post / publish / schedule / upload anything to @jegodigital (single image, carousel, Reel, Story).
 
-**IG Business User ID:** `17841424426942739` | **Graph API:** v22.0 | **Account:** @jegodigital
+**The only working path:** finished PNG → catbox.moe HTTPS URL → Meta Graph API v22.0 → published. Access token lives as `IG_GRAPH_TOKEN` in GitHub Secrets (and `website/functions/.env` locally).
 
-### Access Token (long-lived)
+**DEAD ENDS — do not retry** (see `DEPRECATED.md`): n8n public API, Meta Business Suite via Chrome MCP, instagram.com web login, Firebase Storage as image host.
 
-Stored as `IG_GRAPH_TOKEN` in **GitHub Secrets** (see `/ACCESS.md` row 25) and injected into Cloud Functions runtime via `deploy.yml`. Local dev reads it from `website/functions/.env` (auto-generated on each deploy). For one-off CLI use:
-
-```bash
-export TOKEN=$(grep IG_GRAPH_TOKEN website/functions/.env | cut -d= -f2)
-curl -s "https://graph.facebook.com/v22.0/17841424426942739?fields=username&access_token=$TOKEN"
-# expect: {"username":"jegodigital",...}
-```
-
-If `website/functions/.env` doesn't exist locally, recover via the GH Actions deploy (see `/ACCESS.md` "EMERGENCY — I LOST MY LOCAL .env" section).
-
-### NEVER attempt these (all confirmed dead ends 2026-04-07):
-1. n8n public API — free trial blocks it (`/settings/api` says "Upgrade to use API")
-2. Meta Business Suite via Chrome MCP — opens native OS file picker, unreachable
-3. instagram.com web login — password rule blocks it
-4. Reading token via Chrome MCP from n8n node UI — security layer returns `[BLOCKED: Base64 encoded data]`
-5. Firebase Storage as host — bucket 404s
-
-The ONLY working path: **finished asset → public HTTPS URL → Graph API → published.**
-
-### Hosting (catbox.moe)
-```bash
-URL=$(curl -s -F "reqtype=fileupload" -F "fileToUpload=@slide.png" https://catbox.moe/user/api.php)
-# Verify with GET (NOT HEAD — catbox HEAD returns Content-Length: 0 even when file is real):
-curl -s "$URL" -o /tmp/check && file /tmp/check  # expect "PNG image data"
-```
-**Error 9004 fix:** "Only photo or video can be accepted" = Graph API couldn't fetch the URL. Catbox dedupes by hash; if a previous upload is stuck, re-encode the PNG to change its hash:
-```python
-from PIL import Image; Image.open('o.png').save('new.png','PNG',optimize=False)
-```
-Then re-upload `new.png` → fresh URL.
-
-### Recipe — Carousel (2–10 slides, all same aspect ratio)
-```bash
-TOKEN='<above>'; IG=17841424426942739
-URLS=("https://files.catbox.moe/aaa.png" "https://files.catbox.moe/bbb.png")
-IDS=()
-for u in "${URLS[@]}"; do
-  r=$(curl -s -X POST "https://graph.facebook.com/v22.0/$IG/media" \
-    --data-urlencode "image_url=$u" --data-urlencode "is_carousel_item=true" --data-urlencode "access_token=$TOKEN")
-  IDS+=($(echo "$r" | python3 -c "import sys,json;print(json.load(sys.stdin)['id'])"))
-done
-CHILDREN=$(IFS=,; echo "${IDS[*]}")
-PARENT=$(curl -s -X POST "https://graph.facebook.com/v22.0/$IG/media" \
-  --data-urlencode "media_type=CAROUSEL" --data-urlencode "children=$CHILDREN" \
-  --data-urlencode "caption=$CAPTION" --data-urlencode "access_token=$TOKEN" \
-  | python3 -c "import sys,json;print(json.load(sys.stdin)['id'])")
-sleep 10
-MEDIA=$(curl -s -X POST "https://graph.facebook.com/v22.0/$IG/media_publish" \
-  --data-urlencode "creation_id=$PARENT" --data-urlencode "access_token=$TOKEN" \
-  | python3 -c "import sys,json;print(json.load(sys.stdin)['id'])")
-curl -s "https://graph.facebook.com/v22.0/$MEDIA?fields=permalink&access_token=$TOKEN"
-```
-
-### Recipe — Single image
-Same as carousel but skip `is_carousel_item`, skip the parent step, just create container with `image_url`+`caption` and call `media_publish`.
-
-### Recipe — Reels
-```bash
-curl -s -X POST "https://graph.facebook.com/v22.0/$IG/media" \
-  --data-urlencode "media_type=REELS" --data-urlencode "video_url=$VIDEO_URL" \
-  --data-urlencode "caption=$CAPTION" --data-urlencode "share_to_feed=true" \
-  --data-urlencode "access_token=$TOKEN"
-# Poll status_code until FINISHED, then media_publish.
-```
-Specs: MP4 9:16 (1080×1920), 3–90s, ≤100MB, H.264+AAC, public HTTPS URL.
-
-### Recipe — Story
-Same as single image but `media_type=STORIES` + 1080×1920 vertical.
-
-### Caption rules
-- **Always Spanish** unless explicit override
-- **NEVER** include pricing or AI tool names (Claude, ManyChat, n8n, ChatGPT)
-- **NEVER** "AI-powered" / "automatización con IA"
-- One CTA: WhatsApp `+52 998 787 5321` OR `calendly.com/jegoalexdigital/30min`
-- 5–8 hashtags from: `#inmobiliaria #InmobiliariaCancún #InmobiliariasMéxico #RivieraMaya #BienesRaicesCancún #MarketingInmobiliario #SEOInmobiliario #RealEstateCancún #JegoDigital #Cancun #PlayaDelCarmen #Tulum`
-- Always end by fetching `permalink` and reporting it to Alex
-
-### Reference implementation
-Flamingo 6-slide carousel published 2026-04-07: https://www.instagram.com/p/DW2JhYSjbBZ/
-Source PNGs: `/mnt/jegodigital/flamingo/social_exports/2026-04-06_slide{1..6}_*.png`
-Builder: `/mnt/jegodigital/flamingo/social_build/build.py` (HTML+Playwright, brand colors `#0f1115` + `#C5A059`)
+Full Graph API recipes (carousel, single, Reels, Story), catbox.moe hosting, error 9004 fix, caption rules (Spanish, no pricing, no tool names, 5-8 hashtags), Flamingo reference implementation → **[`PLAYBOOKS.md §Instagram Publishing`](PLAYBOOKS.md#-instagram-publishing)**.
 
 ---
 
-## AI COLD CALLING — ELEVENLABS + TWILIO (Created April 16, 2026)
+## AI COLD CALLING — ELEVENLABS + TWILIO
 
-> Full details in `cold-calling-ai` skill. This is the quick-reference summary.
+ElevenLabs Conversational AI + Twilio MX number `+52 998 387 1618`, July voice, Gemini 3.1 Flash Lite LLM. Three split-test agents live: **A** SEO Pitch, **B** Free Audit, **C** Free Setup (Trojan Horse). Trigger via `node tools/elevenlabs_trigger_call.cjs <phone> "Name" --offer=A|B|C`.
 
-### Live System
-- **Phone:** +52 998 387 1618 (Twilio MX number, ID: `phnum_8801kp77en3ee56t0t291zyv40ne`)
-- **Voice:** July — Warm, Youthful (ID: `MD6rLAhozcrmkdMZeOBt`)
-- **LLM:** Gemini 3.1 Flash Lite Preview (set in ElevenLabs dashboard)
-- **TTS:** `eleven_v3_conversational` | **ASR:** `scribe_realtime` | **Turn:** `turn_v2`
+Full system spec, agent IDs, trigger scripts, key files list, TODO roadmap → **[`PLAYBOOKS.md §AI Cold Calling`](PLAYBOOKS.md#-ai-cold-calling)**.
 
-### 3 Split-Test Offers (all created April 16, 2026)
-
-| Offer | Agent ID | Strategy | CTA |
-|---|---|---|---|
-| **A — SEO Pitch** | `agent_6601kp758ca4fcx8aynsvc0qyy5k` | Google/ChatGPT visibility hook | Book Calendly with Alex |
-| **B — Free Audit** | `agent_7001kpcxketqewvt87k4mg6vp569` | Free 7-area business audit scored 0-100, emailed in 60 min | Lead says "yes" + confirms email |
-| **C — Free Setup** | `agent_2801kpcxmxyvf36bb2c970bhvfk4` | Free AI lead capture install (Trojan Horse), speed-to-lead hook | Book Calendly install call |
-
-### Trigger Script
-```bash
-node tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=A|B|C [--email=X] [--company=X]
-```
-
-### Key Files
-| File | Purpose |
-|---|---|
-| `/website/tools/elevenlabs_trigger_call.cjs` | Trigger calls (supports --offer=A/B/C) |
-| `/website/tools/elevenlabs_list_agents.cjs` | List all agents in account |
-| `/website/tools/elevenlabs_get_agent.cjs` | Get agent config details |
-| `/website/tools/elevenlabs_check_phone.cjs` | List registered phone numbers |
-| `/website/tools/audit_elevenlabs_calls.cjs` | Audit call history + zombie detection |
-| `/website/tools/create_offer_b.cjs` | Creation script for Offer B agent |
-| `/website/tools/create_offer_c.cjs` | Creation script for Offer C agent |
-
-### TODO (Cold Calling)
-1. Build auto-audit pipeline for Offer B (seo-engine → PDF report → Brevo transactional email → 60 min delivery)
-2. Add `get_available_slots` + `book_calendly_live` tools to Offer C agent
-3. Prepare phone-specific lead lists (current `/leads/` CSVs are for Instantly email, NOT phone)
-4. Reduce Offer A max duration from 600s to 300s
-5. Build batch calling script with DNC checking + result logging
+For audits/config changes, remember HARD RULE #2 — always pull live via `GET api.elevenlabs.io/v1/convai/conversations` with `xi-api-key`, never from memory.
 
 ---
 
-## 🖼️ MOCKUP PIPELINE — CLOUD RUN HTML→PNG RENDERER (Added 2026-04-19)
+## 🖼️ MOCKUP PIPELINE — CLOUD RUN HTML→PNG RENDERER
 
-Dedicated microservice for rendering HTML pages (especially complex CSS mockups — fake "ugly before" sites, MacBook frames, gradient backgrounds, Google Fonts) into high-resolution PNGs. Built because the in-sandbox Playwright/WeasyPrint pipelines choke on complex fonts + gradients at 2x DPR.
+Cloud Run microservice that turns HTML into high-res PNGs — used for complex mockups (fake "ugly before" sites, device frames, gradient backgrounds, Google Fonts) that break the in-sandbox renderers. Endpoint: `https://mockup-renderer-wfmydylowa-uc.a.run.app/render`.
 
-### Endpoint
-```
-POST https://mockup-renderer-wfmydylowa-uc.a.run.app/render
-Content-Type: application/json
+**Critical rule:** never use `@import` for Google Fonts in `<style>` — it crashes Chromium. Use `<link rel="stylesheet">` in `<head>` instead.
 
-{
-  "html": "<!DOCTYPE html>...",
-  "width": 1080,
-  "height": 1350,
-  "dpr": 2
-}
-```
-Response: raw PNG bytes. Default output is `width*dpr × height*dpr` (e.g. 2160×2700 for IG carousels).
-
-### Deploy
-Auto-deploys via `.github/workflows/deploy-cloudrun.yml` on push to `main`. Never deploy manually — see `DEPLOY.md`. Service runs Playwright + Express on Chromium with `--single-process` (memory-constrained Cloud Run instance).
-
-### ⚠️ CRITICAL RULES — READ BEFORE RENDERING
-
-1. **NEVER use `@import url(...)` for Google Fonts inside `<style>` blocks.** This crashes the shared Chromium instance (`browserContext.newPage: Target page, context or browser has been closed`). Use `<link rel="preconnect">` + `<link rel="stylesheet">` in `<head>` instead.
-
-2. **Always retry on HTTP 500 (at least 3× with 4s delay).** First request after idle often fails while browser relaunches. Second attempt usually succeeds.
-
-3. **Warm the instance.** Before a batch, POST one trivial render (empty `<body>`) and discard the response. Cold start is ~5s.
-
-4. **Throttle 1.5s between requests** to avoid racing the shared browser.
-
-### Canonical Client
-`/carousels/_templates/before-after/build.py` — full Python template with `inject_fonts()` helper, `render()` with retry, and `warmup()`. Copy this when building new mockup batches.
-
-```python
-FONT_LINKS = (
-    '<link rel="preconnect" href="https://fonts.googleapis.com">'
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-    '<link href="https://fonts.googleapis.com/css2?'
-    'family=Inter:wght@300;400;500;600;700;800;900&'
-    'family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700;1,900&'
-    'display=swap" rel="stylesheet">'
-)
-def inject_fonts(html): return html.replace("<head>", "<head>" + FONT_LINKS, 1)
-```
-
-### When to use which pipeline
-| Pipeline | Use for |
-|---|---|
-| **WeasyPrint + pdftoppm** (in-sandbox) | Text-heavy JegoDigital carousels, cotizaciones, reports. Fast, deterministic, no network. |
-| **canva-jegodigital Playwright** (local) | Standard branded slides with brand assets, 1080×1350. |
-| **Cloud Run mockup-renderer** | Complex CSS mockups, fake client sites, Google Fonts + gradients + device frames. Anything that breaks WeasyPrint's font rendering at 2x DPR. |
-
-### Known Gotchas
-- Cold start ~5s, first-request-after-idle fails — always warmup + retry
-- Chromium `--single-process` crashes on heavy pages → simplify or chunk
-- Service has no persistent storage — response is returned as bytes; host the PNG yourself (catbox.moe works)
-- Never embed sensitive data in HTML — the service logs can be accessed by anyone with GCP project access
+Full endpoint spec, retry rules, warmup protocol, canonical client template, when-to-use-which-pipeline table → **[`PLAYBOOKS.md §Mockup Pipeline`](PLAYBOOKS.md#-mockup-pipeline)**.
 
 ---
 
 ## KEY TECHNICAL REFERENCES
 
-| Resource | Location |
-|---|---|
-| Website | jegodigital.com → Firebase Hosting (jegodigital-e02fb) |
-| Website files | /website/ folder (static HTML + Tailwind) |
-| Services page | /website/servicios.html (ES) + /website/services.html (EN) |
-| SEO tool | /SEO antigravity/ folder |
-| Outreach | /OpenClaw/ folder |
-| Cold Calling Scripts | /website/tools/elevenlabs_*.cjs |
-| Mockup Renderer (Cloud Run) | https://mockup-renderer-wfmydylowa-uc.a.run.app/render |
-| Mockup Template (canonical) | /carousels/_templates/before-after/build.py |
-| Master Knowledge Base | /knowledge_base/JEGDIGITAL_MASTER_KNOWLEDGE_BASE.md |
-| Config & API keys | /_JEGODIGITAL_CONFIG.md |
-| ManyChat | https://app.manychat.com/fb4452446 |
-| Calendly | https://calendly.com/jegoalexdigital/30min |
-| n8n | https://jegodigitalnew.app.n8n.cloud |
+Quick-reference table of website, tool folders, Cloud Run endpoints, ManyChat/Calendly URLs.
+
+Full table → **[`PLAYBOOKS.md §Key Technical References`](PLAYBOOKS.md#key-technical-references)**.
 
 ---
 
 ## REVENUE GOAL & ROADMAP
 
-**Goal:** $1,000,000 USD/year ($1,670,000 MXN/month) — 24-month runway
+**Goal:** $1M USD/yr via 5 revenue streams. Weekly KPIs: 500 outbound / 10 Calendly calls / 3 free Trojan installs / +$50K MXN MRR / <5% churn.
 
-**5 Revenue Streams:**
-1. Recurring agency clients (35 clients on retainer) → $420,000 MXN/mo
-2. Real estate developer contracts ($80K–$200K MXN per project) → $350,000 MXN/mo
-3. Performance-based deals (base + per qualified lead) → $400,000 MXN/mo
-4. White-label / agency partners (license AI stack) → $250,000 MXN/mo
-5. High-ticket projects (premium sites, AI installs, consulting) → $250,000 MXN/mo
-
-**Weekly KPIs:**
-- Outbound messages (OpenClaw): 500/week
-- Discovery calls (Calendly): 10/week
-- Free Trojan Horse installs: 3/week
-- New recurring revenue: $50,000 MXN/week
-- Churn: < 5%/month
+Full breakdown of the 5 streams + monthly MXN targets → **[`BUSINESS.md §Revenue Goal & 5 Revenue Streams`](BUSINESS.md#revenue-goal--5-revenue-streams)**.

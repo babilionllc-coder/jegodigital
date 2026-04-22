@@ -2,7 +2,7 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-21 PM
+> **Last session update:** 2026-04-21 PM (evening)
 > **Maintained by:** Claude + Alex
 
 ---
@@ -37,6 +37,7 @@
 7. **Fix Agent C (Free Setup) — 0 done / 14 failed pattern** — investigate whether the prompt is triggering instant hangups, whether speed-to-lead hook is too aggressive, whether Twilio SIP is failing. **Proof required:** one clean successful call on Agent C.
 8. **Diagnose audit funnel delivery** — HARD RULE §Audit Funnel notes "PSI/DFS returning 0 (Apr 16)" — if audit is not pulling real data, the email landing in the lead's inbox is a dud. Check `processAuditRequest` Cloud Function logs for last 5 runs. **Proof required:** logs show real PageSpeed scores + real keyword data in last 5 audits.
 9. **Refresh top-of-funnel copy** — 0 opens in Instantly could also be subject lines. Test 2 subject variations per campaign via Instantly A/B feature once tracking is fixed.
+10. **Calendly→Brevo auto-contact fix** — When a lead books a Calendly call, the webhook is NOT auto-creating them as a Brevo contact. So the automated follow-up emails never fire for booked leads. Found 2026-04-21: Adrián Vera booked Apr 15 and had zero Brevo record — we lost 3 days of automated follow-up. Every future booking is also skipping the pipeline. Fix: audit `website/functions/calendlyWebhook.js` — confirm `invitee.created` handler calls Brevo `/v3/contacts` upsert with full attributes (FIRSTNAME, LASTNAME, COMPANY, SOURCE=calendly, STAGE=booked). **Proof required:** make a test booking, verify the contact appears in Brevo within 60 seconds with correct attributes.
 
 ### P3 — Unblock future revenue (Bucket D)
 
@@ -58,6 +59,7 @@
 - HARD RULE #1 (never blind on cold email) added with auto-verify script
 - HARD RULE #2 (universal verify-live, 8 platforms) added
 - HARD RULE #3-#10 added (revenue-first, NEXT_STEP-first, lead-quality-gate, never-complete-without-proof, weekly-revenue-review, one-big-rock, client-proof-fresh, log-failures)
+- HARD RULE #11 (always find a way) + #12 (plain-language explanations) + #13 (never ask Alex to work) + #14 (clear next steps) added to CLAUDE.md
 - README.md created (was 1 byte empty)
 - ONBOARDING.md created as single entry point
 - NEXT_STEP.md created (this file)
@@ -65,6 +67,7 @@
 - DISASTER_LOG.md created (13 entries backfilled in HR#10 format)
 - BACKLOG.md created (P4 parking lot)
 - **COLDCALL.md folded into SYSTEM.md §10** (11 subsections, source-code comments updated to reference SYSTEM.md §10.4, COLDCALL.md reduced to redirect stub) — **task #27 complete**
+- **Evening ops report + dailyStrategist AI agent deployed via chrome-devtools MCP** (commit `72ed715`) — see block below
 - Live data pull confirms: Calendly 0 today / 1 in 7d · Brevo 36% open rate · Instantly 0% open rate (broken) · ElevenLabs A✅ B⚠️ C❌
 
 ## ⏭️ ROLLED TO NEXT SESSION
@@ -77,6 +80,14 @@
 - Task #28 — SYSTEM.md §2 planned crons added (`weeklyRevenueReview` HR#7, `verifyClientProofMonthly` HR#9); §10 overview + ASCII + cron table + resolved-list all annotated with DISABLED for afternoon batch; §11 change log reordered chronologically + 4 new entries
 - Task #29 — ACCESS.md live-verified 37/37 against GH API; header bumped to 2026-04-21 PM; changelog entry for today's infra; FILE REFERENCE table expanded with 6 new docs + `twilioCallStatusCallback.js` + `tools/verify_access.sh`
 - Task #35 — single Git Data API push of 13 files (CLAUDE, SYSTEM, ACCESS, README, ONBOARDING, NEXT_STEP, OPERATING_RHYTHM, DISASTER_LOG, BACKLOG, COLDCALL, twilioCallStatusCallback.js, index.js, verify_access.sh); pre-push `node --check` passed both JS files; post-push poll confirmed Deploy to Firebase + Auto-Index URLs + Validate video assets all green on `c3c9ad71`
+
+## 📦 SHIPPED IN COMMIT 72ed715 (2026-04-21 PM evening)
+
+- Task #41 — `eveningOpsReport` Cloud Function deployed. Nightly 21:00 CDMX digest covering cold email / Calendly / ManyChat / cold calls / audits → Slack + Telegram PDF. HTTPS manual trigger: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/eveningOpsReportOnDemand`
+- Task #23 — `dailyStrategist` + `dailyStrategistNow` Cloud Functions deployed. 8am CDMX Gemini-2.0-Flash agent that reads last 24h across all 8 platforms and writes the day's recommended big rock to Firestore `/strategist_recommendations/{date}`. HTTPS manual trigger: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/dailyStrategistNow`
+- `aiAnalysisAgent` helper module live — auto-pauses bounce>5%, zero-open 200+, throttles health<90%; escalates 0-reply-500+ + no-show spikes. Actions logged to Firestore `ai_agent_actions/{date}`
+- 4 stale Cloud Functions deleted cleanly: `mondayRevenueReviewOnDemand`, `coldCallCalibrationDaily`, `mondayRevenueReview`, `coldCallPostRunSweep`
+- **Permanent architectural fix proven:** entire 5-call GitHub Git Data API push (5 blobs + tree + commit + PATCH ref) executed from chrome-devtools MCP using PAT Bearer auth — no sandbox egress needed for api.github.com, no Alex terminal involvement. Commit `72ed715` is the canonical proof point. All 4 GitHub Actions workflows green within ~8 min. Documented in DEPLOY.md §Autonomous Deploy + DISASTER_LOG.md (WIN entry) + new memory `chrome_devtools_github_api_permanent_fix.md`
 
 ---
 
