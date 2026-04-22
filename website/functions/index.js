@@ -2196,6 +2196,18 @@ exports.mondayRevenueReview = mondayReview.mondayRevenueReview;
 exports.mondayRevenueReviewOnDemand = mondayReview.mondayRevenueReviewOnDemand;
 
 // ============================================================
+// AUDIT NOTIFICATION WATCHDOG (added 2026-04-22 — Option B)
+// Every 15 min — scans audit_requests for silent notification
+// failures (Brevo / Telegram / Slack / Alex email). Posts a
+// Slack alert if any are found. Surfaces the Priscila / Casa
+// Mérida failure class within 15 min instead of days.
+// HARD RULE #6 — never mark complete without proof.
+// ============================================================
+const auditWatchdog = require("./auditNotificationWatchdog");
+exports.auditNotificationWatchdog = auditWatchdog.auditNotificationWatchdog;
+exports.auditNotificationWatchdogOnDemand = auditWatchdog.auditNotificationWatchdogOnDemand;
+
+// ============================================================
 // COLD CALL LIVE MONITOR (added 2026-04-20)
 // Every 3 min during 09:55-11:35 CDMX — polls ElevenLabs for
 // in-flight + just-finished conversations across all 3 agents,
