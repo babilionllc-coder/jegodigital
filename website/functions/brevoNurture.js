@@ -400,19 +400,30 @@ async function processNurtureQueue({ limit = 40 } = {}) {
     const db = admin.firestore();
     const now = admin.firestore.Timestamp.now();
 
+    // Single-field query on sendAt only (no composite index required).
+    // Filter sent/canceled in code after fetch — fetch 3x limit to compensate.
     const dueSnap = await db.collection("brevo_nurture_queue")
-        .where("sent", "==", false)
-        .where("canceled", "==", false)
         .where("sendAt", "<=", now)
-        .limit(limit)
+        .orderBy("sendAt", "asc")
+        .limit(limit * 3)
         .get();
 
     if (dueSnap.empty) return { processed: 0, sent: 0, skipped: 0, failed: 0 };
 
+    // In-code filter: only pending touches
+    const pendingDocs = dueSnap.docs
+        .filter((d) => {
+            const data = d.data();
+            return data.sent !== true && data.canceled !== true;
+        })
+        .slice(0, limit);
+
+    if (pendingDocs.length === 0) return { processed: 0, sent: 0, skipped: 0, failed: 0 };
+
     let processed = 0, sent = 0, skipped = 0, failed = 0;
     const results = [];
 
-    for (const doc of dueSnap.docs) {
+    for (const doc of pendingDocs) {
         processed++;
         const d = doc.data();
 
@@ -484,14 +495,23 @@ async function cancelTrackForEmail(email, reason = "calendly_booked") {
         canceledAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
 
+    // Single-field equality (no composite index required).
+    // Filter sent/canceled in code.
     const pending = await db.collection("brevo_nurture_queue")
         .where("email", "==", emailLc)
-        .where("sent", "==", false)
-        .where("canceled", "==", false)
         .get();
 
+    const toCancel = pending.docs.filter((d) => {
+        const data = d.data();
+        return data.sent !== true && data.canceled !== true;
+    });
+
+    if (toCancel.length === 0) {
+        return { canceled: 0 };
+    }
+
     const batch = db.batch();
-    pending.docs.forEach((d) => {
+    toCancel.forEach((d) => {
         batch.update(d.ref, {
             canceled: true,
             canceledReason: reason,
@@ -500,7 +520,7 @@ async function cancelTrackForEmail(email, reason = "calendly_booked") {
     });
     await batch.commit();
 
-    return { canceled: pending.size };
+    return { canceled: toCancel.length };
 }
 
 module.exports = {
