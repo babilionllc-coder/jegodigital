@@ -2,7 +2,7 @@
 
 **Read this file first before touching any deploy, infrastructure, or CI task.**
 
-Last updated: 2026-04-21
+Last updated: 2026-04-22 PM
 
 ---
 
@@ -135,6 +135,7 @@ curl -s -X POST -H "Authorization: token $TOKEN" -H "Accept: application/vnd.git
 1. **Don't commit `website/functions/index.js` in isolation if it added a `require('./newModule')` line without the module file being committed in the same tree.** Firebase's deployer analyzes requires at build time — missing module fails the whole `deploy.yml`. See memory `feedback_require_without_module.md`.
 2. **Do not push secrets in file contents.** The repo has a 100MB push cap and a secret scanner (`jegodigital_push_protections.md`). If a blob contains `ghp_*`, `sk-*`, `SG.*`, etc. the Data API will return a 422 and the push is rejected. Fix the file, re-blob, retry.
 3. **Always pull the latest `main` SHA right before step 1.** If Alex's Strategist agent or another session pushed between your edits and your push, your commit's `parents[]` must be the newest SHA or the ref update will 422 (non-fast-forward). Re-read `/git/refs/heads/main` immediately before the commit call.
+4. **Large blobs (≥100KB base64) must be POSTed with `curl --data-binary @file`, NEVER `curl -d @file`.** The `-d` flag reads the file into argv and trips the shell's `ARG_MAX` ("Argument list too long" / E2BIG), so the blob silently goes up empty or truncated. This is exactly how the first Brevo nurture push (`aeff926`) landed a corrupted `index.js` on `main`. Fix: write the JSON body to a temp file with `jq` or `python -c`, then `curl -H "Authorization: token $TOKEN" --data-binary @body.json $API/git/blobs`. The corrective push (`5aaad78`) used this pattern successfully. See DISASTER_LOG 2026-04-22 PM "GitHub Git Data API blob POST via curl -d @file fails on large files".
 
 ### Fallback: local git (ONLY if sandbox is already warm and index.lock isn't stuck)
 
@@ -236,12 +237,16 @@ All in `.github/workflows/`. All trigger on `push` to `main` with `paths:` filte
 ### 2. `deploy.yml` — Firebase (Functions + Hosting)
 - **Fires when:** `website/**` changes (or manual `workflow_dispatch`)
 - **What it does:**
-  1. Builds `website/functions/.env` from GH Secrets (25 env vars)
-  2. `firebase deploy --only functions --force`
-  3. Separately: `firebase deploy --only hosting`
-- **Functions:** `submitAuditRequest`, `calendlyWebhook`, `generateMockup`, `runPendingMockups`, `triggerMockupNow`, `processScheduledEmails`, `sendT10minReminders`, etc.
+  1. Builds `website/functions/.env` from GH Secrets (30+ env vars)
+  2. Auto-discovers function exports: `grep -oE '^exports\.[a-zA-Z_][a-zA-Z0-9_]*' index.js | sort -u`
+  3. Splits the list alphabetically into 2 batches → deploys BATCH 1 via `firebase deploy --only "functions:a,functions:b,..." --force`
+  4. `sleep 120` to let the GCF **60-updates-per-100-seconds** quota window reset
+  5. Deploys BATCH 2 via the same `--only` pattern
+  6. Separate `deploy-hosting` job runs in parallel — strips `hosting.predeploy` with `jq` + `firebase deploy --only hosting`
+- **Why the split?** See DISASTER_LOG 2026-04-22 PM. With 60+ functions, a single-batch deploy exceeds the GCF quota and Firebase CLI surfaces a misleading "Function deployment failed due to a health check failure". The 2-batch 120s gap is 20% headroom over the quota's 100s window.
+- **Functions:** `submitAuditRequest`, `calendlyWebhook`, `generateMockup`, `runPendingMockups`, `triggerMockupNow`, `processScheduledEmails`, `sendT10minReminders`, `processBrevoNurtureQueue`, `processBrevoNurtureQueueOnDemand`, `instantlyReplyWatcher`, `twilioCallStatusCallback`, `elevenLabsWebhook`, `eveningOpsReport`, `dailyStrategist`, `aiAnalysisAgent`, etc. (60+ total)
 - **Hosting:** `jegodigital.com` + client subsites
-- **Verify a deploy worked:** Check the Actions tab — both `deploy-functions` and `deploy-hosting` jobs must be green.
+- **Verify a deploy worked:** Actions tab → both `deploy-functions` and `deploy-hosting` jobs green. Inside `deploy-functions`, all three sub-steps must succeed: `Deploy Functions BATCH 1`, `Wait 120s`, `Deploy Functions BATCH 2`.
 
 ### 3. `auto-index.yml` — Google + IndexNow submission
 - **Fires when:** `website/**` changes

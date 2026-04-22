@@ -1,7 +1,7 @@
 # JegoDigital
 
 > One-person AI marketing agency for real estate in Mexico. Deliver like a 10-person shop.
-> **Goal:** $1M USD/year · **Status as of 2026-04-21:** 0 paying clients · **Owner:** Alex Jego
+> **Goal:** $1M USD/year · **Status as of 2026-04-22:** 0 paying clients · **Owner:** Alex Jego
 
 ---
 
@@ -104,7 +104,7 @@ jegodigital/
 
 ---
 
-## 📊 Current state snapshot (2026-04-21)
+## 📊 Current state snapshot (2026-04-22 PM)
 
 | Metric | Value | Source |
 |---|---|---|
@@ -115,6 +115,7 @@ jegodigital/
 | Calendly bookings (this week) | 1 (Apr 17) | Live Calendly API |
 | Cold calls today | 74 conversations / 12 real / 38 failed | Live ElevenLabs API |
 | Active campaigns (Instantly) | 9 | Live Instantly v2 API |
+| Brevo nurture contacts (live) | 8 backfilled, list 25 | Brevo contact IDs 117–124 |
 | Blog posts published | 8+ (most amateur, need refresh per 2026-04-11) | `/website/blog/` |
 
 **Top 3 broken things right now:**
@@ -123,9 +124,9 @@ jegodigital/
 3. 0 paying clients — outreach → booking conversion not yet working
 
 **Top 3 things working:**
-1. Cloud Function deploy pipeline (autonomous Git Data API, all 3 workflows green)
-2. Brevo email tracking (36% open rate on 138 sent in 7d)
-3. Calendly → ElevenLabs webhook → Firestore call_analysis flow
+1. Cloud Function deploy pipeline (autonomous Git Data API + deploy.yml 2-batch split, all 3 workflows green on commit `27132638`)
+2. Brevo email nurture trio LIVE (every positive Instantly reply → 4 Spanish touches over 14 days, auto-cancel on Calendly booking — 8/8 backfill delivered 2026-04-22 PM)
+3. Brevo email tracking (36% open rate on 138 sent in 7d) + Calendly → ElevenLabs webhook → Firestore call_analysis flow
 
 See `/NEXT_STEP.md` for what to do about it.
 

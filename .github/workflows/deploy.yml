@@ -8,6 +8,20 @@ on:
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
+# --------------------------------------------------------------
+# Disaster 2026-04-22 PM commit 27132638: run #78 (push) + run #79
+# (workflow_dispatch) both fired for the same commit and both tried
+# to deploy BATCH 1 (~30 functions) in parallel → 60 simultaneous
+# updates hit the GCF 60-per-100s quota → run #78 BATCH 1 failed
+# with the generic "health check failure" on 16 functions.
+#
+# Fix: serialize deploys on main. Any new run cancels the in-flight
+# one, so we never have two BATCH 1's racing for the same quota.
+# --------------------------------------------------------------
+concurrency:
+  group: deploy-firebase-main
+  cancel-in-progress: true
+
 jobs:
   deploy-functions:
     name: Deploy Cloud Functions
