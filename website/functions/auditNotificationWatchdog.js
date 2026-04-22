@@ -31,6 +31,11 @@ const GRACE_MINUTES = 5;          // wait this long before flagging a doc
 const LOOKBACK_HOURS = 24;        // window to scan
 const CHANNELS = ["brevo", "telegram", "slack", "alex_email"];
 
+// Any audit_request created before this timestamp predates the Option B
+// notifications-flush code (commit 0d1413cf). Skip them — they legitimately
+// have no notifications field and can't be healed retroactively.
+const LEGACY_CUTOFF_MS = Date.UTC(2026, 3, 22, 23, 30, 0); // 2026-04-22 23:30 UTC
+
 function isoAgo(minutes) {
     return new Date(Date.now() - minutes * 60 * 1000);
 }
@@ -47,6 +52,9 @@ function diagnose(doc) {
 
     // Grace period: don't flag docs still in flight
     if (ageMinutes < GRACE_MINUTES) return null;
+
+    // Legacy docs created before Option B shipped cannot be retro-flushed
+    if (createdAtMs < LEGACY_CUTOFF_MS) return null;
 
     // Case A — notifications field entirely missing = handler crashed or
     // the doc was created before Option B shipped. Docs older than 24h are
