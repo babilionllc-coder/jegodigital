@@ -1526,7 +1526,7 @@ exports.processAuditRequest = functions
     .onCreate(async (snap, context) => {
         const data = snap.data();
         const docId = context.params.docId;
-        const { website_url, name, email, city } = data;
+        const { website_url, name, email, city, company } = data;
 
         if (!website_url || !email) {
             console.error(`❌ Missing data for audit ${docId}: website_url=${website_url}, email=${email}`);
@@ -1612,6 +1612,44 @@ exports.processAuditRequest = functions
 
             // 6. Send email with report link (quality gate passed)
             await sendAuditEmail(email, name, reportUrl, auditResults.score, auditResults.issues);
+
+            // 6b. Queue 4-email post-audit nurture sequence (D+1, D+3, D+5, D+7).
+            //     The existing processScheduledEmails cron (hourly) picks these up.
+            //     Templates: 49 (check-in), 50 (Flamingo proof), 51 (GoodLife proof), 52 (breakup).
+            //     Why: leads who don't book in first 24h have 15-25% recovery with multi-touch
+            //     nurture citing real client proof. Non-fatal if queueing fails.
+            try {
+                const firstName = (name || "").split(" ")[0] || "Hola";
+                const websiteHost = (website_url || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
+                const nurturePlan = [
+                    { template_id: 49, delayMs: 1 * 24 * 60 * 60 * 1000, tag: "post-audit-d1" },
+                    { template_id: 50, delayMs: 3 * 24 * 60 * 60 * 1000, tag: "post-audit-d3" },
+                    { template_id: 51, delayMs: 5 * 24 * 60 * 60 * 1000, tag: "post-audit-d5" },
+                    { template_id: 52, delayMs: 7 * 24 * 60 * 60 * 1000, tag: "post-audit-d7" },
+                ];
+                const now = Date.now();
+                for (const step of nurturePlan) {
+                    await db.collection("scheduled_emails").add({
+                        to_email: email,
+                        to_name: name,
+                        template_id: step.template_id,
+                        tag: step.tag,
+                        campaign: "post-audit-nurture",
+                        send_at: admin.firestore.Timestamp.fromDate(new Date(now + step.delayMs)),
+                        status: "pending",
+                        params: {
+                            FIRSTNAME: firstName,
+                            COMPANY: company || websiteHost || "tu inmobiliaria",
+                            WEBSITE: websiteHost || website_url
+                        },
+                        source_request_id: docId,
+                        created_at: admin.firestore.FieldValue.serverTimestamp(),
+                    });
+                }
+                console.log(`📧 Queued 4-email nurture for ${email} (D+1 D+3 D+5 D+7)`);
+            } catch (nurtureErr) {
+                console.error(`⚠️ Post-audit nurture queueing failed (non-fatal):`, nurtureErr.message);
+            }
 
             // 7. Update Firestore with results
             await db.collection("audit_requests").doc(docId).update({
