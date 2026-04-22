@@ -2,19 +2,21 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-21 PM (evening)
+> **Last session update:** 2026-04-22 PM (Brevo nurture + deploy.yml batch-split shipped)
 > **Maintained by:** Claude + Alex
 
 ---
 
 ## 🎯 TODAY'S BIG ROCK (HARD RULE #8)
 
-> **2026-04-21 → 2026-04-22:** Fix the cold-email + cold-call conversion leak that's keeping MRR at $0.
+> **2026-04-23 (tomorrow):** Fill the **Free Demo Website MX** lead bucket (200+ score-≥85 leads) and flip the campaign from PAUSED → ACTIVE.
 >
-> Specifically: (1) diagnose Instantly 0% open tracking — it's a workspace-level tracking pixel bug, not a per-campaign issue. (2) Finish the ElevenLabs voicemail fix for Agents B and C (Agent A is the only one working). (3) Manually work the 1 Calendly booking from Apr 17 if it hasn't been touched yet.
+> ✅ **2026-04-22 shipped:** (1) Campaign `Free Demo Website — MX RE` created in Instantly (id `d486f1ab-4668-4674-ad6b-80ef12d9fd78`, PAUSED, 5 steps, 10 Gen 2 senders, bounce-protect + tracking ON). (2) 5-step MX Spanish sequence scored 97-100/100 on Quality Scorecard. (3) Copy archived in `COLD_EMAIL.md` §ACTIVE CAMPAIGN TEMPLATES. (4) Iron Rule #13 (bash curl only) used for the POST — verified 200 + re-GET shows all fields intact.
+>
+> Tomorrow specifically: (1) run `lead-finder v4` with broken-site signal (Firecrawl daysSinceLastBlog>180 OR pageSpeed<50 OR no HTTPS OR no schema) on MX real estate agencies. (2) Route all leads through `tools/lead_quality_gate.sh` (HR#5 — must print `✅ 5/5 gates passed`). (3) Upload to campaign via bash curl. (4) PATCH campaign status 0→1 to activate. (5) Start building `freeDemoSitePipeline` Cloud Function (manual-assist for first 10 replies while shipping).
 
-**Bucket:** A (close paying clients this week) + B (unblock lead gen)
-**Success criteria:** either opens > 0% on at least one campaign by EOD, OR Agents B+C doing >40% done rate, OR the Apr 17 Calendly lead has a scheduled follow-up.
+**Bucket:** B (generate qualified leads) + C (raise conversion via radical personalization)
+**Success criteria (tomorrow):** 200+ gate-passed leads uploaded to `d486f1ab-4668-4674-ad6b-80ef12d9fd78` + campaign status=1 (ACTIVE) + first Step-0 sends visible in Instantly analytics within 24h.
 
 ---
 
@@ -35,7 +37,7 @@
 ### P2 — Raise conversion rate (Bucket C)
 
 7. **Fix Agent C (Free Setup) — 0 done / 14 failed pattern** — investigate whether the prompt is triggering instant hangups, whether speed-to-lead hook is too aggressive, whether Twilio SIP is failing. **Proof required:** one clean successful call on Agent C.
-8. **Diagnose audit funnel delivery** — HARD RULE §Audit Funnel notes "PSI/DFS returning 0 (Apr 16)" — if audit is not pulling real data, the email landing in the lead's inbox is a dud. Check `processAuditRequest` Cloud Function logs for last 5 runs. **Proof required:** logs show real PageSpeed scores + real keyword data in last 5 audits.
+8. **Diagnose audit funnel delivery** — HARD RULE §Audit Funnel notes "PSI/DFS returning 0 (Apr 16)" — if audit is not pulling real data, the email landing in the lead's inbox is a dud. Check `processAuditRequest` Cloud Function logs for last 5 runs. **Proof required:** logs show real PageSpeed scores + real keyword data in last 5 audits. **Note (2026-04-22 PM):** the *notification layer* (Brevo + Telegram + Slack + Alex email) is now monitored by `auditNotificationWatchdog` — silent send failures will Slack-alert within 15 min. This task is now scoped to the **data-pull layer only** (PSI + DataForSEO returning real scores, not 0).
 9. **Refresh top-of-funnel copy** — 0 opens in Instantly could also be subject lines. Test 2 subject variations per campaign via Instantly A/B feature once tracking is fixed.
 10. **Calendly→Brevo auto-contact fix** — When a lead books a Calendly call, the webhook is NOT auto-creating them as a Brevo contact. So the automated follow-up emails never fire for booked leads. Found 2026-04-21: Adrián Vera booked Apr 15 and had zero Brevo record — we lost 3 days of automated follow-up. Every future booking is also skipping the pipeline. Fix: audit `website/functions/calendlyWebhook.js` — confirm `invitee.created` handler calls Brevo `/v3/contacts` upsert with full attributes (FIRSTNAME, LASTNAME, COMPANY, SOURCE=calendly, STAGE=booked). **Proof required:** make a test booking, verify the contact appears in Brevo within 60 seconds with correct attributes.
 
@@ -74,6 +76,46 @@
 
 - None from this session's doc-cleanup arc — all of it shipped in commit `c3c9ad71` (2026-04-21 PM, all 3 workflows green).
 - Still pending from P0/P1 queue above: Apr 17 Calendly booking (#1), Instantly positive-reply harvest (#2), yesterday's 74 EL conversations review (#3), Instantly 0% open tracking diagnosis (#4), Agent B+C voicemail fix verification (#5), lead_finder v4 run (#6).
+
+## ✅ SHIPPED 2026-04-22 PM (Brevo nurture trio + deploy.yml batch-split)
+
+**Context:** Alex approved "yes do it make sure its in spanish" — ship an end-to-end nurture loop from every positive Instantly reply through 4 Spanish touches over 14 days on the free Brevo plan, with auto-cancel when they book Calendly. In the same session, 6 functions started failing with the misleading "health check failure" error — root cause diagnosed as GCF deploy-rate quota (60 updates per 100s) and permanently fixed in the workflow.
+
+- **`brevoNurture.js`** shipped (NEW, 22 KB, commits `aeff926` → `5aaad78` → `c4e875c`) — core engine. `pushToBrevoList(email, attrs)` + `queueTrackA(email, replyAt, hook)` upsert contact into Brevo list 25 + write 4 per-touch rows into Firestore `brevo_nurture_queue` (day 0/3/7/14).
+- **`processBrevoNurtureQueue`** scheduled cron (every 30 min CDMX) + **`processBrevoNurtureQueueOnDemand`** HTTP endpoint — scan `brevo_nurture_queue` where `sendAt <= now`, filter `sent !== true && canceled !== true` in code (single-field query, no composite index needed — see DISASTER_LOG 2026-04-22 PM), send via Brevo transactional API, mark `sent:true`. Live URL: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/processBrevoNurtureQueueOnDemand` returned HTTP 200 on smoke test.
+- **`instantlyReplyWatcher.js` patched** — every positive Instantly reply → bridges into `brevoNurture.queueTrackA()`, ledger gets new `brevo_nurture_started` field.
+- **`calendlyWebhook.js` patched** — `invitee.created` → `cancelTrackForEmail(email)` flips all pending rows to `canceled:true` + `brevo_nurture_index.calendlyBooked=true` so no further nurture emails land.
+- **Backfill script `tools/brevo_nurture_backfill.sh` ran tonight, 8/8 delivered.** Existing Instantly repliers found = 9, excluded 1 (unsubscribe), upserted 8/8 into Brevo list 25 (contact IDs 117–124), sent 8/8 age-appropriate transactional emails (day_0 / day_3 / day_10), queued 2–3 future touches per contact.
+- **4 Spanish templates shipped (Track A)** — day 0 "aquí está la auditoría que pediste", day 3 "¿pudiste revisar el análisis?", day 7 "Caso real: Flamingo Real Estate 4.4x", day 14 "último toque antes de archivar". All <2 lines, all drive to Calendly, zero pricing.
+- **`.github/workflows/deploy.yml` hardened (commit `27132638`)** — auto-discovers function exports via `grep -oE '^exports\.[a-zA-Z_][a-zA-Z0-9_]*' index.js`, sorts unique, splits alphabetically into BATCH 1 + BATCH 2, deploys each with `--only "functions:a,..."` and sleeps 120s between. Kills the GCF quota trap that masked 6 "failed" functions (`coldCallRun`, `coldCallMidBatchCheck`, `coldCallRunAfternoon`, `contentPublisher`, `dailyDigest`, `sofiaConversationAudit`) as health-check failures.
+- **DISASTER_LOG.md +3 entries** — (1) Firebase CLI "health check failure" masks GCF deploy-rate quota, (2) Firestore composite-index trap → single-field + in-code filter pattern, (3) GitHub Git Data API blob POST requires `curl --data-binary @file` (never `curl -d @file`, which blows up on E2BIG for 115 KB base64).
+- **SYSTEM.md updated** — Brevo trio added to function inventory + 2 new Firestore collections documented (`brevo_nurture_queue`, `brevo_nurture_index`) + "Three known deploy traps (all fixed)" section now includes the GCF quota fix.
+- **DEPLOY.md updated** — `deploy.yml` section rewritten to document the 2-batch pattern + 120s gap + why the GCF quota surfaces as the wrong error, plus a new Guard Rail #4 for large-blob pushes via `--data-binary @file`.
+
+**Proof:** `outputs/brevo_nurture_morning_proof_2026-04-22.md` — 3-layer architecture, backfill stats, deploy timeline, HR-6 compliance (deploy log + live HTTP 200 + public function URL).
+
+## ✅ SHIPPED 2026-04-22 PM (Option B — audit-notification watchdog)
+
+**Context:** Priscila + Casa Mérida (pre-2026-04-22) lost to silent failures — Brevo/Telegram/Slack/Alex-email all failed inside `submitAuditRequest` with no surface anywhere. Alex chose Option B: a cron watchdog that detects and Slack-alerts silent notification failures within 15 minutes instead of days.
+
+- **`submitAuditRequest` patched** (`website/functions/index.js`) — now tracks per-channel delivery status (`notifications.{brevo,telegram,slack,alex_email}` with `{ok, skipped?, error?, at}`) and flushes it to Firestore at end of handler. Commit `0d1413cf`.
+- **`auditNotificationWatchdog` + `auditNotificationWatchdogOnDemand` shipped** (`website/functions/auditNotificationWatchdog.js`) — every 15 min CDMX, scans 24h of `audit_requests`, flags Case A (notifications missing) or Case B (channel ok=false && !skipped), posts Slack Block Kit alert. 5-min grace + `LEGACY_CUTOFF_MS=2026-04-22 23:30 UTC` eliminate false positives. Commits `0d1413cf` + `d9c6538b` (LEGACY_CUTOFF).
+- **`SLACK_WEBHOOK_URL` already in GH Secrets + wired in `deploy.yml:52`** — watchdog has everything it needs to fire Slack alerts.
+- **6 parallel-race scheduler deploys healed** via empty-commit + `workflow_dispatch` (commit `79d42086`). Deploy run 24808253094 went green — `coldCallRun/MidBatchCheck/RunAfternoon`, `contentPublisher`, `dailyDigest`, `sofiaConversationAudit` all re-synced cleanly.
+- **Live smoke test passed** — submitted post-LEGACY_CUTOFF audit `XxZUgC0TJA3ccEn08zd6` at 23:30:23 UTC → waited out 5-min grace → watchdog returned `scanned:9, healthy:9, broken:0`. All 4 channels reported ok/skipped on fresh submission = flush logic works end-to-end.
+- **SYSTEM.md §1.1 + §1.3 updated** with both new functions (this commit).
+
+## ✅ SHIPPED 2026-04-22 AM
+
+- **4/4 abandoned warm replies shipped** via `POST /api/v2/emails/reply`:
+  - Alvaro (aa@trustreal.mx) — W1 Spanish + apology preamble for accidental test-send → HTTP 200 id=019db3a2
+  - Jorge (jorge@tropicasa.com) — W3 English "team inbox" preamble → HTTP 200
+  - Cambria (cambria@diamanterealtors.com) — W3 English Baja angle → HTTP 200
+  - Susan (susan@shorelinerealtypv.com) — W2 English delay-apology → HTTP 200
+  - All routed through william@zennoenigmawire.com (the 3 personal-Gmail originals were unconnected senders)
+- **reply_classifier.py** committed — 9/9 self-tests pass, classifies warm / bounce / noise:ooo / noise:unsub / noise:spam / ambiguous
+- **blocklist_domains.txt** committed — 50+ domains across 8 categories (corporate RE, chain brokerages, listing aggregators, free email, spam senders)
+- **3 DISASTER_LOG entries** added (accidental TEST-SEND, CF 1010 User-Agent block, unconnected Gmail-alias eaccount 404)
 
 ## 📦 SHIPPED IN COMMIT c3c9ad71 (2026-04-21 PM)
 

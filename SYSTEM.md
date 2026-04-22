@@ -9,7 +9,7 @@ dependency that keeps the business running without Alex touching a laptop.**
 > When anything ships, changes, breaks, or gets deprecated — update this file first,
 > commit, then touch code.
 
-**Last updated:** 2026-04-21 · **Owner:** Alex Jego + Claude · **Project:** jegodigital-e02fb
+**Last updated:** 2026-04-22 PM · **Owner:** Alex Jego + Claude · **Project:** jegodigital-e02fb
 
 ---
 
@@ -46,6 +46,8 @@ a laptop — see `DEPLOY.md`.
 | `eveningOpsReport` | 21:00 CDMX daily | `eveningOpsReport.js` | **Nightly 24h ops digest** (LIVE 2026-04-21 PM, commit `72ed715`). 5-source pull covering cold email (Instantly /analytics/daily + /overview), Calendly (last 24h scheduled_events + no-shows), ManyChat (Sofia subscribers + audit-flow starts), cold calls (`call_analysis` + offer A/B/C breakdown), audits (`audit_requests` delivered/failed + quality-gate strikes). Renders PDF via WeasyPrint, posts Slack Block Kit summary to `#all-jegodigital`, uploads PDF to Telegram chat. Uses `aiAnalysisAgent` helper for autonomous interventions: auto-pauses any campaign with bounce>5%, zero-open 200+ with `open_tracking_enabled`, throttles accounts health<90%; escalates (Telegram 🚨) zero-reply-at-500+ + no-show spikes. Every action logged to `ai_agent_actions/{YYYY-MM-DD}` (Firestore). Complements `dailyDigest` 07:00 + `dailyRollupSlack` 18:00 — this is the bedtime "what moved + what I fixed" wrap. | Slack + Telegram |
 | `redditScraper` | `15 * * * *` CDMX (hourly) | `redditScraper.js` | **Money Machine Phase 1 — Reddit opportunity ingestion** (LIVE 2026-04-22). Pulls fresh posts from 10 target subreddits (smallbusiness, Entrepreneur, startups, SaaS, marketing, SEO, realtors, webdev, sweatystartup, forhire) via Apify Reddit Actor `practicaltools~apify-reddit-api` ($2/1K results). Matches against 30+ pain-point keywords weighted 1-3 and mapped to our 9 services. Author gate: ≥30d account age OR ≥10 karma (bot filter). Dedupes on post-id in `/opportunities/reddit_<postId>`. Writes with `status=pending_classification` which fires `opportunityClassifier`. Logs run summary to `money_machine_runs/{autoId}`. Cap: 200 items/run (~$0.40/run, ~$10/mo). Notifies Telegram when `new_written > 0`. | Telegram |
 | `dailyStrategist` | 08:00 CDMX daily | `dailyStrategist.js` | **AI chief-of-staff recommendation agent** (LIVE 2026-04-21 PM, commit `72ed715`). Reads last 24h across all 8 platforms (ElevenLabs, Instantly, Brevo, Calendly, Firestore, Meta Graph, GSC, GA4) via the HARD RULE #2 verify-live routes. Feeds aggregated signal JSON to Gemini-2.0-Flash with a strategist prompt tuned on CLAUDE.md's Bucket A/B/C/D/E priority system. Outputs the day's ONE big rock (HARD RULE #8) + 3 supporting tasks in plain Spanish/English (HARD RULE #12) + a 1-line "why this matters today" for each. Writes to `strategist_recommendations/{YYYY-MM-DD}` (Firestore). Posts Slack summary + Telegram digest. Claude reads this at session start to align the priority queue with the strategist's pick before touching `NEXT_STEP.md`. | Slack + Telegram |
+| `processBrevoNurtureQueue` | every 30 min | `brevoNurture.js` | **Brevo Spanish nurture sender** (LIVE 2026-04-22 PM, commit `c4e875c`). Scans `brevo_nurture_queue` for touches whose `sendAt <= now`, fires Brevo transactional API with the Spanish Track A template matching that touch's day (0/3/7/14). Single-field Firestore query + in-code `sent!=true && canceled!=true` filter — composite-index-free by design (see DISASTER_LOG 2026-04-22 PM entry). Skips if the contact's `brevo_nurture_index.{email}.calendlyBooked === true`. Returns `{ok, processed, sent, skipped, failed}`. Closed-loop pair with `cancelTrackForEmail` on Calendly-booking. | Telegram (failures) |
+| `auditNotificationWatchdog` | every 15 min CDMX | `auditNotificationWatchdog.js` | **Silent-failure watchdog for audit notifications** (LIVE 2026-04-22 PM, commits `0d1413cf` + `d9c6538b` + `79d42086`). Scans last 24h of `audit_requests`, checks the per-channel `notifications` map written by the patched `submitAuditRequest` (keys: `brevo`, `telegram`, `slack`, `alex_email`; each `{ok, skipped?, error?, at}`). Flags (A) `notifications` field missing (handler crashed before flush) or (B) any configured channel with `ok=false && !skipped`. 5-min grace period prevents false-flagging in-flight docs. `LEGACY_CUTOFF_MS = 2026-04-22 23:30 UTC` skips pre-Option-B docs so the cron doesn't spam on historical misses. Posts Slack Block Kit alert listing up to 10 broken leads (name, email, website, audit-id, age, failed channels) + scan-stats footer. Purpose: prevent recurrence of the Priscila / Casa Mérida silent-failure pattern (pre-2026-04-22: all 4 channels failed silently inside `submitAuditRequest`, leads discovered days later). On-demand probe: `auditNotificationWatchdogOnDemand` (HTTPS). | Slack |
 
 ### 1.2 Firestore-triggered (onCreate)
 
@@ -92,6 +94,8 @@ a laptop — see `DEPLOY.md`.
 | `opportunityClassifierNow` | **Money Machine manual re-classify** (LIVE 2026-04-22). Re-runs Gemini scoring on up to 50 `status=pending_classification` opportunities. Use after prompt tweaks. Returns `{ok, classified, results}`. |
 | `opportunityDrafterNow` | **Money Machine manual re-draft** (LIVE 2026-04-22). Re-runs draft generation on up to 10 `status=qualified` opportunities. Returns `{ok, drafted, results}`. |
 | `dailyStrategistNow` | **Manual HTTPS trigger for the 08:00 strategist** (LIVE 2026-04-21 PM, commit `72ed715`). URL: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/dailyStrategistNow`. Reads last 24h across all 8 HARD-RULE-#2 platforms, runs the Gemini-2.0-Flash chief-of-staff prompt, and returns the recommendation JSON (today's big rock + 3 supporting tasks + plain-language "why this matters today" per HARD RULE #12). Writes to `strategist_recommendations/{YYYY-MM-DD}`. Use when the 08:00 scheduled run was missed, Alex wants a mid-day strategic reset, or Claude needs to realign `NEXT_STEP.md` mid-session. |
+| `processBrevoNurtureQueueOnDemand` | **Manual HTTPS trigger for the Brevo nurture sender** (LIVE 2026-04-22 PM, commit `c4e875c`). URL: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/processBrevoNurtureQueueOnDemand`. Optional `?limit=100`. Same path as the scheduled `processBrevoNurtureQueue` — pulls all `brevo_nurture_queue` docs with `sendAt <= now`, in-code filters for `sent!=true && canceled!=true`, fires Brevo transactional. Returns `{ok, processed, sent, skipped, failed}` JSON. Live-verified 2026-04-22 23:00 UTC → HTTP 200 with empty queue (all backfill touches sent day-0, remaining queued for future `sendAt`). Use when a scheduled run is missed or to manually flush the queue after a bulk backfill. |
+| `auditNotificationWatchdogOnDemand` | **On-demand audit-notification watchdog probe** (LIVE 2026-04-22 PM, commits `0d1413cf` + `d9c6538b`). URL: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/auditNotificationWatchdogOnDemand`. Same scan logic as the `auditNotificationWatchdog` 15-min cron — reads last 24h `audit_requests`, evaluates each doc's `notifications` map, and returns `{ok, scanned, healthy, broken_count, broken[], slack, window_hours:24, grace_minutes:5}` with up to 25 broken entries inline. Hit anytime to confirm the pipeline is healthy or to debug after a rough deploy. Live-verified 2026-04-22 23:35 UTC → `{scanned:9, healthy:9, broken:0}` with post-cutoff smoke doc passing. |
 
 ### 1.4 Callable (client-invoked)
 
@@ -153,6 +157,8 @@ goes wrong. See `.auto-memory/feedback_no_approve_gates.md`.
 | `money_machine_runs` | `redditScraper` (future: other scrapers) | dashboard, future `moneyMachineReviewer` | **Run-log for every hourly Reddit pull** (LIVE 2026-04-22). Fields: module, ran_at, total_pulled, keyword_matches, author_gate_rejects, duplicates, new_written, by_service (counts per service slug), duration_sec. Lets us graph funnel conversion: pulled → keyword-match % → author-gate pass % → dedupe % → new. |
 | `tg_button_map` | `telegramApprovalBot.shortId()` | `telegramApprovalBot.resolveShortId()` | **Money Machine Telegram button id map** (LIVE 2026-04-22). Short-id (last 22 chars of draftId) → full draftId lookup. Required because Telegram `callback_data` max = 64 bytes and our draft ids are `reddit_<64-char-post-id>` ≈ 70+ bytes. Auto-created on push, auto-expires conceptually (keep for history; negligible storage). |
 | `tg_edit_sessions` | `telegramApprovalBot.handleEdit()` | `telegramApprovalBot.handleTextReply()` | **Money Machine edit-mode sessions** (LIVE 2026-04-22). Doc id = Telegram message_id of the approval message. Tracks `{draftId, chat_id, original_message_id}`. When Alex taps Edit and replies to the message with new text, the webhook looks up this doc, overwrites `draft_text`, re-sends the approval with updated text, deletes the session. |
+| `brevo_nurture_queue` | `brevoNurture.queueTrack()` (via `instantlyReplyWatcher`) | `processBrevoNurtureQueue`, `cancelTrackForEmail` | **Brevo Spanish nurture per-touch queue** (LIVE 2026-04-22 PM). One doc per scheduled touch. Fields: `email`, `firstName`, `touch` (1-4), `templateKey` (day_0/day_3/day_7/day_14), `sendAt` (Timestamp), `sent` (bool), `sentAt`, `canceled` (bool), `canceledAt`, `campaignSource`, `hookUsed`, `replyDate`, `track` ('A'), `lang` ('es'). Write trigger = `instantlyReplyWatcher` detects positive Instantly reply → upserts Brevo list 25 + calls `brevoNurture.queueTrack()` which writes 4 docs (day 0/3/7/14). Single-field `sendAt <= now` query used for reads. |
+| `brevo_nurture_index` | `brevoNurture.queueTrack()` | `cancelTrackForEmail`, `processBrevoNurtureQueue` | **Brevo nurture per-email state** (LIVE 2026-04-22 PM). Doc id = lowercased email. Fields: `email`, `firstName`, `track` ('A'), `startedAt`, `calendlyBooked` (bool). Flips to `calendlyBooked=true` when `calendlyWebhook` fires `invitee.created` AND `cancelTrackForEmail(email)` runs. The sender checks this flag every cycle — when true, all pending queue docs for that email skip. Prevents nurture emails to already-booked leads. |
 | `autopilot_reviews` | `autopilotReviewer` | dashboard, Telegram | One doc per ISO week `{YYYY-WW}` (e.g. `2026-16`). Observations + recommendations + rendered report text. `llm_bullets` + `llm_enabled` fields when Anthropic enrichment ran. |
 | `research_digests` | `notebookResearcher` (planned) | Telegram digest | Daily NotebookLM output. |
 
@@ -197,16 +203,26 @@ All secrets injected into Functions at deploy time by
 | `.github/workflows/auto-index.yml` | every push to `main` | Google Indexing API + IndexNow submission for changed URLs |
 | `.github/workflows/smoke-test.yml` | daily 08:00 UTC | End-to-end health probe against live site |
 
-### Two known deploy traps (both fixed 2026-04-20)
+### Three known deploy traps (all fixed)
 
 1. **Line-based sed to strip `hosting.predeploy` from `firebase.json` leaves a
-   trailing comma** → "Parse Error: Trailing comma in object at 623:5". Fix:
-   use `jq 'if .hosting then .hosting |= del(.predeploy) else . end'`.
+   trailing comma** (fixed 2026-04-20) → "Parse Error: Trailing comma in object
+   at 623:5". Fix: use `jq 'if .hosting then .hosting |= del(.predeploy) else
+   . end'`.
 2. **Removing `exports.X` for a scheduled function without also deleting the
-   live GCP function + its Cloud Scheduler job** → Firebase CLI tries to delete
-   the ghost, hits 404 on the scheduler, whole Functions deploy exits 2. Fix:
-   always `firebase functions:delete NAME --region REGION --force` in the same
-   session you delete the export.
+   live GCP function + its Cloud Scheduler job** (fixed 2026-04-20) → Firebase
+   CLI tries to delete the ghost, hits 404 on the scheduler, whole Functions
+   deploy exits 2. Fix: always `firebase functions:delete NAME --region REGION
+   --force` in the same session you delete the export.
+3. **GCF deploy-rate quota exceeded when updating 60+ functions in one pass**
+   (fixed 2026-04-22, commit `27132638`) → Firebase CLI reports the generic
+   "Function deployment failed due to a health check failure" but the real
+   cause is Cloud Functions' 60-updates-per-100s quota throttling half the
+   deploys. Fix: `.github/workflows/deploy.yml` auto-discovers exports via
+   `grep -oE '^exports\.[a-zA-Z_][a-zA-Z0-9_]*' index.js`, sorts unique,
+   splits alphabetically into 2 batches, deploys each with
+   `--only "functions:a,functions:b,..."` and a 120s `sleep` between. 20%
+   headroom over the 100s quota window. See DISASTER_LOG 2026-04-22 PM.
 
 Full diagnostic playbook: `.auto-memory/firebase_deploy_traps.md`.
 
