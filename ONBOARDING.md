@@ -36,7 +36,27 @@ Trojan Horse = lead with Service 1 free setup. No pricing ever in writing. Prici
 
 ## 2. YOUR FIRST 5 MINUTES EVERY NEW SESSION
 
-**In this exact order, do these 5 things before ANY other work:**
+**In this exact order, do these 6 things before ANY other work:**
+
+> **🚨 Step 0 is new (2026-04-22). Full spec in `CLAUDE_SESSION_BOOTSTRAP.md` — HARD RULE #0.**
+
+### Step 0 — Mount the folder (Cowork boots WITHOUT a folder)
+
+```
+mcp__cowork__request_cowork_directory(path="/Users/mac/Desktop/Websites/jegodigital")
+```
+
+Cowork mode starts with `User selected a folder: no` by default. If you skip this, Steps 1-5 all fail silently and you'll (wrongly) claim API keys don't exist. Then load keys into your shell:
+
+```bash
+set -a
+source /Users/mac/Desktop/Websites/jegodigital/website/functions/.env
+set +a
+```
+
+Sanity check: `echo ${BREVO_API_KEY:0:10}` must return a real prefix. If empty, check `.secrets/` + GitHub Secrets + `ACCESS.md`.
+
+**If you ever catch yourself saying "I don't have X API key this session" — you skipped Step 0. Go back.**
 
 ### Step 1 — Verify live API access (HARD RULE #1, #2)
 
