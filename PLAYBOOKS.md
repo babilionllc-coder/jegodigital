@@ -131,6 +131,15 @@ Builder: `/mnt/jegodigital/flamingo/social_build/build.py` (HTML+Playwright, bra
 node tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=A|B|C [--email=X] [--company=X]
 ```
 
+### Tools wired to agents (Brevo nurture capture — LIVE 2026-04-22 evening)
+| Offer | Tool | Target | Outcome |
+|---|---|---|---|
+| A (SEO) | `save_lead_to_brevo_seo` | `POST saveColdCallLead` with `offer:"A"` | Brevo list **35**, templates **53-57**, cadence **0/1/3/5/7 days** |
+| B (Audit) | `submit_audit_request` | `POST submitAuditRequest` | Audit delivered + own 4-email post-audit nurture |
+| C (Free Setup) | `save_lead_to_brevo_setup` | `POST saveColdCallLead` with `offer:"C"` | Brevo list **36**, templates **58-62**, cadence **0/1/3/5/10 days** |
+
+All 10 Spanish templates audited against HR-0 (no fabricated numbers), ship with `{{ unsubscribe }}` footer, WhatsApp `wa.me/529987875321`, and single Calendly `/30min` with `utm_campaign=coldcall_a|coldcall_c` for A-vs-C attribution. Template 60 (C-D3) is intentionally time-agnostic so `saveColdCallLead` doesn't need to branch on install date. Full function details: `SYSTEM.md §1.3 saveColdCallLead`.
+
 ### Key Files
 | File | Purpose |
 |---|---|
@@ -144,10 +153,11 @@ node tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=A|B|C [--ema
 
 ### TODO (Cold Calling)
 1. Build auto-audit pipeline for Offer B (seo-engine → PDF report → Brevo transactional email → 60 min delivery)
-2. Add `get_available_slots` + `book_calendly_live` tools to Offer C agent
+2. ~~Add `get_available_slots` + `book_calendly_live` tools to Offer C agent~~ — **superseded 2026-04-22 evening**: shipped `save_lead_to_brevo_setup` + single Calendly `/30min` with `utm_campaign` attribution instead (see "Tools wired to agents" above)
 3. Prepare phone-specific lead lists (current `/leads/` CSVs are for Instantly email, NOT phone)
 4. Reduce Offer A max duration from 600s to 300s
 5. Build batch calling script with DNC checking + result logging
+6. Slim agent prompts from 13.5k → 4k chars (task #53, P0 tomorrow AM) — faster Gemini turns, cheaper token bill
 
 ---
 
