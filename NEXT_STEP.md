@@ -2,31 +2,37 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-23 PM (Trojan Video Factory shipped + docs refreshed — deploying via GitHub Data API)
+> **Last session update:** 2026-04-23 PM (Trojan Video Factory LIVE in production — commit `b37fecf4`, all workflows green)
 > **Maintained by:** Claude + Alex
 
 ---
 
-## 🎬 2026-04-23 PM — TROJAN VIDEO FACTORY — DELIVERY SCAFFOLD SHIPPED
+## 🎬 2026-04-23 PM — TROJAN VIDEO FACTORY — DELIVERY SCAFFOLD LIVE IN PRODUCTION ✅
 
 **New Trojan Horse hook: "3 Videos Gratis" (Listing Video Factory).** Alex approved the pivot + the shorter Step-1 email copy with `{{firstName}}` + `{{companyName}}` personalization. Style presets: Cinemático, Lifestyle, Luxury. Delivery window: 24h. Photos per video: 3-10.
 
-**Built + committing to main this session:**
+**Shipped + verified live in commit `b37fecf4a940`:**
 1. ✅ `cold-email-sequences/TROJAN_VIDEOS_2026-04-23.md` — full 5-step Spanish sequence + AI reply agent rules + pre-launch checklist.
-2. ✅ `website/trojan-setup/videos.html` — onboarding form page (dark theme, 3-10 photo dropzone, 3 style cards, lang toggle, signed-URL upload pattern). Syntax-clean.
-3. ✅ `website/functions/trojanVideoOnboarding.js` — two HTTPS endpoints (`trojanVideoInit` + `trojanVideoFinalize`). Wired into `index.js`. Syntax-clean.
-4. ✅ `DISASTER_LOG.md` — 2 new WIN entries: (a) Firebase Web SDK config gap → signed-URL pivot, (b) 36h stale `.git/index.lock` + UID mismatch → GitHub Git Data API path reproven.
+2. ✅ `website/trojan-setup/videos.html` — onboarding form page (dark theme, 3-10 photo dropzone, 3 style cards, lang toggle, signed-URL upload pattern). Live: `https://jegodigital.com/trojan-setup/videos` → HTTP 200.
+3. ✅ `website/functions/trojanVideoOnboarding.js` — two HTTPS endpoints:
+   - `trojanVideoInit` → `{"ok":false,"error":"firstName_required"}` on empty POST (function alive, validation working).
+   - `trojanVideoFinalize` → `{"ok":false,"error":"leadId_required"}` on empty POST (function alive, validation working).
+   - CORS preflight OPTIONS → HTTP 204 on both.
+4. ✅ `DISASTER_LOG.md` — 2 new WIN entries: (a) Firebase Web SDK config gap → signed-URL pivot, (b) 36h stale `.git/index.lock` + UID mismatch → GitHub Git Data API path reproven. Also restored the "Money Machine Telegram recovery cron" entry that was accidentally overwritten (patched in commit `44dbc0ff`).
 5. ✅ `SYSTEM.md` §1.3 — `trojanVideoInit` + `trojanVideoFinalize` added to HTTP endpoints inventory.
 6. ✅ `BUSINESS.md` — Trojan Horse entry section updated to document the "3 Videos Gratis" default hook (videos as lead magnet → Service 1 upsell 2 weeks later).
 
-**HARD BLOCK on campaign activation — remaining checklist before any cold email goes out:**
-- [ ] Deploy (push to main via GitHub Data API, poll Actions green) — **IN-FLIGHT**
-- [ ] End-to-end test with 1 test lead (verify signed-URL PUT succeeds, Telegram alert fires, Firestore doc lands with `status=submitted`)
+**Deploy proof (HR-6 compliant):**
+- GitHub Actions run `24819006234` — Deploy to Firebase: ✅ success, Validate video assets: ✅ success, Auto-Index URLs: ✅ success, Smoke Test: ✅ success.
+- 5/5 live HTTPS probes green (hosting + init OPTIONS + init POST + finalize OPTIONS + finalize POST).
+
+**HARD BLOCK on campaign activation — still remaining before any cold email goes out:**
+- [ ] End-to-end test with 1 real test lead (upload 3 photos → verify signed-URL PUT succeeds → Telegram alert fires → Firestore doc lands with `status=submitted`)
 - [ ] Wire `processTrojanVideoRequest` Firestore trigger (reads style preset + photos → fires veo-flow pipeline → writes MP4 URLs back → sends delivery email)
 - [ ] First 3 renders manually QA'd by Alex
 - [ ] Create Instantly campaign `trojan_videos_mx_v1` in **draft mode only** — do NOT activate until all above pass
 
-**Status:** Outreach copy + onboarding page + backend scaffold = ✅. Delivery pipeline (Veo → Remotion → email) still needs end-to-end verification before first send.
+**Next step for Alex:** Open `https://jegodigital.com/trojan-setup/videos` in a browser, submit a test lead with 3 photos, confirm the Telegram ping arrives and a `trojan_video_leads/{leadId}` Firestore doc appears with `status=submitted`. That closes the onboarding-side verification and unblocks the render-pipeline wiring.
 
 ---
 
