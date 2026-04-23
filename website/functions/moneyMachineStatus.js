@@ -23,23 +23,25 @@ const { getFirestore } = require("firebase-admin/firestore");
 exports.moneyMachineStatus = functions
     .runWith({ timeoutSeconds: 30, memory: "256MB" })
     .https.onRequest(async (req, res) => {
-        try {
-            const db = getFirestore();
-            const STATUSES = [
-                "pending_classification",
-                "classifying",
-                "qualified",
-                "filtered_out",
-                "classifier_failed",
-                "drafter_failed",
-                "drafted",
-                "drafted_unsafe",
-                "awaiting_approval",
-                "awaiting_approval_telegram",
-                "approved",
-                "rejected",
-            ];
+        const db = getFirestore();
+        const out = { ok: true, now_iso: new Date().toISOString(), errors: {} };
+        const STATUSES = [
+            "pending_classification",
+            "classifying",
+            "qualified",
+            "filtered_out",
+            "classifier_failed",
+            "drafter_failed",
+            "drafted",
+            "drafted_unsafe",
+            "awaiting_approval",
+            "awaiting_approval_telegram",
+            "approved",
+            "rejected",
+        ];
 
+        // Each section in its own try so one failure doesn't blank everything.
+        try {
             const byStatus = {};
             for (const s of STATUSES) {
                 // eslint-disable-next-line no-await-in-loop
@@ -49,60 +51,69 @@ exports.moneyMachineStatus = functions
                     .get();
                 byStatus[s] = snap.data().count;
             }
+            out.by_status = byStatus;
+        } catch (e) { out.errors.by_status = e.message; }
 
+        try {
             const totalSnap = await db.collection("opportunities").count().get();
-            const totalOpps = totalSnap.data().count;
+            out.total_opportunities = totalSnap.data().count;
+        } catch (e) { out.errors.total_opportunities = e.message; }
 
-            // Latest money_machine_runs entry
+        try {
             const runsSnap = await db.collection("money_machine_runs")
-                .orderBy("at", "desc")
-                .limit(3)
-                .get();
-            const latestRuns = runsSnap.docs.map(d => ({
+                .orderBy("at", "desc").limit(3).get();
+            out.latest_runs = runsSnap.docs.map(d => ({
                 id: d.id,
                 ...d.data(),
                 at: d.data().at?.toDate?.().toISOString?.() || null,
             }));
+        } catch (e) { out.errors.latest_runs = e.message; }
 
-            // Latest drafts (top-scoring pending approval)
-            const draftsSnap = await db.collection("opportunities")
-                .where("status", "in", ["awaiting_approval", "awaiting_approval_telegram", "drafted"])
-                .orderBy("draft_ready_at", "desc")
-                .limit(5)
-                .get();
-            const latestDrafts = draftsSnap.docs.map(d => ({
+        try {
+            const latestDrafts = [];
+            for (const st of ["awaiting_approval", "awaiting_approval_telegram", "drafted", "drafted_unsafe"]) {
+                // eslint-disable-next-line no-await-in-loop
+                const snap = await db.collection("opportunities")
+                    .where("status", "==", st).limit(3).get();
+                snap.docs.forEach(d => latestDrafts.push({
+                    id: d.id,
+                    status: d.data().status,
+                    score: d.data().score,
+                    title: (d.data().title || "").slice(0, 120),
+                    draft_text: (d.data().draft_text || "").slice(0, 300),
+                }));
+            }
+            out.latest_drafts = latestDrafts;
+        } catch (e) { out.errors.latest_drafts = e.message; }
+
+        try {
+            // Latest 6 qualified (highest-scoring) regardless of downstream state
+            const topSnap = await db.collection("opportunities")
+                .where("status", "in", ["qualified", "drafted", "awaiting_approval", "awaiting_approval_telegram", "drafter_failed"])
+                .limit(10).get();
+            out.top_scored = topSnap.docs.map(d => ({
                 id: d.id,
                 status: d.data().status,
                 score: d.data().score,
+                primaryService: d.data().primaryService,
                 title: (d.data().title || "").slice(0, 120),
-                draft_text: (d.data().draft_text || "").slice(0, 300),
             }));
+        } catch (e) { out.errors.top_scored = e.message; }
 
-            // Recent opportunities (top 3 newest)
+        try {
             const recentSnap = await db.collection("opportunities")
-                .orderBy("createdAt", "desc")
-                .limit(3)
-                .get();
-            const recentOpps = recentSnap.docs.map(d => ({
+                .orderBy("scrapedAt", "desc").limit(8).get();
+            out.recent_opportunities = recentSnap.docs.map(d => ({
                 id: d.id,
                 status: d.data().status,
                 score: d.data().score,
                 primaryService: d.data().primaryService,
                 title: (d.data().title || "").slice(0, 100),
                 keywordHits: (d.data().keywordHits || []).slice(0, 4),
+                createdAt: d.data().createdAt?.toDate?.().toISOString?.() || null,
             }));
+        } catch (e) { out.errors.recent_opportunities = e.message; }
 
-            res.json({
-                ok: true,
-                by_status: byStatus,
-                total_opportunities: totalOpps,
-                latest_runs: latestRuns,
-                latest_drafts: latestDrafts,
-                recent_opportunities: recentOpps,
-                now_iso: new Date().toISOString(),
-            });
-        } catch (err) {
-            functions.logger.error("[moneyMachineStatus] crash:", err);
-            res.status(500).json({ ok: false, error: err.message, stack: err.stack });
-        }
+        if (Object.keys(out.errors).length === 0) delete out.errors;
+        res.json(out);
     });
