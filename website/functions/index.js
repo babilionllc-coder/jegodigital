@@ -196,22 +196,6 @@ exports.processScheduledEmails = require('./calendlyWebhook').processScheduledEm
 // --- 5-min scan for T-10min WhatsApp reminders on WA-sourced Calendly bookings ---
 exports.sendT10minReminders = require('./calendlyWebhook').sendT10minReminders;
 
-/*
- * Trigger 2: Scheduler (Auto - Hourly)
- * Uses Cloud Scheduler under the hood.
- */
-/*
-exports.scheduledCampaign = functions.pubsub.schedule('every 1 hours').onRun(async (context) => {
-    try {
-        await runCampaign();
-        return null;
-    } catch (error) {
-        functions.logger.error("Error in scheduledCampaign", error);
-        return null;
-    }
-});
-*/
-
 // Sync Function (Replaces Python Script)
 exports.uploadCampaignLogs = functions.https.onRequest(async (req, res) => {
     try {
