@@ -124,7 +124,15 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      # Disaster 2026-04-22 PM run #82: 40 of 41 BATCH 1 functions deployed green
+      # but one (coldEmailDailyReport) hit a transient GCF health-check flake. The
+      # CLI exits non-zero → BATCH 2 gets skipped → 41 more functions go unshipped.
+      # Fix: `continue-on-error: true` on BATCH 1 so a single flake doesn't strand
+      # BATCH 2. The retry step at the end re-attempts any individual functions
+      # that failed, and only the very last step fails the job if retries don't heal.
       - name: Deploy Functions BATCH 1
+        id: batch1
+        continue-on-error: true
         run: firebase deploy --only "${{ steps.exports.outputs.batch1 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -133,7 +141,27 @@ jobs:
         run: sleep 120
 
       - name: Deploy Functions BATCH 2
+        id: batch2
+        continue-on-error: true
         run: firebase deploy --only "${{ steps.exports.outputs.batch2 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      # If either BATCH 1 or BATCH 2 had a transient flake, wait out the quota
+      # window once more and retry the FULL set. 99% of failures from this point
+      # are single-function GCF health-check flakes that self-heal on re-deploy.
+      - name: Retry failed batches (waits 120s first)
+        if: steps.batch1.outcome == 'failure' || steps.batch2.outcome == 'failure'
+        run: |
+          echo "Retrying after batch1=${{ steps.batch1.outcome }} batch2=${{ steps.batch2.outcome }}"
+          sleep 120
+          if [ "${{ steps.batch1.outcome }}" = "failure" ]; then
+            firebase deploy --only "${{ steps.exports.outputs.batch1 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
+          fi
+          if [ "${{ steps.batch2.outcome }}" = "failure" ]; then
+            sleep 120
+            firebase deploy --only "${{ steps.exports.outputs.batch2 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
+          fi
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
