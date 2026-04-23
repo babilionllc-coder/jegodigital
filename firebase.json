@@ -63,6 +63,16 @@
     ],
     "redirects": [
       {
+        "source": "/lead-capture-demo",
+        "destination": "/leads-pipeline.html",
+        "type": 301
+      },
+      {
+        "source": "/lead-capture-demo.html",
+        "destination": "/leads-pipeline.html",
+        "type": 301
+      },
+      {
         "source": "/airbnb-automation-tulum-ai.html",
         "destination": "/blog/airbnb-automation-tulum-ai",
         "type": 301
