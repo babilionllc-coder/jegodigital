@@ -157,8 +157,19 @@ async function runApifyReddit(subreddits, maxItems = 200) {
         proxy: { useApifyProxy: true },
     };
 
-    const url = `${APIFY_BASE}/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${apifyKey}`;
-    functions.logger.info(`[redditScraper] Apify run starting — ${subreddits.length} subs, cap ${maxItems} items`);
+    // CRITICAL FIX 2026-04-23: trudax~reddit-scraper-lite is a pay-per-event
+    // actor ($3.50 per 1,000 posts). If we don't explicitly pass
+    // maxTotalChargeUsd, Apify computes a default budget that is LOWER than
+    // the actor's own container start cost — every run dies in ~2.5s with:
+    //   "Error: Maximum cost per run is lower then actor start cost"
+    // Observed failure: maxTotalChargeUsd auto-set to $0.000268, actor start
+    // alone costs ~$0.002. Runs F4lj4DXqBC / 3cbC0uYKnl / q0LRCpWZyA all
+    // failed this way. Fix: pass maxTotalChargeUsd=$1.00 (budget for ~280
+    // posts) via query param, which is plenty for a 200-item sync run.
+    // $1.00 × 30 runs/day (every hour) = $30/mo worst case = under budget.
+    const maxChargeUsd = "1.00";
+    const url = `${APIFY_BASE}/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${apifyKey}&maxTotalChargeUsd=${maxChargeUsd}`;
+    functions.logger.info(`[redditScraper] Apify run starting — ${subreddits.length} subs, cap ${maxItems} items, maxCharge $${maxChargeUsd}`);
     const r = await axios.post(url, input, {
         timeout: 540000, // 9 min — Cloud Function max is 9 min default
         headers: { "Content-Type": "application/json" },
