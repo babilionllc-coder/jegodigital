@@ -2,8 +2,66 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-23 PM (Trojan Video Factory LIVE in production — commit `b37fecf4`, all workflows green)
+> **Last session update:** 2026-04-23 evening (Money Machine Reddit scraper fixed + real gap identified: Reddit POSTER missing, not drafter — commit `56e9f72`)
 > **Maintained by:** Claude + Alex
+
+---
+
+## 🤖 2026-04-23 EVENING — MONEY MACHINE FIX + 4-SESSION "RUN BUSINESS ON PHONE" ROADMAP GREENLIT
+
+**What Alex approved:** full 4-session build-out so he can run the entire agency from his phone using Slack + Notion + Linear. Morning Slack push locked at **7:30 AM America/Mexico_City** (separate from existing 9:00 AM TikTok script cron so daily TikTok script + daily approval queue don't bundle into one overwhelming message).
+
+**What shipped this session (verified via live Apify API):**
+1. ✅ Reddit scraper 400 error diagnosed + fixed — `trudax~reddit-scraper-lite` pay-per-event actor was silently auto-setting `maxTotalChargeUsd=$0.000268` per run (lower than container start cost), killing every run in 2.5s. Fix: explicit `&maxTotalChargeUsd=1.00` query param → $30/mo worst case, under $55 Apify cap. Commit `56e9f72fe398e84e0b5d9dd7744a906e5488a445`.
+2. ✅ Deploy to Firebase: workflow success, auto-index + notion log green, validate-video-assets failure unrelated to this change.
+3. ✅ Apify verification: 3 runs SUCCEEDED post-fix (IDs `PPObd1op`, `eSDEF73T`, `gwZfDsZI`) vs 3 FAILED-in-2.5s runs before fix (IDs `F4lj4DXq`, `3cbC0uYK`, `q0LRCpWZ`). Conclusive proof.
+
+**Audit finding that flips the next priority:** earlier belief that drafter was producing empty `draft_text` was a **moneyMachineStatus reporting bug** — the endpoint was reading `draft_text` from the `opportunities` collection (which doesn't have that field) instead of `opportunity_drafts/{id}`. The newer deployed version correctly exposes an `opportunity_drafts` section — and the actual drafts are **stellar**:
+- `reddit_1ssafi5` — 167 words, Gemini 3.1 Pro, status `approved_needs_manual_post` (ROTTING, never posted)
+- `reddit_1ssc6q7` — 162 words, Gemini 3.1 Pro, status `approved_needs_manual_post` (ROTTING, never posted)
+- `reddit_1stgpyp` — 175 words, score 92, status `awaiting_approval_telegram` (BURIED in Telegram, 3-nudge cap already hit)
+
+**So the real gap = Reddit POSTER is missing.** Drafter + classifier + scraper + approval path all work. The 2 approved drafts are stranded with nowhere to go.
+
+---
+
+## 🎯 TODAY'S BIG ROCK (HARD RULE #8) — 2026-04-24 (SESSION 1 of 4)
+
+> **Build the Slack Mirror + Reddit Posting path so Money Machine produces its first real public reply.**
+>
+> Specifically:
+> 1. New Cloud Function `slackDraftMirror` — every draft that reaches `awaiting_approval_telegram` ALSO posts to Alex's Slack DM with: (a) the full draft text, (b) the Reddit thread URL as tappable link, (c) a "Copy to clipboard" visual cue. Phone-native.
+> 2. New Cloud Function `markDraftPosted` — HTTPS endpoint Alex hits (or a Slack slash-command) after he pastes the reply on Reddit from his phone. Moves draft from `approved_needs_manual_post` → `posted`. Records the live Reddit URL so we can track engagement in Session 3.
+> 3. Hydrate the 3 existing stuck drafts into Slack so they're not wasted — Alex posts them from his phone manually over the next 24h as proof-of-pipeline.
+> 4. Replace the Telegram-only approval with Slack-primary, Telegram-backup (Telegram was getting buried per 2026-04-23 recovery-cron fix — Slack in-app is more reliable).
+
+**Bucket:** B (generate qualified leads) + A (first approved reply = first real test of inbound Money Machine conversion)
+**Success criteria (today):** 3 existing drafts mirrored to Slack DM, Alex posts 2 of them from his phone, both get Reddit URLs logged, opportunities transition to `posted` status. Fresh Reddit scraper cron at :15 past hour pulls new opps, 2+ more drafts generated, also mirrored to Slack.
+
+---
+
+## 📅 4-SESSION ROADMAP — PHONE-FIRST AGENCY AUTOPILOT
+
+| Session | What ships | How Alex experiences it |
+|---|---|---|
+| **S1 (2026-04-24)** | Slack mirror + Reddit posting path + Telegram backup | First 2 real Reddit replies posted from phone, pipeline proven end-to-end |
+| **S2 (2026-04-25)** | `dailyTaskDispatcher` @ 07:30 CDMX + Slack List **🎯 Today** + Notion + Linear sync | First 7:30 AM Slack morning ritual happens next morning |
+| **S3 (2026-04-26)** | Add X/Twitter + Quora (Firecrawl) + BiggerPockets (Firecrawl) + Google Reviews scraper lanes | Same 1 Slack view, 4x volume of buyer-intent signals |
+| **S4 (2026-04-27)** | FB Groups semi-auto + IG hashtag Apify scraper + TikTok viral scraper feeding daily script ideas + YouTube weekly card + Linear fully wired + `apifyBudgetCheck` cron | Full phone autopilot live — laptop not required |
+
+**Safety guards baked into every session:**
+- Reddit: MAX 3 replies/day, no link in body, aged account only
+- X: MAX 5/day, real account, residential proxies via Apify
+- FB Groups: manual-click only (screenshots to Slack, Alex taps on phone)
+- IG: Meta Graph API + ManyChat only
+- TikTok: Content Posting API + 3/day cap + 3-min gaps
+- YouTube: Data API + 20 comments/day cap
+- LinkedIn: Sales Nav manual only OR Apify read-only (deferred to S4 or later)
+- Quora + BiggerPockets + HN: LOW ban risk, genuine value only
+- Google Reviews: read-only scrape, zero account interaction
+- Budget: `apifyBudgetCheck` cron pauses non-critical scrapers if MTD > $45
+
+---
 
 ---
 
