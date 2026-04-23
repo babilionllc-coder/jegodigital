@@ -1808,6 +1808,42 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
             return res.status(400).json({ error: "Missing required fields: website_url, name, email" });
         }
 
+        // ================================================================
+        // HR-5 GUARD — reject generic-role inboxes and fallback names
+        // (added 2026-04-23 — blocks ElevenLabs agent fallbacks where it
+        // couldn't capture a real decision-maker, e.g. name="el dueño" +
+        // email="info@[domain]". These were being accepted → wasting audit
+        // compute + cluttering Brevo list 34 with dead role-based inboxes.)
+        // ================================================================
+        const GENERIC_EMAIL_PREFIXES = /^(info|contact|contacto|admin|hello|hola|ventas|sales|support|soporte|marketing|team|equipo|noreply|no-reply|recepcion|recepción|office|oficina)@/i;
+        const GENERIC_NAMES = /^(el due[nñ]o|la due[nñ]a|el dueno|dueno|dueña|dueno|owner|hola|info|contacto|recepcion|recepción|team|equipo|marketing|client|cliente|test|user)$/i;
+        const nameTrim = String(name).trim();
+        const firstTok = nameTrim.split(/\s+/)[0] || "";
+        if (GENERIC_EMAIL_PREFIXES.test(email) || GENERIC_NAMES.test(nameTrim) || GENERIC_NAMES.test(firstTok)) {
+            functions.logger.warn(`🛑 submitAuditRequest rejected (HR-5 guard): generic name/email — name="${name}" email="${email}" source=${source}`);
+            try {
+                const { notify } = require("./telegramHelper");
+                await notify(
+                    `🛑 *JUNK SIGNUP BLOCKED (HR-5 guard)*\n` +
+                    `Source: \`${source}\`\n` +
+                    `Name: "${name}"\n` +
+                    `Email: ${email}\n` +
+                    `Website: \`${website_url}\`\n\n` +
+                    `_ElevenLabs agent fallback — no real decision-maker captured. ` +
+                    `Not writing to Firestore. Not adding to Brevo. Not firing audit. ` +
+                    `Refine agent prompt: require real first name + direct email before calling submitAuditRequest._`,
+                    { critical: false }
+                );
+            } catch (_) { /* notify failures shouldn't break the API */ }
+            return res.status(400).json({
+                ok: false,
+                error: "generic_lead_rejected",
+                message: "Lead must have a real decision-maker first name and non-generic email address (HR-5).",
+                rejected_name: name,
+                rejected_email: email
+            });
+        }
+
         // URL validation — reject obvious garbage so the ElevenLabs agent
         // retries and asks the lead for the real URL instead of generating a
         // broken audit report.
@@ -2444,3 +2480,15 @@ exports.notionLeadSyncCron = notionLeadSync.notionLeadSyncCron;
 const dailyTaskDigest = require("./dailyTaskDigest");
 exports.dailyTaskDigest = dailyTaskDigest.dailyTaskDigest;
 exports.dailyTaskDigestNow = dailyTaskDigest.dailyTaskDigestNow;
+
+// Mobile Command Center — 3 scheduled Slack digests for phone-first operation
+// 09:00 CDMX dailyContentBrief → 3 Gemini-generated video scripts
+// 14:00 CDMX leadActivityPulse → past-6h lead activity pulse
+// 21:00 CDMX contentEveningWrap → content + biz wrap (complements eveningOpsReport)
+const mobileCommandCenter = require("./mobileCommandCenter");
+exports.dailyContentBrief = mobileCommandCenter.dailyContentBrief;
+exports.dailyContentBriefNow = mobileCommandCenter.dailyContentBriefNow;
+exports.leadActivityPulse = mobileCommandCenter.leadActivityPulse;
+exports.leadActivityPulseNow = mobileCommandCenter.leadActivityPulseNow;
+exports.contentEveningWrap = mobileCommandCenter.contentEveningWrap;
+exports.contentEveningWrapNow = mobileCommandCenter.contentEveningWrapNow;
