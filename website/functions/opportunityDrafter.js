@@ -17,14 +17,17 @@
  *   - Keep 80-180 words (longer replies get flagged by spam classifiers)
  *   - Match the poster's tone (casual = casual, technical = technical)
  *
- * LLM strategy:
- *   - If ANTHROPIC_API_KEY set → Claude Haiku 4.5 (best voice match)
- *   - Else → Gemini 2.5 Pro via GEMINI_API_KEY (already in stack)
+ * LLM strategy (simplified 2026-04-23 evening per Alex — Gemini only, no Anthropic):
+ *   - Primary: Gemini 3.1 Pro preview (best reply quality, thinking-mode)
+ *   - Fallback: Gemini 2.5 Pro (stable) if preview endpoint flakes
+ *   - No Claude fallback — Alex confirmed Gemini is enough; ANTHROPIC_API_KEY
+ *     is not provisioned in our environment
  *
  * Output saved to /opportunity_drafts/{oppId} with:
  *   { draft_text, soft_cta_variant, chars, banned_phrase_check, ready_for_approval }
  *
- * telegramApprovalBot then picks up the ready drafts every 5 min.
+ * slackDraftMirror (Firestore onCreate) mirrors the ready draft to Slack.
+ * telegramApprovalBot also picks it up for parallel delivery.
  */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -33,16 +36,12 @@ const axios = require("axios");
 
 if (!admin.apps.length) admin.initializeApp();
 
-// PRIMARY drafter = Gemini 3.1 Pro (per Alex 2026-04-22 PM). Thinking-mode
-// reasoning model — use generous maxOutputTokens (4000) so both internal
-// thinking AND the final 80-180 word reply fit in one call. Gemini 2.5 Pro
-// is the fallback if the preview endpoint is down. Claude Haiku kept as
-// last-resort if GEMINI_API_KEY is missing entirely.
+// Gemini 3.1 Pro = thinking-mode reasoning model. Use generous maxOutputTokens
+// (4000) so both internal thinking AND the final 80-180 word reply fit in
+// one call. Gemini 2.5 Pro is the fallback if the preview endpoint is down.
 const GEMINI_MODEL = "gemini-3.1-pro-preview";
 const GEMINI_FALLBACK_MODEL = "gemini-2.5-pro";
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
-const CLAUDE_API = "https://api.anthropic.com/v1/messages";
-const CLAUDE_MODEL = "claude-haiku-4-5-20251001";
 
 const BANNED_PHRASES = [
     "as an ai",
@@ -113,46 +112,6 @@ function containsBanned(text) {
     return BANNED_PHRASES.filter(p => lc.includes(p));
 }
 
-async function draftWithClaude(opp) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) return null;
-    const userMsg = `POST to reply to:
-Subreddit: r/${opp.subreddit || "unknown"}
-Title: ${opp.title}
-Body: ${(opp.body || "").slice(0, 2500)}
-Primary service match (routing hint): ${opp.primary_service_classified || opp.primaryService || "none"}
-Classifier score: ${opp.score}
-
-Write the reply.`;
-    try {
-        const r = await axios.post(
-            CLAUDE_API,
-            {
-                model: CLAUDE_MODEL,
-                max_tokens: 1000,
-                system: DRAFTER_SYSTEM,
-                messages: [{ role: "user", content: userMsg }],
-            },
-            {
-                headers: {
-                    "x-api-key": apiKey,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                timeout: 40000,
-            }
-        );
-        const txt = r.data?.content?.[0]?.text;
-        if (!txt) return null;
-        // Strip any accidental fences.
-        const clean = txt.replace(/^```json\s*|\s*```$/g, "");
-        return JSON.parse(clean);
-    } catch (err) {
-        functions.logger.warn("[drafter] Claude failed:", err.response?.data || err.message);
-        return null;
-    }
-}
-
 async function draftWithGemini(opp, modelOverride) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
@@ -201,8 +160,8 @@ async function draftOne(oppSnap) {
     if (opp.recommended_action === "skip") return;
 
     // Primary: Gemini 3.1 Pro (thinking-mode, best reply quality)
-    // Fallback 1: Gemini 2.5 Pro (stable release if preview endpoint is flaky)
-    // Fallback 2: Claude Haiku 4.5 (last resort if GEMINI_API_KEY is gone)
+    // Fallback: Gemini 2.5 Pro (stable release if preview endpoint is flaky)
+    // Anthropic removed 2026-04-23 per Alex — Gemini-only stack.
     let draft = await draftWithGemini(opp, GEMINI_MODEL);
     let whichModel = "gemini-3.1-pro-preview";
     if (!draft) {
@@ -210,11 +169,7 @@ async function draftOne(oppSnap) {
         whichModel = "gemini-2.5-pro";
     }
     if (!draft) {
-        draft = await draftWithClaude(opp);
-        whichModel = "claude-haiku-4-5";
-    }
-    if (!draft) {
-        await oppSnap.ref.update({ status: "drafter_failed", drafter_error: "all drafter models (Gemini 3.1 Pro / 2.5 Pro / Claude Haiku) unavailable" });
+        await oppSnap.ref.update({ status: "drafter_failed", drafter_error: "both Gemini models (3.1 Pro preview + 2.5 Pro stable) unavailable" });
         return;
     }
 

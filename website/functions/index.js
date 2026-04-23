@@ -2448,6 +2448,20 @@ exports.scheduledTelegramRecoveryNow = telegramApprovalBot.scheduledTelegramReco
 const moneyMachineStatus = require("./moneyMachineStatus");
 exports.moneyMachineStatus = moneyMachineStatus.moneyMachineStatus;
 
+// Money Machine S1 (2026-04-23 evening) — phone-first approval flow.
+//   slackDraftMirror (Firestore onCreate/onUpdate) → push draft to Slack
+//   markDraftPosted (HTTPS) → move draft to `posted`, consume quota slot
+//   redditQuotaStatus (HTTPS) → check remaining daily post slots
+//   slackDraftMirrorBackfill (HTTPS) → catch up stranded pre-trigger drafts
+const slackDraftMirror = require("./slackDraftMirror");
+exports.slackDraftMirror = slackDraftMirror.slackDraftMirror;
+exports.slackDraftMirrorOnUpdate = slackDraftMirror.slackDraftMirrorOnUpdate;
+exports.slackDraftMirrorBackfill = slackDraftMirror.slackDraftMirrorBackfill;
+
+const markDraftPosted = require("./markDraftPosted");
+exports.markDraftPosted = markDraftPosted.markDraftPosted;
+exports.redditQuotaStatus = markDraftPosted.redditQuotaStatus;
+
 // GCP cost-cap kill-switch. Triggered by GCP Billing Budget -> Pub/Sub
 // topic `gcp-budget-alerts`. Detaches billing account when budget hits 95%.
 // Also exposes /billingStatus and /billingKillNow HTTP endpoints.
