@@ -33,8 +33,14 @@ const axios = require("axios");
 
 if (!admin.apps.length) admin.initializeApp();
 
-const GEMINI_MODEL = "gemini-2.5-pro";
-const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+// PRIMARY drafter = Gemini 3.1 Pro (per Alex 2026-04-22 PM). Thinking-mode
+// reasoning model — use generous maxOutputTokens (4000) so both internal
+// thinking AND the final 80-180 word reply fit in one call. Gemini 2.5 Pro
+// is the fallback if the preview endpoint is down. Claude Haiku kept as
+// last-resort if GEMINI_API_KEY is missing entirely.
+const GEMINI_MODEL = "gemini-3.1-pro-preview";
+const GEMINI_FALLBACK_MODEL = "gemini-2.5-pro";
+const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const CLAUDE_API = "https://api.anthropic.com/v1/messages";
 const CLAUDE_MODEL = "claude-haiku-4-5-20251001";
 
@@ -147,9 +153,11 @@ Write the reply.`;
     }
 }
 
-async function draftWithGemini(opp) {
+async function draftWithGemini(opp, modelOverride) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
+    const model = modelOverride || GEMINI_MODEL;
+    const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
     const userMsg = `POST to reply to:
 Subreddit: r/${opp.subreddit || "unknown"}
 Title: ${opp.title}
@@ -160,23 +168,29 @@ Classifier score: ${opp.score}
 Write the reply as JSON per the schema.`;
     try {
         const r = await axios.post(
-            `${GEMINI_API}?key=${apiKey}`,
+            url,
             {
                 systemInstruction: { parts: [{ text: DRAFTER_SYSTEM }] },
                 contents: [{ role: "user", parts: [{ text: userMsg }] }],
                 generationConfig: {
                     temperature: 0.6,
-                    maxOutputTokens: 1000,
+                    // Gemini 3.1 Pro is thinking-mode — must leave room for
+                    // internal thoughts + the JSON output. 4000 gives ~3000
+                    // thinking tokens + ~1000 response headroom.
+                    maxOutputTokens: 4000,
                     responseMimeType: "application/json",
                 },
             },
-            { timeout: 40000 }
+            { timeout: 60000 }
         );
         const text = r.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) return null;
+        if (!text) {
+            functions.logger.warn(`[drafter] Gemini ${model} returned no text`, r.data?.candidates?.[0]?.finishReason);
+            return null;
+        }
         return JSON.parse(text);
     } catch (err) {
-        functions.logger.warn("[drafter] Gemini failed:", err.response?.data || err.message);
+        functions.logger.warn(`[drafter] Gemini ${model} failed:`, err.response?.data || err.message);
         return null;
     }
 }
@@ -186,10 +200,21 @@ async function draftOne(oppSnap) {
     if (opp.status !== "qualified") return;
     if (opp.recommended_action === "skip") return;
 
-    let draft = await draftWithClaude(opp);
-    if (!draft) draft = await draftWithGemini(opp);
+    // Primary: Gemini 3.1 Pro (thinking-mode, best reply quality)
+    // Fallback 1: Gemini 2.5 Pro (stable release if preview endpoint is flaky)
+    // Fallback 2: Claude Haiku 4.5 (last resort if GEMINI_API_KEY is gone)
+    let draft = await draftWithGemini(opp, GEMINI_MODEL);
+    let whichModel = "gemini-3.1-pro-preview";
     if (!draft) {
-        await oppSnap.ref.update({ status: "drafter_failed", drafter_error: "both Claude + Gemini unavailable" });
+        draft = await draftWithGemini(opp, GEMINI_FALLBACK_MODEL);
+        whichModel = "gemini-2.5-pro";
+    }
+    if (!draft) {
+        draft = await draftWithClaude(opp);
+        whichModel = "claude-haiku-4-5";
+    }
+    if (!draft) {
+        await oppSnap.ref.update({ status: "drafter_failed", drafter_error: "all drafter models (Gemini 3.1 Pro / 2.5 Pro / Claude Haiku) unavailable" });
         return;
     }
 
@@ -211,6 +236,7 @@ async function draftOne(oppSnap) {
         banned_phrases_found: banned,
         post_safely_model: !!draft.post_safely,
         post_safely_final: safe,
+        drafted_by_model: whichModel,
         reason_if_unsafe: draft.reason_if_unsafe || (banned.length ? `banned phrases: ${banned.join(", ")}` : (wordCount < 60 ? "too short" : (wordCount > 220 ? "too long" : ""))),
         ready_for_approval: safe,
         status: safe ? "awaiting_approval" : "failed_safety_check",

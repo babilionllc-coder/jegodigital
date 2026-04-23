@@ -147,6 +147,71 @@ async function sendApprovalMessage(draftData, draftId) {
     }
 }
 
+// -------------------------------------------------------------
+// Slack mirror — Alex sees new drafts in Slack alongside Telegram.
+// Approval still happens IN Telegram (inline keyboard) because Slack
+// interactive buttons require a verified app. This is a visibility
+// mirror so Alex doesn't miss drafts when he's not watching Telegram.
+// -------------------------------------------------------------
+async function sendApprovalToSlack(draftData, draftId) {
+    const webhook = process.env.SLACK_WEBHOOK_URL;
+    if (!webhook) {
+        functions.logger.warn("[approvalBot] SLACK_WEBHOOK_URL missing — Slack mirror skipped");
+        return { ok: false, reason: "no_webhook" };
+    }
+    const redditUrl = draftData.permalink
+        ? (draftData.permalink.startsWith("http") ? draftData.permalink : `https://www.reddit.com${draftData.permalink}`)
+        : "unknown";
+    const title = (draftData.title || "(no title)").slice(0, 180);
+    const draftText = (draftData.draft_text || "").slice(0, 2800); // Slack block limit
+
+    const blocks = [
+        {
+            type: "header",
+            text: { type: "plain_text", text: "🎯 Money Machine — New Reply Draft" },
+        },
+        {
+            type: "section",
+            fields: [
+                { type: "mrkdwn", text: `*Subreddit:*\nr/${draftData.subreddit || "?"}` },
+                { type: "mrkdwn", text: `*Score:*\n${draftData.score || "?"}/100` },
+                { type: "mrkdwn", text: `*Service match:*\n${draftData.primary_service || "none"}` },
+                { type: "mrkdwn", text: `*Tone | CTA:*\n${draftData.tone_match || "?"} | ${draftData.soft_cta_variant || "none"}` },
+                { type: "mrkdwn", text: `*Words:*\n${draftData.word_count || "?"}` },
+                { type: "mrkdwn", text: `*Drafted by:*\n${draftData.drafted_by_model || "?"}` },
+            ],
+        },
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `*Title:* ${title}\n*Reddit link:* <${redditUrl}|Open thread>` },
+        },
+        { type: "divider" },
+        {
+            type: "section",
+            text: { type: "mrkdwn", text: `\`\`\`${draftText}\`\`\`` },
+        },
+        {
+            type: "context",
+            elements: [
+                { type: "mrkdwn", text: "👉 Approve / Edit / Skip / Kill in *Telegram* — @jegodigital_bot" },
+            ],
+        },
+    ];
+
+    try {
+        await axios.post(webhook, {
+            blocks,
+            text: `New Money Machine draft in r/${draftData.subreddit || "?"} — approve in Telegram`,
+            unfurl_links: false,
+            unfurl_media: false,
+        }, { timeout: 15000 });
+        return { ok: true };
+    } catch (err) {
+        functions.logger.error("[approvalBot] Slack mirror post failed:", err.response?.data || err.message);
+        return { ok: false, reason: err.message };
+    }
+}
+
 exports.pushDraftToTelegram = functions.firestore
     .document("opportunity_drafts/{draftId}")
     .onCreate(async (snap, ctx) => {
@@ -156,13 +221,22 @@ exports.pushDraftToTelegram = functions.firestore
                 functions.logger.info(`[approvalBot] ${ctx.params.draftId} not ready_for_approval, skipping push.`);
                 return null;
             }
-            const msgId = await sendApprovalMessage(d, ctx.params.draftId);
+            // Fire Telegram + Slack in parallel. Telegram is the approval
+            // surface (buttons); Slack is a visibility mirror for Alex.
+            const [tgResult, slackResult] = await Promise.allSettled([
+                sendApprovalMessage(d, ctx.params.draftId),
+                sendApprovalToSlack(d, ctx.params.draftId),
+            ]);
+            const msgId = tgResult.status === "fulfilled" ? tgResult.value : null;
+            const slackOk = slackResult.status === "fulfilled" && slackResult.value?.ok;
+
             await snap.ref.update({
                 telegram_message_id: msgId,
+                slack_mirrored: !!slackOk,
                 status: "awaiting_approval_telegram",
                 pushed_to_telegram_at: admin.firestore.FieldValue.serverTimestamp(),
             });
-            functions.logger.info(`[approvalBot] pushed ${ctx.params.draftId} → telegram msg ${msgId}`);
+            functions.logger.info(`[approvalBot] pushed ${ctx.params.draftId} → telegram msg ${msgId} | slack=${slackOk}`);
             return null;
         } catch (err) {
             functions.logger.error("[approvalBot] push crash:", err);
