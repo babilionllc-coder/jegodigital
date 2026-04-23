@@ -505,12 +505,19 @@ exports.telegramApprovalCallback = functions.https.onRequest(async (req, res) =>
         if (body.callback_query) {
             const cbq = body.callback_query;
             const data = cbq.data || "";
-            const [action, short] = data.split("_", 2);
+            // CRITICAL: data looks like "approve_reddit_1ssafi5" — the draft ID
+            // itself contains underscores. split("_", 2) returns MAX 2 pieces
+            // and throws away the rest, so we'd lose everything after the 2nd
+            // underscore. Use indexOf-based slicing to preserve the full short.
+            const underscoreIdx = data.indexOf("_");
+            const action = underscoreIdx > 0 ? data.slice(0, underscoreIdx) : "";
+            const short = underscoreIdx > 0 ? data.slice(underscoreIdx + 1) : "";
             if (!action || !short) {
                 await answerCallbackQuery(cbq.id, "Unknown action");
                 return res.json({ ok: true });
             }
             const draftId = await resolveShortId(short);
+            functions.logger.info(`[approvalCallback] action=${action} short=${short} draftId=${draftId}`);
             if (action === "approve") await handleApprove(draftId, cbq);
             else if (action === "kill") await handleKill(draftId, cbq);
             else if (action === "skip") await handleSkip(draftId, cbq);
