@@ -6,7 +6,7 @@
  * commit lands on `main`. Called from `.github/workflows/notion-session-log.yml`.
  *
  * Required env:
- *   NOTION_INTEGRATION_TOKEN   Internal integration token (Notion UI → Settings → Connections)
+ *   NOTION_API_KEY   Internal integration token (Notion UI → Settings → Connections)
  *   NOTION_SESSION_LOG_PAGE_ID Page ID of the "📚 Session Log — Ship History" page
  *                              (currently 34bf21a7-c6e5-812e-9f5b-e93657eb25ca)
  *   COMMIT_SHA                 Full SHA of the triggering commit (from GITHUB_SHA)
@@ -23,7 +23,7 @@ const NOTION_VERSION = "2022-06-28";
 const API = "https://api.notion.com/v1";
 
 const {
-  NOTION_INTEGRATION_TOKEN,
+  NOTION_API_KEY,
   NOTION_SESSION_LOG_PAGE_ID,
   COMMIT_SHA,
   COMMIT_MESSAGE,
@@ -36,7 +36,7 @@ function die(msg, code = 1) {
   process.exit(code);
 }
 
-if (!NOTION_INTEGRATION_TOKEN) die("Missing NOTION_INTEGRATION_TOKEN env.");
+if (!NOTION_API_KEY) die("Missing NOTION_API_KEY env.");
 if (!NOTION_SESSION_LOG_PAGE_ID) die("Missing NOTION_SESSION_LOG_PAGE_ID env.");
 if (!COMMIT_SHA || !COMMIT_MESSAGE) die("Missing COMMIT_SHA or COMMIT_MESSAGE env.");
 
@@ -126,7 +126,7 @@ async function notion(method, path, body) {
   const res = await fetch(`${API}${path}`, {
     method,
     headers: {
-      Authorization: `Bearer ${NOTION_INTEGRATION_TOKEN}`,
+      Authorization: `Bearer ${NOTION_API_KEY}`,
       "Notion-Version": NOTION_VERSION,
       "Content-Type": "application/json",
     },

@@ -6,7 +6,7 @@ name: Notion Session Log
 # plumbing. See website/tools/notion_session_log_append.mjs for parsing rules.
 #
 # Required GH Secrets (one-time setup — see /DEPLOY.md §Notion Session Log):
-#   NOTION_INTEGRATION_TOKEN   Internal integration token (notion.so/my-integrations)
+#   NOTION_API_KEY   Internal integration token (notion.so/my-integrations)
 #   NOTION_SESSION_LOG_PAGE_ID 34bf21a7-c6e5-812e-9f5b-e93657eb25ca
 #
 # The integration must also be "Connected" to the Session Log page in Notion:
@@ -53,8 +53,8 @@ jobs:
       - name: Guard — skip if secrets not wired
         id: guard
         run: |
-          if [ -z "${{ secrets.NOTION_INTEGRATION_TOKEN }}" ] || [ -z "${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}" ]; then
-            echo "⏭️  NOTION_INTEGRATION_TOKEN or NOTION_SESSION_LOG_PAGE_ID not set yet."
+          if [ -z "${{ secrets.NOTION_API_KEY }}" ] || [ -z "${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}" ]; then
+            echo "⏭️  NOTION_API_KEY or NOTION_SESSION_LOG_PAGE_ID not set yet."
             echo "   One-time setup lives in /DEPLOY.md §Notion Session Log."
             echo "   Workflow will skip silently until secrets are added."
             echo "skip=1" >> "$GITHUB_OUTPUT"
@@ -71,7 +71,7 @@ jobs:
       - name: Append Notion Session Log
         if: steps.guard.outputs.skip == '0'
         env:
-          NOTION_INTEGRATION_TOKEN: ${{ secrets.NOTION_INTEGRATION_TOKEN }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_SESSION_LOG_PAGE_ID: ${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}
           COMMIT_SHA: ${{ steps.meta.outputs.sha }}
           COMMIT_MESSAGE: ${{ steps.meta.outputs.message }}
