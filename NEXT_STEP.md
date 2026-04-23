@@ -2,21 +2,84 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-22 PM (Brevo nurture + deploy.yml batch-split shipped)
+> **Last session update:** 2026-04-23 PM (Trojan Video Factory shipped + docs refreshed — deploying via GitHub Data API)
 > **Maintained by:** Claude + Alex
 
 ---
 
-## 🎯 TODAY'S BIG ROCK (HARD RULE #8)
+## 🎬 2026-04-23 PM — TROJAN VIDEO FACTORY — DELIVERY SCAFFOLD SHIPPED
 
-> **2026-04-23 (tomorrow):** Fill the **Free Demo Website MX** lead bucket (200+ score-≥85 leads) and flip the campaign from PAUSED → ACTIVE.
->
-> ✅ **2026-04-22 shipped:** (1) Campaign `Free Demo Website — MX RE` created in Instantly (id `d486f1ab-4668-4674-ad6b-80ef12d9fd78`, PAUSED, 5 steps, 10 Gen 2 senders, bounce-protect + tracking ON). (2) 5-step MX Spanish sequence scored 97-100/100 on Quality Scorecard. (3) Copy archived in `COLD_EMAIL.md` §ACTIVE CAMPAIGN TEMPLATES. (4) Iron Rule #13 (bash curl only) used for the POST — verified 200 + re-GET shows all fields intact.
->
-> Tomorrow specifically: (1) run `lead-finder v4` with broken-site signal (Firecrawl daysSinceLastBlog>180 OR pageSpeed<50 OR no HTTPS OR no schema) on MX real estate agencies. (2) Route all leads through `tools/lead_quality_gate.sh` (HR#5 — must print `✅ 5/5 gates passed`). (3) Upload to campaign via bash curl. (4) PATCH campaign status 0→1 to activate. (5) Start building `freeDemoSitePipeline` Cloud Function (manual-assist for first 10 replies while shipping).
+**New Trojan Horse hook: "3 Videos Gratis" (Listing Video Factory).** Alex approved the pivot + the shorter Step-1 email copy with `{{firstName}}` + `{{companyName}}` personalization. Style presets: Cinemático, Lifestyle, Luxury. Delivery window: 24h. Photos per video: 3-10.
 
-**Bucket:** B (generate qualified leads) + C (raise conversion via radical personalization)
-**Success criteria (tomorrow):** 200+ gate-passed leads uploaded to `d486f1ab-4668-4674-ad6b-80ef12d9fd78` + campaign status=1 (ACTIVE) + first Step-0 sends visible in Instantly analytics within 24h.
+**Built + committing to main this session:**
+1. ✅ `cold-email-sequences/TROJAN_VIDEOS_2026-04-23.md` — full 5-step Spanish sequence + AI reply agent rules + pre-launch checklist.
+2. ✅ `website/trojan-setup/videos.html` — onboarding form page (dark theme, 3-10 photo dropzone, 3 style cards, lang toggle, signed-URL upload pattern). Syntax-clean.
+3. ✅ `website/functions/trojanVideoOnboarding.js` — two HTTPS endpoints (`trojanVideoInit` + `trojanVideoFinalize`). Wired into `index.js`. Syntax-clean.
+4. ✅ `DISASTER_LOG.md` — 2 new WIN entries: (a) Firebase Web SDK config gap → signed-URL pivot, (b) 36h stale `.git/index.lock` + UID mismatch → GitHub Git Data API path reproven.
+5. ✅ `SYSTEM.md` §1.3 — `trojanVideoInit` + `trojanVideoFinalize` added to HTTP endpoints inventory.
+6. ✅ `BUSINESS.md` — Trojan Horse entry section updated to document the "3 Videos Gratis" default hook (videos as lead magnet → Service 1 upsell 2 weeks later).
+
+**HARD BLOCK on campaign activation — remaining checklist before any cold email goes out:**
+- [ ] Deploy (push to main via GitHub Data API, poll Actions green) — **IN-FLIGHT**
+- [ ] End-to-end test with 1 test lead (verify signed-URL PUT succeeds, Telegram alert fires, Firestore doc lands with `status=submitted`)
+- [ ] Wire `processTrojanVideoRequest` Firestore trigger (reads style preset + photos → fires veo-flow pipeline → writes MP4 URLs back → sends delivery email)
+- [ ] First 3 renders manually QA'd by Alex
+- [ ] Create Instantly campaign `trojan_videos_mx_v1` in **draft mode only** — do NOT activate until all above pass
+
+**Status:** Outreach copy + onboarding page + backend scaffold = ✅. Delivery pipeline (Veo → Remotion → email) still needs end-to-end verification before first send.
+
+---
+
+## ✅ 2026-04-23 early-AM WIN — Firebase deploy health fully restored
+
+**Problem:** After the 2026-04-22 PM batch-split fix (commit `27132638`), 3 functions kept failing GCF health check across every retry: `dailyDigest`, `coldCallMidBatchCheck`, `coldEmailDailyReport`. The batch-split unstuck the other 57 functions but these 3 were stuck in a different failure mode (consistent, not transient).
+
+**Fix:** Added `if (!admin.apps.length) admin.initializeApp();` to the top of each of the 3 standalone module files. Pushed as commit `057fc15f` via GitHub Git Data API (sandbox-autonomous, HR-13 compliant). Run #89 BATCH 1 deployed all 3 previously-crashing modules on the FIRST TRY — conclusive HR-6 proof.
+
+**Bonus:** BATCH 2 hit an unrelated transient flake on `sendT10minReminders`. The retry step (added in the 2026-04-22 batch-split commit) auto-healed it. Proves the retry infrastructure works exactly as designed.
+
+**New permanent rule:** Added to `DEPLOY.md §Guard rails before pushing` as rule #5 — every standalone `.js` module that imports `firebase-admin` MUST include the cold-start init guard. Logged to `DISASTER_LOG.md` 2026-04-23.
+
+**Tech-debt note:** 24 other module files in `website/functions/` also import `firebase-admin` without the guard (audit.js, auditPipeline.js, brevoNurture.js, calendlyWebhook.js, dailyStrategist.js, eveningOpsReport.js, instantlyReplyWatcher.js, mondayRevenueReview.js, etc.). They deploy fine today but are technically vulnerable to the same cold-start race. Not urgent — patch opportunistically as we edit each file. P3 backlog item.
+
+---
+
+## 🎯 TODAY'S BIG ROCK (HARD RULE #8) — 2026-04-23
+
+> Cold-call 100 MX real estate agencies from the pre-built target list, route positive replies to Calendly/WhatsApp/Sofia.
+>
+> ✅ **2026-04-22 PM shipped (LinkedIn + GMaps pipeline):**
+> 1. Apify LinkedIn Profile Search — 30/36 queries submitted (6 titles × 6 cities), 256 raw profiles fetched.
+> 2. HR-5 6-gate filter — 37/256 decision-makers kept (14.5%), rejected: weak_title(114), not_mx(105), no_re_signal(68), rubbish(31), dup_email(8).
+> 3. Hunter waterfall — 4 LinkedIn emails resolved (12/37 got domain via Google Search Scraper).
+> 4. **Phone pivot** — LinkedIn yielded 0 phones (profiles rarely expose them). Pivoted to Apify `compass~crawler-google-places` scraper — 240 GMaps listings across 9 MX cities, 186 with phones, 148 with websites, 79 with emails.
+> 5. Filter + score + merge → **149 cold-call-ready leads** in `leads/COLD_CALLING_TARGETS_2026-04-23.md` (83 hot / 28 warm / 21 lukewarm / 13 cold / 4 LinkedIn direct).
+>
+> Today specifically:
+> - (1) Open `leads/COLD_CALLING_TARGETS_2026-04-23.md` — pick top 40 `hot_gmaps` by score (reviews ≥100 + 4.5+ rating + major brand).
+> - (2) For each: copy the pre-built `node tools/elevenlabs_trigger_call.cjs <phone> "<Company>" --offer=C` command and fire.
+> - (3) Track replies in `fb_leads_tracker.csv` columns `source=gmaps_call`, `status`, `next_step`.
+> - (4) If ≥3 positive replies → push to Calendly same day.
+> - (5) Evening: enrich the 79 emails to Instantly `Trojan Horse` campaign with HR-6 baseline + delta check.
+
+**Bucket:** B (generate qualified leads) + A (close this week — live voice is highest intent)
+**Success criteria (today):** 40 dials attempted, 5+ positive replies logged, 2+ Calendly bookings OR 5+ WhatsApp conversations opened. Email subset (79 leads) uploaded to Trojan Horse campaign `cd9f1abf-3ad5-460c-88e9-29c48bc058b3`.
+
+---
+
+## 🔁 DAILY RITUALS (run every morning — 25 min total)
+
+**FB Groups Hybrid Prospecting** (launched 2026-04-22)
+- 7:00 AM — open FB app on phone, scroll priority groups 1-4 in `facebook-groups/FB_GROUPS_PLAYBOOK.md`
+- Screenshot 8-12 hot-signal posts (post + poster profile)
+- Paste all into Claude chat
+- Claude returns personalized DMs + FB message links
+- Batch-send from phone (15 DMs/day max — HR#5 style ceiling)
+- Replies → move to WhatsApp → Sofia → Calendly
+- Weekly review Mondays in `BUSINESS_REVIEW/2026-W<NN>.md`
+- 🚫 DISASTER_LOG 2026-04-22: Chrome MCP scanning blocked by Meta bot-detection. Workflow is phone-first, NEVER Chrome automation.
+- Infra: `facebook-groups/FB_GROUPS_PLAYBOOK.md` + `fb_dm_templates.md` + `fb_leads_tracker.csv`
+- **Target:** 2 Calendly calls/day within 7-14 days
 
 ---
 

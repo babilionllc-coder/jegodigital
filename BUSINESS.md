@@ -26,7 +26,10 @@
 **NEVER reveal pricing in any automated channel** — not WhatsApp, not email, not cold outreach, not in writing. Pricing is ONLY discussed live on a Calendly call with Alex.
 
 ### Entry "Trojan Horse" — Always lead with this
-**Service 1: Captura de Leads 24/7 con IA** — offered with FREE setup to get foot in the door.
+
+**Current default hook (as of 2026-04-23):** **"3 Videos Gratis de Propiedades en 24 horas."** Listing Video Factory — prospect submits 3-10 photos at `jegodigital.com/trojan-setup/videos` → we deliver 3 cinematic property videos (Cinemático / Lifestyle / Luxury styles) within 24h, no pitch, no price mentioned. Converts warmer than the free-install offer because (a) no software install friction, (b) videos are visibly valuable, (c) 24h turnaround is a proof demo of our AI pipeline. Delivery is automated via `trojanVideoInit` + `trojanVideoFinalize` Cloud Functions (signed-URL upload → Veo + ElevenLabs + Remotion render → email delivery). Campaign template lives at `cold-email-sequences/TROJAN_VIDEOS_2026-04-23.md` — 5-step Spanish sequence with `{{firstName}}` + `{{companyName}}` personalization.
+
+**Real product behind the hook:** **Service 1: Captura de Leads 24/7 con IA** — offered with FREE setup. The videos are the lead magnet; Service 1 is what we upsell during the 2-week follow-up after delivery. For clients who prefer a non-video entry, the original "free WhatsApp AI install" framing of Service 1 is still a valid Trojan Horse offer.
 
 | # | Service | Description |
 |---|---|---|

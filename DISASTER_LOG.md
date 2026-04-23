@@ -4,6 +4,52 @@
 > **Usage:** `grep -i "<keyword>" /Users/mac/Desktop/Websites/jegodigital/DISASTER_LOG.md`
 > **Rule:** if an entry pattern repeats, promote it to a HARD RULE in CLAUDE.md. Don't just log it twice.
 
+## 2026-04-23 PM — Firebase Web SDK config placeholder trap (avoided pre-deploy during Trojan Video Factory build)
+**What I tried:** First pass on `website/trojan-setup/videos.html` wired the 3-10 photo dropzone directly to Firebase Storage via the Firebase Web SDK (`initializeApp({apiKey, authDomain, storageBucket, ...})` + `getStorage` + `uploadBytesResumable`). I dropped in placeholder/fake `apiKey` + `authDomain` + `appId` values intending to swap them for real ones at deploy time.
+**Why it would have failed (caught in same session before ship):** (a) **Web SDK config values are public** — committing them exposes the project's identifier to every visitor's DevTools. Not a secret-in-the-strict-sense leak, but still a broadcast we should not do by default. (b) **No Firebase Security Rules were drafted** — any visitor could have read/written anywhere in the bucket under the matching auth state. (c) **Silent schema drift risk** — the "trojan-videos/{companySlug}-{leadId}/photo-N.jpg" path lived only in the client. A bad actor could upload to any path. (d) **Placeholder apiKey would have 100% broken the page** on first real user until someone remembered to swap it — a silent prod break waiting to happen.
+**What to do instead (permanent pattern):** Use the **signed-URL upload pattern** for any browser-to-GCS flow:
+1. Browser POSTs lead metadata to a Cloud Function (`trojanVideoInit`).
+2. Function validates, writes the Firestore doc with `status=awaiting_upload`, mints N signed PUT URLs via `admin.storage().bucket().file(path).getSignedUrl({version:'v4', action:'write', expires: now + 30min})`, returns the URL list.
+3. Browser PUTs each photo directly to its signed URL (bypasses the Cloud Function 10MB body limit).
+4. Browser POSTs back to `trojanVideoFinalize`. Function verifies every expected key exists via `bucket.getFiles({prefix})`, flips `status=submitted`, fires Telegram/Brevo.
+Zero Firebase Web SDK, zero public config, zero security rules needed. Paths are enforced server-side. Expiry is explicit. This is the canonical recipe for any future `/trojan-setup/*` onboarding pages or client upload flows. Proof code: `website/functions/trojanVideoOnboarding.js` + `website/trojan-setup/videos.html` (shipped 2026-04-23 PM).
+**Rule going forward:** **Never import the Firebase Web SDK into a static page for upload workflows.** If a static page needs to put a file in GCS, use a Cloud-Function-minted signed URL. If it needs to read Firestore, use a read-only HTTPS function that queries server-side and returns JSON. The only SDK config that belongs in the browser is Firebase Hosting's auto-config for Auth (login), and even that requires published Security Rules before shipping.
+**Tag:** win · firebase · storage · signed-url · architecture · trojan-videos
+
+---
+
+## 2026-04-23 PM — WIN: Session bootstrap pattern for 36h-stale .git/index.lock held by another UID
+**What I tried:** After editing 5 files for the Trojan Video Factory (`trojanVideoOnboarding.js`, `index.js`, `videos.html`, `TROJAN_VIDEOS_2026-04-23.md`, `NEXT_STEP.md`), tried `git add` → `git commit` → `git push origin main`. Every git operation failed with `fatal: Unable to create '/Users/mac/Desktop/Websites/jegodigital/.git/index.lock': File exists.` Standard recovery `rm -f .git/index.lock` returned `Operation not permitted` — the lock file was 36 hours old, owned by a different UID than the sandbox user, and the sandbox has no sudo.
+**Why it failed:** The Cowork sandbox runs under a different POSIX user than Alex's laptop. If a previous non-sandbox git process crashed mid-operation and left `.git/index.lock`, the sandbox user cannot unlink it. This is a known persistent hazard on any mounted host filesystem. Waiting for the lock to "age out" does nothing — locks don't self-expire.
+**What to do instead (already canonical, but reproving today):** Use the **GitHub Git Data API** autonomous deploy path documented in `DEPLOY.md §Autonomous Deploy`. This NEVER touches `.git/` locally — it talks straight to `api.github.com/repos/.../git/{blobs,trees,commits,refs}` using the PAT at `.secrets/github_token`. Four calls:
+1. GET `/git/refs/heads/main` → parent commit SHA
+2. POST `/git/blobs` (one per changed file, `--data-binary @file` to avoid E2BIG on large base64) → blob SHAs
+3. POST `/git/trees` with `base_tree` + blob entries → new tree SHA
+4. POST `/git/commits` → PATCH `/git/refs/heads/main` to the new commit SHA
+Actions fires automatically on the ref update. Total sandbox-local git activity: zero. Works with any stale lock state, any UID mismatch, any broken local git config.
+**Additional caution learned today:** Before committing via this path, `GET /repos/.../commits?sha=main` and compare the diff to your working tree — if there are pre-existing staged deletions of files you did NOT touch (e.g. staged `git rm coldEmailDailyReport.js` from a prior aborted session), committing `base_tree=HEAD` + blob additions will SILENTLY carry those deletions into the new commit and regress production. **Only commit the exact files you changed this session** by building the tree explicitly from the parent tree + your additions, NOT from a `git status` snapshot.
+**Rule going forward:** Every session that changes code, `.secrets/github_token` is the canonical write path. Never ask Alex to `git push` from his laptop (HR-13). Never ask Alex to `rm` locks (HR-13). If the first `git` command in a session fails due to a lock, skip retrying and go straight to the Data API path.
+**Tag:** win · deploy · git · sandbox · autonomous-push · hr-11 · hr-13
+
+---
+
+## 2026-04-23 early AM — WIN: Admin init guard fixes 3 zombie cold-start crashes that survived the batch-split fix
+**What happened first (disaster):** After the 2026-04-22 PM batch-split deploy shipped (commit `27132638`), 3 specific modules kept failing GCF health check across every single retry of run #87 (2026-04-23 01:27 CDMX): `dailyDigest`, `coldCallMidBatchCheck` (lives inside `coldCallAutopilot.js`), `coldEmailDailyReport`. The batch split fixed the quota-throttling problem for ~57 other functions, but these 3 still crashed. Unlike a transient flake (which self-heals on retry), these failed the initial deploy AND every retry — a consistent signal that something was wrong in the code itself, not the infrastructure.
+**Why it failed:** Each of the 3 modules was written as a **standalone** `.js` file that loads `firebase-admin` at the top of the file and immediately uses it at module-load time (Firestore `Timestamp` references, `admin.firestore()` calls in global scope). When `index.js` uses `require("./dailyDigest")` and `admin.apps.length === 0` at that moment (a realistic race during parallel cold-starts of 60+ batched deploys), the module crashes during the GCF health check before any handler can run. `index.js` has the guard `if (!admin.apps.length) admin.initializeApp();` at the top — but the 3 offenders were loaded BEFORE `index.js` finished running that guard, because Node hoists the `require` evaluation up front in the new GCF container. Result: the SDK is not initialized, `admin.firestore()` throws, the container fails its health check, the deploy marks the function failed. Every cold-start retry produced the same race → same crash.
+**What to do instead:** **PERMANENT RULE — every standalone function file that imports `firebase-admin` MUST repeat the init guard at the top of the file:**
+```js
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+// GCF cold-start fix: independent modules must re-check admin.apps before any
+// Firestore/Timestamp reference at module-load time, because Node may require()
+// this module before index.js finishes running its own guard.
+if (!admin.apps.length) admin.initializeApp();
+```
+Patched in commit `057fc15f` (run #89 on 2026-04-23 ~02:10 CDMX). **HR-6 proof:** BATCH 1 deployed all 3 previously-crashing modules on the FIRST TRY of run #89 — exact same 3 modules that failed every retry of run #87. That first-try success is conclusive proof the admin init guard was the root cause, not the infrastructure. BATCH 2 hit a separate unrelated transient flake on `sendT10minReminders` which the retry infrastructure auto-healed (exactly what it was built for). **Rule going forward:** whenever a new Cloud Function is added that lives in its own `.js` file (not inline in `index.js`), verify the file starts with the 4-line init guard block above. Grep `website/functions/*.js | xargs grep -L "admin.apps.length"` periodically to catch regressions.
+**Tag:** win · deploy · firebase · gcf-cold-start · admin-sdk · hr-6
+
+---
+
 ## 2026-04-22 evening — WIN: Cold-call nurture templates audited + P0/P1 fixes shipped BEFORE first lead received a fabricated number
 **What I tried:** Alex's "send me to my inboxes, I want to see all 5 emails before we go live" instinct. Fired all 10 templates (5 Offer A + 5 Offer C) via `POST /v3/smtp/email` to two JegoDigital inboxes. Then audited each email for conversion + compliance.
 **Why it mattered:** 4 P0 bugs found in live Brevo templates that would have landed in prospect inboxes the next time either cold-call agent called `save_lead_to_brevo_seo/setup`: (1) WhatsApp link `wa.me/5299878753521` (12+1 digits = broken) on 3 templates → all fixed to `wa.me/529987875321`; (2) `{{params.FIRSTNAME_GENDER_A}}` Brevo placeholder leaked in C-D5 ("¿Listo/a ...") → replaced with neutral Spanish; (3) three fabricated numbers that violate HR-0 — "60% de tus leads a la competencia" (A-D1), "40% de tus compradores son millennials" (A-D5), "2-5 leads extra la primera semana" (C-D7) — all replaced with directionally-true qualitative framing (e.g. "#1 en Google Maps", "una parte creciente de compradores", "leads extra que antes perdias"); (4) client name "Rodrigo" leaked as a fictional reference in A-D3 copy → scrubbed to generic "el dueño". Plus 3 P1 fixes: CAN-SPAM `{{ unsubscribe }}` footer missing on all 10 → added; Calendly event types split decision resolved as single `/30min` with `utm_campaign=coldcall_a|coldcall_c` for attribution instead of creating duplicate event types; C-D3 was hard-coded time-assumptive ("T-24h prep") → rewritten time-agnostic ("Preparacion para instalar Sofia — 3 cosas a la mano") so `saveColdCallLead` doesn't have to branch on install date.
@@ -379,3 +425,9 @@ Any entry older than 90 days that no longer reflects a live risk → move to `DI
 4. **P3 strategic:** Switch offer B to an auto-audit trigger that fires BEFORE the call — "Hi [Name], I already audited your site at [URL] and found 3 issues. Want to hear the fix in 60 seconds?" Moves the RAG/context work out of the live-call path.
 
 **Tag:** cold-call
+
+## 2026-04-22 — Chrome MCP can't reliably scan Facebook groups (bot-detection stall)
+**What I tried:** Drive Chrome MCP to scan 34 joined FB groups to extract hot-signal posts (people asking about SEO/leads/websites/CRM). Navigated to BienesRaicesenCancun (pending approval — feed blocked) and grupoinmobiliariomexico (55.8K members, approved). Scrolled 8-12 times with 1.2-1.8s intervals to trigger feed hydration. Queried `[role="article"]` elements after each scroll.
+**Why it failed:** Meta's bot-detection detects Chrome automation even on READ-ONLY scroll. Feed articles stay stuck in `data-visualcompletion="loading-state"` with `aria-label="Loading..."` indefinitely. Content briefly hydrated once on initial load then DE-hydrated when scroll pattern was detected as automated. `document.body.innerText.length` dropped from 5000+ to 1443 between reads.
+**What to do instead:** FLIP the workflow. Alex scrolls FB groups on his phone (natural patterns, zero detection risk). He screenshots hot posts + poster profile, pastes in Claude chat. Claude researches poster + drafts perfect Spanish DM + generates direct FB message link. Alex batch-sends from phone in 25 min/day. This also kills the original "I'll prep, you send" plan where I was going to fully auto-scan.
+**Tag:** fb-groups, cold-outreach, automation-detection, meta-ban-risk
