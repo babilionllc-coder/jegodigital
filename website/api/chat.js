@@ -15,8 +15,9 @@ export default async function handler(req, res) {
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Use the model specified in config or default to flash-exp
-        const modelName = config?.model || "gemini-2.0-flash-exp";
+        // Use the model specified in config or default to gemini-2.5-flash
+        // Upgraded 2026-04-23 — gemini-2.0-flash-exp returns 404 for new users (see DISASTER_LOG.md)
+        const modelName = config?.model || "gemini-2.5-flash";
         const model = genAI.getGenerativeModel({ model: modelName });
 
         // Construct the chat history for the API

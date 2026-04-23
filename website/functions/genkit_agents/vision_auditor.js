@@ -79,7 +79,8 @@ const visionAuditor = ai.defineFlow(
         console.log("🚀 Sending request to Gemini with explicit messages format...");
 
         const result = await ai.generate({
-            model: "googleai/gemini-2.0-flash",
+            // Upgraded 2026-04-23 — gemini-2.0-flash returns 404 for new users (see DISASTER_LOG.md)
+            model: "googleai/gemini-2.5-flash",
             messages: [
                 {
                     role: 'user',
