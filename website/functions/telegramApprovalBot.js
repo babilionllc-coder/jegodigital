@@ -603,6 +603,183 @@ exports.pushPendingDraftsToTelegram = functions.https.onRequest(async (req, res)
 });
 
 // -------------------------------------------------------------
+// 5b. Scheduled recovery — every 30 min.
+//
+// Two failure modes this catches:
+//   (a) Original push failed silently (telegram_message_id is null) —
+//       we fully re-push.
+//   (b) Push succeeded but Alex missed/ignored the message for 2h+ —
+//       we send a SHORT nudge (not the full draft again) pointing back
+//       at the original message.
+//
+// Nudge cap = 3 per draft (telegram_nudges_sent field) so we don't spam.
+// Alex can still tap buttons on the ORIGINAL message — nudge is just a
+// pointer.
+// -------------------------------------------------------------
+async function sendNudge(draftData, draftId) {
+    const origMsgId = draftData.telegram_message_id;
+    const title = (draftData.title || "(no title)").slice(0, 100);
+    const text = [
+        `⏰ *Reminder* — draft still awaiting your approval`,
+        ``,
+        `*Title:* ${title}`,
+        `*Score:* ${draftData.score || "?"}/100`,
+        `*Subreddit:* r/${draftData.subreddit || "?"}`,
+        `*Waiting since:* ${draftData.pushed_to_telegram_at ? "earlier today" : "first push"}`,
+        ``,
+        origMsgId ? `👆 Scroll up to message \`${origMsgId}\` to tap Approve / Edit / Kill.` : `(Original message id missing — re-pushing full draft in next cycle.)`,
+    ].join("\n");
+    const url = `https://api.telegram.org/bot${tgToken()}/sendMessage`;
+    try {
+        const r = await axios.post(url, {
+            chat_id: tgChat(),
+            text,
+            parse_mode: "Markdown",
+            disable_web_page_preview: true,
+            // Reply to the original so Alex sees the thread
+            ...(origMsgId ? { reply_to_message_id: origMsgId } : {}),
+        }, { timeout: 15000 });
+        return r.data?.result?.message_id || null;
+    } catch (err) {
+        functions.logger.warn("[nudge] failed:", err.response?.data || err.message);
+        return null;
+    }
+}
+
+exports.scheduledTelegramRecovery = functions
+    .runWith({ timeoutSeconds: 120, memory: "256MB" })
+    .pubsub.schedule("every 30 minutes")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        const db = getFirestore();
+        const now = Date.now();
+        const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+        const MAX_NUDGES = 3;
+
+        const snap = await db.collection("opportunity_drafts")
+            .where("ready_for_approval", "==", true)
+            .where("status", "in", ["awaiting_approval", "awaiting_approval_telegram"])
+            .limit(20)
+            .get();
+
+        const summary = { total_stuck: snap.size, full_repushed: 0, nudged: 0, skipped_capped: 0, skipped_recent: 0 };
+
+        for (const d of snap.docs) {
+            const data = d.data();
+            const hasMsg = !!data.telegram_message_id;
+            const pushedAtMs = data.pushed_to_telegram_at?.toMillis?.() || 0;
+            const lastNudgeMs = data.last_nudge_at?.toMillis?.() || 0;
+            const nudgesSent = data.telegram_nudges_sent || 0;
+
+            // Case A: push never succeeded — do a full re-push
+            if (!hasMsg) {
+                // eslint-disable-next-line no-await-in-loop
+                const [tgRes, slackRes] = await Promise.allSettled([
+                    sendApprovalMessage(data, d.id),
+                    sendApprovalToSlack(data, d.id),
+                ]);
+                const msgId = tgRes.status === "fulfilled" ? tgRes.value : null;
+                const slackOk = slackRes.status === "fulfilled" && slackRes.value?.ok;
+                // eslint-disable-next-line no-await-in-loop
+                await d.ref.update({
+                    telegram_message_id: msgId,
+                    status: "awaiting_approval_telegram",
+                    pushed_to_telegram_at: admin.firestore.FieldValue.serverTimestamp(),
+                    slack_mirrored: !!slackOk,
+                    recovery_reason: "no_msg_id",
+                });
+                summary.full_repushed += 1;
+                continue;
+            }
+
+            // Case B: push succeeded, but Alex hasn't acted. Nudge rules:
+            //   - at least 2h since original push
+            //   - at least 2h since last nudge (don't spam)
+            //   - max 3 nudges total per draft
+            if (nudgesSent >= MAX_NUDGES) { summary.skipped_capped += 1; continue; }
+            const sincePush = now - pushedAtMs;
+            const sinceLastNudge = now - lastNudgeMs;
+            if (sincePush < TWO_HOURS_MS || sinceLastNudge < TWO_HOURS_MS) {
+                summary.skipped_recent += 1;
+                continue;
+            }
+
+            // eslint-disable-next-line no-await-in-loop
+            const nudgeMsgId = await sendNudge(data, d.id);
+            // eslint-disable-next-line no-await-in-loop
+            await d.ref.update({
+                telegram_nudges_sent: nudgesSent + 1,
+                last_nudge_at: admin.firestore.FieldValue.serverTimestamp(),
+                last_nudge_msg_id: nudgeMsgId,
+            });
+            summary.nudged += 1;
+        }
+
+        functions.logger.info("[scheduledTelegramRecovery]", summary);
+        return summary;
+    });
+
+// On-demand trigger of the same logic — for manual testing + one-off runs.
+exports.scheduledTelegramRecoveryNow = functions.https.onRequest(async (_req, res) => {
+    // Duplicate the scheduled body (Cloud Scheduler doesn't expose a local invoke).
+    try {
+        const db = getFirestore();
+        const now = Date.now();
+        const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+        const MAX_NUDGES = 3;
+        const snap = await db.collection("opportunity_drafts")
+            .where("ready_for_approval", "==", true)
+            .where("status", "in", ["awaiting_approval", "awaiting_approval_telegram"])
+            .limit(20)
+            .get();
+        const summary = { total_stuck: snap.size, full_repushed: 0, nudged: 0, skipped_capped: 0, skipped_recent: 0 };
+        for (const d of snap.docs) {
+            const data = d.data();
+            const hasMsg = !!data.telegram_message_id;
+            const pushedAtMs = data.pushed_to_telegram_at?.toMillis?.() || 0;
+            const lastNudgeMs = data.last_nudge_at?.toMillis?.() || 0;
+            const nudgesSent = data.telegram_nudges_sent || 0;
+            if (!hasMsg) {
+                // eslint-disable-next-line no-await-in-loop
+                const [tgRes, slackRes] = await Promise.allSettled([
+                    sendApprovalMessage(data, d.id),
+                    sendApprovalToSlack(data, d.id),
+                ]);
+                const msgId = tgRes.status === "fulfilled" ? tgRes.value : null;
+                const slackOk = slackRes.status === "fulfilled" && slackRes.value?.ok;
+                // eslint-disable-next-line no-await-in-loop
+                await d.ref.update({
+                    telegram_message_id: msgId,
+                    status: "awaiting_approval_telegram",
+                    pushed_to_telegram_at: admin.firestore.FieldValue.serverTimestamp(),
+                    slack_mirrored: !!slackOk,
+                    recovery_reason: "no_msg_id",
+                });
+                summary.full_repushed += 1;
+                continue;
+            }
+            if (nudgesSent >= MAX_NUDGES) { summary.skipped_capped += 1; continue; }
+            const sincePush = now - pushedAtMs;
+            const sinceLastNudge = now - lastNudgeMs;
+            if (sincePush < TWO_HOURS_MS || sinceLastNudge < TWO_HOURS_MS) { summary.skipped_recent += 1; continue; }
+            // eslint-disable-next-line no-await-in-loop
+            const nudgeMsgId = await sendNudge(data, d.id);
+            // eslint-disable-next-line no-await-in-loop
+            await d.ref.update({
+                telegram_nudges_sent: nudgesSent + 1,
+                last_nudge_at: admin.firestore.FieldValue.serverTimestamp(),
+                last_nudge_msg_id: nudgeMsgId,
+            });
+            summary.nudged += 1;
+        }
+        res.json({ ok: true, ...summary });
+    } catch (err) {
+        functions.logger.error("[scheduledTelegramRecoveryNow] crash:", err);
+        res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
+// -------------------------------------------------------------
 // 6. slackWebhookTest — one-line sanity check that the Slack webhook
 //    env var is present AND the URL actually accepts a post.
 //    Returns the exact reason if it fails so we don't guess.

@@ -2049,6 +2049,24 @@ const { processAuditRequest } = require("./auditPipeline");
 exports.processAuditRequest = processAuditRequest;
 
 // ============================================================
+// TROJAN VIDEO ONBOARDING (added 2026-04-23)
+// Two HTTP endpoints powering /trojan-setup/videos:
+//   trojanVideoInit     — validates lead, mints signed-URL PUTs
+//                         for 3-10 property photos, writes
+//                         `trojan_video_leads/{leadId}` in
+//                         Firestore with status=awaiting_upload.
+//   trojanVideoFinalize — verifies photos landed in GCS,
+//                         flips status=submitted, fires a
+//                         Telegram alert to Alex + Brevo upsert,
+//                         hands off to the render pipeline.
+// Delivery promise: 3 cinematic MP4s in <24h.
+// Campaign: trojan_videos_mx_v1 (Instantly).
+// ============================================================
+const trojanVideo = require("./trojanVideoOnboarding");
+exports.trojanVideoInit = trojanVideo.trojanVideoInit;
+exports.trojanVideoFinalize = trojanVideo.trojanVideoFinalize;
+
+// ============================================================
 // DAILY DIGEST (added 2026-04-20)
 // 07:00 CDMX Telegram morning brief. Pulls yesterday's Instantly
 // + Calendly + audit + call + Brevo queue numbers, posts one card
@@ -2384,6 +2402,8 @@ exports.telegramApprovalCallback = telegramApprovalBot.telegramApprovalCallback;
 exports.setTelegramWebhook = telegramApprovalBot.setTelegramWebhook;
 exports.pushPendingDraftsToTelegram = telegramApprovalBot.pushPendingDraftsToTelegram;
 exports.slackWebhookTest = telegramApprovalBot.slackWebhookTest;
+exports.scheduledTelegramRecovery = telegramApprovalBot.scheduledTelegramRecovery;
+exports.scheduledTelegramRecoveryNow = telegramApprovalBot.scheduledTelegramRecoveryNow;
 
 // Money Machine observability — single HTTPS endpoint that counts opportunities
 // by status, returns the latest money_machine_runs summary, and shows recent
