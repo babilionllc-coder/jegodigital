@@ -305,7 +305,7 @@ async function callGemini(prompt) {
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
+            model: "gemini-3.1-flash-lite-preview", // upgraded 2026-04-23 — gemini-2.0-flash returns 404 for new users (Disaster Log 2026-04-23). Matches dailyStrategist + opportunityClassifier.
             generationConfig: {
                 temperature: 0.3,
                 responseMimeType: "application/json",

@@ -69,7 +69,7 @@ async function callHttpFunction(func, queryParams = {}, bodyParams = {}) {
 }
 
 // --- AGENT LOGIC ---
-const modelIds = ["gemini-1.5-flash", "gemini-1.0-pro"];
+const modelIds = ["gemini-2.5-flash", "gemini-2.5-pro"]; // upgraded 2026-04-23 from 1.5/1.0 (both deprecated)
 
 exports.agent = functions.https.onRequest(async (req, res) => {
     // CORS
@@ -86,9 +86,9 @@ exports.agent = functions.https.onRequest(async (req, res) => {
         const { message, history } = req.body;
         if (!message) throw new Error("Message is required.");
 
-        // Use standard Flash model
+        // Use standard Flash model — upgraded 2026-04-23 (gemini-2.0-flash returned 404 for new users)
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
+            model: "gemini-2.5-flash",
             tools: [{ functionDeclarations: toolDefinitions }]
         });
 
