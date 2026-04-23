@@ -21,6 +21,9 @@
  */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+// GCF cold-start fix 2026-04-23: see dailyDigest.js — same root cause.
+// coldCallMidBatchCheck failed health check across retries in run #87.
+if (!admin.apps.length) admin.initializeApp();
 const axios = require("axios");
 
 // ---- Telegram (shared pattern) ----

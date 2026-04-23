@@ -17,6 +17,13 @@
  */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+// GCF cold-start fix 2026-04-23: ensure Firebase Admin SDK is initialized
+// before any Firestore/Timestamp reference at module-load time. Without
+// this guard, batched deploys that cold-start this module before index.js
+// finishes initializing admin.apps crash the GCF health check. Disaster
+// run #87 (2026-04-23 01:27 CDMX): dailyDigest consistently failed GCF
+// health check across retries — root cause = missing init guard here.
+if (!admin.apps.length) admin.initializeApp();
 const axios = require("axios");
 
 // ---- Telegram fallbacks (match calendlyWebhook.js) ----
