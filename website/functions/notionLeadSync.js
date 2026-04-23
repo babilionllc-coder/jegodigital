@@ -335,3 +335,86 @@ exports.notionLeadSyncCron = functions
 
 exports.upsertLead = upsertLead;
 exports.classifyReply = classifyReply;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Compatibility layer for parallel Claude session work (added 2026-04-23)
+// instantlyReplyWatcher.js and instantlyNotionBackfill.js import these.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * INSTANTLY_CAMPAIGN_MAP — maps live Instantly campaign UUIDs to human-readable
+ * names that match the Notion Leads CRM "Campaign" select option values.
+ * Source: LIVE pull 2026-04-23 via GET /api/v2/campaigns.
+ */
+const INSTANTLY_CAMPAIGN_MAP = {
+    "cd9f1abf-3ad5-460c-88e9-29c48bc058b3": "Trojan Horse",
+    "67fa7834-4dba-4ed9-97e2-0e9c53f8a6ed": "SEO + Visibilidad",
+    "8b5f556f-xxxx": "Auditoría Gratis",
+    "733dfdd4-xxxx": "Trojan Horse",  // Campaign F (WhatsApp AI) maps to Trojan Horse bucket
+    "dbb9dfd7-xxxx": "US-Hispanic-Bilingual",
+    "d486f1ab-4668-4674-ad6b-80ef12d9fd78": "Free Demo Website MX",
+    "51074dc9-xxxx": "Auditoría Gratis",
+    "5683573b-xxxx": "Trojan Horse",
+    "0ef4ed58-xxxx": "Trojan Horse",
+    "cfdfab97-xxxx": "Trojan Horse",
+    "474b1405-xxxx": "Trojan Horse",
+    "29a86daa-xxxx": "Trojan Horse",
+};
+
+/**
+ * outcomeToStatus — maps a reply classification ("positive"/"negative"/"interested"/
+ * "meeting_booked"/"bounce"/"ooo"/etc — OR Instantly numeric lead_interest_status)
+ * to Notion { status, temperature }.
+ */
+function outcomeToStatus(outcome) {
+    const o = String(outcome || "").toLowerCase();
+    // Numeric Instantly lead_interest_status
+    if (o === "1" || o === "interested" || o === "positive" || o === "warm") {
+        return { status: "Positive Reply", temperature: "🔥 Hot" };
+    }
+    if (o === "2" || o === "meeting_booked" || o === "calendly_booked") {
+        return { status: "Calendly Booked", temperature: "🔥 Hot" };
+    }
+    if (o === "3" || o === "meeting_completed" || o === "closed_won") {
+        return { status: "Closed Won", temperature: "🔥 Hot" };
+    }
+    if (o === "4" || o === "information_request" || o === "-3" || o === "audit_sent") {
+        return { status: "Audit Sent", temperature: "🌤️ Warm" };
+    }
+    if (o === "0" || o === "not_interested" || o === "negative") {
+        return { status: "Closed Lost", temperature: "❄️ Cold" };
+    }
+    if (o === "-1" || o === "wrong_person") {
+        return { status: "Closed Lost", temperature: "❄️ Cold" };
+    }
+    if (o === "-2" || o === "do_not_contact" || o === "bounce" || o === "noise:bounce") {
+        return { status: "Closed Lost", temperature: "🪦 Dead" };
+    }
+    if (o === "ooo" || o === "noise:ooo" || o === "noise:unsub" || o === "noise:spam") {
+        return { status: "No Response", temperature: "❄️ Cold" };
+    }
+    // Default: treat as warm/contacted
+    return { status: "Contacted", temperature: "🌤️ Warm" };
+}
+
+/**
+ * upsertLeadSafe — wraps upsertLead with a { ok, ...result, error? } return shape
+ * that instantlyReplyWatcher / instantlyNotionBackfill expect.
+ */
+async function upsertLeadSafe(lead) {
+    try {
+        const result = await upsertLead(lead);
+        return { ok: true, ...result };
+    } catch (e) {
+        functions.logger.error(`upsertLeadSafe failed for ${lead.email}: ${e.message}`);
+        return { ok: false, error: e.message, email: lead.email };
+    }
+}
+
+exports.INSTANTLY_CAMPAIGN_MAP = INSTANTLY_CAMPAIGN_MAP;
+exports.outcomeToStatus = outcomeToStatus;
+exports.upsertLeadSafe = upsertLeadSafe;
+// Note: exports.upsertLead already declared earlier in file — keep as-is for
+// backward compat. Callers that expect .ok should call upsertLeadSafe instead,
+// but upsertLead returning { action, pageId, email } also works fine when
+// chained via try/catch.
