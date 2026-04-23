@@ -1,7 +1,7 @@
 # JegoDigital — ACCESS Registry (source of truth for ALL credentials)
 
-**Last updated:** 2026-04-21 PM | **Maintained by:** Claude AI + Alex Jego
-**GitHub Secrets total:** 37 (live-verified via `GET /actions/secrets?per_page=100` on 2026-04-21 PM — every row in the registry below maps 1:1 to a secret that actually exists in `babilionllc-coder/jegodigital`) | **Repo:** `babilionllc-coder/jegodigital`
+**Last updated:** 2026-04-23 (added YOUTUBE_* secrets 38-40) | **Maintained by:** Claude AI + Alex Jego
+**GitHub Secrets total:** 40 (live-verified via `GET /actions/secrets?per_page=100` on 2026-04-23 — every row in the registry below maps 1:1 to a secret that actually exists in `babilionllc-coder/jegodigital`) | **Repo:** `babilionllc-coder/jegodigital`
 
 > This file is the CONTRACT that `envAudit` Cloud Function enforces every morning at 6am UTC.
 > Every credential used anywhere in JegoDigital lives in GitHub Secrets AND is documented here.
@@ -95,6 +95,9 @@
 | 35 | `INDEXNOW_KEY` | 🔑 | `auto-index.yml` → IndexNow submission |
 | 36 | `EXPLORIUM_API_KEY` | 💾 | Lead finder (local scripts, not prod) |
 | 37 | `FIREBASE_ADMIN_SA_JSON` | 💾 | Backup of `jegodigital-e02fb-a05ae4cb7645.json` (Firestore admin access from Claude sessions, added 2026-04-20) |
+| 38 | `YOUTUBE_CLIENT_ID` | 🎥 | OAuth2 Installed-App client (`project-957850579030`) for `@jegodigitalchannel`. Used by `content/youtube-proof-tactic/tmp/upload_oneshot.sh` and any future YouTube Data API v3 upload. Added 2026-04-23. |
+| 39 | `YOUTUBE_CLIENT_SECRET` | 🎥 | OAuth2 secret pair to 38. Added 2026-04-23. |
+| 40 | `YOUTUBE_REFRESH_TOKEN` | 🎥 | Long-lived refresh token minted 2026-04-23 against `jegoalexdigital@gmail.com`. Scopes: `youtube`, `youtube.upload`, `youtube.force-ssl`. Channel ID `UCZq1JVXJ9bHjOSThOCdy0hw`. Revoked at myaccount.google.com/permissions if needed. |
 
 ---
 
