@@ -305,7 +305,14 @@ async function scrapeAndIngest() {
 }
 
 // Scheduled cron — every hour at :15.
-exports.redditScraper = functions.pubsub
+// CRITICAL: Apify run-sync-get-dataset-items holds the HTTP connection open for
+// the full scrape duration (200 posts x 10 subs -> ~5 min). The default Cloud
+// Function timeout is 60s, which kills the request before Apify returns,
+// meaning zero opportunities ever get written. The timeout MUST be 540s (the
+// GCF Gen 1 max).
+exports.redditScraper = functions
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
+    .pubsub
     .schedule("15 * * * *")
     .timeZone("America/Mexico_City")
     .onRun(async () => {
@@ -326,13 +333,15 @@ exports.redditScraper = functions.pubsub
         }
     });
 
-// Manual trigger for testing.
-exports.redditScraperNow = functions.https.onRequest(async (req, res) => {
-    try {
-        const s = await scrapeAndIngest();
-        res.json({ ok: true, summary: s });
-    } catch (err) {
-        functions.logger.error("[redditScraperNow] crash:", err);
-        res.status(500).json({ ok: false, error: err.message });
-    }
-});
+// Manual trigger for testing. Same 540s timeout as the cron.
+exports.redditScraperNow = functions
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
+    .https.onRequest(async (req, res) => {
+        try {
+            const s = await scrapeAndIngest();
+            res.json({ ok: true, summary: s });
+        } catch (err) {
+            functions.logger.error("[redditScraperNow] crash:", err);
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    });
