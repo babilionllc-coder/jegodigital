@@ -2383,3 +2383,9 @@ exports.pushDraftToTelegram = telegramApprovalBot.pushDraftToTelegram;
 exports.telegramApprovalCallback = telegramApprovalBot.telegramApprovalCallback;
 exports.setTelegramWebhook = telegramApprovalBot.setTelegramWebhook;
 exports.pushPendingDraftsToTelegram = telegramApprovalBot.pushPendingDraftsToTelegram;
+
+// Money Machine observability — single HTTPS endpoint that counts opportunities
+// by status, returns the latest money_machine_runs summary, and shows recent
+// opportunities/drafts. No Firestore client access required.
+const moneyMachineStatus = require("./moneyMachineStatus");
+exports.moneyMachineStatus = moneyMachineStatus.moneyMachineStatus;
