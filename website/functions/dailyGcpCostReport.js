@@ -83,8 +83,10 @@ function todayCDMX() {
  */
 async function readBillingFirestore() {
     const db = admin.firestore();
+    // NOTE: kill-switch writes with field `at` (Timestamp), `cost_amount`,
+    // `budget_amount`, `currency`. Not camelCase.
     const snap = await db.collection("billing_alerts")
-        .orderBy("alertAt", "desc")
+        .orderBy("at", "desc")
         .limit(100)
         .get();
 
@@ -97,15 +99,15 @@ async function readBillingFirestore() {
 
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const latest = docs[0];
-    // Previous day's doc = first doc where alertAt is ≥24h older than latest
-    const latestAtMs = latest.alertAt?.toMillis?.() || Date.now();
+    // Previous day's doc = first doc where `at` is ≥23h older than latest
+    const latestAtMs = latest.at?.toMillis?.() || Date.now();
     const prev = docs.find(d => {
-        const at = d.alertAt?.toMillis?.() || 0;
+        const at = d.at?.toMillis?.() || 0;
         return latestAtMs - at >= 23 * 60 * 60 * 1000;
     });
 
-    const mtdMxn = Number(latest.costAmount) || 0;
-    const dailyDelta = prev ? mtdMxn - (Number(prev.costAmount) || 0) : null;
+    const mtdMxn = Number(latest.cost_amount) || 0;
+    const dailyDelta = prev ? mtdMxn - (Number(prev.cost_amount) || 0) : null;
 
     return {
         hasData: true,
@@ -113,7 +115,9 @@ async function readBillingFirestore() {
         previous: prev || null,
         mtdMxn,
         dailyDelta,
-        currencyCode: latest.currencyCode || "MXN",
+        currencyCode: latest.currency || "MXN",
+        budgetMxn: Number(latest.budget_amount) || MONTHLY_BUDGET_MXN,
+        budgetName: latest.budget_name || null,
         totalSamples: docs.length,
     };
 }
@@ -228,14 +232,27 @@ async function sendTelegram(text) {
         functions.logger.warn("[dailyGcpCostReport] Telegram env vars missing — skipping.");
         return { ok: false, reason: "no_token" };
     }
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    // Try Markdown first; if Telegram rejects (400) due to parse errors,
+    // retry as plain text. Underscores in field names like `billing_alerts`
+    // and filenames like `docs/gcp-cost-cap.md` are common breakers.
     try {
-        const r = await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        const r = await axios.post(url, {
             chat_id: TELEGRAM_CHAT_ID,
             text,
             parse_mode: "Markdown",
             disable_web_page_preview: true,
-        }, { timeout: 15000 });
-        return { ok: true, messageId: r.data?.result?.message_id || null };
+        }, { timeout: 15000, validateStatus: () => true });
+        if (r.status === 200) return { ok: true, messageId: r.data?.result?.message_id || null };
+        // Retry as plain text
+        const plain = text.replace(/[*_`]/g, "");
+        const r2 = await axios.post(url, {
+            chat_id: TELEGRAM_CHAT_ID,
+            text: plain,
+            disable_web_page_preview: true,
+        }, { timeout: 15000, validateStatus: () => true });
+        if (r2.status === 200) return { ok: true, messageId: r2.data?.result?.message_id || null, retry: "plain_text" };
+        return { ok: false, error: `status ${r2.status}: ${JSON.stringify(r2.data)}`.slice(0, 300) };
     } catch (err) {
         functions.logger.warn("[dailyGcpCostReport] Telegram send failed:", err.response?.data || err.message);
         return { ok: false, error: String(err.message || err) };
