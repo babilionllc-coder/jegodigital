@@ -1,0 +1,66 @@
+name: Send Viral Video to Telegram
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_path:
+        description: "Repo-relative path to video to send"
+        required: true
+        default: "website/videos/viral_v1_FINAL.mp4"
+      caption:
+        description: "Caption text (max 1024 chars)"
+        required: false
+        default: "🎬 Viral v1 — 3 pasos inmobiliarias 3X MÁS en 2026"
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Verify video exists
+        run: |
+          set -e
+          VIDEO="${{ github.event.inputs.video_path }}"
+          if [ ! -f "$VIDEO" ]; then
+            echo "::error::Video not found at $VIDEO"
+            exit 1
+          fi
+          SIZE=$(stat -c %s "$VIDEO")
+          echo "✅ Video found: $VIDEO ($SIZE bytes)"
+          if [ "$SIZE" -gt 52428800 ]; then
+            echo "::error::Video > 50MB, Telegram Bot API limit exceeded"
+            exit 1
+          fi
+
+      - name: Send video to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          VIDEO_PATH: ${{ github.event.inputs.video_path }}
+          CAPTION: ${{ github.event.inputs.caption }}
+        run: |
+          set -e
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::error::Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID secret"
+            exit 1
+          fi
+          RESP=$(curl -sS --max-time 120 \
+            -F chat_id="$TELEGRAM_CHAT_ID" \
+            -F video=@"$VIDEO_PATH" \
+            -F caption="$CAPTION" \
+            -F parse_mode=HTML \
+            -F supports_streaming=true \
+            "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendVideo")
+          echo "$RESP" | head -c 2000
+          echo ""
+          OK=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('ok'))")
+          if [ "$OK" != "True" ]; then
+            echo "::error::Telegram sendVideo failed"
+            exit 1
+          fi
+          echo "✅ Delivered"
