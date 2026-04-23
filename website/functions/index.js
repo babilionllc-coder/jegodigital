@@ -2243,6 +2243,7 @@ exports.autopilotReviewer = require("./autopilotReviewer").autopilotReviewer;
 // where Instantly replies sat in Unibox with no downstream action.
 // ============================================================
 exports.instantlyReplyWatcher = require("./instantlyReplyWatcher").instantlyReplyWatcher;
+exports.instantlyNotionBackfill = require("./instantlyNotionBackfill").instantlyNotionBackfill;
 
 // ============================================================
 // BREVO NURTURE QUEUE PROCESSOR (added 2026-04-22)
