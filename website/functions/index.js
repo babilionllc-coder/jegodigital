@@ -2426,3 +2426,13 @@ exports.billingKillNow = gcpBillingKillSwitch.billingKillNow;
 const dailyGcpCostReport = require("./dailyGcpCostReport");
 exports.dailyGcpCostReport = dailyGcpCostReport.dailyGcpCostReport;
 exports.dailyGcpCostReportNow = dailyGcpCostReport.dailyGcpCostReportNow;
+
+// Notion CRM sync (added 2026-04-23). Every real lead from Instantly /
+// audit_requests / Calendly / cold-call funnels lands in the 🎯 Leads CRM
+// Notion database (adacaa44-3d9a-4c00-8ef4-c0eb45ff091b) automatically.
+// Body-verification layer rejects bounces/OOO per Disaster Log 2026-04-23.
+const notionLeadSync = require("./notionLeadSync");
+exports.notionLeadSyncBackfill = notionLeadSync.notionLeadSyncBackfill;
+exports.notionLeadSyncUpsert = notionLeadSync.notionLeadSyncUpsert;
+exports.notionLeadSyncOnAuditCreated = notionLeadSync.notionLeadSyncOnAuditCreated;
+exports.notionLeadSyncCron = notionLeadSync.notionLeadSyncCron;

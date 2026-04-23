@@ -1,252 +1,337 @@
 /**
- * notionLeadSync — upsert leads into the Notion 🎯 Leads CRM database.
+ * notionLeadSync — Autonomous Notion CRM sync
  *
- * Single entry point: upsertLead(leadData) — finds existing page by Email,
- * either updates or creates. Idempotent. Callers can fire it on every reply
- * / cold-call outcome / audit submission / Calendly booking without worrying
- * about duplicates.
+ * Purpose: every real lead from every source lands in Notion Leads CRM
+ * (database: adacaa44-3d9a-4c00-8ef4-c0eb45ff091b) without manual work.
  *
- * Notion CRM schema (database ID adacaa44-3d9a-4c00-8ef4-c0eb45ff091b):
- *   Company (title), Contact Name, Email, Phone, Website, City,
- *   Decision Maker Role, Source, Campaign, Status, Temperature, Bucket,
- *   Potential MRR USD, Next Action, Notes, Last Touch (date), HR-5 Gates Passed
+ * Triggers:
+ *   1. HTTPS `notionLeadSyncBackfill` — manual pull of past 30-90d data
+ *   2. HTTPS `notionLeadSyncUpsert`   — single-lead create-or-update
+ *   3. Firestore `notionLeadSyncOnAuditCreated` — audit_requests onCreate → Notion row
+ *   4. Scheduled `notionLeadSyncCron` — every 30 min: Instantly replies body-verified
  *
- * Source whitelist (select options that exist in the DB):
- *   "Instantly Cold Email", "ElevenLabs Cold Call", "IG DM (Sofia)",
- *   "WhatsApp (Sofia)", "Google Maps Scrape", "LinkedIn (Apify)",
- *   "Facebook Groups", "Calendly Direct", "Referral", "Website Form"
- *
- * Status whitelist:
- *   "New", "Contacted", "Positive Reply", "Audit Sent", "Calendly Booked",
- *   "Proposal Sent", "Closed Won", "Closed Lost", "No Response"
- *
- * Temperature whitelist:
- *   "🔥 Hot", "🌤️ Warm", "❄️ Cold", "🪦 Dead"
- *
- * Required env: NOTION_API_KEY, NOTION_LEADS_CRM_ID (fallback baked in for safety)
+ * Body verification: classifies each reply to filter bounces/OOO/unsubs per
+ * Disaster Log 2026-04-23 "Instantly email_reply_count is MISLEADING".
  */
-
-const axios = require("axios");
 const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const axios = require("axios");
 
-const NOTION_API = "https://api.notion.com/v1";
+if (!admin.apps.length) admin.initializeApp();
+
 const NOTION_VERSION = "2022-06-28";
-const LEADS_CRM_FALLBACK = "adacaa44-3d9a-4c00-8ef4-c0eb45ff091b";
+const DS_LEADS = "adacaa44-3d9a-4c00-8ef4-c0eb45ff091b";
 
-// Campaign ID → friendly Notion select name. Update this map when you create
-// new Instantly campaigns. Unknown campaigns fall through to the raw ID so you
-// can spot them in the CRM and map them later.
-const INSTANTLY_CAMPAIGN_MAP = {
-    // Add known campaign IDs here as you discover them in Firestore/Instantly
-    // e.g. "67fa7834-dc54-423c-be39-8b4ad6e57ce3": "SEO + Visibilidad",
-    //      "d486f1ab-4668-4674-ad6b-80ef12d9fd78": "Free Demo Website MX",
-};
+const OUR_SENDERS = [
+    "zeniaaqua.org", "zennoenigmawire.com", "aichatsy.com",
+    "jegodigital.com", "jegoleads.com", "jegoaeo.com", "babilionllc",
+];
 
-// Outcome → (Status, Temperature) mapping used by Instantly + cold-call paths.
-function outcomeToStatus(outcome) {
-    switch (outcome) {
-    case "positive":
-    case "positive_with_objection":
-        return { status: "Positive Reply", temperature: "🔥 Hot" };
-    case "question":
-        return { status: "Contacted", temperature: "🌤️ Warm" };
-    case "neutral":
-        return { status: "Contacted", temperature: "🌤️ Warm" };
-    case "negative":
-        return { status: "No Response", temperature: "🪦 Dead" };
-    case "audit_sent":
-        return { status: "Audit Sent", temperature: "🌤️ Warm" };
-    case "calendly_booked":
-        return { status: "Calendly Booked", temperature: "🔥 Hot" };
-    case "closed_won":
-        return { status: "Closed Won", temperature: "🔥 Hot" };
-    case "closed_lost":
-        return { status: "Closed Lost", temperature: "🪦 Dead" };
-    default:
-        return { status: "Contacted", temperature: "🌤️ Warm" };
-    }
-}
-
-// ---- Notion API helpers ----
 function notionHeaders() {
-    const token = process.env.NOTION_API_KEY;
-    if (!token) throw new Error("NOTION_API_KEY not set");
+    const key = process.env.NOTION_API_KEY;
+    if (!key) throw new Error("NOTION_API_KEY not set");
     return {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${key}`,
         "Notion-Version": NOTION_VERSION,
         "Content-Type": "application/json",
     };
 }
 
-async function notion(method, path, body) {
-    const res = await axios({
-        method,
-        url: `${NOTION_API}${path}`,
-        headers: notionHeaders(),
-        data: body,
-        timeout: 15000,
-    });
-    return res.data;
-}
-
-// ---- Property builders ----
-function prop(value, type) {
-    if (value === null || value === undefined || value === "") return undefined;
-    switch (type) {
-    case "title":
-        return { title: [{ type: "text", text: { content: String(value).slice(0, 2000) } }] };
-    case "rich_text":
-        return { rich_text: [{ type: "text", text: { content: String(value).slice(0, 2000) } }] };
-    case "email":
-        return { email: String(value) };
-    case "phone":
-        return { phone_number: String(value) };
-    case "url":
-        return { url: String(value) };
-    case "select":
-        return { select: { name: String(value) } };
-    case "checkbox":
-        return { checkbox: !!value };
-    case "date":
-        return { date: { start: String(value) } };
-    case "number":
-        return { number: Number(value) };
-    default:
-        return undefined;
-    }
-}
-
-function buildProperties(lead) {
-    const p = {};
-    // Title is Company — fallback to email if company missing
-    const title = lead.company || lead.email || "Unknown";
-    p.Company = prop(title, "title");
-    if (lead.contactName || lead.firstName) p["Contact Name"] = prop(lead.contactName || lead.firstName, "rich_text");
-    if (lead.email) p.Email = prop(lead.email, "email");
-    if (lead.phone) p.Phone = prop(lead.phone, "phone");
-    if (lead.website) p.Website = prop(normalizeUrl(lead.website), "url");
-    if (lead.city) p.City = prop(lead.city, "select");
-    if (lead.role) p["Decision Maker Role"] = prop(lead.role, "select");
-    if (lead.source) p.Source = prop(lead.source, "select");
-    if (lead.campaign) p.Campaign = prop(lead.campaign, "select");
-    if (lead.status) p.Status = prop(lead.status, "select");
-    if (lead.temperature) p.Temperature = prop(lead.temperature, "select");
-    if (lead.bucket) p.Bucket = prop(lead.bucket, "select");
-    if (lead.nextAction) p["Next Action"] = prop(lead.nextAction, "rich_text");
-    if (lead.notes) p.Notes = prop(lead.notes, "rich_text");
-    if (lead.lastTouch) p["Last Touch"] = prop(lead.lastTouch, "date");
-    if (lead.potentialMrrUsd) p["Potential MRR USD"] = prop(lead.potentialMrrUsd, "number");
-    if (typeof lead.hr5GatesPassed === "boolean") p["HR-5 Gates Passed"] = prop(lead.hr5GatesPassed, "checkbox");
-    // Strip undefined entries — Notion rejects them
-    Object.keys(p).forEach((k) => { if (p[k] === undefined) delete p[k]; });
-    return p;
-}
-
-function normalizeUrl(raw) {
-    if (!raw) return null;
-    const s = String(raw).trim();
-    if (!s) return null;
-    if (/^https?:\/\//i.test(s)) return s;
-    return `https://${s}`;
-}
-
-// ---- Find existing lead by email ----
-async function findLeadByEmail(email, databaseId) {
-    if (!email) return null;
+async function notionSearchLeadByEmail(email) {
     try {
-        const res = await notion("POST", `/databases/${databaseId}/query`, {
-            filter: { property: "Email", email: { equals: String(email).toLowerCase() } },
-            page_size: 1,
-        });
-        return res.results?.[0] || null;
-    } catch (err) {
-        functions.logger.warn("notionLeadSync.findLeadByEmail failed:", err.response?.data || err.message);
+        const resp = await axios.post(
+            `https://api.notion.com/v1/databases/${DS_LEADS}/query`,
+            { filter: { property: "Email", email: { equals: email } }, page_size: 1 },
+            { headers: notionHeaders(), timeout: 15000 }
+        );
+        return (resp.data.results || [])[0] || null;
+    } catch (e) {
+        functions.logger.error(`notionSearchLeadByEmail ${email}: ${e.message}`);
         return null;
     }
 }
 
-// ---- Main entry point ----
-/**
- * @param {object} lead
- * @param {string} [lead.email]
- * @param {string} [lead.firstName]
- * @param {string} [lead.contactName]
- * @param {string} [lead.company]
- * @param {string} [lead.phone]
- * @param {string} [lead.website]
- * @param {string} [lead.city] — one of the CRM City select options
- * @param {string} [lead.role] — one of the CRM Decision Maker Role options
- * @param {string} [lead.source] — one of the Source select options
- * @param {string} [lead.campaign] — friendly campaign name (e.g. "Trojan Horse")
- * @param {string} [lead.status] — one of the Status select options
- * @param {string} [lead.temperature] — one of the Temperature options
- * @param {string} [lead.bucket] — one of the Bucket options
- * @param {string} [lead.nextAction]
- * @param {string} [lead.notes]
- * @param {string} [lead.lastTouch] — ISO date string
- * @param {number} [lead.potentialMrrUsd]
- * @param {boolean} [lead.hr5GatesPassed]
- * @returns {Promise<{ok:boolean, action:"created"|"updated"|"skipped", pageId?:string, error?:string}>}
- */
-async function upsertLead(lead) {
-    const databaseId = process.env.NOTION_LEADS_CRM_ID || LEADS_CRM_FALLBACK;
-    if (!lead || !lead.email) {
-        return { ok: false, action: "skipped", error: "email is required" };
-    }
-    if (!process.env.NOTION_API_KEY) {
-        return { ok: false, action: "skipped", error: "NOTION_API_KEY not set" };
-    }
-
-    const normalizedEmail = String(lead.email).toLowerCase().trim();
-    const payload = { ...lead, email: normalizedEmail };
-
-    try {
-        const existing = await findLeadByEmail(normalizedEmail, databaseId);
-        const properties = buildProperties(payload);
-
-        if (existing) {
-            // UPDATE: preserve existing Status unless this call is upgrading it.
-            // Pipeline order: New < Contacted < Positive Reply < Audit Sent <
-            // Calendly Booked < Proposal Sent < Closed Won. If the incoming
-            // status is earlier than current, drop it — don't regress a
-            // hot lead back to "Contacted" just because they replied again.
-            const STAGE_ORDER = [
-                "New", "Contacted", "Positive Reply", "Audit Sent",
-                "Calendly Booked", "Proposal Sent", "Closed Won",
-            ];
-            const existingStatus = existing.properties?.Status?.select?.name;
-            const newStatus = payload.status;
-            if (existingStatus && newStatus) {
-                const existingRank = STAGE_ORDER.indexOf(existingStatus);
-                const newRank = STAGE_ORDER.indexOf(newStatus);
-                if (existingRank > newRank) {
-                    // Don't downgrade — strip Status + Temperature from update
-                    delete properties.Status;
-                    delete properties.Temperature;
-                }
-            }
-            await notion("PATCH", `/pages/${existing.id}`, { properties });
-            return { ok: true, action: "updated", pageId: existing.id };
-        }
-
-        // CREATE: fill required defaults
-        if (!properties.Status) properties.Status = prop("New", "select");
-        if (!properties.Temperature) properties.Temperature = prop("❄️ Cold", "select");
-        const created = await notion("POST", "/pages", {
-            parent: { database_id: databaseId },
-            properties,
-        });
-        return { ok: true, action: "created", pageId: created.id };
-    } catch (err) {
-        const msg = err.response?.data?.message || err.message;
-        functions.logger.error("notionLeadSync.upsertLead failed:", msg, "for", normalizedEmail);
-        return { ok: false, action: "skipped", error: msg };
-    }
+async function notionCreateLead(props) {
+    const resp = await axios.post(
+        "https://api.notion.com/v1/pages",
+        { parent: { database_id: DS_LEADS }, properties: props },
+        { headers: notionHeaders(), timeout: 20000 }
+    );
+    return resp.data;
 }
 
-module.exports = {
-    upsertLead,
-    outcomeToStatus,
-    // Exported for tests / manual map updates
-    INSTANTLY_CAMPAIGN_MAP,
-};
+async function notionUpdateLead(pageId, props) {
+    const resp = await axios.patch(
+        `https://api.notion.com/v1/pages/${pageId}`,
+        { properties: props },
+        { headers: notionHeaders(), timeout: 20000 }
+    );
+    return resp.data;
+}
+
+function buildNotionProps(lead) {
+    const p = {};
+    if (lead.company) p["Company"] = { title: [{ text: { content: String(lead.company).substring(0, 200) } }] };
+    if (lead.name) p["Contact Name"] = { rich_text: [{ text: { content: String(lead.name).substring(0, 200) } }] };
+    if (lead.email) p["Email"] = { email: lead.email };
+    if (lead.phone) p["Phone"] = { phone_number: String(lead.phone).substring(0, 40) };
+    if (lead.website) p["Website"] = { url: lead.website };
+    if (lead.source) p["Source"] = { select: { name: lead.source } };
+    if (lead.status) p["Status"] = { select: { name: lead.status } };
+    if (lead.temperature) p["Temperature"] = { select: { name: lead.temperature } };
+    if (lead.bucket) p["Bucket"] = { select: { name: lead.bucket } };
+    if (lead.campaign) p["Campaign"] = { select: { name: lead.campaign } };
+    if (lead.city) p["City"] = { select: { name: lead.city } };
+    if (lead.role) p["Decision Maker Role"] = { select: { name: lead.role } };
+    if (lead.nextAction) p["Next Action"] = { rich_text: [{ text: { content: String(lead.nextAction).substring(0, 1900) } }] };
+    if (lead.notes) p["Notes"] = { rich_text: [{ text: { content: String(lead.notes).substring(0, 1900) } }] };
+    if (lead.lastTouch) p["Last Touch"] = { date: { start: lead.lastTouch } };
+    if (lead.mrr !== undefined && lead.mrr !== null) p["Potential MRR USD"] = { number: Number(lead.mrr) };
+    if (lead.hr5 !== undefined) p["HR-5 Gates Passed"] = { checkbox: !!lead.hr5 };
+    return p;
+}
+
+async function upsertLead(lead) {
+    if (!lead.email) return { action: "skipped_no_email" };
+    const email = lead.email.toLowerCase().trim();
+    lead.email = email;
+    const existing = await notionSearchLeadByEmail(email);
+    const props = buildNotionProps(lead);
+    if (existing) {
+        await notionUpdateLead(existing.id, props);
+        return { action: "updated", pageId: existing.id, email };
+    }
+    const resp = await notionCreateLead(props);
+    return { action: "created", pageId: resp.id, email };
+}
+
+function classifyReply(body, subject) {
+    const s = (subject || "").toLowerCase();
+    const b = (body || "").toLowerCase();
+    const full = `${s} ${b}`;
+    if (/mailer-daemon|delivery status notification|undeliverable|undelivered|no longer|dej[óo] de funcionar|desactivaci[óo]n|account disabled|bounced/.test(full)) return "noise:bounce";
+    if (/automatic reply|respuesta autom[áa]tica|out of office|fuera de (la )?oficina|auto[- ]reply|on vacation|estoy fuera|vacaciones/.test(full)) return "noise:ooo";
+    if (/unsubscribe|remove me|no me interesa|stop emailing|b[áa]jame/.test(full) && b.length < 300) return "noise:unsub";
+    if (/this is spam|reported as spam/.test(full)) return "noise:spam";
+    if (b.length < 400 && /\b(s[íi]|yes|adelante|ok|claro|me interesa|interested|send|m[áa]ndame|env[íi]ame|quiero|sure|sounds good|tell me more|cu[eé]ntame|suena bien)\b/.test(b)) return "warm";
+    if (/\?\s*$/.test(b) || /(qu[eé] tipo|how does|what kind|cu[áa]nto|how much|precio|price|c[óo]mo funciona|how.*work)/.test(b)) return "warm";
+    if (b.length > 80) return "warm";
+    return "ambiguous";
+}
+
+async function pullInstantlyRealReplies(maxPages = 30) {
+    const key = process.env.INSTANTLY_API_KEY;
+    if (!key) throw new Error("INSTANTLY_API_KEY not set");
+    const results = [];
+    let cursor = null;
+    for (let page = 0; page < maxPages; page++) {
+        const url = `https://api.instantly.ai/api/v2/emails?limit=100${cursor ? `&starting_after=${cursor}` : ""}`;
+        const resp = await axios.get(url, {
+            headers: { Authorization: `Bearer ${key}` },
+            timeout: 25000,
+        });
+        const items = resp.data.items || [];
+        if (!items.length) break;
+        for (const email of items) {
+            const fr = (email.from_address_email || "").toLowerCase();
+            if (!fr) continue;
+            if (OUR_SENDERS.some(d => fr.includes(d))) continue;
+            const body = (email.body || {}).text || (email.body || {}).html || "";
+            const bodyClean = body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").substring(0, 800);
+            const classification = classifyReply(bodyClean, email.subject);
+            if (classification !== "warm") continue;
+            results.push({
+                email: fr,
+                subject: email.subject,
+                body: bodyClean,
+                timestamp: email.timestamp_created,
+                classification,
+            });
+        }
+        cursor = resp.data.next_starting_after;
+        if (!cursor) break;
+    }
+    const byEmail = {};
+    for (const r of results) {
+        if (!byEmail[r.email] || r.timestamp > byEmail[r.email].timestamp) byEmail[r.email] = r;
+    }
+    return Object.values(byEmail);
+}
+
+exports.notionLeadSyncBackfill = functions
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
+    .https.onRequest(async (req, res) => {
+        try {
+            const secret = req.query.key || req.headers["x-seed-secret"];
+            if (secret !== process.env.SEED_SECRET) return res.status(401).json({ ok: false, error: "unauthorized" });
+
+            const synced = [];
+            const errors = [];
+
+            const replies = await pullInstantlyRealReplies(30);
+            functions.logger.info(`notionLeadSyncBackfill: ${replies.length} verified Instantly replies`);
+            for (const r of replies) {
+                try {
+                    const result = await upsertLead({
+                        email: r.email,
+                        source: "Instantly Cold Email",
+                        status: "Positive Reply",
+                        temperature: "🔥 Hot",
+                        bucket: "A - Close this week",
+                        lastTouch: (r.timestamp || "").substring(0, 10) || undefined,
+                        nextAction: `Real verified reply — body: "${r.body.substring(0, 250)}..." Classify + respond.`,
+                        notes: `Synced by notionLeadSyncBackfill ${new Date().toISOString().substring(0, 10)}. Classification=${r.classification}.`,
+                        hr5: true,
+                    });
+                    synced.push({ ...result, src: "instantly" });
+                } catch (e) {
+                    errors.push({ email: r.email, error: e.message });
+                }
+            }
+
+            const db = admin.firestore();
+            const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+            let auditSnap;
+            try {
+                auditSnap = await db.collection("audit_requests").where("createdAt", ">=", cutoff).limit(500).get();
+            } catch (_) {
+                auditSnap = await db.collection("audit_requests").limit(500).get();
+            }
+            functions.logger.info(`notionLeadSyncBackfill: ${auditSnap.size} audit_requests to check`);
+            for (const doc of auditSnap.docs) {
+                const a = doc.data();
+                if (!a.email) continue;
+                const emailLower = a.email.toLowerCase();
+                if (OUR_SENDERS.some(d => emailLower.includes(d))) continue;
+                if (emailLower.includes("test") || emailLower.includes("smoke") || emailLower.endsWith(".invalid")) continue;
+                try {
+                    const srcTag = (a.source || "").toLowerCase();
+                    const src = srcTag.includes("manychat_instagram") || srcTag.includes("ig") ? "IG DM (Sofia)" :
+                        srcTag.includes("whatsapp") || srcTag.includes("wa") ? "WhatsApp (Sofia)" :
+                        srcTag.includes("cold_call") ? "ElevenLabs Cold Call" :
+                        srcTag.includes("instantly") ? "Instantly Cold Email" :
+                        "Website Form";
+                    const lastTouchISO = a.createdAt?.toDate?.()?.toISOString?.()?.substring(0, 10) || undefined;
+                    const result = await upsertLead({
+                        email: a.email,
+                        name: [a.firstName || "", a.lastName || ""].filter(Boolean).join(" ").trim() || a.name || undefined,
+                        website: a.website || a.url || undefined,
+                        source: src,
+                        status: "Audit Sent",
+                        temperature: "🌤️ Warm",
+                        bucket: "B - Qualified lead",
+                        lastTouch: lastTouchISO,
+                        nextAction: "Audit delivered. Follow up 24-48h with Calendly offer if no engagement yet.",
+                        notes: `audit_requests/${doc.id} · source=${a.source || "unknown"} · backfilled`,
+                        hr5: !emailLower.match(/^(info|sales|contact|admin|hello|reservations)@/),
+                    });
+                    synced.push({ ...result, src: "firestore_audit" });
+                } catch (e) {
+                    errors.push({ email: a.email, error: e.message });
+                }
+            }
+
+            res.json({
+                ok: true,
+                synced_count: synced.length,
+                errors_count: errors.length,
+                instantly_replies: replies.length,
+                audit_requests: auditSnap.size,
+                sample_actions: synced.slice(0, 20),
+                errors: errors.slice(0, 10),
+            });
+        } catch (e) {
+            functions.logger.error("notionLeadSyncBackfill error:", e);
+            res.status(500).json({ ok: false, error: e.message });
+        }
+    });
+
+exports.notionLeadSyncUpsert = functions.https.onRequest(async (req, res) => {
+    try {
+        const secret = req.query.key || req.headers["x-seed-secret"] || (req.body && req.body.key);
+        if (secret !== process.env.SEED_SECRET) return res.status(401).json({ ok: false, error: "unauthorized" });
+        if (!req.body || !req.body.email) return res.status(400).json({ ok: false, error: "email_required" });
+        const lead = { ...req.body };
+        delete lead.key;
+        const result = await upsertLead(lead);
+        res.json({ ok: true, ...result });
+    } catch (e) {
+        functions.logger.error("notionLeadSyncUpsert error:", e);
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+exports.notionLeadSyncOnAuditCreated = functions.firestore
+    .document("audit_requests/{docId}")
+    .onCreate(async (snap, context) => {
+        try {
+            const a = snap.data() || {};
+            if (!a.email) return null;
+            const emailLower = String(a.email).toLowerCase();
+            if (OUR_SENDERS.some(d => emailLower.includes(d))) return null;
+            if (emailLower.includes("test") || emailLower.includes("smoke") || emailLower.endsWith(".invalid")) return null;
+            const srcTag = (a.source || "").toLowerCase();
+            const src = srcTag.includes("manychat_instagram") || srcTag.includes("ig") ? "IG DM (Sofia)" :
+                srcTag.includes("whatsapp") || srcTag.includes("wa") ? "WhatsApp (Sofia)" :
+                srcTag.includes("cold_call") ? "ElevenLabs Cold Call" :
+                srcTag.includes("instantly") ? "Instantly Cold Email" :
+                "Website Form";
+            await upsertLead({
+                email: a.email,
+                name: [a.firstName || "", a.lastName || ""].filter(Boolean).join(" ").trim() || a.name || undefined,
+                website: a.website || a.url || undefined,
+                source: src,
+                status: "Audit Sent",
+                temperature: "🌤️ Warm",
+                bucket: "B - Qualified lead",
+                lastTouch: new Date().toISOString().substring(0, 10),
+                nextAction: "Audit just delivered. Watch for open/click. Follow up 24-48h.",
+                notes: `audit_requests/${context.params.docId} · source=${a.source || "unknown"} · auto-sync onCreate`,
+                hr5: !emailLower.match(/^(info|sales|contact|admin|hello|reservations)@/),
+            });
+            functions.logger.info(`notionLeadSyncOnAuditCreated: synced ${a.email}`);
+        } catch (e) {
+            functions.logger.error("notionLeadSyncOnAuditCreated error:", e);
+        }
+        return null;
+    });
+
+exports.notionLeadSyncCron = functions
+    .runWith({ timeoutSeconds: 300, memory: "256MB" })
+    .pubsub.schedule("every 30 minutes")
+    .timeZone("America/Cancun")
+    .onRun(async (_context) => {
+        try {
+            const replies = await pullInstantlyRealReplies(5);
+            const cutoff = Date.now() - 2 * 60 * 60 * 1000;
+            const recent = replies.filter(r => {
+                const t = new Date(r.timestamp || 0).getTime();
+                return t > cutoff;
+            });
+            functions.logger.info(`notionLeadSyncCron: ${recent.length} new verified replies in last 2h`);
+            for (const r of recent) {
+                try {
+                    await upsertLead({
+                        email: r.email,
+                        source: "Instantly Cold Email",
+                        status: "Positive Reply",
+                        temperature: "🔥 Hot",
+                        bucket: "A - Close this week",
+                        lastTouch: (r.timestamp || "").substring(0, 10),
+                        nextAction: `Real verified reply: "${r.body.substring(0, 250)}..." Respond per AI agent guidance.`,
+                        notes: `Auto-synced by notionLeadSyncCron ${new Date().toISOString()}`,
+                        hr5: true,
+                    });
+                } catch (e) {
+                    functions.logger.error(`cron upsert failed ${r.email}: ${e.message}`);
+                }
+            }
+            return null;
+        } catch (e) {
+            functions.logger.error("notionLeadSyncCron error:", e);
+            return null;
+        }
+    });
+
+exports.upsertLead = upsertLead;
+exports.classifyReply = classifyReply;
