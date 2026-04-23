@@ -114,6 +114,37 @@ exports.moneyMachineStatus = functions
             }));
         } catch (e) { out.errors.recent_opportunities = e.message; }
 
+        // The CRITICAL missing piece — inspect the opportunity_drafts collection
+        // directly so we can see exactly why drafted opportunities didn't reach
+        // Slack/Telegram. Drafter writes to `opportunity_drafts/{oppId}`, not
+        // to the `opportunities` collection, so the draft_text + safety flags
+        // are only visible here.
+        try {
+            const draftsSnap = await db.collection("opportunity_drafts")
+                .limit(15).get();
+            out.opportunity_drafts = draftsSnap.docs.map(d => {
+                const data = d.data();
+                return {
+                    id: d.id,
+                    status: data.status,
+                    ready_for_approval: data.ready_for_approval,
+                    post_safely_final: data.post_safely_final,
+                    post_safely_model: data.post_safely_model,
+                    word_count: data.word_count,
+                    banned_phrases_found: data.banned_phrases_found || [],
+                    reason_if_unsafe: data.reason_if_unsafe || null,
+                    drafted_by_model: data.drafted_by_model,
+                    drafter_error: data.drafter_error || null,
+                    score: data.score,
+                    primaryService: data.primaryService,
+                    title: (data.title || "").slice(0, 120),
+                    draft_text: (data.draft_text || "").slice(0, 600),
+                    draft_ready_at: data.draft_ready_at?.toDate?.().toISOString?.() || null,
+                };
+            });
+            out.drafts_count = draftsSnap.size;
+        } catch (e) { out.errors.opportunity_drafts = e.message; }
+
         if (Object.keys(out.errors).length === 0) delete out.errors;
         res.json(out);
     });
