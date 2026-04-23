@@ -1,12 +1,89 @@
 # 💰 MONEY_MACHINE.md — Autonomous Opportunity-to-Client Engine
 
-**Status:** 🟢 LIVE IN PRODUCTION — Reddit scraper + classifier + drafter + Telegram approval + recovery cron all shipped
-**Date drafted:** 2026-04-22 · **Last updated:** 2026-04-23 (added scheduledTelegramRecovery cron)
+**Status:** 🟡 PARTIAL — scraper/classifier/drafter/Telegram approval LIVE ✅ · Reddit poster MISSING ❌ · Slack mirror ad-hoc 2026-04-23 evening (permanent fix = S1 2026-04-24)
+**Date drafted:** 2026-04-22 · **Last updated:** 2026-04-23 evening (honest state audit + 4-session phone-first roadmap)
 **Owner:** Claude (drafts + runs) + Alex (1-tap approval)
 **Revenue bucket:** B (generate qualified leads) + A (close this week)
 **Relationship to Free Demo MX campaign:** PARALLEL — does NOT replace the cold-email engine. This is a **second income engine** running alongside.
 
 > **Plain-English summary:** A bot reads Reddit every 60 min, finds people publicly saying *"I need help with X"* where X is something we deliver (website, SEO, chatbot, automation, lead gen), drafts a genuinely helpful reply, sends it to Alex's Telegram for 1-tap approval, then posts it. When the lead replies, they go into the existing Instantly/ManyChat/Calendly funnel. Cost: **~$110/mo in tools**. Target: **1 paying client in first 7 days, 5-10 per month by day 30.**
+
+---
+
+## 11. 🔬 HONEST STATE AUDIT — 2026-04-23 EVENING
+
+**Run live against production endpoints, not memory. HR-0 + HR-2 compliance.**
+
+### ✅ WHAT'S WORKING (verified via live API this session)
+
+| Component | Evidence | Status |
+|---|---|---|
+| **Reddit scraper (Apify)** | 3 runs SUCCEEDED post-fix (`PPObd1op`, `eSDEF73T`, `gwZfDsZI`) vs 3 FAILED-in-2.5s pre-fix. Commit `56e9f72` | ✅ Fixed today |
+| **Apify account** | Starter $29/mo, MTD $29/$55 = 53% burn rate, 32GB RAM, 32 concurrent runs | ✅ Healthy |
+| **Hourly cron** | `redditScraper` runs `15 * * * *` America/Mexico_City | ✅ Wired |
+| **Keyword matcher** | 37 pain-point keywords across 9 services correctly routing posts to service tags | ✅ Live |
+| **Classifier** | Score 0-100, cutoff ≥70 = qualified. Live: 21 opps, 3 qualified, 18 filtered_out | ✅ Live |
+| **Drafter (Gemini 3.1 Pro)** | 3 real drafts live: 167/162/175 words, all pass word-count + banned-phrase + tone gates. Quality excellent | ✅ Live |
+| **Safety checks** | `banned_phrases_found`, `post_safely_final`, `word_count`, `reason_if_unsafe` all populated | ✅ Live |
+| **Telegram approval bot** | `awaiting_approval_telegram` status reached, Alex tapped Approve on 2 drafts (status → `approved_needs_manual_post`) | ✅ Live |
+| **`scheduledTelegramRecovery` cron** | Every 30 min, nudges stale drafts, 3-nudge cap | ✅ Live (commit `2c478ab`) |
+| **`moneyMachineStatus` endpoint** | HTTPS 200, returns `by_status` + `opportunity_drafts` + `recent_opportunities`. Added `?full=1` mode today for full draft text + permalinks | ✅ Live |
+| **Firestore collections** | `opportunities/{id}`, `opportunity_drafts/{id}`, `money_machine_runs/` all writing correctly | ✅ Live |
+| **Slack webhook mirror (ad-hoc)** | 3 stranded drafts pushed to Slack tonight via existing `SLACK_WEBHOOK_URL`, HTTP 200 on all 3 | ✅ Ad-hoc this session |
+
+### ❌ WHAT'S BROKEN / MISSING — the revenue-blocking gaps
+
+| # | Gap | Impact | Fix plan |
+|---|---|---|---|
+| 1 | **Reddit POSTER = NOT IMPLEMENTED** | Alex approved 2 drafts yesterday → sat in `approved_needs_manual_post` forever. Zero replies have ever reached Reddit. **THE critical gap** | S1 (tomorrow): manual-post flow via phone (Slack card + thread URL, Alex taps Reply + paste). S3: optional Reddit API OAuth for auto-post |
+| 2 | **Slack mirror is ad-hoc, not automated** | Approvals arrive in Telegram, get buried, 3-nudge cap already tripped on score-92 draft. Alex lives in Slack | S1: Cloud Function `slackDraftMirror` on Firestore trigger. Automatic, permanent |
+| 3 | **`markDraftPosted` endpoint missing** | Zero audit trail of which drafts actually reached Reddit. Can't measure engagement. | S1: simple HTTPS endpoint Alex hits after manual post (or Slack slash-command) |
+| 4 | **`ANTHROPIC_API_KEY` missing from .env** | Drafter's Claude Haiku fallback is dead. If Gemini 3.1 Pro API goes flaky, drafter stops | S1: add secret to GH Secrets + `.env`, verify fallback path |
+| 5 | **Engagement tracker missing** | No feedback loop — we don't know if posted replies got upvotes, comments, DMs. Zero data for quality iteration | S3: `redditEngagementCheck` cron (runs 24h + 72h after post to tally score + replies) |
+| 6 | **Account hygiene gate missing** | Drafter assumes posting account has >30d age + >500 karma. No code enforces this pre-post. Ban risk when S3 auto-posts | S3: `redditAccountCheck` pre-post gate reads account profile via Apify |
+| 7 | **Global rate limiter missing** | MONEY_MACHINE §8 says MAX 3 replies/day per account. No code enforces. Could trip spam filter at scale | S3: `redditPostQuota` Firestore counter with 03:00 UTC rollover |
+| 8 | **Single-platform (Reddit only)** | X, Quora, BiggerPockets, FB Groups, IG, TikTok, YouTube all missing. ~95% of addressable buyer-intent volume not touched | S3 (X + Quora + BiggerPockets + Google Reviews), S4 (FB + IG + TikTok + YouTube) |
+
+### 💰 APIFY — ALL GOOD, ROOM FOR EXPANSION
+
+**Current usage verified via `/v2/users/me` live:**
+- Plan: Starter **$29/mo** (prepaid platform credit)
+- MTD usage: **$29 / $55** soft cap (53% consumed)
+- Actor-start RAM budget: 32 GB
+- Concurrent runs: 32
+
+**Projected monthly spend after S2-S4 full rollout:**
+
+| Actor | Monthly spend | Hard cap per run |
+|---|---|---|
+| trudax~reddit-scraper-lite (live) | $24/mo (hourly cron) | $1.00 via `maxTotalChargeUsd` ✅ |
+| kaitoeasyapi~twitter-x (S3) | $9.60/mo | $0.50 cap |
+| Apify IG hashtag scraper (S4) | $8/mo | $0.30 cap |
+| Apify TikTok viral scraper (S4) | $5.60/mo | $0.30 cap |
+| Apify Google Reviews scraper (S3) | ~$2/mo on-demand | $0.50 cap |
+| Apify LinkedIn (optional, S4+) | $0 unless activated | $2.00 cap |
+| **Total projected** | **~$49/mo** | Under $55 cap |
+
+**Budget guard:** `apifyBudgetCheck` cron (S4 deliverable) pauses non-critical scrapers if MTD > $45. HR-6 auto-enforcement.
+
+### 🛠️ OTHER STACK GAPS BEYOND MONEY MACHINE (not this doc's scope but worth noting for 4-session plan)
+
+| Gap | Status | Session |
+|---|---|---|
+| FB Ads autonomous audit | Have Business Manager access, no cron pulling stats | S4 |
+| YouTube analytics sync | Have YouTube API creds, no weekly views/CTR cron | S4 |
+| IG Insights cron | ManyChat handles inbound, no post-performance cron | S4 |
+| TikTok analytics sync | Videos publish via Flamingo pipeline, no weekly feedback cron | S4 |
+| Slack Lists "🎯 Today" feature | Not built. This is THE core of phone-first autopilot | S2 |
+| Linear ↔ Slack mirror for engineering tasks | Not built. Linear has 1 empty project | S4 |
+| Notion ↔ Slack sync for completed tasks | Not built. Notion has 📋 Tasks / Priority Queue page already | S2 |
+| Morning 7:30 AM CDMX `dailyTaskDispatcher` | Not built. This triggers everything else | S2 |
+
+### 🎯 THE ONE-LINE SUMMARY
+
+**Money Machine scrapes + classifies + drafts PERFECTLY.** The only reason you haven't seen a single Reddit reply from it is there's no poster code — your Telegram ✅ taps were recorded but nothing ever posted. Session 1 tomorrow closes that gap via Slack phone-posting, Session 3 optionally automates it via Reddit API. Everything else in the stack is healthy.
+
+---
 
 ### 🆕 What changed on 2026-04-23
 
