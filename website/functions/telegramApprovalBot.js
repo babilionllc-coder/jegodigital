@@ -602,26 +602,67 @@ exports.pushPendingDraftsToTelegram = functions.https.onRequest(async (req, res)
 // -------------------------------------------------------------
 exports.slackWebhookTest = functions.https.onRequest(async (req, res) => {
     const webhook = process.env.SLACK_WEBHOOK_URL;
-    if (!webhook) {
-        return res.status(500).json({
-            ok: false,
-            reason: "SLACK_WEBHOOK_URL env var not set in Cloud Function runtime",
-        });
+    const botToken = process.env.SLACK_BOT_TOKEN;
+    const result = {
+        ok: true,
+        webhook_configured: !!webhook,
+        bot_token_configured: !!botToken,
+    };
+
+    // Parse webhook URL structure — format:
+    //   https://hooks.slack.com/services/T<team>/B<bot>/<signature>
+    if (webhook) {
+        try {
+            const u = new URL(webhook);
+            const parts = u.pathname.split("/").filter(Boolean); // ["services", T..., B..., sig]
+            result.webhook = {
+                host: u.host,
+                team_id: parts[1] || null,     // T..........
+                bot_id: parts[2] || null,      // B..........
+                signature_suffix: (parts[3] || "").slice(-6),
+            };
+        } catch (e) { result.webhook_url_parse_error = e.message; }
     }
-    try {
-        await axios.post(webhook, {
-            text: "🧪 Money Machine Slack webhook test — if you see this, the mirror is configured correctly.",
-            unfurl_links: false,
-        }, { timeout: 15000 });
-        return res.json({
-            ok: true,
-            webhook_host: new URL(webhook).host,
-            webhook_path_suffix: webhook.slice(-6),
-        });
-    } catch (err) {
-        return res.status(500).json({
-            ok: false,
-            reason: err.response?.data || err.message,
-        });
+
+    // Call Slack's auth.test using the bot token to reveal the actual team name
+    // + bot user — this tells us which workspace the integration lives in.
+    if (botToken) {
+        try {
+            const authResp = await axios.post("https://slack.com/api/auth.test", null, {
+                headers: { Authorization: `Bearer ${botToken}` },
+                timeout: 15000,
+            });
+            result.auth_test = authResp.data; // includes team, team_id, user, user_id, url
+        } catch (e) {
+            result.auth_test_error = e.response?.data || e.message;
+        }
     }
+
+    // Send a uniquely-identified test message through the webhook so Alex can
+    // search for it. Capture the raw Slack response body.
+    if (webhook) {
+        const marker = `MM-TEST-${Date.now()}`;
+        try {
+            const wr = await axios.post(webhook, {
+                text: `🧪 ${marker} — Money Machine Slack webhook diagnostic. Search for this exact code.`,
+                unfurl_links: false,
+            }, {
+                timeout: 15000,
+                validateStatus: () => true, // don't throw — capture whatever Slack says
+            });
+            result.webhook_post = {
+                marker,
+                http_status: wr.status,
+                slack_body: typeof wr.data === "string" ? wr.data : JSON.stringify(wr.data),
+                slack_headers: {
+                    "x-slack-req-id": wr.headers["x-slack-req-id"],
+                    "x-slack-backend": wr.headers["x-slack-backend"],
+                },
+            };
+        } catch (e) {
+            result.webhook_post_error = e.message;
+        }
+    }
+
+    return res.json(result);
 });
