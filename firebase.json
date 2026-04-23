@@ -64,12 +64,12 @@
     "redirects": [
       {
         "source": "/lead-capture-demo",
-        "destination": "/leads-pipeline.html",
+        "destination": "/ai-voice-agent-demo",
         "type": 301
       },
       {
         "source": "/lead-capture-demo.html",
-        "destination": "/leads-pipeline.html",
+        "destination": "/ai-voice-agent-demo",
         "type": 301
       },
       {
