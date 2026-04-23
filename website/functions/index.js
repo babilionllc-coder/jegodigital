@@ -2492,3 +2492,10 @@ exports.leadActivityPulse = mobileCommandCenter.leadActivityPulse;
 exports.leadActivityPulseNow = mobileCommandCenter.leadActivityPulseNow;
 exports.contentEveningWrap = mobileCommandCenter.contentEveningWrap;
 exports.contentEveningWrapNow = mobileCommandCenter.contentEveningWrapNow;
+
+// Notion webhook receiver — 2-way sync
+// Notion page edits (Leads CRM / Tasks / Content Calendar) → routed to
+// Brevo list updates, Slack + Telegram alerts, Closed Won escalations.
+// Endpoint: https://us-central1-jegodigital-e02fb.cloudfunctions.net/notionWebhook
+const notionWebhook = require("./notionWebhook");
+exports.notionWebhook = notionWebhook.notionWebhook;

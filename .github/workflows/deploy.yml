@@ -184,6 +184,47 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
+      # --------------------------------------------------------------
+      # IAM FIX — grant allUsers invoker on all HTTPS Cloud Functions
+      # --------------------------------------------------------------
+      # Disaster 2026-04-23: Firebase Functions v4 auto-deploys NEW HTTPS
+      # functions as Cloud Run gen2 which is PRIVATE by default. Old gen1
+      # functions (submitAuditRequest etc.) remain public. Result: new
+      # notionLeadSyncBackfill / notionLeadSyncUpsert / dailyTaskDigestNow
+      # returned HTTP 403 Forbidden until we bound allUsers as invoker.
+      #
+      # Fix: after deploy, auth with GCP_SA_KEY and loop all gen2 services
+      # in us-central1 granting allUsers roles/run.invoker. Idempotent —
+      # safe to re-run. Covers both current + future HTTPS functions.
+      # --------------------------------------------------------------
+      - name: Auth gcloud for IAM fix
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: jegodigital-e02fb
+
+      - name: Grant allUsers invoker on all Cloud Run services (gen2 public fix)
+        continue-on-error: true
+        run: |
+          echo "=== Listing all Cloud Run services in us-central1 ==="
+          gcloud run services list --region=us-central1 --format='value(metadata.name)' > /tmp/cr_services.txt
+          COUNT=$(wc -l < /tmp/cr_services.txt)
+          echo "Found $COUNT Cloud Run services"
+          while IFS= read -r svc; do
+            [ -z "$svc" ] && continue
+            echo "Granting allUsers invoker on: $svc"
+            gcloud run services add-iam-policy-binding "$svc" \
+              --region=us-central1 \
+              --member=allUsers \
+              --role=roles/run.invoker \
+              --quiet 2>&1 | tail -2 || echo "  (skipped — already set or error)"
+          done < /tmp/cr_services.txt
+          echo "=== IAM binding pass complete ==="
+
   deploy-hosting:
     name: Deploy Hosting
     runs-on: ubuntu-latest
