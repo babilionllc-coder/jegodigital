@@ -81,6 +81,8 @@ jobs:
           REDDIT_USER_AGENT=${{ secrets.REDDIT_USER_AGENT }}
           NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
           NOTION_LEADS_CRM_ID=${{ secrets.NOTION_LEADS_CRM_ID }}
+          NOTION_SESSION_LOG_PAGE_ID=${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}
+          ADMIN_TRIGGER_TOKEN=${{ secrets.ADMIN_TRIGGER_TOKEN }}
           ENVEOF
           # Clean leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env
