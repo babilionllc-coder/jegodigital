@@ -119,12 +119,33 @@ exports.moneyMachineStatus = functions
         // Slack/Telegram. Drafter writes to `opportunity_drafts/{oppId}`, not
         // to the `opportunities` collection, so the draft_text + safety flags
         // are only visible here.
+        // ?full=1 returns untruncated draft_text + permalink (for human
+        // copy-paste flow) — added 2026-04-23 evening when Alex needed the
+        // stranded `approved_needs_manual_post` drafts surfaced for phone
+        // posting. Default response still truncates to 600 chars to keep
+        // the status endpoint lightweight.
+        const fullMode = String(req.query.full || "").trim() === "1";
         try {
             const draftsSnap = await db.collection("opportunity_drafts")
                 .limit(15).get();
+            // Fetch matching opportunities in batch to get permalinks.
+            const oppIds = draftsSnap.docs.map(d => d.id);
+            const permalinkMap = {};
+            const subredditMap = {};
+            if (fullMode && oppIds.length) {
+                const oppDocs = await Promise.all(oppIds.map(id => db.collection("opportunities").doc(id).get()));
+                oppDocs.forEach((od, i) => {
+                    if (od.exists) {
+                        const odata = od.data();
+                        permalinkMap[oppIds[i]] = odata.permalink || null;
+                        subredditMap[oppIds[i]] = odata.subreddit || null;
+                    }
+                });
+            }
             out.opportunity_drafts = draftsSnap.docs.map(d => {
                 const data = d.data();
-                return {
+                const rawText = data.draft_text || "";
+                const entry = {
                     id: d.id,
                     status: data.status,
                     ready_for_approval: data.ready_for_approval,
@@ -138,9 +159,14 @@ exports.moneyMachineStatus = functions
                     score: data.score,
                     primaryService: data.primaryService,
                     title: (data.title || "").slice(0, 120),
-                    draft_text: (data.draft_text || "").slice(0, 600),
+                    draft_text: fullMode ? rawText : rawText.slice(0, 600),
                     draft_ready_at: data.draft_ready_at?.toDate?.().toISOString?.() || null,
                 };
+                if (fullMode) {
+                    entry.permalink = permalinkMap[d.id] || null;
+                    entry.subreddit = subredditMap[d.id] || null;
+                }
+                return entry;
             });
             out.drafts_count = draftsSnap.size;
         } catch (e) { out.errors.opportunity_drafts = e.message; }
