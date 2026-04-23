@@ -79,6 +79,8 @@ jobs:
           REDDIT_USERNAME=${{ secrets.REDDIT_USERNAME }}
           REDDIT_PASSWORD=${{ secrets.REDDIT_PASSWORD }}
           REDDIT_USER_AGENT=${{ secrets.REDDIT_USER_AGENT }}
+          NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
+          NOTION_LEADS_CRM_ID=${{ secrets.NOTION_LEADS_CRM_ID }}
           ENVEOF
           # Clean leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env
@@ -101,11 +103,26 @@ jobs:
       # into two halves, deploy each with --only, pause 120s between
       # (quota window is 100s — 120s gives headroom).
       # --------------------------------------------------------------
+      # --------------------------------------------------------------
+      # Disaster 2026-04-22 PM run #85: naive `grep -oE '^exports\.'`
+      # caught `exports.scheduledCampaign` on line 204 which lives INSIDE
+      # a /* ... */ block comment. Firebase never registered the function
+      # so `--only functions:scheduledCampaign` threw:
+      #   "Error: No function matches the filter: default:scheduledCampaign"
+      # killing BATCH 2 and forcing the retry step to fail the job.
+      #
+      # Fix: strip /* ... */ block comments with perl BEFORE grepping.
+      # Perl's `-0777` reads the whole file, `s|/\*.*?\*/||gs` nukes every
+      # block comment (`.*?` lazy so it doesn't eat across blocks).
+      # Single-line `// exports.X` comments are already filtered because
+      # they don't start with `exports.` at column 0.
+      # --------------------------------------------------------------
       - name: Build batched --only flags from index.js exports
         id: exports
         run: |
           cd website/functions
-          grep -oE '^exports\.[a-zA-Z_][a-zA-Z0-9_]*' index.js \
+          perl -0777 -pe 's|/\*.*?\*/||gs' index.js \
+            | grep -oE '^exports\.[a-zA-Z_][a-zA-Z0-9_]*' \
             | sed 's/exports\.//' \
             | sort -u > /tmp/fn_list.txt
           TOTAL=$(wc -l < /tmp/fn_list.txt)

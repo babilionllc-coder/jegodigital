@@ -35,6 +35,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
 const brevoNurture = require("./brevoNurture");
+const notionLeadSync = require("./notionLeadSync");
 
 // ---- Telegram ----
 const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
@@ -272,6 +273,58 @@ exports.instantlyReplyWatcher = functions
                 brevo_nurture_started: nurtureStarted,
                 processed_at: admin.firestore.FieldValue.serverTimestamp(),
             });
+
+            // ---- Notion 🎯 Leads CRM upsert ----
+            // Every reply = at minimum "warm" per Alex (2026-04-23). Positive
+            // replies become "Hot + Positive Reply" in Notion; negatives
+            // become "Dead + No Response"; neutrals/questions land as
+            // "Warm + Contacted". Idempotent: upsertLead dedups by email and
+            // preserves higher pipeline stages (won't downgrade Calendly
+            // Booked back to Positive Reply just because a new reply landed).
+            let notionSynced = false;
+            if (ctx.email) {
+                try {
+                    const { status, temperature } = notionLeadSync.outcomeToStatus(outcome);
+                    const campaignId = em.campaign || em.campaign_id || null;
+                    const campaignName = notionLeadSync.INSTANTLY_CAMPAIGN_MAP[campaignId] ||
+                        (campaignId ? `Instantly: ${String(campaignId).slice(0, 8)}` : null);
+                    const notes = [
+                        outcome === "positive_with_objection" ? "OBJECTION 💰" : null,
+                        subject ? `Subject: ${subject.slice(0, 80)}` : null,
+                        body ? `Reply: ${body.slice(0, 300)}` : null,
+                    ].filter(Boolean).join(" · ");
+                    const r = await notionLeadSync.upsertLead({
+                        email: ctx.email,
+                        firstName: ctx.firstName,
+                        company: ctx.company,
+                        website: ctx.website,
+                        source: "Instantly Cold Email",
+                        campaign: campaignName,
+                        status,
+                        temperature,
+                        bucket: (outcome === "positive" || outcome === "positive_with_objection")
+                            ? "A - Close this week"
+                            : (outcome === "question" ? "B - Qualified lead" : "C - Convert"),
+                        nextAction: outcome === "positive" && auditQueued
+                            ? "Audit auto-fired — wait for delivery"
+                            : (outcome === "positive_with_objection"
+                                ? "Alex: respond personally (pricing objection)"
+                                : (outcome === "question" ? "Answer their question" : null)),
+                        notes: notes.slice(0, 1800),
+                        lastTouch: new Date().toISOString().slice(0, 10),
+                    });
+                    notionSynced = r.ok;
+                    if (!r.ok) {
+                        functions.logger.warn(`notion upsert failed for ${ctx.email}: ${r.error}`);
+                    }
+                } catch (err) {
+                    functions.logger.warn(`notion upsert threw for ${ctx.email}:`, err.message);
+                }
+            }
+            // Record notion sync status on the ledger row for observability
+            try {
+                await activityRef.update({ notion_synced: notionSynced });
+            } catch (_) { /* non-fatal */ }
         }
 
         // Daily rollup (merge — many runs per day)
