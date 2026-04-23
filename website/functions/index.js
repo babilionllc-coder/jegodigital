@@ -2419,3 +2419,10 @@ const gcpBillingKillSwitch = require("./gcpBillingKillSwitch");
 exports.killBillingOnBudgetExceeded = gcpBillingKillSwitch.killBillingOnBudgetExceeded;
 exports.billingStatus = gcpBillingKillSwitch.billingStatus;
 exports.billingKillNow = gcpBillingKillSwitch.billingKillNow;
+
+// Daily GCP cost digest — 08:00 CDMX Telegram + Slack.
+// Reads billing_alerts/ (populated by the kill-switch Pub/Sub push) + Firebase
+// Hosting release count (the #1 cost driver per the 2026-04-23 audit).
+const dailyGcpCostReport = require("./dailyGcpCostReport");
+exports.dailyGcpCostReport = dailyGcpCostReport.dailyGcpCostReport;
+exports.dailyGcpCostReportNow = dailyGcpCostReport.dailyGcpCostReportNow;
