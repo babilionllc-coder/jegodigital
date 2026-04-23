@@ -563,19 +563,65 @@ exports.pushPendingDraftsToTelegram = functions.https.onRequest(async (req, res)
             .get();
         const pushed = [];
         for (const d of snap.docs) {
+            // Fire Telegram + Slack in parallel — same pattern as the onCreate
+            // trigger. Slack mirror was missing before, which is why drafts
+            // appeared in Telegram but never in Alex's Slack.
             // eslint-disable-next-line no-await-in-loop
-            const msgId = await sendApprovalMessage(d.data(), d.id);
+            const [tgRes, slackRes] = await Promise.allSettled([
+                sendApprovalMessage(d.data(), d.id),
+                sendApprovalToSlack(d.data(), d.id),
+            ]);
+            const msgId = tgRes.status === "fulfilled" ? tgRes.value : null;
+            const slackOk = slackRes.status === "fulfilled" && slackRes.value?.ok;
             // eslint-disable-next-line no-await-in-loop
             await d.ref.update({
                 telegram_message_id: msgId,
                 status: "awaiting_approval_telegram",
                 pushed_to_telegram_at: admin.firestore.FieldValue.serverTimestamp(),
+                slack_mirrored: !!slackOk,
+                slack_mirror_last_attempt: admin.firestore.FieldValue.serverTimestamp(),
             });
-            pushed.push({ id: d.id, msg: msgId });
+            pushed.push({
+                id: d.id,
+                telegram_msg: msgId,
+                slack_ok: slackOk,
+                slack_reason: slackOk ? null : (slackRes.value?.reason || slackRes.reason?.message || "unknown"),
+            });
         }
         res.json({ ok: true, pushed: pushed.length, details: pushed });
     } catch (err) {
         functions.logger.error("[pushPending] crash:", err);
         res.status(500).json({ ok: false, error: err.message });
+    }
+});
+
+// -------------------------------------------------------------
+// 6. slackWebhookTest — one-line sanity check that the Slack webhook
+//    env var is present AND the URL actually accepts a post.
+//    Returns the exact reason if it fails so we don't guess.
+// -------------------------------------------------------------
+exports.slackWebhookTest = functions.https.onRequest(async (req, res) => {
+    const webhook = process.env.SLACK_WEBHOOK_URL;
+    if (!webhook) {
+        return res.status(500).json({
+            ok: false,
+            reason: "SLACK_WEBHOOK_URL env var not set in Cloud Function runtime",
+        });
+    }
+    try {
+        await axios.post(webhook, {
+            text: "🧪 Money Machine Slack webhook test — if you see this, the mirror is configured correctly.",
+            unfurl_links: false,
+        }, { timeout: 15000 });
+        return res.json({
+            ok: true,
+            webhook_host: new URL(webhook).host,
+            webhook_path_suffix: webhook.slice(-6),
+        });
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            reason: err.response?.data || err.message,
+        });
     }
 });
