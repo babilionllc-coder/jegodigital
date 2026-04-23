@@ -243,6 +243,112 @@
         </div>
     </section>
 
+    <!-- ==================== EXAMPLES (real listing videos) ==================== -->
+    <section class="pb-10 md:pb-14 relative z-10">
+        <div class="max-w-5xl mx-auto px-4">
+
+            <div class="text-center mb-8">
+                <span class="inline-block px-3 py-1 rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase mb-3" style="background: rgba(197,160,89,0.08); border: 1px solid rgba(197,160,89,0.2); color: #C5A059;">
+                    Esto es lo que vas a recibir
+                </span>
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">Ejemplos reales de clientes</h2>
+                <p class="text-white/40 text-sm md:text-base max-w-xl mx-auto">
+                    Videos hechos con nuestro mismo pipeline — exactamente el formato que vas a recibir en 24 horas.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 md:gap-6 max-w-3xl mx-auto">
+
+                <!-- Example 1 — Piedra de Mar (Cinematico) -->
+                <div class="relative aspect-[9/16] rounded-2xl p-[1.5px] bg-gradient-to-b from-[#C5A059]/50 to-transparent shadow-xl group hover:scale-[1.02] transition-transform duration-300">
+                    <div class="absolute top-2.5 inset-x-0 flex justify-center z-20 pointer-events-none">
+                        <span class="bg-black/65 backdrop-blur-md border border-white/10 text-white/90 text-[9px] md:text-[10px] px-2 py-0.5 rounded-full shadow-lg">
+                            Cinematico
+                        </span>
+                    </div>
+                    <video id="example-piedra"
+                        class="w-full h-full object-cover rounded-[0.95rem] cursor-pointer"
+                        autoplay muted loop playsinline preload="metadata"
+                        onclick="this.paused ? this.play() : this.pause()">
+                        <source src="/img/showcase/piedra/PiedraDeMarPromo_EN.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute inset-x-0 bottom-2.5 flex justify-between items-end px-2.5 z-20 pointer-events-none">
+                        <div>
+                            <h3 class="text-[11px] md:text-xs font-bold text-white drop-shadow-md leading-tight">Piedra de Mar</h3>
+                            <p class="text-[9px] md:text-[10px] text-white/80 drop-shadow-md">Puerto Morelos</p>
+                        </div>
+                        <button type="button"
+                            onclick="event.stopPropagation(); var v=document.getElementById('example-piedra'); v.muted=!v.muted; this.innerHTML=v.muted?'<i class=&quot;fas fa-volume-mute text-white text-[10px]&quot;></i>':'<i class=&quot;fas fa-volume-up text-white text-[10px]&quot;></i>';"
+                            class="w-6 h-6 bg-black/65 rounded-full flex items-center justify-center backdrop-blur text-white hover:bg-[#C5A059] transition-colors border border-white/20 pointer-events-auto">
+                            <i class="fas fa-volume-mute text-white text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Example 2 — TAO Townhome (Lifestyle + AI voiceover) -->
+                <div class="relative aspect-[9/16] rounded-2xl p-[1.5px] bg-gradient-to-b from-blue-500/50 to-transparent shadow-xl group hover:scale-[1.02] transition-transform duration-300">
+                    <div class="absolute top-2.5 inset-x-0 flex justify-center z-20 pointer-events-none">
+                        <span class="bg-black/65 backdrop-blur-md border border-white/10 text-white/90 text-[9px] md:text-[10px] px-2 py-0.5 rounded-full shadow-lg">
+                            Lifestyle
+                        </span>
+                    </div>
+                    <video id="example-tao"
+                        class="w-full h-full object-cover rounded-[0.95rem] cursor-pointer"
+                        autoplay muted loop playsinline preload="metadata"
+                        poster="/img/showcase/flamingo/tulum_listing_thumbnail.jpg"
+                        onclick="this.paused ? this.play() : this.pause()">
+                        <source src="/img/showcase/flamingo/tulum_listing_case_study.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute inset-x-0 bottom-2.5 flex justify-between items-end px-2.5 z-20 pointer-events-none">
+                        <div>
+                            <h3 class="text-[11px] md:text-xs font-bold text-white drop-shadow-md leading-tight">TAO Townhome</h3>
+                            <p class="text-[9px] md:text-[10px] text-[#C5A059] drop-shadow-md font-semibold">Con voz AI</p>
+                        </div>
+                        <button type="button"
+                            onclick="event.stopPropagation(); var v=document.getElementById('example-tao'); v.muted=!v.muted; this.innerHTML=v.muted?'<i class=&quot;fas fa-volume-mute text-white text-[10px]&quot;></i>':'<i class=&quot;fas fa-volume-up text-white text-[10px]&quot;></i>';"
+                            class="w-6 h-6 bg-black/65 rounded-full flex items-center justify-center backdrop-blur text-white hover:bg-[#C5A059] transition-colors border border-white/20 pointer-events-auto">
+                            <i class="fas fa-volume-mute text-white text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Example 3 — Flamingo 0410 (Luxury) -->
+                <div class="relative aspect-[9/16] rounded-2xl p-[1.5px] bg-gradient-to-b from-emerald-500/50 to-transparent shadow-xl group hover:scale-[1.02] transition-transform duration-300">
+                    <div class="absolute top-2.5 inset-x-0 flex justify-center z-20 pointer-events-none">
+                        <span class="bg-black/65 backdrop-blur-md border border-white/10 text-white/90 text-[9px] md:text-[10px] px-2 py-0.5 rounded-full shadow-lg">
+                            Luxury
+                        </span>
+                    </div>
+                    <video id="example-0410"
+                        class="w-full h-full object-cover rounded-[0.95rem] cursor-pointer"
+                        autoplay muted loop playsinline preload="metadata"
+                        onclick="this.paused ? this.play() : this.pause()">
+                        <source src="/img/showcase/listings/flamingo_0410_listing.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute inset-x-0 bottom-2.5 flex justify-between items-end px-2.5 z-20 pointer-events-none">
+                        <div>
+                            <h3 class="text-[11px] md:text-xs font-bold text-white drop-shadow-md leading-tight">Flamingo</h3>
+                            <p class="text-[9px] md:text-[10px] text-emerald-400 drop-shadow-md font-semibold">Recien publicado</p>
+                        </div>
+                        <button type="button"
+                            onclick="event.stopPropagation(); var v=document.getElementById('example-0410'); v.muted=!v.muted; this.innerHTML=v.muted?'<i class=&quot;fas fa-volume-mute text-white text-[10px]&quot;></i>':'<i class=&quot;fas fa-volume-up text-white text-[10px]&quot;></i>';"
+                            class="w-6 h-6 bg-black/65 rounded-full flex items-center justify-center backdrop-blur text-white hover:bg-emerald-500 transition-colors border border-white/20 pointer-events-auto">
+                            <i class="fas fa-volume-mute text-white text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center mt-6">
+                <p class="text-white/30 text-[11px] md:text-xs max-w-xl mx-auto">
+                    Cada video entre 15 y 30 segundos, vertical 9:16, listo para publicar en Reels, TikTok y WhatsApp Status.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
     <!-- ==================== FORM ==================== -->
     <section class="pb-16 md:pb-24 relative z-10">
         <div class="max-w-3xl mx-auto px-4">
