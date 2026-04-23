@@ -2437,3 +2437,10 @@ exports.notionLeadSyncBackfill = notionLeadSync.notionLeadSyncBackfill;
 exports.notionLeadSyncUpsert = notionLeadSync.notionLeadSyncUpsert;
 exports.notionLeadSyncOnAuditCreated = notionLeadSync.notionLeadSyncOnAuditCreated;
 exports.notionLeadSyncCron = notionLeadSync.notionLeadSyncCron;
+
+// Daily Task Digest — 08:15 CDMX → Slack + Telegram. Reads Notion Tasks DB
+// and posts today's Big Rock + P0 + P1 with direct Notion task URLs, so Alex
+// can tap through from Slack instead of opening Notion to see the day's work.
+const dailyTaskDigest = require("./dailyTaskDigest");
+exports.dailyTaskDigest = dailyTaskDigest.dailyTaskDigest;
+exports.dailyTaskDigestNow = dailyTaskDigest.dailyTaskDigestNow;
