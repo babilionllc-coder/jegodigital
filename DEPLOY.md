@@ -258,7 +258,7 @@ All in `.github/workflows/`. All trigger on `push` to `main` with `paths:` filte
 ### 3. `notion-session-log.yml` — Auto-append Session Log on notable pushes
 - **Fires when:** push to `main` with a commit subject matching `^(feat|fix|ship|perf)(\(...\))?!?:`
 - **What it does:** parses the commit, infers HR-3 bucket (A/B/C/D), posts a dated entry (heading + bucket + summary + proof link) to the [📚 Session Log — Ship History](https://www.notion.so/34bf21a7c6e5812e9f5be93657eb25ca) Notion page via `POST /v1/blocks/{id}/children`
-- **Skips silently** when `NOTION_INTEGRATION_TOKEN` or `NOTION_SESSION_LOG_PAGE_ID` aren't set (guard clause in workflow) — lets the workflow live in the repo without failing red during one-time setup
+- **Skips silently** when `NOTION_API_KEY` or `NOTION_SESSION_LOG_PAGE_ID` aren't set (guard clause in workflow) — lets the workflow live in the repo without failing red during one-time setup
 - **Script:** `website/tools/notion_session_log_append.mjs`
 - **Docs-only commits (`docs:`, `chore:`, `refactor:`) are skipped on purpose** — Session Log is for revenue/ops moves, not plumbing
 
@@ -266,16 +266,13 @@ All in `.github/workflows/`. All trigger on `push` to `main` with `paths:` filte
 
 Anthropic's MCP Notion connection in Claude is OAuth-scoped to Alex's session and can't be reused by a CI runner — so we need a dedicated Notion **Internal Integration** token. This step is UI-only (Notion has no API to create integrations) and takes ~90 seconds:
 
-1. Open https://www.notion.so/my-integrations → **+ New integration**
-2. Name it `JegoDigital GitHub Actions`, Associated workspace = `Alex Jego's Space HQ`, Type = Internal
-3. Capabilities: ✅ Read content · ✅ Update content · ✅ Insert content (all other boxes unchecked — principle of least privilege)
-4. Submit → copy the `secret_…` token that appears
-5. Paste the token into https://github.com/babilionllc-coder/jegodigital/settings/secrets/actions as `NOTION_INTEGRATION_TOKEN`
-6. Add a second secret `NOTION_SESSION_LOG_PAGE_ID` with value `34bf21a7-c6e5-812e-9f5b-e93657eb25ca`
-7. In Notion, open the [Session Log page](https://www.notion.so/34bf21a7c6e5812e9f5be93657eb25ca) → **⋯** menu top-right → **Connections** → **+ Connect to** → pick `JegoDigital GitHub Actions`
-8. Verify: push a commit with subject `feat: test notion wiring` (or run the workflow manually with `workflow_dispatch`) → new entry should land in the page within ~10 seconds
+**✅ COMPLETED 2026-04-23 PM.** Integration `jegodigital connect` (workspace `Alex Jego's Space`, bot ID `34bf21a7-c6e5-81c0-ae6b-0027f6a0352d`) is connected to the `JegoDigital HQ` page which cascades access to all children (Session Log, Leads CRM, Cold Calling, etc). Secrets `NOTION_API_KEY` + `NOTION_SESSION_LOG_PAGE_ID` are in GH Secrets. Guard clause flipped → every `feat:/fix:/ship:/perf:` push auto-appends to Session Log. Proven end-to-end with test entry on commit `d5d1d11c`.
 
-Once both secrets exist and the integration is connected to the page, the guard clause flips and every future `feat:/fix:/ship:/perf:` push writes a Session Log entry automatically. No code ever needs to touch this again.
+If the integration ever needs to be recreated (revocation, rotation):
+1. Open https://www.notion.so/profile/integrations → pick `jegodigital connect` → rotate secret OR
+2. Create new integration → capabilities: ✅ Read / ✅ Insert / ✅ Update (no Comment, no Read comments)
+3. Rotate `NOTION_API_KEY` in GH Secrets with new `ntn_…` token
+4. Reconnect to HQ page: **⋯** menu → **Connections** → **+ Add** → search `jegodigital connect` → Add to page (cascades to all children)
 
 ### 4. `auto-index.yml` — Google + IndexNow submission
 - **Fires when:** `website/**` changes
@@ -297,7 +294,7 @@ All set via https://github.com/babilionllc-coder/jegodigital/settings/secrets/ac
 
 | Secret | Used by | Source |
 |---|---|---|
-| `NOTION_INTEGRATION_TOKEN` | notion-session-log | `secret_…` from https://www.notion.so/my-integrations (one-time setup in §Notion Session Log below) |
+| `NOTION_API_KEY` | notion-session-log | `secret_…` from https://www.notion.so/my-integrations (one-time setup in §Notion Session Log below) |
 | `NOTION_SESSION_LOG_PAGE_ID` | notion-session-log | `34bf21a7-c6e5-812e-9f5b-e93657eb25ca` |
 | `GCP_SA_KEY` | deploy-cloudrun | Full JSON of `github-deployer@jegodigital-e02fb.iam.gserviceaccount.com` key |
 | `GOOGLE_SERVICE_ACCOUNT_KEY` | auto-index | Full JSON of `jegodigital@jegodigital-e02fb.iam.gserviceaccount.com` key (Search Console Owner) |

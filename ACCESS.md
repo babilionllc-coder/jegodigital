@@ -1,7 +1,7 @@
 # JegoDigital — ACCESS Registry (source of truth for ALL credentials)
 
-**Last updated:** 2026-04-23 (added YOUTUBE_* secrets 38-40) | **Maintained by:** Claude AI + Alex Jego
-**GitHub Secrets total:** 40 (live-verified via `GET /actions/secrets?per_page=100` on 2026-04-23 — every row in the registry below maps 1:1 to a secret that actually exists in `babilionllc-coder/jegodigital`) | **Repo:** `babilionllc-coder/jegodigital`
+**Last updated:** 2026-04-23 PM (added NOTION_* secrets 41-42) | **Maintained by:** Claude AI + Alex Jego
+**GitHub Secrets total:** 42 (live-verified via `GET /actions/secrets?per_page=100` on 2026-04-23 PM — every row in the registry below maps 1:1 to a secret that actually exists in `babilionllc-coder/jegodigital`) | **Repo:** `babilionllc-coder/jegodigital`
 
 > This file is the CONTRACT that `envAudit` Cloud Function enforces every morning at 6am UTC.
 > Every credential used anywhere in JegoDigital lives in GitHub Secrets AND is documented here.
@@ -98,6 +98,8 @@
 | 38 | `YOUTUBE_CLIENT_ID` | 🎥 | OAuth2 Installed-App client (`project-957850579030`) for `@jegodigitalchannel`. Used by `content/youtube-proof-tactic/tmp/upload_oneshot.sh` and any future YouTube Data API v3 upload. Added 2026-04-23. |
 | 39 | `YOUTUBE_CLIENT_SECRET` | 🎥 | OAuth2 secret pair to 38. Added 2026-04-23. |
 | 40 | `YOUTUBE_REFRESH_TOKEN` | 🎥 | Long-lived refresh token minted 2026-04-23 against `jegoalexdigital@gmail.com`. Scopes: `youtube`, `youtube.upload`, `youtube.force-ssl`. Channel ID `UCZq1JVXJ9bHjOSThOCdy0hw`. Revoked at myaccount.google.com/permissions if needed. |
+| 41 | `NOTION_API_KEY` | 🔑 | `ntn_…` internal integration token for `jegodigital connect` (workspace `Alex Jego's Space`, bot ID `34bf21a7-c6e5-81c0-ae6b-0027f6a0352d`). Used by `.github/workflows/notion-session-log.yml` + future `notionLeadSync` Cloud Function. **ROTATE immediately** — token was exposed in chat on 2026-04-23 PM (noted in this session for cleanup). Regenerate at notion.so/profile/integrations. |
+| 42 | `NOTION_SESSION_LOG_PAGE_ID` | 🔑 | `34bf21a7-c6e5-812e-9f5b-e93657eb25ca` — page ID of the [📚 Session Log — Ship History](https://www.notion.so/34bf21a7c6e5812e9f5be93657eb25ca) page. Used by the notion-session-log workflow. |
 
 ---
 
