@@ -1,0 +1,80 @@
+name: Notion Session Log
+
+# Auto-appends a Session Log entry to Notion on every push to main with a
+# notable commit (feat:, fix:, ship:, perf:). Docs/chore/refactor are skipped
+# on purpose — Session Log is for things that moved revenue or ops, not
+# plumbing. See website/tools/notion_session_log_append.mjs for parsing rules.
+#
+# Required GH Secrets (one-time setup — see /DEPLOY.md §Notion Session Log):
+#   NOTION_INTEGRATION_TOKEN   Internal integration token (notion.so/my-integrations)
+#   NOTION_SESSION_LOG_PAGE_ID 34bf21a7-c6e5-812e-9f5b-e93657eb25ca
+#
+# The integration must also be "Connected" to the Session Log page in Notion:
+#   page → ⋯ menu → Connections → Connect to → pick the integration.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Override commit SHA to log (default: HEAD)"
+        required: false
+
+jobs:
+  append:
+    name: Append Session Log entry
+    runs-on: ubuntu-latest
+    # Skip if secrets aren't wired yet — lets the workflow live in the repo
+    # without failing red until Alex finishes the one-time Notion setup.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # need HEAD + HEAD~1 for accurate author resolution
+
+      - name: Resolve commit metadata
+        id: meta
+        run: |
+          SHA="${{ github.event.inputs.sha }}"
+          if [ -z "$SHA" ]; then SHA="${GITHUB_SHA}"; fi
+          MSG=$(git log -1 --format=%B "$SHA")
+          AUTHOR=$(git log -1 --format=%an "$SHA")
+          URL="https://github.com/${GITHUB_REPOSITORY}/commit/$SHA"
+          {
+            echo "sha=$SHA"
+            echo "author=$AUTHOR"
+            echo "url=$URL"
+            echo 'message<<COMMIT_EOF'
+            printf '%s\n' "$MSG"
+            echo COMMIT_EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Guard — skip if secrets not wired
+        id: guard
+        run: |
+          if [ -z "${{ secrets.NOTION_INTEGRATION_TOKEN }}" ] || [ -z "${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}" ]; then
+            echo "⏭️  NOTION_INTEGRATION_TOKEN or NOTION_SESSION_LOG_PAGE_ID not set yet."
+            echo "   One-time setup lives in /DEPLOY.md §Notion Session Log."
+            echo "   Workflow will skip silently until secrets are added."
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.guard.outputs.skip == '0'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Append Notion Session Log
+        if: steps.guard.outputs.skip == '0'
+        env:
+          NOTION_INTEGRATION_TOKEN: ${{ secrets.NOTION_INTEGRATION_TOKEN }}
+          NOTION_SESSION_LOG_PAGE_ID: ${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}
+          COMMIT_SHA: ${{ steps.meta.outputs.sha }}
+          COMMIT_MESSAGE: ${{ steps.meta.outputs.message }}
+          COMMIT_AUTHOR: ${{ steps.meta.outputs.author }}
+          COMMIT_URL: ${{ steps.meta.outputs.url }}
+        run: node website/tools/notion_session_log_append.mjs
