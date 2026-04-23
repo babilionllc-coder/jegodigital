@@ -2390,3 +2390,12 @@ exports.slackWebhookTest = telegramApprovalBot.slackWebhookTest;
 // opportunities/drafts. No Firestore client access required.
 const moneyMachineStatus = require("./moneyMachineStatus");
 exports.moneyMachineStatus = moneyMachineStatus.moneyMachineStatus;
+
+// GCP cost-cap kill-switch. Triggered by GCP Billing Budget -> Pub/Sub
+// topic `gcp-budget-alerts`. Detaches billing account when budget hits 95%.
+// Also exposes /billingStatus and /billingKillNow HTTP endpoints.
+// Setup instructions: docs/gcp-cost-cap.md
+const gcpBillingKillSwitch = require("./gcpBillingKillSwitch");
+exports.killBillingOnBudgetExceeded = gcpBillingKillSwitch.killBillingOnBudgetExceeded;
+exports.billingStatus = gcpBillingKillSwitch.billingStatus;
+exports.billingKillNow = gcpBillingKillSwitch.billingKillNow;
