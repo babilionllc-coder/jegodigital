@@ -1,12 +1,27 @@
 # 💰 MONEY_MACHINE.md — Autonomous Opportunity-to-Client Engine
 
-**Status:** RESEARCH COMPLETE → awaiting Alex's GO/NO-GO
-**Date drafted:** 2026-04-22
-**Owner:** Claude (drafting) + Alex (approval)
+**Status:** 🟢 LIVE IN PRODUCTION — Reddit scraper + classifier + drafter + Telegram approval + recovery cron all shipped
+**Date drafted:** 2026-04-22 · **Last updated:** 2026-04-23 (added scheduledTelegramRecovery cron)
+**Owner:** Claude (drafts + runs) + Alex (1-tap approval)
 **Revenue bucket:** B (generate qualified leads) + A (close this week)
 **Relationship to Free Demo MX campaign:** PARALLEL — does NOT replace the cold-email engine. This is a **second income engine** running alongside.
 
-> **Plain-English summary:** We build a bot that reads Reddit, Twitter, Quora, BiggerPockets, and Facebook groups every hour, finds people publicly saying *"I need help with X"* where X is something Claude can deliver (website, SEO, chatbot, automation, lead gen), drafts a genuinely helpful reply, sends it to Alex's Telegram for 1-tap approval, then posts it. When the lead replies, they go into the existing Instantly/ManyChat/Calendly funnel. Cost: **~$110/mo in tools**. Target: **1 paying client in first 7 days, 5-10 per month by day 30.**
+> **Plain-English summary:** A bot reads Reddit every 60 min, finds people publicly saying *"I need help with X"* where X is something we deliver (website, SEO, chatbot, automation, lead gen), drafts a genuinely helpful reply, sends it to Alex's Telegram for 1-tap approval, then posts it. When the lead replies, they go into the existing Instantly/ManyChat/Calendly funnel. Cost: **~$110/mo in tools**. Target: **1 paying client in first 7 days, 5-10 per month by day 30.**
+
+### 🆕 What changed on 2026-04-23
+
+**Problem:** Alex reported "I have not received any new post on Telegram and I'm unable to approve it." Draft `reddit_1ssafi5` was stuck at `ready_for_approval=true` with no visible Telegram push.
+
+**Root cause:** Original push succeeded but the message got buried in Alex's Telegram inbox. There was NO fallback to nudge him if he missed it.
+
+**Fix (commit `2c478ab`):** New `scheduledTelegramRecovery` cron runs every 30 min:
+- If a draft has `ready_for_approval=true` but NO `telegram_message_id` → full re-push via `sendApprovalMessage` + Slack mirror
+- If push succeeded but Alex hasn't acted for >2h → threaded reminder (`reply_to_message_id` + "⏰ Reminder") next to the original card
+- Max 3 nudges per draft, ≥2h apart, then stops (no spam)
+
+**New endpoints:**
+- `scheduledTelegramRecovery` — Pub/Sub cron, every 30 min, America/Mexico_City timezone
+- `scheduledTelegramRecoveryNow` — HTTPS trigger for manual smoke test (returns JSON summary)
 
 ---
 
@@ -56,6 +71,11 @@
 ┌───────────────────────────────────────────────────────────────────────────┐
 │  TELEGRAM APPROVAL BOT                                                    │
 │  Alex gets push with [✅ Approve] [✏️ Edit] [❌ Kill] buttons             │
+│  ↑                                                                        │
+│  │ 🆕 scheduledTelegramRecovery — every 30 min:                           │
+│  │   • no telegram_message_id → full re-push                              │
+│  │   • idle >2h → threaded "⏰ Reminder" (max 3, ≥2h apart)               │
+│  └────────────────────────── safety net so drafts never silently stall    │
 └─────────────────┬─────────────────────────────────────────────────────────┘
                   ↓ approved
 ┌───────────────────────────────────────────────────────────────────────────┐

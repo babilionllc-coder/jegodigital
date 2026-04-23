@@ -4,6 +4,23 @@
 > **Usage:** `grep -i "<keyword>" /Users/mac/Desktop/Websites/jegodigital/DISASTER_LOG.md`
 > **Rule:** if an entry pattern repeats, promote it to a HARD RULE in CLAUDE.md. Don't just log it twice.
 
+## 2026-04-23 — Money Machine Telegram pipeline silently stalled because Alex missed the approval card
+
+**What I tried:** Shipped `redditScraper` → `opportunityClassifier` → `opportunityDrafter` → `pushDraftToTelegram` as a 4-stage pipeline, all firing on Firestore triggers. Confirmed everything "worked" when I saw drafts reach `ready_for_approval=true` with a valid `telegram_message_id` stamped on the doc. Declared the pipeline complete.
+
+**Why it failed:** Alex never saw the Telegram card. Two real-world things the architecture ignored: (a) his Telegram has heavy traffic from other crons and the approval card scrolled off-screen within minutes of arriving, (b) if a push EVER failed silently (token hiccup, rate limit, Markdown parse error) the doc sat forever in `ready_for_approval=true` with NO `telegram_message_id` and NO retry. Both cases present identically to the user: no buttons to tap, pipeline frozen. Result: on 2026-04-23 morning Alex reported "I have not received any new post on Telegram and I'm unable to approve it" — draft `reddit_1ssafi5` had been stuck for hours with no visible push.
+
+**What to do instead (fix shipped, commit `2c478ab`):** Every approval pipeline needs a **recovery safety net cron**, not just a first-try push. New function `scheduledTelegramRecovery` runs every 30 min and handles both failure modes:
+- No `telegram_message_id` on doc → full re-push via `sendApprovalMessage` + Slack mirror, stamp `recovery_reason="no_msg_id"`.
+- Push succeeded but idle >2h → threaded `⏰ Reminder` using `reply_to_message_id` so the nudge sits next to the original card, increment `telegram_nudges_sent`, cap at 3 nudges with ≥2h between them (no spam).
+Plus `scheduledTelegramRecoveryNow` HTTPS endpoint for manual smoke tests.
+
+**Rule going forward:** **Any "fire-and-forget push to an external channel for human approval" pipeline MUST ship with a scheduled recovery cron in the same deploy.** Never rely solely on the first send succeeding — treat "message reached the user's eyeballs" as a separate concern from "message reached the API." Recovery loop keys: idempotent stamps (`pushed_to_telegram_at`, `telegram_message_id`, `telegram_nudges_sent`, `last_nudge_at`), max-retry cap (3), min-interval (≥2h), threaded reminder (`reply_to_message_id`) so the nudge sits next to the original card.
+
+**Tag:** win · money-machine · telegram · approval-loop · recovery-cron · architecture
+
+---
+
 ## 2026-04-23 PM — Firebase Web SDK config placeholder trap (avoided pre-deploy during Trojan Video Factory build)
 **What I tried:** First pass on `website/trojan-setup/videos.html` wired the 3-10 photo dropzone directly to Firebase Storage via the Firebase Web SDK (`initializeApp({apiKey, authDomain, storageBucket, ...})` + `getStorage` + `uploadBytesResumable`). I dropped in placeholder/fake `apiKey` + `authDomain` + `appId` values intending to swap them for real ones at deploy time.
 **Why it would have failed (caught in same session before ship):** (a) **Web SDK config values are public** — committing them exposes the project's identifier to every visitor's DevTools. Not a secret-in-the-strict-sense leak, but still a broadcast we should not do by default. (b) **No Firebase Security Rules were drafted** — any visitor could have read/written anywhere in the bucket under the matching auth state. (c) **Silent schema drift risk** — the "trojan-videos/{companySlug}-{leadId}/photo-N.jpg" path lived only in the client. A bad actor could upload to any path. (d) **Placeholder apiKey would have 100% broken the page** on first real user until someone remembered to swap it — a silent prod break waiting to happen.
