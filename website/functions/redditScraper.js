@@ -32,9 +32,12 @@ const { notify } = require("./telegramHelper");
 
 if (!admin.apps.length) admin.initializeApp();
 
-// Cheapest Apify Reddit actor — $2/1,000 results, pay-per-result
-// https://apify.com/practicaltools/apify-reddit-api (verified 2026-04-22)
-const APIFY_ACTOR = "practicaltools~apify-reddit-api";
+// Battle-tested Apify Reddit actor — $3.50/1,000 results, 2.7M+ total runs.
+// Previous actor `practicaltools~apify-reddit-api` broke 2026-04-22 (Reddit
+// started requiring OAuth on the endpoint it hit → 403 Blocked on every run).
+// trudax~reddit-scraper-lite uses HTML scraping + proxies and is the 2026
+// reference implementation. https://apify.com/trudax/reddit-scraper-lite
+const APIFY_ACTOR = "trudax~reddit-scraper-lite";
 const APIFY_BASE = "https://api.apify.com/v2";
 
 // Target subreddits (verified via Perplexity sonar 2026-04-22 — see MONEY_MACHINE.md §3)
@@ -125,8 +128,14 @@ async function runApifyReddit(subreddits, maxItems = 200) {
     const apifyKey = process.env.APIFY_API_KEY || process.env.APIFY_API_TOKEN;
     if (!apifyKey) throw new Error("APIFY_API_KEY missing in env");
 
-    // Apify's "Reddit API" actor accepts a list of subreddit URLs + a sort order
-    // + a time filter. "new" + "day" gives us fresh opportunities only.
+    // trudax~reddit-scraper-lite input schema (verified 2026-04-22 PM via live
+    // probe — 3 test runs all SUCCEEDED and returned real post data).
+    // Accepts: startUrls, maxItems, maxPostCount, sort, searchPosts, searchComments,
+    //          includeNSFW, proxy config
+    // Output fields: id (t3_xxx), parsedId, url, username, userId, title,
+    //                communityName (r/name), parsedCommunityName (name), body, html,
+    //                numberOfComments, upVotes, upVoteRatio, createdAt (ISO),
+    //                dataType ("post"|"community")
     const startUrls = subreddits.map(s => ({
         url: `https://www.reddit.com/r/${s}/new/`,
         method: "GET",
@@ -135,8 +144,16 @@ async function runApifyReddit(subreddits, maxItems = 200) {
     const input = {
         startUrls,
         maxItems,
+        maxPostCount: maxItems,
         sort: "new",
-        time: "day",
+        searchPosts: true,
+        searchComments: false,
+        searchCommunities: false,
+        searchUsers: false,
+        includeNSFW: false,
+        skipComments: true,
+        skipUserPosts: true,
+        skipCommunity: true,
         proxy: { useApifyProxy: true },
     };
 
@@ -150,19 +167,26 @@ async function runApifyReddit(subreddits, maxItems = 200) {
     return Array.isArray(r.data) ? r.data : [];
 }
 
-// Author quality gate — drops bots + throwaway accounts.
+// Author quality gate — drops obvious throwaways and [deleted] posts.
+// trudax~reddit-scraper-lite does NOT return authorKarma / authorCreated in the
+// lite tier, so this gate is intentionally looser than the original. The
+// Gemini classifier downstream handles the deeper bot/spam scoring.
 function passAuthorGate(post) {
-    // Apify Reddit actor returns authorKarma, authorCreated, etc. where available.
+    const username = (post.username || post.author || "").toString().toLowerCase();
+    if (!username) return false;
+    if (username === "[deleted]" || username === "automoderator") return false;
+
+    // Optional legacy fields (kept for future actor swaps that surface them)
     const karma = Number(post.authorKarma ?? post.author_karma ?? 0);
     const created = post.authorCreated ?? post.author_created_utc;
-    let accountAgeDays = 365; // default permissive if field missing
     if (created) {
         const ts = typeof created === "number" ? created * 1000 : Date.parse(created);
-        if (!Number.isNaN(ts)) accountAgeDays = (Date.now() - ts) / 86400000;
+        if (!Number.isNaN(ts)) {
+            const accountAgeDays = (Date.now() - ts) / 86400000;
+            if (accountAgeDays < 30 && karma < 10) return false;
+        }
     }
-    if (karma >= 0 && accountAgeDays >= 30) return true;
-    if (karma >= 10) return true;
-    return false;
+    return true;
 }
 
 // Main scrape+write routine.
@@ -184,13 +208,24 @@ async function scrapeAndIngest() {
     let authorRejectCount = 0;
     const serviceTally = {};
 
+    let nonPostCount = 0;
+
     for (const item of items) {
-        // Apify Reddit actor field names are inconsistent between variants — normalise.
-        const id = item.id || item.postId || item.permalink || item.url;
+        // trudax emits both "post" and "community" rows — we only want posts.
+        const dataType = (item.dataType || "").toString().toLowerCase();
+        if (dataType && dataType !== "post") {
+            nonPostCount++;
+            continue;
+        }
+
+        // Normalise across trudax (primary) + legacy actors (fallback).
+        // trudax: id (t3_xxx), parsedId, url, username, title, body,
+        //         numberOfComments, upVotes, parsedCommunityName, createdAt
+        const id = item.parsedId || item.id || item.postId || item.permalink || item.url;
         if (!id) continue;
 
         const title = item.title || "";
-        const body = item.selftext || item.body || item.text || "";
+        const body = item.body || item.selftext || item.text || "";
 
         // Keyword match gate
         const km = matchKeywords(title, body);
@@ -203,7 +238,7 @@ async function scrapeAndIngest() {
             continue;
         }
 
-        // Dedupe on post id
+        // Dedupe on post id (t3_xxx is stable even across actors)
         const docRef = db.collection("opportunities").doc(`reddit_${id.replace(/[^a-zA-Z0-9_-]/g, "_").slice(-64)}`);
         const existing = await docRef.get();
         if (existing.exists) {
@@ -211,25 +246,36 @@ async function scrapeAndIngest() {
             continue;
         }
 
+        const subreddit = item.parsedCommunityName
+            || (item.communityName || "").replace(/^r\//, "")
+            || item.subreddit
+            || item.subredditName
+            || null;
+        const permalink = item.url
+            || item.permalink
+            || (item.parsedId ? `https://www.reddit.com/comments/${item.parsedId}/` : null);
+
         const doc = {
             platform: "reddit",
             postId: id,
-            subreddit: item.subreddit || item.subredditName || null,
-            permalink: item.permalink || item.url || null,
+            subreddit,
+            permalink,
             title,
             body: body.slice(0, 4000), // cap for Firestore doc-size limits
-            author: item.author || item.username || null,
+            author: item.username || item.author || null,
             authorKarma: Number(item.authorKarma ?? item.author_karma ?? 0),
             authorCreatedUtc: item.authorCreated ?? item.author_created_utc ?? null,
-            upvotes: Number(item.ups ?? item.upvotes ?? item.score ?? 0),
-            numComments: Number(item.numComments ?? item.num_comments ?? 0),
+            upvotes: Number(item.upVotes ?? item.ups ?? item.upvotes ?? item.score ?? 0),
+            upVoteRatio: Number(item.upVoteRatio ?? 0),
+            numComments: Number(item.numberOfComments ?? item.numComments ?? item.num_comments ?? 0),
+            postCreatedAt: item.createdAt || null,
             keywordHits: km.hits,
             keywordScore: km.totalWeight,
             primaryService: km.primaryService,
             status: "pending_classification",
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             scrapedAt: admin.firestore.FieldValue.serverTimestamp(),
-            source: "redditScraper_v1",
+            source: "redditScraper_v2_trudax",
         };
         await docRef.set(doc);
         newCount++;
@@ -239,6 +285,7 @@ async function scrapeAndIngest() {
     const durationSec = ((Date.now() - startedAt.getTime()) / 1000).toFixed(1);
     const summary = {
         total_pulled: items.length,
+        non_post_skipped: nonPostCount,
         keyword_matches: kwMatchCount,
         author_gate_rejects: authorRejectCount,
         duplicates: dupCount,
