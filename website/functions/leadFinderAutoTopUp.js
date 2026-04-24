@@ -344,16 +344,39 @@ exports.leadFinderAutoTopUp = functions
         }
 
         // ---- Step 2: API keys ----
+        // 2026-04-24: added DATAFORSEO_PASS (the actual name in GH Secrets — was
+        // silently falling back to "missing" for 3+ days because env check
+        // only looked for DFS_PASSWORD / DATAFORSEO_PASSWORD.
         const DFS_LOGIN = process.env.DFS_LOGIN || process.env.DATAFORSEO_LOGIN;
-        const DFS_PASS = process.env.DFS_PASSWORD || process.env.DATAFORSEO_PASSWORD;
+        const DFS_PASS = process.env.DFS_PASSWORD || process.env.DATAFORSEO_PASSWORD || process.env.DATAFORSEO_PASS;
         const HUNTER_KEY = process.env.HUNTER_API_KEY;
+
+        // HR-6: write a summary doc even when we skip, so observability catches this
+        const skipTodayKey = new Date().toISOString().slice(0, 10);
+        async function logSkip(reason) {
+            await db.collection("lead_topup_summaries").doc(skipTodayKey).set({
+                date: skipTodayKey, pool_before: eligibleCount, topup_fired: false,
+                reason, ran_at: admin.firestore.FieldValue.serverTimestamp(),
+            }, { merge: true });
+            // Slack alert — silent failures are how we got here
+            const slackUrl = process.env.SLACK_WEBHOOK_URL;
+            if (slackUrl) {
+                try {
+                    await axios.post(slackUrl, {
+                        text: `🚨 *leadFinderAutoTopUp SKIPPED* — pool at ${eligibleCount}/${TARGET_POOL_SIZE}, reason: ${reason}. Phone-call queue will starve.`,
+                    }, { timeout: 8000 });
+                } catch (e) { functions.logger.warn("slack alert failed:", e.message); }
+            }
+        }
 
         if (!DFS_LOGIN || !DFS_PASS) {
             await sendTelegram(`⚠️ *leadFinderAutoTopUp* — pool at ${eligibleCount}, but DFS credentials not set. Top-up skipped.`);
+            await logSkip("missing_dfs_credentials");
             return null;
         }
         if (!HUNTER_KEY) {
             await sendTelegram(`⚠️ *leadFinderAutoTopUp* — pool at ${eligibleCount}, but HUNTER_API_KEY not set. Top-up skipped.`);
+            await logSkip("missing_hunter_key");
             return null;
         }
 

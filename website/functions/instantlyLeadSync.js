@@ -172,7 +172,6 @@ exports.instantlyLeadSync = functions
     .onRun(async () => { await doLeadSync(); return null; });
 
 exports.instantlyLeadSyncOnDemand = functions
-    .runWith({ timeoutSeconds: 540, memory: "512MB" })
     .https.onRequest(async (req, res) => {
         const out = await doLeadSync();
         return res.json({ ok: true, ...out });
@@ -225,7 +224,6 @@ exports.instantlyReplySync = functions
     .onRun(async () => { await doReplySync(); return null; });
 
 exports.instantlyReplySyncOnDemand = functions
-    .runWith({ timeoutSeconds: 540, memory: "512MB" })
     .https.onRequest(async (req, res) => {
         const out = await doReplySync();
         return res.json({ ok: true, ...out });

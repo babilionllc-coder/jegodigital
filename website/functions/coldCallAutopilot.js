@@ -202,11 +202,14 @@ exports.coldCallPrep = functions
 
         let batch = candidates.slice(0, BATCH_SIZE);
 
-        // SELF-HEAL: phone_leads collection is empty → auto-fire seed once.
-        // Prevents the "today's 10 AM dialed zero leads because seed never ran"
-        // failure mode that happened 2026-04-20.
-        if (batch.length === 0 && leadsSnap.size === 0) {
-            functions.logger.warn("coldCallPrep: phone_leads empty, attempting auto-seed");
+        // SELF-HEAL v2 (2026-04-24): auto-seed when EITHER (a) collection empty OR
+        // (b) all leads cooldown-blocked (batch empty despite candidates existing).
+        // v1 only triggered on empty collection → missed the 2026-04-24 failure mode
+        // where all 57 phone_leads were called 2026-04-21 and blocked by 14-day
+        // cooldown filter → 0 candidates → silent 0-dial day.
+        if (batch.length === 0) {
+            const reason = leadsSnap.size === 0 ? "collection_empty" : "all_cooldown_blocked";
+            functions.logger.warn(`coldCallPrep: ${reason} (leads=${leadsSnap.size}, candidates=${candidates.length}), attempting auto-seed`);
             const seedSecret = process.env.SEED_SECRET;
             if (seedSecret) {
                 try {
