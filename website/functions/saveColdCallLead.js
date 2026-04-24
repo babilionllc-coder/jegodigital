@@ -4,8 +4,8 @@
  * Endpoint: POST https://us-central1-jegodigital-e02fb.cloudfunctions.net/saveColdCallLead
  *
  * Called by:
- *   - Offer A (agent_6601kp758ca4fcx8aynsvc0qyy5k) — SEO pitch → list 35 + templates 53-57
- *   - Offer C (agent_2801kpcxmxyvf36bb2c970bhvfk4) — Free Setup → list 36 + templates 58-62
+ *   - Offer A (agent_0701kq0drf5ceq6t5md9p6dt6xbb) — SEO pitch → list 35 + templates 53-57
+ *   - Offer C (agent_2701kq0drbt9f738pxjem3zc3fnb) — Free Setup → list 36 + templates 58-62
  *   (Offer B uses the separate submitAuditRequest → audit pipeline.)
  *
  * Request body:

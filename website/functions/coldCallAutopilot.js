@@ -86,7 +86,7 @@ async function twilioLookup(e164) {
 }
 
 // ---- Config ----
-const EL_API_KEY_FALLBACK = "335ed6b73e0b9281175a6b360eab9cbc0765bae4d55a9d8b95010d8642b8d673";
+const EL_API_KEY_FALLBACK = "sk_b9293d3a3860e09a003d337243506863bf7cf579095e5c9e";
 const MX_PHONE_ID = "phnum_8801kp77en3ee56t0t291zyv40ne"; // +52 998 387 1618 (Sofia MX)
 const BATCH_SIZE = 120;               // Morning batch — bumped from 50 to 120 (2026-04-21, Alex wants morning-only cadence until 3 YES/day)
 const AFTERNOON_BATCH_SIZE = 0;       // DISABLED 2026-04-21 — afternoon batch is a no-op. Export retained to avoid Scheduler 404 deploy trap (see firebase_deploy_traps memory).
@@ -95,9 +95,9 @@ const MID_BATCH_FAIL_THRESHOLD = 30;  // >30/120 failures at 10:15 → Telegram 
 
 // Offer rotation agents (created 2026-04-16, see CLAUDE.md §AI Cold Calling)
 const OFFERS = {
-    A: { agent_id: "agent_6601kp758ca4fcx8aynsvc0qyy5k", label: "SEO Pitch" },
-    B: { agent_id: "agent_7001kpcxketqewvt87k4mg6vp569", label: "Free Audit" },
-    C: { agent_id: "agent_2801kpcxmxyvf36bb2c970bhvfk4", label: "Free Setup (Trojan)" },
+    A: { agent_id: "agent_0701kq0drf5ceq6t5md9p6dt6xbb", label: "SEO Pitch" },
+    B: { agent_id: "agent_4701kq0drd9pf9ebbqcv6b3bb2zw", label: "Free Audit" },
+    C: { agent_id: "agent_2701kq0drbt9f738pxjem3zc3fnb", label: "Free Setup (Trojan)" },
 };
 const OFFER_ROTATION = ["A", "B", "C"]; // round-robin
 

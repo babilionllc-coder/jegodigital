@@ -72,9 +72,9 @@ const SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID || "C08KCBR9PE6";
 
 // Offer A/B/C agent IDs (from CLAUDE.md)
 const AGENTS = {
-    A: "agent_6601kp758ca4fcx8aynsvc0qyy5k", // SEO Pitch
-    B: "agent_7001kpcxketqewvt87k4mg6vp569", // Free Audit
-    C: "agent_2801kpcxmxyvf36bb2c970bhvfk4", // Free Setup
+    A: "agent_0701kq0drf5ceq6t5md9p6dt6xbb", // SEO Pitch
+    B: "agent_4701kq0drd9pf9ebbqcv6b3bb2zw", // Free Audit
+    C: "agent_2701kq0drbt9f738pxjem3zc3fnb", // Free Setup
 };
 
 // ---------- CDMX / ISO week helpers ----------

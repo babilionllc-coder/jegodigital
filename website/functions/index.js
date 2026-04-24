@@ -602,8 +602,8 @@ exports.onLeadCreated = functions.firestore.document('leads/{leadId}').onCreate(
                     const phoneToCall = lead.phone.startsWith('+') ? lead.phone : `+52${lead.phone}`;
 
                     // ELEVENLABS API CALL
-                    // const EL_API_KEY = functions.config().elevenlabs?.key || process.env.ELEVENLABS_API_KEY || "335ed6b73e0b9281175a6b360eab9cbc0765bae4d55a9d8b95010d8642b8d673";
-                    const EL_API_KEY = process.env.ELEVENLABS_API_KEY || "335ed6b73e0b9281175a6b360eab9cbc0765bae4d55a9d8b95010d8642b8d673";
+                    // const EL_API_KEY = functions.config().elevenlabs?.key || process.env.ELEVENLABS_API_KEY || "sk_b9293d3a3860e09a003d337243506863bf7cf579095e5c9e";
+                    const EL_API_KEY = process.env.ELEVENLABS_API_KEY || "sk_b9293d3a3860e09a003d337243506863bf7cf579095e5c9e";
                     const AGENT_ID = "agent_8601kfa5gbxpefrrg73pnqzwf8s6";
 
                     // SMART NUMBER SELECTION
@@ -814,7 +814,7 @@ exports.voiceAgentCall = functions.https.onRequest(async (req, res) => {
 
         // 2. Prepare ElevenLabs Call
         // Re-using config from onLeadCreated
-        const EL_API_KEY = functions.config().elevenlabs?.key || process.env.ELEVENLABS_API_KEY || "335ed6b73e0b9281175a6b360eab9cbc0765bae4d55a9d8b95010d8642b8d673";
+        const EL_API_KEY = functions.config().elevenlabs?.key || process.env.ELEVENLABS_API_KEY || "sk_b9293d3a3860e09a003d337243506863bf7cf579095e5c9e";
         const AGENT_ID = "agent_8601kfa5gbxpefrrg73pnqzwf8s6";
 
         // Smart Number Logic

@@ -16,15 +16,23 @@
  * Offer B agent fires the `submit_audit_request` webhook tool at cierre,
  * which POSTs to submitAuditRequest Cloud Function → audit emailed in ~60min.
  *
- * Last updated: 2026-04-19 — wired to agent_7001kpcxketqewvt87k4mg6vp569
+ * ⚠️ BEST-PRACTICE CHECKLIST (2026-04-22 — Alex QA feedback):
+ *   - ALWAYS pass --email so Sofia can confirm it back letter-by-letter
+ *     instead of asking ("¿su correo sigue siendo?") and trailing off.
+ *   - ALWAYS pass --company and --city — Sofia interpolates them in the pitch.
+ *   - For Offer B (audit), --website is hard-required (tool needs a URL to audit).
+ *   - If --email is missing, the script prints a WARNING so you notice
+ *     before the call burns a warm lead.
+ *
+ * Last updated: 2026-04-22 — added --email soft warning + spell-back REGLA EMAIL in prompts
  */
 
 const https = require("https");
 
 const AGENTS = {
-  A: "agent_6601kp758ca4fcx8aynsvc0qyy5k", // SEO pitch
-  B: "agent_7001kpcxketqewvt87k4mg6vp569", // Free Audit (wired with submit_audit_request tool)
-  C: "agent_2801kpcxmxyvf36bb2c970bhvfk4", // Free Setup (Trojan Horse)
+  A: "agent_0701kq0drf5ceq6t5md9p6dt6xbb", // SEO pitch
+  B: "agent_4701kq0drd9pf9ebbqcv6b3bb2zw", // Free Audit (wired with submit_audit_request tool)
+  C: "agent_2701kq0drbt9f738pxjem3zc3fnb", // Free Setup (Trojan Horse)
 };
 
 const PHONE_NUMBER_ID = "phnum_8801kp77en3ee56t0t291zyv40ne";
@@ -81,6 +89,18 @@ async function main() {
     process.exit(1);
   }
 
+  // Soft warnings — these don't block, but cost us conversion if missing
+  if (!args.email) {
+    console.warn("⚠️  --email not provided. Sofia will have to ASK for it mid-call (weaker close).");
+    console.warn("    Best practice: always pass --email so Sofia confirms by spelling it back.");
+  }
+  if (!args.company) {
+    console.warn("⚠️  --company not provided. Sofia will say 'su inmobiliaria' generically (less personal).");
+  }
+  if (!args.city) {
+    console.warn("⚠️  --city not provided. Sofia will say 'su ciudad' generically (less personal).");
+  }
+
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
     console.error("❌ Set ELEVENLABS_API_KEY env var first.");
@@ -103,7 +123,8 @@ async function main() {
   };
 
   console.log(`📞 Dialing ${args.phone} with Offer ${offer} (${agentId})...`);
-  console.log(`   Lead: ${args.name} | Company: ${args.company} | Website: ${args.website}`);
+  console.log(`   Lead: ${args.name} | Company: ${args.company || "(none)"} | City: ${args.city || "(none)"}`);
+  console.log(`   Email: ${args.email || "(none - Sofia will ASK)"} | Website: ${args.website || "(none)"}`);
 
   const res = await postJSON("https://api.elevenlabs.io/v1/convai/twilio/outbound-call", payload, apiKey);
   console.log(`[${res.status}]`, JSON.stringify(res.body, null, 2));

@@ -18,9 +18,15 @@
 
 ## 📸 INSTAGRAM PUBLISHING
 
-**Trigger:** any request to post / publish / schedule / upload anything to @jegodigital Instagram (single image, carousel, Reel, Story).
+**Trigger:** any request to post / publish / schedule / upload anything to @jegodigital_agencia Instagram (single image, carousel, Reel, Story).
 
-**IG Business User ID:** `17841424426942739` | **Graph API:** v22.0 | **Account:** @jegodigital
+**Account:** @jegodigital_agencia (renamed from @jegodigital5 on 2026-04-24 — handle change transparent to API).
+**IG User ID:** `17841425126865530` (Instagram Login API user_id — use this for graph.instagram.com calls)
+**Business Account ID:** `27504937085774839`
+**Graph API:** `graph.instagram.com/v21.0` (NOT graph.facebook.com — IGAAT token requires IG Login API base)
+**Image host:** **tmpfiles.org** (verified Meta-compatible). ⚠️ **catbox.moe is DEAD** as of 2026-04-24 — Meta rejects with OAuthException code 1.
+
+⚠️ **Deprecated IDs** (DO NOT use — banned account from pre-April 2026): `17841424426942739` (old @jegodigital user_id).
 
 ### Access Token (long-lived)
 
@@ -122,9 +128,9 @@ Builder: `/mnt/jegodigital/flamingo/social_build/build.py` (HTML+Playwright, bra
 
 | Offer | Agent ID | Strategy | CTA |
 |---|---|---|---|
-| **A — SEO Pitch** | `agent_6601kp758ca4fcx8aynsvc0qyy5k` | Google/ChatGPT visibility hook | Book Calendly with Alex |
-| **B — Free Audit** | `agent_7001kpcxketqewvt87k4mg6vp569` | Free 7-area business audit scored 0-100, emailed in 60 min | Lead says "yes" + confirms email |
-| **C — Free Setup** | `agent_2801kpcxmxyvf36bb2c970bhvfk4` | Free AI lead capture install (Trojan Horse), speed-to-lead hook | Book Calendly install call |
+| **A — SEO Pitch** | `agent_0701kq0drf5ceq6t5md9p6dt6xbb` | Google/ChatGPT visibility hook | Book Calendly with Alex |
+| **B — Free Audit** | `agent_4701kq0drd9pf9ebbqcv6b3bb2zw` | Free 7-area business audit scored 0-100, emailed in 60 min | Lead says "yes" + confirms email |
+| **C — Free Setup** | `agent_2701kq0drbt9f738pxjem3zc3fnb` | Free AI lead capture install (Trojan Horse), speed-to-lead hook | Book Calendly install call |
 
 ### Trigger Script
 ```bash

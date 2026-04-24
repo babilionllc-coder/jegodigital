@@ -23,9 +23,9 @@ import os, sys, json, requests, time
 
 ELEVEN_KEY = os.environ.get(
     "ELEVENLABS_API_KEY",
-    "sk_50ae258d7c4652f71e10d38e0c97295f677ac1447cacea9d",
+    "sk_b9293d3a3860e09a003d337243506863bf7cf579095e5c9e",
 )
-AGENT_ID = "agent_7001kpcxketqewvt87k4mg6vp569"  # Offer B — Free Audit
+AGENT_ID = "agent_4701kq0drd9pf9ebbqcv6b3bb2zw"  # Offer B — Free Audit
 CLOUD_FN = "https://us-central1-jegodigital-e02fb.cloudfunctions.net/submitAuditRequest"
 
 HEADERS = {"xi-api-key": ELEVEN_KEY, "Content-Type": "application/json"}
