@@ -19,8 +19,16 @@ Usage:
 """
 import os, sys, json, csv, time, re, argparse, base64, traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote_plus
 import urllib.request, urllib.error
+
+# Import JegoClay modules (v2 pain detector + tech stack)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "jegoclay"))
+try:
+    from tech_stack_detector import detect_all_pains as _v2_detect_all_pains, detect_tech_stack as _v2_detect_tech_stack
+    HAS_V2_DETECTOR = True
+except ImportError:
+    HAS_V2_DETECTOR = False
 
 # ---------- Config ----------
 HUNTER_KEY    = os.environ.get("HUNTER_API_KEY", "")
@@ -202,16 +210,74 @@ def detect_pains(firecrawl_result, psi_result):
                       "note":"No Google Maps embed on homepage — local SEO weaker"})
     return pains
 
-# ---------- Hunter ----------
+# ---------- Hunter (URL-encoded, threshold 25, with fallback) ----------
 def hunter_email(domain, first_name, last_name):
+    """Hunter email-finder — URL-encodes Spanish accents, lowered threshold 40 → 25."""
     if not domain or not HUNTER_KEY: return None
-    url = f"https://api.hunter.io/v2/email-finder?domain={domain}&first_name={first_name}&last_name={last_name}&api_key={HUNTER_KEY}"
+    fn = quote_plus(first_name or "")
+    ln = quote_plus(last_name or "")
+    dn = quote_plus(domain)
+    url = f"https://api.hunter.io/v2/email-finder?domain={dn}&first_name={fn}&last_name={ln}&api_key={HUNTER_KEY}"
     status, data = http_json(url, timeout=15)
     if status != 200: return None
     d = data.get("data", {})
     email = d.get("email")
-    if email and d.get("score", 0) >= 40:
-        return {"email": email, "score": d.get("score"), "sources_count": len(d.get("sources", []))}
+    if email and d.get("score", 0) >= 25:  # lowered from 40 to 25
+        return {"email": email, "score": d.get("score"), "sources_count": len(d.get("sources", [])), "method": "hunter_finder"}
+    return None
+
+def hunter_domain_search(domain, max_results=5):
+    """Fallback: pull any email on this domain via domain-search (not tied to specific person)."""
+    if not domain or not HUNTER_KEY: return []
+    dn = quote_plus(domain)
+    url = f"https://api.hunter.io/v2/domain-search?domain={dn}&limit={max_results}&api_key={HUNTER_KEY}"
+    status, data = http_json(url, timeout=15)
+    if status != 200: return []
+    d = data.get("data", {})
+    emails = d.get("emails", []) or []
+    return [{"email": e.get("value"), "confidence": e.get("confidence"), "first_name": e.get("first_name"), "last_name": e.get("last_name")}
+            for e in emails if e.get("value")]
+
+def email_finder_waterfall(domain, first_name, last_name):
+    """
+    3-tier waterfall:
+      1. Hunter email-finder (person-specific)
+      2. Hunter domain-search (find similar pattern email at same domain)
+      3. Pattern generation (firstname@domain, firstname.lastname@domain)
+    Returns first successful hit.
+    """
+    # Tier 1
+    r = hunter_email(domain, first_name, last_name)
+    if r: return r
+
+    # Tier 2 — find anyone at this domain, detect pattern, apply to our person
+    company_emails = hunter_domain_search(domain, max_results=5)
+    if company_emails:
+        # Try to find an email with matching first_name or pattern
+        fn_lower = (first_name or "").lower()
+        for ce in company_emails:
+            ce_email = (ce.get("email") or "").lower()
+            if fn_lower and fn_lower in ce_email.split("@")[0]:
+                return {"email": ce["email"], "score": ce.get("confidence", 50),
+                        "method": "hunter_domain_match", "sources_count": 0}
+        # Tier 3 — detect pattern from the first domain-search result
+        sample = company_emails[0]
+        sample_email = sample.get("email","")
+        s_first = (sample.get("first_name") or "").lower()
+        s_last  = (sample.get("last_name") or "").lower()
+        our_first = (first_name or "").lower().split()[0] if first_name else ""
+        our_last  = (last_name or "").lower().split()[0] if last_name else ""
+        if sample_email and s_first and our_first:
+            local = sample_email.split("@")[0]
+            if local == s_first:
+                pattern_email = f"{our_first}@{domain}"
+                return {"email": pattern_email, "score": 40, "method": "pattern_first", "sources_count": 0}
+            if local == f"{s_first}.{s_last}" and our_last:
+                pattern_email = f"{our_first}.{our_last}@{domain}"
+                return {"email": pattern_email, "score": 40, "method": "pattern_first_dot_last", "sources_count": 0}
+            if local == f"{s_first[0]}{s_last}" and our_last:
+                pattern_email = f"{our_first[0]}{our_last}@{domain}"
+                return {"email": pattern_email, "score": 35, "method": "pattern_flast", "sources_count": 0}
     return None
 
 # ---------- PageSpeed ----------
@@ -370,14 +436,15 @@ def enrich_lead(lead):
     out["phone"] = phones[0] if phones else None
     out["whatsapp"] = whatsapp
 
-    # Step 4 — Hunter email
-    if first and last and website:
+    # Step 4 — Email waterfall (Hunter finder → domain search → pattern generation)
+    if first and website:
         domain = urlparse("https://" + website if not website.startswith("http") else website).netloc
         domain = domain.replace("www.","")
-        he = hunter_email(domain, first, last)
+        he = email_finder_waterfall(domain, first, last)
         if he:
             out["email"] = he["email"]
             out["email_confidence"] = he["score"]
+            out["email_method"] = he.get("method", "unknown")
 
     # Step 5 — PageSpeed
     psi = pagespeed_check(website)
@@ -385,8 +452,12 @@ def enrich_lead(lead):
         out["pagespeed_mobile"] = psi["mobile_score"]
         out["pagespeed_lcp_sec"] = psi.get("mobile_lcp_sec")
 
-    # Step 6 — pain detection
-    out["pains"] = detect_pains(fc, psi)
+    # Step 6 — pain detection (v2 if available, fallback to v1)
+    if HAS_V2_DETECTOR:
+        out["pains"] = _v2_detect_all_pains(fc, psi)
+        out["tech_stack"] = _v2_detect_tech_stack(fc)
+    else:
+        out["pains"] = detect_pains(fc, psi)
 
     # Step 7 — Gemini personalized opener
     opener = generate_spanish_opener(out, out["pains"], fc)
