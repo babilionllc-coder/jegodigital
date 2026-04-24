@@ -210,7 +210,17 @@ def detect_pains(firecrawl_result, psi_result):
                       "note":"No Google Maps embed on homepage — local SEO weaker"})
     return pains
 
-# ---------- Hunter (URL-encoded, threshold 25, with fallback) ----------
+# ---------- Hunter (URL-encoded, threshold 25, multi-tier waterfall v3) ----------
+def _ascii_slug(s):
+    """Strip Spanish accents + lowercase + keep only ASCII letters.
+    'García' -> 'garcia', 'Peña' -> 'pena', 'Sánchez Z.' -> 'sanchez'"""
+    if not s: return ""
+    import unicodedata
+    nfkd = unicodedata.normalize('NFKD', s)
+    ascii_only = ''.join(c for c in nfkd if not unicodedata.combining(c))
+    ascii_only = ''.join(c for c in ascii_only if c.isalpha()).lower()
+    return ascii_only
+
 def hunter_email(domain, first_name, last_name):
     """Hunter email-finder — URL-encodes Spanish accents, lowered threshold 40 → 25."""
     if not domain or not HUNTER_KEY: return None
@@ -226,8 +236,9 @@ def hunter_email(domain, first_name, last_name):
         return {"email": email, "score": d.get("score"), "sources_count": len(d.get("sources", [])), "method": "hunter_finder"}
     return None
 
-def hunter_domain_search(domain, max_results=5):
-    """Fallback: pull any email on this domain via domain-search (not tied to specific person)."""
+def hunter_domain_search(domain, max_results=25):
+    """Fallback: pull any email on this domain via domain-search (not tied to specific person).
+    Bumped max_results 5→25 so pattern detection has enough samples."""
     if not domain or not HUNTER_KEY: return []
     dn = quote_plus(domain)
     url = f"https://api.hunter.io/v2/domain-search?domain={dn}&limit={max_results}&api_key={HUNTER_KEY}"
@@ -238,46 +249,101 @@ def hunter_domain_search(domain, max_results=5):
     return [{"email": e.get("value"), "confidence": e.get("confidence"), "first_name": e.get("first_name"), "last_name": e.get("last_name")}
             for e in emails if e.get("value")]
 
+def _detect_pattern(samples):
+    """Given list of {email, first_name, last_name}, detect the dominant pattern.
+    Returns one of: 'first', 'first.last', 'flast', 'firstl', 'first_last', 'last.first', None.
+    Needs at least 2 corroborating samples to be confident."""
+    from collections import Counter
+    pattern_votes = Counter()
+    for s in samples:
+        email = (s.get("email") or "").lower()
+        if '@' not in email: continue
+        local = email.split('@')[0]
+        sf = _ascii_slug(s.get("first_name") or "")
+        sl = _ascii_slug(s.get("last_name") or "")
+        if not sf: continue
+        # Try each known pattern
+        if local == sf: pattern_votes['first'] += 1
+        elif sl and local == f"{sf}.{sl}": pattern_votes['first.last'] += 1
+        elif sl and local == f"{sf}_{sl}": pattern_votes['first_last'] += 1
+        elif sl and local == f"{sf[0]}{sl}": pattern_votes['flast'] += 1
+        elif sl and local == f"{sf}{sl[0]}": pattern_votes['firstl'] += 1
+        elif sl and local == f"{sl}.{sf}": pattern_votes['last.first'] += 1
+    if not pattern_votes: return None
+    top, votes = pattern_votes.most_common(1)[0]
+    # Require at least 2 votes OR 1 vote with no contradictions
+    if votes >= 2 or (votes == 1 and len(pattern_votes) == 1):
+        return top
+    return None
+
+def _apply_pattern(pattern, first_slug, last_slug, domain):
+    """Build email from detected pattern + our person's ASCII-slugged name."""
+    if not first_slug: return None
+    if pattern == 'first': return f"{first_slug}@{domain}"
+    if pattern == 'first.last' and last_slug: return f"{first_slug}.{last_slug}@{domain}"
+    if pattern == 'first_last' and last_slug: return f"{first_slug}_{last_slug}@{domain}"
+    if pattern == 'flast' and last_slug: return f"{first_slug[0]}{last_slug}@{domain}"
+    if pattern == 'firstl' and last_slug: return f"{first_slug}{last_slug[0]}@{domain}"
+    if pattern == 'last.first' and last_slug: return f"{last_slug}.{first_slug}@{domain}"
+    return None
+
 def email_finder_waterfall(domain, first_name, last_name):
     """
-    3-tier waterfall:
-      1. Hunter email-finder (person-specific)
-      2. Hunter domain-search (find similar pattern email at same domain)
-      3. Pattern generation (firstname@domain, firstname.lastname@domain)
-    Returns first successful hit.
+    4-tier waterfall v3 (Alex 2026-04-24 fix — run #1 returned 0 emails):
+      1. Hunter email-finder (person-specific) — score ≥25
+      2. Domain-search direct hit — find any email where our first-name
+         appears in local-part (covers 'karla@...' when last is missing,
+         and nickname prefix like 'al@' for Alvaro)
+      3. Detect dominant pattern from 25 domain samples — apply to our person
+      4. Last resort: 'firstname@domain' with confidence 25 (only if domain
+         has >=3 emails confirming it's a live mail setup)
+    All patterns use ASCII slugs (strips á/ñ/ü/etc) so generated emails
+    are actually deliverable (fix for 'agarcía@...' bug).
     """
-    # Tier 1
+    # Tier 1 — person-specific
     r = hunter_email(domain, first_name, last_name)
     if r: return r
 
-    # Tier 2 — find anyone at this domain, detect pattern, apply to our person
-    company_emails = hunter_domain_search(domain, max_results=5)
-    if company_emails:
-        # Try to find an email with matching first_name or pattern
-        fn_lower = (first_name or "").lower()
-        for ce in company_emails:
-            ce_email = (ce.get("email") or "").lower()
-            if fn_lower and fn_lower in ce_email.split("@")[0]:
-                return {"email": ce["email"], "score": ce.get("confidence", 50),
-                        "method": "hunter_domain_match", "sources_count": 0}
-        # Tier 3 — detect pattern from the first domain-search result
-        sample = company_emails[0]
-        sample_email = sample.get("email","")
-        s_first = (sample.get("first_name") or "").lower()
-        s_last  = (sample.get("last_name") or "").lower()
-        our_first = (first_name or "").lower().split()[0] if first_name else ""
-        our_last  = (last_name or "").lower().split()[0] if last_name else ""
-        if sample_email and s_first and our_first:
-            local = sample_email.split("@")[0]
-            if local == s_first:
-                pattern_email = f"{our_first}@{domain}"
-                return {"email": pattern_email, "score": 40, "method": "pattern_first", "sources_count": 0}
-            if local == f"{s_first}.{s_last}" and our_last:
-                pattern_email = f"{our_first}.{our_last}@{domain}"
-                return {"email": pattern_email, "score": 40, "method": "pattern_first_dot_last", "sources_count": 0}
-            if local == f"{s_first[0]}{s_last}" and our_last:
-                pattern_email = f"{our_first[0]}{our_last}@{domain}"
-                return {"email": pattern_email, "score": 35, "method": "pattern_flast", "sources_count": 0}
+    company_emails = hunter_domain_search(domain, max_results=25)
+    if not company_emails:
+        return None
+
+    fn_slug = _ascii_slug((first_name or "").split()[0] if first_name else "")
+    ln_slug = _ascii_slug((last_name or "").split()[0] if last_name else "")
+
+    # Tier 2 — direct first-name match in local-part (substring both directions)
+    # Covers: karla@... (exact), al@...->Alvaro (prefix-of), felipe.x@...->Felipe (startswith)
+    for ce in company_emails:
+        ce_email = (ce.get("email") or "").lower()
+        local = ce_email.split("@")[0] if "@" in ce_email else ""
+        if not local or not fn_slug: continue
+        # Exact match or starts-with
+        if local == fn_slug or local.startswith(f"{fn_slug}.") or local.startswith(f"{fn_slug}_"):
+            return {"email": ce_email, "score": ce.get("confidence", 60),
+                    "method": "hunter_domain_match_exact", "sources_count": 0}
+        # Nickname prefix — local is 2-5 chars AND is a prefix of our first name
+        # (covers al@ -> Alvaro, gus@ -> Gustavo). Confidence lower.
+        if 2 <= len(local) <= 5 and fn_slug.startswith(local):
+            return {"email": ce_email, "score": max(40, ce.get("confidence", 50) - 20),
+                    "method": "hunter_domain_match_nickname", "sources_count": 0}
+
+    # Tier 3 — detect dominant pattern and apply
+    pattern = _detect_pattern(company_emails)
+    if pattern:
+        guess = _apply_pattern(pattern, fn_slug, ln_slug, domain)
+        if guess:
+            # Confidence scales by pattern commonness
+            conf = {'first': 55, 'first.last': 60, 'first_last': 45, 'flast': 40,
+                    'firstl': 40, 'last.first': 40}.get(pattern, 35)
+            return {"email": guess, "score": conf,
+                    "method": f"pattern_{pattern.replace('.','_dot_')}",
+                    "sources_count": 0, "pattern_votes": pattern}
+
+    # Tier 4 — last resort, only if domain clearly has >=3 real mailboxes
+    # (i.e. it's a live corporate mail setup, not a parked domain)
+    if len(company_emails) >= 3 and fn_slug:
+        return {"email": f"{fn_slug}@{domain}", "score": 25,
+                "method": "last_resort_first_name", "sources_count": 0}
     return None
 
 # ---------- PageSpeed ----------
