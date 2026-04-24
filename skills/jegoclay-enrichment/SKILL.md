@@ -1,6 +1,6 @@
 ---
 name: jegoclay-enrichment
-description: JegoDigital's Signal Outbound Engine — the Clay-equivalent pipeline that enriches raw leads (name + company + LinkedIn URL) into hyper-personalized cold-outreach-ready profiles. Trigger whenever Alex wants to enrich a lead list, push enriched leads to Instantly, run the daily top-up cron, diagnose enrichment failures, or refresh existing leads with richer signals. Covers the full pipeline — ICP filter → Firecrawl website scrape → Hunter email waterfall → PageSpeed + Core Web Vitals → tech stack detection (50+ signatures) → 30+ pain-signal detection → Gemini 2.5-flash Spanish opener → signal scoring → Instantly API V2 push with per-lead custom variables. Triggers — enrich leads, jegoclay, signal outbound, daily top-up, push to Instantly, new lead list, Vibe CSV, personalized openers, website pains, tech stack detection, lead enrichment, hyper-personalize, signal-based outbound, cold email prep. DIFFERENT from lead-finder (sourcing layer — where raw leads come FROM). DIFFERENT from cold-email-copywriting (writes email copy manually). JegoClay = the enrichment + personalization layer that sits between sourcing and Instantly delivery.
+description: JegoDigital's Signal Outbound Engine — the Clay-equivalent pipeline that enriches raw leads (name + company + LinkedIn URL) into hyper-personalized cold-outreach-ready profiles. Trigger whenever Alex wants to enrich a lead list, push enriched leads to Instantly, run the daily top-up cron, diagnose enrichment failures, or refresh existing leads with richer signals. Covers the full pipeline — ICP filter → Firecrawl website scrape → Hunter email waterfall → PageSpeed + Core Web Vitals → tech stack detection (50+ signatures) → 30+ pain-signal detection → Gemini 2.5-flash Spanish opener → signal scoring → Instantly API V2 push with per-lead custom variables. Triggers — enrich leads, jegoclay, signal outbound, daily top-up, push to Instantly, new lead list, Vibe CSV, personalized openers, website pains, tech stack detection, lead enrichment, hyper-personalize, signal-based outbound, cold email prep. PAIRED WITH jegoroom — if Alex asks to "enrich a hot account" or invokes jegoroom's enrich_and_push, this skill runs automatically as the enrichment engine. DIFFERENT from jegoroom (that FINDS hot accounts via intent signals — hiring, reviews, launches). DIFFERENT from lead-finder (sourcing layer — where raw leads come FROM). DIFFERENT from cold-email-copywriting (writes email copy manually). JegoClay = the enrichment + personalization layer that sits between sourcing and Instantly delivery.
 ---
 
 # JegoClay — Signal Outbound Enrichment Engine
@@ -24,30 +24,48 @@ Any time Alex says:
 - Writing cold email templates by hand (that's cold-email-copywriting)
 - Campaign activation / warmup (that's Instantly's native UI)
 
-## 🏗️ The 3-layer architecture
+## 🏗️ The 3-layer architecture + JegoRoom handoff
 
 ```
-┌─ LAYER 1: SOURCING ─────────────────┐
-│  Vibe Prospecting (primary)         │
-│  Apify scrapers (fallback)          │
-│  → raw CSV with: name, title,       │
-│     company, website, LinkedIn      │
-└─────────────┬───────────────────────┘
-              │
-┌─────────────▼───────────────────────┐
-│  LAYER 2: JEGOCLAY (this skill)     │
-│  6-step enrichment pipeline         │
-│  → enriched CSV with: email, phone, │
-│     pains, tech stack, opener, score│
-└─────────────┬───────────────────────┘
-              │
-┌─────────────▼───────────────────────┐
-│  LAYER 3: DELIVERY                  │
-│  Instantly (via API V2 push)        │
-│  → campaigns fire hyper-personalized│
-│     Spanish/English emails          │
-└─────────────────────────────────────┘
+┌─ LAYER 1: SOURCING (TWO paths into JegoClay) ──────────┐
+│                                                         │
+│  Path A — BATCH (cold sourcing):                        │
+│    Vibe Prospecting exports → leads/input/*.csv         │
+│    Apify fallback (LinkedIn/GMaps scrape)               │
+│                                                         │
+│  Path B — INTENT (hot sourcing, from JegoRoom):         │
+│    JegoRoom 24/7 signal collectors write to             │
+│    intent_accounts Firestore. When score_30d ≥ 70,      │
+│    jegoroom's enrich_and_push.py triggers JegoClay      │
+│    on that ONE domain via enrich-leads.yml workflow.    │
+│    → see `skills/jegoroom/SKILL.md`                     │
+│                                                         │
+│  Both paths feed raw CSV with:                          │
+│    name, title, company, website, LinkedIn             │
+└─────────────────┬──────────────────────────────────────┘
+                  │
+┌─────────────────▼──────────────────────────────────────┐
+│  LAYER 2: JEGOCLAY (this skill) — the ENRICHMENT brain │
+│  6-step pipeline:                                       │
+│    1. ICP filter (title + industry)                     │
+│    2. Firecrawl homepage scrape (markdown + html)       │
+│    3. Hunter email waterfall (3 tiers)                  │
+│    4. Email verifier (Module 1 — bounce protection)     │
+│    5. PageSpeed + 30 pain signals (Module 2)            │
+│    6. Tech stack detector (50+ signatures, Module 2)    │
+│    7. Gemini 2.5-flash Spanish opener                   │
+│    8. Signal scoring (0-100)                            │
+└─────────────────┬──────────────────────────────────────┘
+                  │
+┌─────────────────▼──────────────────────────────────────┐
+│  LAYER 3: DELIVERY                                      │
+│    • Instantly (batch) — push_to_instantly.sh           │
+│    • Airtable Leads (intent) — jegoroom enrich_and_push │
+│    • Notion 🎯 Leads CRM (mirror) — instantlyLeadSync   │
+└────────────────────────────────────────────────────────┘
 ```
+
+**Key insight:** JegoRoom is the HUNTER (finds who's buying NOW via intent signals). JegoClay is the SCHOLAR (deep-enriches those accounts with openers referencing exact pains). They're the ONE-TWO punch that replaces Common Room + Clay at 300x cheaper.
 
 ## 📁 Canonical file paths
 

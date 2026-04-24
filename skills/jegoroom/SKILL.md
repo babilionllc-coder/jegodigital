@@ -1,6 +1,6 @@
 ---
 name: jegoroom
-description: JegoDigital's in-house Common Room clone — 24/7 intent detection for MX real estate prospecting. Use EVERY TIME Alex wants to surface hot accounts, run a daily intent digest, enrich a specific account into the outbound pipeline, or manually kick a signal collector. Triggers — jegoroom, run jegoroom, intent check, who's hot, hot accounts, daily intent digest, intent digest, enrich account, enrich and push, hot account [company/domain], intent signals, signal digest, intent scoring, who should I call today, intent-based leads, signal-based outreach, watch intent, new hot leads. DIFFERENT from jegoclay (enrichment of EXISTING lists) — JegoRoom FINDS the accounts, JegoClay ENRICHES them. DIFFERENT from lead-finder (SerpAPI+Google Maps batch prospecting) — JegoRoom is continuous signal detection, not one-off batches. NEVER publishes or contacts on its own — always returns a ranked list + enrichment for Alex's approval before outbound fires.
+description: JegoDigital's in-house Common Room clone — 24/7 intent detection for MX real estate prospecting. Use EVERY TIME Alex wants to surface hot accounts, run a daily intent digest, enrich a specific account into the outbound pipeline, or manually kick a signal collector. Triggers — jegoroom, run jegoroom, intent check, who's hot, hot accounts, daily intent digest, intent digest, enrich account, enrich and push, hot account [company/domain], intent signals, signal digest, intent scoring, who should I call today, intent-based leads, signal-based outreach, watch intent, new hot leads. PAIRED WITH jegoclay-enrichment — the "enrich + push" op 3 script automatically invokes JegoClay to deep-enrich any hot account before pushing to Airtable. DIFFERENT from jegoclay-enrichment (enrichment of EXISTING lists) — JegoRoom FINDS the accounts via intent signals (hiring, reviews, launches), JegoClay ENRICHES them (emails, pains, Spanish openers). DIFFERENT from lead-finder (SerpAPI+Google Maps batch prospecting) — JegoRoom is continuous signal detection, not one-off batches. NEVER publishes or contacts on its own — always returns a ranked list + enrichment for Alex's approval before outbound fires.
 ---
 
 # JegoRoom — Intent Detection Operator Skill
@@ -37,6 +37,35 @@ Do NOT use for:
 - Enriching a CSV of leads → JegoClay (see `tools/lead_enrichment_engine.py` + `enrich-leads.yml`)
 - Batch Google Maps / LinkedIn scraping → `lead-finder` + `apify-linkedin`
 - Sending cold email → `cold-email-copywriting` + `instantly-cold-outreach`
+
+## 🔗 How JegoRoom + JegoClay work together (the one-two punch)
+
+```
+JEGOROOM (this skill — the HUNTER)              JEGOCLAY (enrichment skill — the SCHOLAR)
+─────────────────────────────────                ────────────────────────────────────────
+1. 24/7 collectors scrape SerpAPI hiring,         (waits for a trigger — either a CSV drop
+   GMaps reviews, launches, ad library            or a JegoRoom enrich_and_push call)
+    ↓
+2. Gemini scores signals →
+   intent_accounts/{domain} rolling 30d
+    ↓
+3. score_30d ≥ 70 → 🔥 hot_transition → Telegram
+    ↓
+4. You (Alex) tap "enrich this account" OR
+   enrich_and_push.py auto-runs in digest
+    ↓                                       ─────▶  5. JEGOCLAY fires on that ONE domain:
+                                                     Firecrawl + Hunter waterfall + PageSpeed
+                                                     + 30 pain detector + Spanish opener
+                                                     + email verifier
+                                                         ↓
+                                                    6. Enriched row returned →
+                                                       Airtable Leads (Stage=Hot) OR
+                                                       Instantly push
+```
+
+**When Alex says "enrich this hot account"** — both skills trigger together. JegoRoom hands the domain + signal history to JegoClay, JegoClay returns the enriched lead card with opener, and the combined output posts to Airtable/Instantly with full context (opener references the specific intent signal JegoRoom found).
+
+**When Alex says "enrich this CSV"** — only JegoClay triggers (no intent context needed).
 
 ## 3 canonical operations
 
