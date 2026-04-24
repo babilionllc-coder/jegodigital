@@ -17,8 +17,6 @@
       "tools/**",
       "website/functions/**",
       "functions/**",
-      "website/assets/video/**",
-      "website/assets/videos/**",
       "website/assets/screenhots/**",
       "website/assets/fonts/**",
       "website/assets/social/**",
