@@ -383,11 +383,12 @@ async function runSync() {
 }
 
 // -- Exports --------------------------------------------------------------
+// NOTE: env vars (NOTION_API_KEY, INSTANTLY_API_KEY, BREVO_API_KEY,
+// ELEVENLABS_API_KEY, CALENDLY_PAT, SLACK_WEBHOOK_URL, ADMIN_TRIGGER_TOKEN)
+// are provided via .env file uploaded with the function (JegoDigital
+// convention — same pattern as notionLeadSync.js, instantlyLeadSync.js, etc).
 exports.notionAdminPanelSync = functions
-    .runWith({ timeoutSeconds: 540, memory: "512MB", secrets: [
-        "NOTION_API_KEY", "INSTANTLY_API_KEY", "BREVO_API_KEY",
-        "ELEVENLABS_API_KEY", "CALENDLY_PAT", "SLACK_WEBHOOK_URL",
-    ] })
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
     .pubsub.schedule("0 13 * * 1")
     .timeZone("UTC") // 07:00 CDMX = 13:00 UTC
     .onRun(async () => {
@@ -396,11 +397,7 @@ exports.notionAdminPanelSync = functions
     });
 
 exports.notionAdminPanelSyncOnDemand = functions
-    .runWith({ timeoutSeconds: 540, memory: "512MB", secrets: [
-        "NOTION_API_KEY", "INSTANTLY_API_KEY", "BREVO_API_KEY",
-        "ELEVENLABS_API_KEY", "CALENDLY_PAT", "SLACK_WEBHOOK_URL",
-        "ADMIN_TRIGGER_TOKEN",
-    ] })
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
     .https.onRequest(async (req, res) => {
         const token = req.get("X-Admin-Token") || req.query.token;
         const expected = process.env.ADMIN_TRIGGER_TOKEN;
