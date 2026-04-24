@@ -2416,6 +2416,17 @@ exports.dailyPipelineDigestOnDemand = require("./dailyPipelineDigest").dailyPipe
 exports.sendingPreviewTonight       = require("./dailyPipelineDigest").sendingPreviewTonight;
 
 // ============================================================
+// instantlyLeadSync — bidirectional Instantly ↔ Notion 🎯 Leads CRM sync.
+//   instantlyLeadSync    (every 15 min) — new Instantly leads → upsert Notion
+//   instantlyReplySync   (every 5 min)  — positive replies → mark "Warm" + Slack alert
+// Manual triggers: POST /instantlyLeadSyncOnDemand, /instantlyReplySyncOnDemand
+// ============================================================
+exports.instantlyLeadSync          = require("./instantlyLeadSync").instantlyLeadSync;
+exports.instantlyLeadSyncOnDemand  = require("./instantlyLeadSync").instantlyLeadSyncOnDemand;
+exports.instantlyReplySync         = require("./instantlyLeadSync").instantlyReplySync;
+exports.instantlyReplySyncOnDemand = require("./instantlyLeadSync").instantlyReplySyncOnDemand;
+
+// ============================================================
 // saveColdCallLead -- ElevenLabs Offer A + C cold-call capture.
 // Upserts Brevo contact (list 35 for Offer A, list 36 for Offer C),
 // enqueues matching 5-email nurture into scheduled_emails (picked up
