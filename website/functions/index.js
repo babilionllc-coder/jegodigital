@@ -2551,3 +2551,15 @@ const jegoRoomAlerts = require("./jegoRoomAlerts");
 exports.jegoRoomAlertOnHotTransition = jegoRoomAlerts.jegoRoomAlertOnHotTransition;
 exports.jegoRoomReplayAlert = jegoRoomAlerts.jegoRoomReplayAlert;
 exports.jegoRoomTestAlert = jegoRoomAlerts.jegoRoomTestAlert;
+
+// ============================================================
+// NOTION ADMIN PANEL SYNC (added 2026-04-24 PM)
+// Weekly Monday 07:00 CDMX auto-refresh of Alex's phone-first command
+// center. Pulls LIVE numbers from Instantly, Brevo, Calendly, ElevenLabs,
+// and Firestore (HR-0 + HR-2 compliant), creates a fresh "📊 Live System
+// Snapshot — YYYY-MM-DD" page under JegoDigital HQ, posts Slack link.
+// On-demand trigger requires X-Admin-Token header.
+// ============================================================
+const notionAdminPanelSync = require("./notionAdminPanelSync");
+exports.notionAdminPanelSync = notionAdminPanelSync.notionAdminPanelSync;
+exports.notionAdminPanelSyncOnDemand = notionAdminPanelSync.notionAdminPanelSyncOnDemand;
