@@ -2,8 +2,23 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-24 early-AM (cold-email conversion session — 2 fixes shipped, 3 queued)
+> **Last session update:** 2026-04-24 PM (cold-call diagnostic session — pipeline rescued, 2 commits shipped, Monday diagnostic staged)
 > **Maintained by:** Claude + Alex
+
+---
+
+## 🎯 MONDAY 2026-04-27 10:00 CDMX — DIAGNOSTIC BATCH PRE-STAGED 🔬
+
+> **Auto-fires when `coldCallRun` cron triggers Monday morning. 10 leads, 2 groups:**
+>
+> - **Group A (5 leads)** — yesterday's proven-working bridges: Senda Bienes Raíces, Encanto de Playa, Vive Polanco, Cancun Broker Inmobiliario, AVALUOS PERICIALES. If these bridge successfully, today's 0% was caused by the lead list.
+> - **Group B (5 leads)** — fresh HOT leads from the new pool: Remax Maya, Century 21 Apolo Cancún, Century 21 Caribbean Paradise, mudarseamerida.com, Tulum Real Estate. If these also bridge, the fix (new first_message) worked universally.
+>
+> **Expected outcome:** 4+/5 bridges in Group A means the number/infra is healthy and today's failure was the broken `Hola Name, soy Sofia` first_message. If Group A fails, escalate to number rotation.
+>
+> **Monitoring:** `bridgeRateWatcher` cron fires 10:30 CDMX → Slack+TG alert with % bridge rate + sample size. No need to babysit.
+>
+> **Staged in:** `call_queue/2026-04-27/leads` (Firestore), 10 docs with `diagnostic: true` + `diagnostic_group: A_yesterday_working | B_fresh_hot`.
 
 ---
 
@@ -19,6 +34,41 @@
 >
 > **Bucket:** B (generate qualified leads) → A (convert 5 existing warm leads + 171 enriched leads).
 > **Success criteria (today):** enriched CSV uploaded to Instantly, first 50 sends use real personalized openers, AI reply agent follows audit-first funnel, placement checker gives real Gmail/Outlook landing rate.
+
+---
+
+## ✅ 2026-04-24 PM — COLD-CALL RESCUE SESSION — 2 COMMITS SHIPPED + DIAGNOSTIC STAGED
+
+**Pulled live from Twilio + ElevenLabs APIs (HR-2 compliant):**
+
+**7-day Twilio bridge-rate trend (proves number is NOT burned):**
+- 2026-04-24 (today): 33 dials, 0 real bridges = **0.0%** 🚨
+- 2026-04-23: 65 dials, 44 bridges = **67.7%** 🟢
+- 2026-04-22: 72 dials, 38 bridges = **52.8%** 🟢
+- 2026-04-21: 30 dials, 4 bridges = **13.3%** 🔴
+
+Same hour (10:00 CDMX) comparison: Apr 22=36.7%, Apr 23=73.1%, Apr 24=0%. **Number healthy yesterday, something specific broke today.**
+
+**Root cause found: first_message template regression**
+- Yesterday's 44 working bridges all used: `"Buen día, hablo de JegoDigital, ¿es la oficina de {Company}?"`
+- Today's 33 failures used: `"Hola {name}, soy Sofia de JegoDigital. ¿Tienes un momento?"` — where `{name}` was the CSV placeholder `"Hola"` for most rows, producing `"Hola Hola, soy Sofia..."` — plausibly rejected by carrier voicemail-detection systems.
+
+**Pipeline gaps discovered + fixed:**
+1. ✅ `leadFinderAutoTopUp` silent-skipping since Apr 21 because code checked `DATAFORSEO_PASSWORD` but GH Secret named `DATAFORSEO_PASS`. Added third fallback + logSkip() writes to Firestore + Slacks on every skip reason. Commit `b3145af`.
+2. ✅ `coldCallPrep` auto-seed only fired when collection empty (not when cooldown-blocked). Now triggers on `batch.length === 0`. Commit `b3145af`.
+3. ✅ ElevenLabs agent `max_duration_seconds` was 240 (default) instead of 60 — phantom 240s calls burned quota. PATCH'd all 3 agents via API. Verified via GET.
+4. ⚠️ `silence_end_call_timeout=20` still silently dropped by ElevenLabs API (known bug per Apr 21 memory). Deferred.
+5. ✅ `first_message` template switched from "Hola X, soy Sofia..." to yesterday-proven "Buen día, hablo de JegoDigital, ¿es la oficina de X?". Commit `4945c36`.
+6. ✅ New `bridgeRateWatcher` Cloud Function — 10:30 CDMX Mon-Fri cron + HTTPS on-demand. Slacks alert if bridge rate <20% on sample ≥5. Commit `4945c36`.
+
+**Notion dashboard shipped** (https://www.notion.so/34cf21a7c6e581ffac50fe226b79388d): hero stats, Twilio 7-day health scorecard, phone_leads breakdown, lead sources, known issues, Slack alerts, recommended next steps. Plus embedded `📋 Phone Leads` database with 40 records (filterable by Priority/City/Status).
+
+**Slack webhook live** — test notification HTTP 200 OK. `SLACK_WEBHOOK_URL` verified in GH Secrets + wired into `deploy.yml`.
+
+**Firestore state after session:**
+- `phone_leads`: 57 → 191 (+144 fresh HOT+WARM)
+- `call_queue/2026-04-27/leads`: 10 staged for Monday diagnostic
+- `call_queue/2026-04-24/leads`: 40 (33 dialed, 7 `held_carrier_reputation`)
 
 ---
 
