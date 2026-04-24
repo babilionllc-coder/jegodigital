@@ -526,6 +526,14 @@
     ],
     "rewrites": [
       {
+        "source": "/auth/tiktok/start",
+        "function": "tiktokOauthStart"
+      },
+      {
+        "source": "/auth/tiktok/callback",
+        "function": "tiktokOauthCallback"
+      },
+      {
         "source": "/landing/index.html",
         "destination": "/index.html"
       },

@@ -2600,3 +2600,22 @@ exports.creditWatchdogsOnDemand = creditWatchdogs.creditWatchdogsOnDemand;
 const igTokenAutoRefresh = require("./igTokenAutoRefresh");
 exports.igTokenAutoRefresh = igTokenAutoRefresh.igTokenAutoRefresh;
 exports.igTokenAutoRefreshOnDemand = igTokenAutoRefresh.igTokenAutoRefreshOnDemand;
+
+// ============================================================
+// TIKTOK INTEGRATION (added 2026-04-24 PM)
+// Full OAuth + weekly stats digest for @jegodigital TikTok.
+// Uses Sandbox mode (test user: @jegodigital, @lumieraivideos).
+//
+// Endpoints:
+//   /auth/tiktok/start     — redirects to TikTok OAuth consent
+//   /auth/tiktok/callback  — exchanges code for tokens, stores in Firestore
+//   /tiktokStatsOnDemand   — pulls analytics (admin-only)
+//
+// Schedule: Weekly Monday 09:00 CDMX → #content Slack
+// Token: Firestore tokens/tiktok_jegodigital (auto-refresh 30-min buffer)
+// ============================================================
+const tiktokIntegration = require("./tiktokIntegration");
+exports.tiktokOauthStart = tiktokIntegration.tiktokOauthStart;
+exports.tiktokOauthCallback = tiktokIntegration.tiktokOauthCallback;
+exports.tiktokStatsWeekly = tiktokIntegration.tiktokStatsWeekly;
+exports.tiktokStatsOnDemand = tiktokIntegration.tiktokStatsOnDemand;
