@@ -1,0 +1,155 @@
+name: Enrich Leads (Signal Outbound Engine)
+
+# Runs the JegoClay lead enrichment pipeline on a CSV.
+# Triggered manually (workflow_dispatch) OR via API from Slack button.
+#
+# Inputs:
+#   csv_path: repo-relative path to input CSV (required)
+#   offset: row offset to start from (default 0)
+#   limit: max rows to process (default all)
+#   workers: parallel workers (default 8)
+#
+# Outputs:
+#   - enriched JSON + CSV uploaded as workflow artifact
+#   - Slack DM posted on completion with summary + download link
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_path:
+        description: "CSV file path in repo (e.g. uploads/leads_2026-04-23.csv)"
+        required: true
+        type: string
+      offset:
+        description: "Row offset to start from"
+        required: false
+        default: "0"
+        type: string
+      limit:
+        description: "Max rows to process (blank = all)"
+        required: false
+        default: ""
+        type: string
+      workers:
+        description: "Parallel workers"
+        required: false
+        default: "8"
+        type: string
+      batch_name:
+        description: "Name for this batch (for output filename + Slack)"
+        required: false
+        default: "enrichment"
+        type: string
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # plenty of headroom
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python deps
+        run: |
+          pip install --upgrade pip
+          pip install dnspython
+
+      - name: Run enrichment
+        id: enrich
+        env:
+          HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASS: ${{ secrets.DATAFORSEO_PASS }}
+          PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          set -e
+          mkdir -p leads/enriched
+          OUT="leads/enriched/${{ inputs.batch_name }}_$(date -u +%Y%m%d_%H%M%S).json"
+          echo "Output: $OUT"
+          ARGS="--input ${{ inputs.csv_path }} --output $OUT --offset ${{ inputs.offset }} --workers ${{ inputs.workers }}"
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          echo "Running: python3 tools/lead_enrichment_engine.py $ARGS"
+          python3 tools/lead_enrichment_engine.py $ARGS
+          echo "OUT_PATH=$OUT" >> $GITHUB_OUTPUT
+          # Count pass/fail
+          PASS=$(python3 -c "import json; d=json.load(open('$OUT')); print(sum(1 for e in d if e.get('icp_pass')))")
+          TOTAL=$(python3 -c "import json; d=json.load(open('$OUT')); print(len(d))")
+          HIGH_SCORE=$(python3 -c "import json; d=json.load(open('$OUT')); print(sum(1 for e in d if e.get('signal_score',0) >= 60))")
+          echo "STATS_PASS=$PASS" >> $GITHUB_OUTPUT
+          echo "STATS_TOTAL=$TOTAL" >> $GITHUB_OUTPUT
+          echo "STATS_HIGH=$HIGH_SCORE" >> $GITHUB_OUTPUT
+
+      - name: Generate enriched CSV
+        run: |
+          python3 -c "
+          import json, csv
+          d = json.load(open('${{ steps.enrich.outputs.OUT_PATH }}'))
+          # Only export ICP-passing leads to CSV (Instantly upload ready)
+          passing = [e for e in d if e.get('icp_pass')]
+          if not passing:
+              print('No passing leads to export.')
+              exit(0)
+          out_csv = '${{ steps.enrich.outputs.OUT_PATH }}'.replace('.json', '.csv')
+          # Columns optimized for Instantly upload with per-lead custom vars
+          cols = [
+              'prospect_first_name','prospect_last_name','prospect_full_name',
+              'prospect_job_title','prospect_company_name','prospect_company_website',
+              'prospect_linkedin','email','email_confidence','phone','whatsapp',
+              'pagespeed_mobile','signal_score','personalized_opener',
+              'pain_1_type','pain_1_note','pain_2_type','pain_2_note','pain_3_type','pain_3_note',
+          ]
+          with open(out_csv,'w',newline='') as f:
+              w = csv.DictWriter(f, fieldnames=cols, extrasaction='ignore')
+              w.writeheader()
+              for e in passing:
+                  pains = e.get('pains') or []
+                  row = {
+                      **e,
+                      'pain_1_type': pains[0].get('type') if len(pains)>0 else '',
+                      'pain_1_note': pains[0].get('note') if len(pains)>0 else '',
+                      'pain_2_type': pains[1].get('type') if len(pains)>1 else '',
+                      'pain_2_note': pains[1].get('note') if len(pains)>1 else '',
+                      'pain_3_type': pains[2].get('type') if len(pains)>2 else '',
+                      'pain_3_note': pains[2].get('note') if len(pains)>2 else '',
+                  }
+                  w.writerow(row)
+          print(f'Wrote {out_csv}')
+          "
+
+      - name: Upload enriched files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: enriched-${{ inputs.batch_name }}-${{ github.run_id }}
+          path: leads/enriched/
+          retention-days: 30
+
+      - name: Post Slack summary DM
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          PASS="${{ steps.enrich.outputs.STATS_PASS }}"
+          TOTAL="${{ steps.enrich.outputs.STATS_TOTAL }}"
+          HIGH="${{ steps.enrich.outputs.STATS_HIGH }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          STATUS="${{ job.status }}"
+          ICON="✅"
+          if [ "$STATUS" != "success" ]; then ICON="🔴"; fi
+          MSG="$ICON *Lead Enrichment ${STATUS}* — ${{ inputs.batch_name }}\\n\\n"
+          MSG="${MSG}📊 *Results:*\\n"
+          MSG="${MSG}• Total processed: ${TOTAL}\\n"
+          MSG="${MSG}• ICP passed: ${PASS}\\n"
+          MSG="${MSG}• High signal (≥60/100): ${HIGH}\\n\\n"
+          MSG="${MSG}📥 *Download enriched CSV:* <${RUN_URL}|Workflow artifacts>\\n"
+          MSG="${MSG}_Upload the CSV to Instantly with custom variables to fire hyper-personalized cold emails._"
+          curl -sS -X POST -H "Content-Type: application/json" \
+            --data "{\"text\":\"${MSG}\"}" \
+            "$SLACK_WEBHOOK_URL" || echo "Slack post failed (non-fatal)"
