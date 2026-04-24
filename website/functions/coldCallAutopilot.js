@@ -430,7 +430,14 @@ exports.coldCallRun = functions
             const lead = doc.data();
             try {
                 const phoneToCall = lead.phone.startsWith("+") ? lead.phone : `+52${lead.phone}`;
-                const firstMessage = `Hola ${lead.name || ""}, soy Sofia de JegoDigital. ¿Tienes un momento?`;
+                // 2026-04-24 PM: switched to yesterday-proven message pattern.
+                // Old "Hola Name, soy Sofia..." with name="Hola" (CSV placeholder)
+                // produced "Hola Hola, soy Sofia..." and 0% bridge rate on 33 dials.
+                // Yesterday's working 44 bridges all used this pattern:
+                // "Buen día, hablo de JegoDigital, ¿es la oficina de [Company]?"
+                // Honors per-lead first_message_override if set (diagnostic batches).
+                const firstMessage = lead.first_message_override ||
+                    `Buen día, hablo de JegoDigital, ¿es la oficina de ${lead.company || lead.name || "esta inmobiliaria"}?`;
 
                 // Pre-dial Twilio Lookup — skip known-bad numbers before burning ElevenLabs budget
                 const lookup = await twilioLookup(phoneToCall);
@@ -762,7 +769,14 @@ async function _coldCallRunAfternoonOriginal_disabled() {
         for (const lead of batch) {
             try {
                 const phoneToCall = lead.phone.startsWith("+") ? lead.phone : `+52${lead.phone}`;
-                const firstMessage = `Hola ${lead.name || ""}, soy Sofia de JegoDigital. ¿Tienes un momento?`;
+                // 2026-04-24 PM: switched to yesterday-proven message pattern.
+                // Old "Hola Name, soy Sofia..." with name="Hola" (CSV placeholder)
+                // produced "Hola Hola, soy Sofia..." and 0% bridge rate on 33 dials.
+                // Yesterday's working 44 bridges all used this pattern:
+                // "Buen día, hablo de JegoDigital, ¿es la oficina de [Company]?"
+                // Honors per-lead first_message_override if set (diagnostic batches).
+                const firstMessage = lead.first_message_override ||
+                    `Buen día, hablo de JegoDigital, ¿es la oficina de ${lead.company || lead.name || "esta inmobiliaria"}?`;
 
                 const elRes = await axios.post(
                     "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",

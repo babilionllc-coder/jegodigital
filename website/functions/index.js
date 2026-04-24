@@ -2332,6 +2332,17 @@ exports.processBrevoNurtureQueueOnDemand = functions.https.onRequest(async (req,
 exports.callTranscriptReviewer = require("./callTranscriptReviewer").callTranscriptReviewer;
 
 // ============================================================
+// BRIDGE RATE WATCHER (added 2026-04-24)
+// 10:30 CDMX Mon-Fri — 30 min after coldCallRun. Computes real
+// Twilio bridge rate (duration >=5s) for the last 3h window,
+// Slack+TG alert if <20% on sample >=5. Early warning for silent
+// 0% bridge days like 2026-04-24. HTTPS on-demand variant for
+// manual pulls: bridgeRateWatcherOnDemand.
+// ============================================================
+exports.bridgeRateWatcher = require("./bridgeRateWatcher").bridgeRateWatcher;
+exports.bridgeRateWatcherOnDemand = require("./bridgeRateWatcher").bridgeRateWatcherOnDemand;
+
+// ============================================================
 // LEAD FINDER AUTO TOP UP (added 2026-04-20)
 // 08:00 CDMX — keeps phone_leads pool above HARD_FLOOR (100),
 // targets TARGET_POOL_SIZE (150). Uses 7-day CITY_ROTATION
