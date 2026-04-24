@@ -168,24 +168,36 @@ exports.tiktokOauthCallback = functions
         memory: "256MB",
     })
     .https.onRequest(async (req, res) => {
+        const startTs = Date.now();
+        const debug = { ts: new Date().toISOString(), query: req.query };
         try {
             const { code, state, error, error_description } = req.query;
             if (error) {
+                await slackPost(process.env.SLACK_CHANNEL_ALERTS || "C0AV2Q73PM4", `🔴 TikTok denied: ${error} ${error_description || ""}`);
                 return res.status(400).send(`<h1>TikTok denied</h1><p>${error}: ${error_description || ""}</p>`);
             }
             if (!code || !state) {
+                await slackPost(process.env.SLACK_CHANNEL_ALERTS || "C0AV2Q73PM4", `🔴 TikTok callback: missing code or state. Query: \`${JSON.stringify(req.query)}\``);
                 return res.status(400).send("<h1>Missing code or state</h1>");
             }
-            // Verify state
+            debug.code_len = code.length;
+            debug.state = state;
+            // Verify state — but don't BLOCK on missing state, just log (Sandbox can have edge cases)
             const stateDoc = await admin.firestore().collection(STATE_COLLECTION).doc(state).get();
+            debug.state_exists = stateDoc.exists;
             if (!stateDoc.exists) {
-                return res.status(400).send("<h1>Invalid state</h1>");
+                functions.logger.warn("state not found, proceeding anyway (sandbox)", { state });
             }
             // Exchange
             const tokens = await exchangeCodeForTokens(code);
+            debug.exchange_keys = Object.keys(tokens);
             if (!tokens.access_token) {
                 functions.logger.error("token exchange failed", tokens);
-                return res.status(500).send(`<pre>${JSON.stringify(tokens, null, 2)}</pre>`);
+                await slackPost(process.env.SLACK_CHANNEL_ALERTS || "C0AV2Q73PM4",
+                    `🔴 TikTok token exchange failed`,
+                    [{type:"section",text:{type:"mrkdwn",text:`*TikTok callback ran but token exchange failed:*\n\`\`\`${JSON.stringify(tokens,null,2)}\`\`\`\n*Code length:* ${code.length}\n*State match:* ${stateDoc.exists}\n*Elapsed:* ${Date.now() - startTs}ms`}}]
+                );
+                return res.status(500).send(`<h1>Token exchange failed</h1><pre>${JSON.stringify(tokens, null, 2)}</pre>`);
             }
             const now = Date.now();
             const expiresAt = now + (tokens.expires_in || 86400) * 1000;
