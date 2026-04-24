@@ -2513,3 +2513,20 @@ exports.contentEveningWrapNow = mobileCommandCenter.contentEveningWrapNow;
 // Endpoint: https://us-central1-jegodigital-e02fb.cloudfunctions.net/notionWebhook
 const notionWebhook = require("./notionWebhook");
 exports.notionWebhook = notionWebhook.notionWebhook;
+
+// ============================================================
+// JEGOROOM ALERTS (added 2026-04-23 PM)
+// In-house Common Room clone. Signal collectors run on GitHub Actions
+// cron (see .github/workflows/jegoroom.yml) and write to Firestore
+// `intent_signals`. The scoring engine flips accounts cold→hot by
+// writing `intent_hot_transitions/{auto}`. This Firestore trigger
+// picks up those writes and fires an instant Telegram alert so Alex
+// can work the hot account in <1 hour.
+//
+// See: tools/jegoroom/ (collectors + scorer) and skills/jegoroom/
+// (operator skill for on-demand queries + enrichment).
+// ============================================================
+const jegoRoomAlerts = require("./jegoRoomAlerts");
+exports.jegoRoomAlertOnHotTransition = jegoRoomAlerts.jegoRoomAlertOnHotTransition;
+exports.jegoRoomReplayAlert = jegoRoomAlerts.jegoRoomReplayAlert;
+exports.jegoRoomTestAlert = jegoRoomAlerts.jegoRoomTestAlert;
