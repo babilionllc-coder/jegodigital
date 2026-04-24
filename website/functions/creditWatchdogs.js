@@ -271,18 +271,6 @@ exports.creditWatchdogs = functions
     .runWith({
         timeoutSeconds: 120,
         memory: "256MB",
-        secrets: [
-            "SLACK_BOT_TOKEN",
-            "ELEVENLABS_API_KEY",
-            "BREVO_API_KEY",
-            "TWILIO_ACCOUNT_SID",
-            "TWILIO_AUTH_TOKEN",
-            "HUNTER_API_KEY",
-            "DATAFORSEO_LOGIN",
-            "DATAFORSEO_PASS",
-            "SLACK_WEBHOOK_URL",
-            "SLACK_CHANNEL_ALERTS",
-        ],
     })
     .pubsub.schedule("every 6 hours")
     .timeZone("America/Mexico_City")
@@ -301,19 +289,6 @@ exports.creditWatchdogsOnDemand = functions
     .runWith({
         timeoutSeconds: 120,
         memory: "256MB",
-        secrets: [
-            "SLACK_BOT_TOKEN",
-            "ELEVENLABS_API_KEY",
-            "BREVO_API_KEY",
-            "TWILIO_ACCOUNT_SID",
-            "TWILIO_AUTH_TOKEN",
-            "HUNTER_API_KEY",
-            "DATAFORSEO_LOGIN",
-            "DATAFORSEO_PASS",
-            "SLACK_WEBHOOK_URL",
-            "SLACK_CHANNEL_ALERTS",
-            "ADMIN_TRIGGER_TOKEN",
-        ],
     })
     .https.onRequest(async (req, res) => {
         const tok = req.get("X-Admin-Token");

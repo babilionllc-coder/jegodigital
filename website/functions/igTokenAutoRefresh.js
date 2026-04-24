@@ -147,12 +147,6 @@ exports.igTokenAutoRefresh = functions
     .runWith({
         timeoutSeconds: 60,
         memory: "256MB",
-        secrets: [
-            "IG_GRAPH_TOKEN",
-            "SLACK_BOT_TOKEN",
-            "SLACK_CHANNEL_ALERTS",
-            "GH_PAT",
-        ],
     })
     .pubsub.schedule("every 50 days 00:00")
     .timeZone("America/Mexico_City")
@@ -188,13 +182,6 @@ exports.igTokenAutoRefreshOnDemand = functions
     .runWith({
         timeoutSeconds: 60,
         memory: "256MB",
-        secrets: [
-            "IG_GRAPH_TOKEN",
-            "SLACK_BOT_TOKEN",
-            "SLACK_CHANNEL_ALERTS",
-            "GH_PAT",
-            "ADMIN_TRIGGER_TOKEN",
-        ],
     })
     .https.onRequest(async (req, res) => {
         const tok = req.get("X-Admin-Token");

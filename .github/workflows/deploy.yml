@@ -83,6 +83,18 @@ jobs:
           NOTION_LEADS_CRM_ID=${{ secrets.NOTION_LEADS_CRM_ID }}
           NOTION_SESSION_LOG_PAGE_ID=${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}
           ADMIN_TRIGGER_TOKEN=${{ secrets.ADMIN_TRIGGER_TOKEN }}
+          GH_PAT=${{ secrets.GH_PAT }}
+          SLACK_CHANNEL_ALERTS=${{ secrets.SLACK_CHANNEL_ALERTS }}
+          SLACK_CHANNEL_LEADS_HOT=${{ secrets.SLACK_CHANNEL_LEADS_HOT }}
+          SLACK_CHANNEL_REVENUE=${{ secrets.SLACK_CHANNEL_REVENUE }}
+          SLACK_CHANNEL_DAILY_OPS=${{ secrets.SLACK_CHANNEL_DAILY_OPS }}
+          SLACK_CHANNEL_CONTENT=${{ secrets.SLACK_CHANNEL_CONTENT }}
+          SLACK_CHANNEL_COLD_CALL_LOG=${{ secrets.SLACK_CHANNEL_COLD_CALL_LOG }}
+          SLACK_CHANNEL_ALL_JEGODIGITAL=${{ secrets.SLACK_CHANNEL_ALL_JEGODIGITAL }}
+          TIKTOK_CLIENT_KEY=${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET=${{ secrets.TIKTOK_CLIENT_SECRET }}
+          TIKTOK_SANDBOX_CLIENT_KEY=${{ secrets.TIKTOK_SANDBOX_CLIENT_KEY }}
+          TIKTOK_SANDBOX_CLIENT_SECRET=${{ secrets.TIKTOK_SANDBOX_CLIENT_SECRET }}
           ENVEOF
           # Clean leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env

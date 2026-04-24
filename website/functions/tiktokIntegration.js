@@ -146,7 +146,7 @@ async function fetchRecentVideos(accessToken, maxCount = 10) {
 // OAuth flow
 // ================================================================
 exports.tiktokOauthStart = functions
-    .runWith({ timeoutSeconds: 30, memory: "256MB", secrets: ["TIKTOK_SANDBOX_CLIENT_KEY", "TIKTOK_SANDBOX_CLIENT_SECRET"] })
+    .runWith({ timeoutSeconds: 30, memory: "256MB" })
     .https.onRequest(async (req, res) => {
         try {
             const state = crypto.randomBytes(16).toString("hex");
@@ -166,7 +166,6 @@ exports.tiktokOauthCallback = functions
     .runWith({
         timeoutSeconds: 60,
         memory: "256MB",
-        secrets: ["TIKTOK_SANDBOX_CLIENT_KEY", "TIKTOK_SANDBOX_CLIENT_SECRET", "SLACK_BOT_TOKEN"],
     })
     .https.onRequest(async (req, res) => {
         try {
@@ -297,7 +296,6 @@ exports.tiktokStatsWeekly = functions
     .runWith({
         timeoutSeconds: 60,
         memory: "256MB",
-        secrets: ["TIKTOK_SANDBOX_CLIENT_KEY", "TIKTOK_SANDBOX_CLIENT_SECRET", "SLACK_BOT_TOKEN"],
     })
     .pubsub.schedule("every monday 09:00")
     .timeZone("America/Mexico_City")
@@ -314,7 +312,6 @@ exports.tiktokStatsOnDemand = functions
     .runWith({
         timeoutSeconds: 60,
         memory: "256MB",
-        secrets: ["TIKTOK_SANDBOX_CLIENT_KEY", "TIKTOK_SANDBOX_CLIENT_SECRET", "SLACK_BOT_TOKEN", "ADMIN_TRIGGER_TOKEN"],
     })
     .https.onRequest(async (req, res) => {
         const tok = req.get("X-Admin-Token") || req.query.token;
