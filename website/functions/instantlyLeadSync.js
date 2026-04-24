@@ -104,7 +104,10 @@ async function createNotionLead(lead, campaignMeta) {
     const score = payload.signal_score || "";
     if (opener || topPain) {
         props["Notes"] = { rich_text: [{ text: { content:
-            `Opener: ${opener.slice(0,500)}\n\nTop pain: ${topPain} — ${painDetail}\nSignal score: ${score}`
+            `Opener: ${opener.slice(0,500)}
+
+Top pain: ${topPain} — ${painDetail}
+Signal score: ${score}`
         }}]};
     }
     return await notion("POST", "/pages", {
@@ -161,7 +164,8 @@ async function doLeadSync() {
     await stateRef.set({ last_run_at: admin.firestore.FieldValue.serverTimestamp(), results }, { merge: true });
     if (totalCreated > 0) {
         const breakdown = results.map(r => `${r.campaign}: +${r.created} new`).join(" · ");
-        await slackPost(`🔄 *Notion CRM synced* — ${totalCreated} new leads imported\n${breakdown}`);
+        await slackPost(`🔄 *Notion CRM synced* — ${totalCreated} new leads imported
+${breakdown}`);
     }
     return { totalCreated, totalSkipped, results };
 }
@@ -172,6 +176,7 @@ exports.instantlyLeadSync = functions
     .onRun(async () => { await doLeadSync(); return null; });
 
 exports.instantlyLeadSyncOnDemand = functions
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
     .https.onRequest(async (req, res) => {
         const out = await doLeadSync();
         return res.json({ ok: true, ...out });
@@ -204,9 +209,12 @@ async function doReplySync() {
     // Alert Slack for every new warm lead
     for (const w of newWarm) {
         await slackPost(
-            `🔥 *WARM LEAD* — ${w.company || w.email} just replied in ${w.campaign}\n` +
-            `Email: ${w.email}\n` +
-            `Open Instantly Unibox: https://app.instantly.ai/app/unibox\n` +
+            `🔥 *WARM LEAD* — ${w.company || w.email} just replied in ${w.campaign}
+` +
+            `Email: ${w.email}
+` +
+            `Open Instantly Unibox: https://app.instantly.ai/app/unibox
+` +
             `_Marked 'Warm' in Notion 🎯 Leads CRM._`
         );
     }
@@ -224,6 +232,7 @@ exports.instantlyReplySync = functions
     .onRun(async () => { await doReplySync(); return null; });
 
 exports.instantlyReplySyncOnDemand = functions
+    .runWith({ timeoutSeconds: 540, memory: "512MB" })
     .https.onRequest(async (req, res) => {
         const out = await doReplySync();
         return res.json({ ok: true, ...out });
