@@ -58,6 +58,91 @@ async function sendTelegram(text) {
     }
 }
 
+// ---- Slack (added 2026-04-24 — Alex needs real-time Slack pings for every reply) ----
+// Pattern borrowed from dailyRollupSlack.js. Falls back to Telegram if
+// SLACK_WEBHOOK_URL isn't set so we never silently drop a reply alert.
+async function sendSlack(text, blocks) {
+    const url = process.env.SLACK_WEBHOOK_URL;
+    if (!url) {
+        functions.logger.warn("instantlyReplyWatcher: SLACK_WEBHOOK_URL missing, falling back to Telegram");
+        return await sendTelegram(text);
+    }
+    try {
+        const payload = { text };
+        if (blocks) payload.blocks = blocks;
+        await axios.post(url, payload, { timeout: 10000 });
+        return { ok: true };
+    } catch (err) {
+        functions.logger.error("instantlyReplyWatcher Slack send failed:", err.response?.data || err.message);
+        // Hard fallback to Telegram so Alex always sees something
+        return await sendTelegram(`[Slack failed] ${text}`);
+    }
+}
+
+// Build Slack Block Kit payload for a single reply — per-lead card
+// with lead identity, their message, classification, action taken, Notion link.
+function buildSlackReplyCard(ctx, outcome, body, subject, auditQueued, nurtureStarted, campaignName) {
+    const outcomeEmoji = {
+        positive: "🟢 POSITIVE",
+        positive_with_objection: "💰 POSITIVE + OBJECTION (pricing)",
+        question: "❓ QUESTION",
+        negative: "🔴 NEGATIVE",
+        neutral: "⚪ NEUTRAL",
+    }[outcome] || "⚪ UNKNOWN";
+
+    const actionLine = outcome === "positive" && auditQueued
+        ? "✅ Free audit auto-fired → will deliver in ~45 min"
+        : outcome === "positive_with_objection"
+            ? "⚠️ Pricing objection — Alex handles personally (NO auto-audit)"
+            : outcome === "question"
+                ? "👀 AI-agent answered their question — verify in Instantly Unibox"
+                : outcome === "positive"
+                    ? "⚠️ Positive but no audit fired (missing email or website) — handle manually"
+                    : outcome === "negative"
+                        ? "🛑 Negative — unsubscribe handled, no further action"
+                        : "— no automated action —";
+
+    const preview = (body || "").slice(0, 400).replace(/\n{3,}/g, "\n\n");
+    const firstLine = (body || "").split("\n").find((l) => l.trim())?.slice(0, 100) || "(no body)";
+
+    return {
+        text: `${outcomeEmoji} reply from ${ctx.firstName || ctx.email} (${ctx.company || "—"}): ${firstLine}`,
+        blocks: [
+            {
+                type: "header",
+                text: { type: "plain_text", text: `${outcomeEmoji} · New Instantly reply`, emoji: true },
+            },
+            {
+                type: "section",
+                fields: [
+                    { type: "mrkdwn", text: `*Lead:*\n${ctx.firstName || "—"} ${ctx.company ? `· ${ctx.company}` : ""}` },
+                    { type: "mrkdwn", text: `*Email:*\n\`${ctx.email || "unknown"}\`` },
+                    { type: "mrkdwn", text: `*Website:*\n${ctx.website ? `<https://${ctx.website.replace(/^https?:\/\//, "")}|${ctx.website}>` : "—"}` },
+                    { type: "mrkdwn", text: `*Campaign:*\n${campaignName || "—"}` },
+                ],
+            },
+            {
+                type: "section",
+                text: { type: "mrkdwn", text: `*Subject:* ${subject ? `_${subject.slice(0, 120)}_` : "—"}` },
+            },
+            {
+                type: "section",
+                text: { type: "mrkdwn", text: `*What they wrote:*\n>>>${preview}` },
+            },
+            {
+                type: "section",
+                text: { type: "mrkdwn", text: `*Action taken:* ${actionLine}` },
+            },
+            {
+                type: "context",
+                elements: [
+                    { type: "mrkdwn", text: `nurture: ${nurtureStarted ? "Brevo Track A started" : "—"} · instantlyReplyWatcher · ${new Date().toISOString().slice(0, 19).replace("T", " ")} UTC` },
+                ],
+            },
+        ],
+    };
+}
+
 // ---- Classifier ----
 // Based on Cold Email Operations Playbook Iron Rule 11: positive reply = lead
 // showed clear interest ("mándame info", "sí", "agéndame"), negative = clear
@@ -325,6 +410,27 @@ exports.instantlyReplyWatcher = functions
             try {
                 await activityRef.update({ notion_synced: notionSynced });
             } catch (_) { /* non-fatal */ }
+
+            // ---- Per-reply Slack card (added 2026-04-24) ----
+            // Alex demanded real-time Slack pings for every reply so nothing
+            // sits in Unibox unseen (Susan/Shoreline waited 17 days for a
+            // response because `instantlyReplyWatcher` was deployed 2026-04-20
+            // — she replied April 5 and no Slack alert existed).
+            // Fire on EVERY reply except pure neutrals that look like
+            // auto-replies (OOO, "no longer at the company", etc.).
+            const bodyLower = String(body).toLowerCase();
+            const isAutoResponse = /out of office|fuera de la oficina|auto.?reply|respuesta autom|no longer with|ya no (forma parte|labora|trabaja)|desactivac|automatic reply/i.test(bodyLower);
+            if (!isAutoResponse) {
+                try {
+                    const campaignId = em.campaign || em.campaign_id || null;
+                    const campaignName = notionLeadSync.INSTANTLY_CAMPAIGN_MAP?.[campaignId] ||
+                        (campaignId ? `Instantly: ${String(campaignId).slice(0, 8)}` : "—");
+                    const card = buildSlackReplyCard(ctx, outcome, body, subject, auditQueued, nurtureStarted, campaignName);
+                    await sendSlack(card.text, card.blocks);
+                } catch (slackErr) {
+                    functions.logger.warn(`Slack per-reply card failed for ${replyId}:`, slackErr.message);
+                }
+            }
         }
 
         // Daily rollup (merge — many runs per day)
@@ -341,15 +447,17 @@ exports.instantlyReplyWatcher = functions
             }, { merge: true });
         }
 
-        // Telegram only when there's something worth attention
+        // ---- Aggregate summary (Slack + Telegram) ----
+        // Per-reply cards already fired above; this is the batch digest so
+        // Alex gets a quick "what happened in this 5-min window" snapshot.
         if (hotAlerts > 0 || auditsFired > 0) {
             const lines = [
-                `🔥 *Instantly replies* — ${newReplies} new`,
+                `🔥 *Instantly replies* — ${newReplies} new this run`,
                 `   Positive: *${positives}* · Questions: ${questions} · Negative: ${negatives} · Neutral: ${neutrals}`,
                 `   Audits auto-fired: *${auditsFired}*`,
             ];
             if (hotLeads.length) {
-                lines.push("", "_Hot replies:_");
+                lines.push("", "_Hot replies this run:_");
                 hotLeads.slice(0, 5).forEach((l) => {
                     const tag = l.outcome === "positive_with_objection" ? "💰 OBJECTION" :
                         l.auditQueued ? "✅ audit fired" : "👀 needs Alex";
@@ -360,7 +468,10 @@ exports.instantlyReplyWatcher = functions
             if (objectionLeads.length) {
                 lines.push("", `_${objectionLeads.length} replies mentioned pricing — handle personally._`);
             }
-            await sendTelegram(lines.join("\n"));
+            const summaryText = lines.join("\n");
+            // Slack primary (Alex's preferred surface), Telegram backup
+            await sendSlack(summaryText);
+            await sendTelegram(summaryText);
         }
 
         functions.logger.info(
