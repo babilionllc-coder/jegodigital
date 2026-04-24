@@ -2587,3 +2587,16 @@ exports.notionAdminPanelSyncOnDemand = notionAdminPanelSync.notionAdminPanelSync
 const creditWatchdogs = require("./creditWatchdogs");
 exports.creditWatchdogs = creditWatchdogs.creditWatchdogs;
 exports.creditWatchdogsOnDemand = creditWatchdogs.creditWatchdogsOnDemand;
+
+// ============================================================
+// INSTAGRAM TOKEN AUTO-REFRESH (added 2026-04-24 PM)
+// Instagram long-lived tokens expire every 60 days. If expired, every
+// Graph API call returns 400 and @jegodigital_agencia automations silently
+// break. This function refreshes every 50 days (10-day buffer) and updates
+// GH Secret IG_GRAPH_TOKEN + Firestore cache + posts to #alerts.
+//
+// See igTokenAutoRefresh.js for full spec.
+// ============================================================
+const igTokenAutoRefresh = require("./igTokenAutoRefresh");
+exports.igTokenAutoRefresh = igTokenAutoRefresh.igTokenAutoRefresh;
+exports.igTokenAutoRefreshOnDemand = igTokenAutoRefresh.igTokenAutoRefreshOnDemand;
