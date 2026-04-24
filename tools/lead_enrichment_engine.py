@@ -30,6 +30,12 @@ try:
 except ImportError:
     HAS_V2_DETECTOR = False
 
+try:
+    from email_verifier import verify_email as _jc_verify_email
+    HAS_EMAIL_VERIFIER = True
+except ImportError:
+    HAS_EMAIL_VERIFIER = False
+
 # ---------- Config ----------
 HUNTER_KEY    = os.environ.get("HUNTER_API_KEY", "")
 FIRECRAWL_KEY = os.environ.get("FIRECRAWL_API_KEY", "")
@@ -75,11 +81,17 @@ RE_INDUSTRY_YES = [
     "arrendamiento", "leasing",
 ]
 RE_INDUSTRY_NO = [
-    "shelter services", "manufactura", "manufacturing", "maquila", "automotive",
-    "tax advisory", "cpa firm", "accountant", "consultoría fiscal",
-    "dentist", "dental clinic", "medical clinic", "hospital group",
-    "restaurant", "airline", "pharmacy chain",
-    "software development", "ecommerce platform", "retailer",
+    "shelter services", "shelter operation", "manufactura", "manufacturing",
+    "maquila", "maquiladora", "automotive", "automotriz", "auto parts",
+    "tax advisory", "cpa firm", "cpa americas", "accountant", "accounting firm",
+    "consultoría fiscal", "consultoria fiscal", "asesoría fiscal", "asesoria fiscal",
+    "legal services", "law firm", "abogados", "despacho legal",
+    "dentist", "dental clinic", "medical clinic", "hospital group", "clínica médica",
+    "restaurant", "restaurante chain", "airline", "pharmacy chain", "farmacia cadena",
+    "software development agency", "ecommerce platform", "retailer chain",
+    "plastic surgery", "cosmetic clinic",
+    "insurance broker", "seguros broker",
+    "staffing agency", "agencia de staffing", "recruitment firm",
 ]
 
 def title_looks_dm(title: str) -> bool:
@@ -134,14 +146,17 @@ def firecrawl_scrape(url):
         "https://api.firecrawl.dev/v1/scrape",
         method="POST",
         headers={"Authorization": f"Bearer {FIRECRAWL_KEY}"},
-        body={"url": url, "formats": ["markdown"], "onlyMainContent": False, "timeout": 25000},
+        # v3 FIX (2026-04-24): include "html" so tech_stack_detector can see <script> tags
+        # (markdown strips scripts by definition → tech stack detection was blind in v1/v2)
+        body={"url": url, "formats": ["markdown", "html"], "onlyMainContent": False, "timeout": 25000},
         timeout=30,
     )
     if status != 200 or not data.get("success"):
         return {"ok": False, "error": data.get("error") or f"status {status}"}
     md = data.get("data", {}).get("markdown", "") or ""
+    html = data.get("data", {}).get("html", "") or ""
     meta = data.get("data", {}).get("metadata", {}) or {}
-    return {"ok": True, "markdown": md, "metadata": meta, "title": meta.get("title","")}
+    return {"ok": True, "markdown": md, "html": html, "metadata": meta, "title": meta.get("title","")}
 
 # ---------- Extractors on Firecrawl markdown ----------
 RE_PHONE_MX = re.compile(
@@ -511,6 +526,23 @@ def enrich_lead(lead):
             out["email"] = he["email"]
             out["email_confidence"] = he["score"]
             out["email_method"] = he.get("method", "unknown")
+
+    # Step 4b — Email verification (JegoClay Module 1) — catches bounces before Instantly
+    if out.get("email") and HAS_EMAIL_VERIFIER:
+        try:
+            # skip_smtp=True to avoid port 25 blocked + slow timeouts; syntax+MX+disposable+role is enough
+            v = _jc_verify_email(out["email"], skip_smtp=True)
+            out["email_verified_ok"] = bool(v.get("ok"))
+            out["email_verifier_reason"] = v.get("reason")
+            out["email_is_disposable"] = bool(v.get("is_disposable"))
+            out["email_is_role_based"] = bool(v.get("is_role"))
+            # If disposable OR syntax invalid → drop the email (would bounce/damage rep)
+            if v.get("is_disposable") or v.get("confidence") == "invalid":
+                out["email_dropped_reason"] = v.get("reason")
+                out["email"] = None
+                out["email_confidence"] = None
+        except Exception as _e:
+            out["email_verifier_reason"] = f"verifier_error:{str(_e)[:60]}"
 
     # Step 5 — PageSpeed
     psi = pagespeed_check(website)
