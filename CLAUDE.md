@@ -1,5 +1,5 @@
 # JegoDigital — Master Project Instructions (Slim Index)
-**Last updated:** 2026-04-21 PM | **Maintained by:** Claude AI + Alex Jego
+**Last updated:** 2026-04-24 PM | **Maintained by:** Claude AI + Alex Jego
 **Read time:** ~4 min | **Target size:** <40,000 chars for Claude Code perf
 
 > This is the **rulebook index**. Full rule bodies live in `docs/hard-rules/` and `docs/gates/`.
@@ -296,11 +296,66 @@ Full list → [`BUSINESS.md §Key Constraints`](BUSINESS.md#key-constraints).
 
 ---
 
+## 🛑 HARD RULE — CANONICAL BRAND ASSETS (updated 2026-04-24 PM)
+
+**Per Alex directive 2026-04-24 PM — these are the ONLY canonical brand assets. NEVER use the old versions. NEVER revert.**
+
+### ✅ Logo — ALWAYS use
+
+- **File:** `/website/images/logo/jegodigitallogo.png` (2400×700 RGBA, transparent bg, gold "JEGO" + white "DIGITAL" + tagline)
+- **HTML:** `<img src="images/logo/jegodigitallogo.png" alt="JegoDigital" class="h-16 w-auto">`
+- **Schema.org publisher logo URL:** `https://jegodigital.com/images/logo/jegodigitallogo.png`
+
+### ❌ DEPRECATED logos — NEVER use
+
+- `logo1.png` (green wireframe — broken, off-brand)
+- `jegologo.png`, `jegologo1.png` (faded watermark, hard to read)
+- `jegodigital-logo.png`, `jegodigital-logo1.png` (pre-2026 versions)
+
+### ✅ Canonical social URLs — use these EVERYWHERE (footers, schema sameAs, CTAs, og:image, video descriptions, banners)
+
+| Platform | URL | Handle |
+|---|---|---|
+| YouTube | `https://www.youtube.com/@JegoDigitalchannel` | @JegoDigitalchannel |
+| Instagram | `https://www.instagram.com/jegodigital_agencia/` | @jegodigital_agencia |
+| TikTok | `https://www.tiktok.com/@jegodigital` | @jegodigital |
+| WhatsApp | `https://wa.me/529987875321` | +52 998 787 5321 |
+| Facebook | `https://www.facebook.com/profile.php?id=61581425401975` | (page ID) |
+| Calendly | `https://calendly.com/jegoalexdigital/30min` | — |
+| Email | `jegoalexdigital@gmail.com` | — |
+| Website | `https://jegodigital.com` | — |
+
+### ❌ DEPRECATED social accounts — NEVER use
+
+- `youtube.com/@AlexJego` (old personal channel)
+- `tiktok.com/@alex.jego` (old personal)
+- `instagram.com/jegodigital` (old handle, no `_agencia` suffix)
+- `instagram.com/jegodigital5` (banned)
+
+### Every page MUST have all 4 primary socials in the footer
+
+The footer social block on EVERY page must include YouTube + Instagram + TikTok + WhatsApp (in that order). If a page is missing one, fix it. WhatsApp is required because it's the primary conversion channel for the Sofía funnel.
+
+---
+
+## 🎨 VISUAL ASSETS — Two-Path Policy (updated 2026-04-24)
+
+Per Alex directive 2026-04-24 — the `jegodigital-carousels` + `jegodigital-instagram-stories` skills' "no fake mockups" rule is REPLACED with the following two-path policy. This note is the authoritative source of truth; it overrides any older skill text if the skill file gets refreshed by a plugin update.
+
+- **Path A — Real screenshot + named client (case-study content):** When a post names a specific client (Flamingo, GoodLife, Goza, Solik, RS Viajes, Piedra de Mar), use ONLY real screenshots from `/website/img/showcase/<client>/` or the canonical libraries. **Never fabricate a mockup and attribute it to a named client — that is misattribution.**
+- **Path B — Branded template mockup + NO client name (capability-showcase content):** When a post demonstrates what JegoDigital CAN build without naming anyone, premium aspirational mockups are allowed (CRM dashboards, Google Maps rank panels, WhatsApp AI flows, email automation sequences, property listings, admin panels, lead capture forms, ROI calculators, SEO rank trackers). These must be brand-locked (#0f1115 + #C5A059), clearly framed as templates ("Tu próximo CRM" / "Ejemplo de dashboard"), use realistic stat ranges (not fabricated specific-client numbers), and be saved to `/brand-assets/01-service-illustrations/` or `/brand-assets/07-templates/` for reuse.
+
+**Quick test:** Names a client → Path A. Generic capability demo → Path B.
+
+Master asset library at `/brand-assets/` — see `/brand-assets/README.md` for structure + `INDEX.json` for catalog.
+
+---
+
 ## 📸 INSTAGRAM PUBLISHING (summary)
 
-**Trigger:** any post/publish/schedule/upload to @jegodigital.
+**Trigger:** any post/publish/schedule/upload to @jegodigital_agencia (current handle, renamed from @jegodigital5 on 2026-04-24; old @jegodigital banned).
 
-**Only working path:** finished PNG → catbox.moe HTTPS URL → Meta Graph API v22.0 → published. Token = `IG_GRAPH_TOKEN` in GH Secrets + `website/functions/.env`.
+**Only working path (updated 2026-04-24):** finished PNG → **tmpfiles.org** HTTPS URL → `graph.instagram.com/v21.0` → published. ⚠️ **catbox.moe is NOW BLOCKED by Meta** (OAuthException code 1) — do NOT use. Token = `IG_GRAPH_TOKEN` in GH Secrets + `website/functions/.env`. Token is IGAAT-prefix (Instagram Login API, 60-day long-lived). IG User ID: `17841425126865530` | Business Account ID: `27504937085774839`.
 
 **Dead ends** (per [`DEPRECATED.md`](DEPRECATED.md)): n8n public API, Meta Business Suite via Chrome, instagram.com web login, Firebase Storage.
 
