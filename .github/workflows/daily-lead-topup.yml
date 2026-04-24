@@ -1,0 +1,135 @@
+name: Daily Lead Top-up (Autonomous)
+
+# Runs every day at 12:00 UTC (6am CDMX) — pulls 200 leads from queue,
+# enriches via JegoClay, pushes to Instantly, moves to consumed queue.
+#
+# Your computer can be OFF. Runs on GitHub's servers.
+#
+# Manual trigger: workflow_dispatch from Actions tab or API.
+
+on:
+  schedule:
+    - cron: "0 12 * * *"   # 12:00 UTC = 06:00 CDMX (CST) / 07:00 CDT
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: "Leads to top up (default 200)"
+        required: false
+        default: "200"
+        type: string
+
+jobs:
+  topup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write  # needed to commit queue state back to repo
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Python setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          pip install --upgrade pip
+          pip install dnspython
+
+      - name: Check queue depth
+        id: status
+        run: |
+          python3 tools/queue_manager.py status || echo "queue files missing, continuing"
+          PENDING_LINES=$(wc -l < leads/queue/pending.csv 2>/dev/null || echo 1)
+          PENDING_COUNT=$((PENDING_LINES - 1))  # subtract header
+          echo "pending_count=$PENDING_COUNT" >> $GITHUB_OUTPUT
+          echo "Pending count: $PENDING_COUNT"
+          if [ "$PENDING_COUNT" -lt 10 ]; then
+            echo "::warning::Queue depth critical — pending < 10. Add new leads via: python3 tools/queue_manager.py enqueue <source.csv>"
+          fi
+
+      - name: Take batch from queue
+        id: take
+        if: steps.status.outputs.pending_count != '0'
+        run: |
+          BATCH="${{ inputs.batch_size }}"
+          BATCH="${BATCH:-200}"
+          # Clamp to pending count
+          AVAIL="${{ steps.status.outputs.pending_count }}"
+          if [ "$AVAIL" -lt "$BATCH" ]; then BATCH="$AVAIL"; fi
+          echo "Taking $BATCH leads"
+          mkdir -p /tmp
+          python3 tools/queue_manager.py take "$BATCH" /tmp/today_batch.csv
+          echo "batch_size=$BATCH" >> $GITHUB_OUTPUT
+
+      - name: Enrich batch via JegoClay
+        if: steps.take.outputs.batch_size != ''
+        env:
+          HUNTER_API_KEY:   ${{ secrets.HUNTER_API_KEY }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          SERPAPI_KEY:      ${{ secrets.SERPAPI_KEY }}
+          DATAFORSEO_LOGIN: ${{ secrets.DATAFORSEO_LOGIN }}
+          DATAFORSEO_PASS:  ${{ secrets.DATAFORSEO_PASS }}
+          PSI_API_KEY:      ${{ secrets.PSI_API_KEY }}
+          GEMINI_API_KEY:   ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          mkdir -p leads/enriched/daily
+          OUT="leads/enriched/daily/topup_$(date -u +%Y%m%d).json"
+          python3 tools/lead_enrichment_engine.py \
+            --input /tmp/today_batch.csv \
+            --output "$OUT" \
+            --workers 8
+          echo "ENRICHED_PATH=$OUT" >> $GITHUB_ENV
+
+      - name: Push to Instantly
+        if: steps.take.outputs.batch_size != ''
+        env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+          ENRICHED_OVERRIDE: ${{ env.ENRICHED_PATH }}
+        run: |
+          # push_to_instantly.sh picks latest enriched JSON by default;
+          # we symlink today's into v2/ so it wins by timestamp
+          mkdir -p leads/enriched/v2
+          cp "$ENRICHED_OVERRIDE" "leads/enriched/v2/$(basename "$ENRICHED_OVERRIDE")"
+          chmod +x tools/push_to_instantly.sh
+          bash tools/push_to_instantly.sh 2>&1 | tee /tmp/push_output.log || true
+          # Extract summary
+          grep -E "^(MX campaign|US campaign|Uploaded OK|Payloads ready)" /tmp/push_output.log || true
+
+      - name: Mark consumed
+        if: steps.take.outputs.batch_size != ''
+        run: |
+          python3 tools/queue_manager.py mark-consumed /tmp/today_batch.csv
+
+      - name: Commit queue state
+        if: steps.take.outputs.batch_size != ''
+        run: |
+          git config user.name  "jegodigital-bot"
+          git config user.email "bot@jegodigital.com"
+          git add leads/queue/pending.csv leads/queue/consumed.csv leads/enriched/daily/
+          git diff --staged --quiet || git commit -m "chore(daily-topup): processed $BATCH_SIZE leads on $(date -u +%Y-%m-%d)"
+          git push
+        env:
+          BATCH_SIZE: ${{ steps.take.outputs.batch_size }}
+
+      - name: Slack summary
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          BATCH="${{ steps.take.outputs.batch_size }}"
+          PENDING="${{ steps.status.outputs.pending_count }}"
+          STATUS="${{ job.status }}"
+          ICON="✅"
+          if [ "$STATUS" != "success" ]; then ICON="🔴"; fi
+          if [ "$PENDING" = "0" ] || [ -z "$BATCH" ]; then
+            MSG="$ICON *Daily Lead Top-up — $TODAY*\\n🕳️ Queue empty — no leads processed today.\\nRun: python3 tools/queue_manager.py enqueue <fresh_source.csv>"
+          else
+            MSG="$ICON *Daily Lead Top-up — $TODAY*\\n📥 Processed: $BATCH leads\\n📦 Queue remaining: $(($PENDING - $BATCH))\\n🎯 Campaigns topped up with hyper-personalized openers.\\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi
+          curl -sS -X POST -H "Content-Type: application/json" \
+            --data "{\"text\":\"${MSG}\"}" \
+            "$SLACK_WEBHOOK_URL" || echo "Slack post failed (non-fatal)"
