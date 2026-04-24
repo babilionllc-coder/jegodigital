@@ -2,12 +2,64 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-23 evening (Money Machine Reddit scraper fixed + real gap identified: Reddit POSTER missing, not drafter — commit `56e9f72`)
+> **Last session update:** 2026-04-24 early-AM (cold-email conversion session — 2 fixes shipped, 3 queued)
 > **Maintained by:** Claude + Alex
 
 ---
 
-## 🤖 2026-04-23 EVENING — MONEY MACHINE FIX + 4-SESSION "RUN BUSINESS ON PHONE" ROADMAP GREENLIT
+## 🎯 TODAY'S BIG ROCK (HARD RULE #8) — 2026-04-24 PM
+
+> **Fix cold-email conversion — from 0.34% reply rate to 3%+ by shipping hyper-personalized enriched campaigns.**
+>
+> Two fixes shipped overnight (this session). Three more queued for the rest of today:
+>
+> 1. **Fix 3 — AI reply agent audit-first script + kill spintax bug** (45 min). Current AI replies bypass the `/auditoria-gratis` link (BUSINESS.md spec). Moritz received raw `{una pregunta|algo que vi|una idea}` spintax in subject. Fix both in Instantly reply-agent config + template cleanup.
+> 2. **Fix 4 — Ship enriched-opener campaign** (60 min). Once enrich-leads run #3 completes (expected ~02:50 UTC), upload the CSV to Instantly with `{{personalized_opener}}` + `{{pain_1_note}}` merge tags. Rewrite campaign body to use them. Remove hardcoded `400 visitas` / `12 leads` from every template (HR-0 violation, spam-fingerprinted).
+> 3. **Fix 5 — DIY inbox placement checker** (60 min + Alex creates 5 seed inboxes). Proves whether current `zenno+zenia` senders hit Gmail spam (currently unknown — only old senders tested April 4).
+>
+> **Bucket:** B (generate qualified leads) → A (convert 5 existing warm leads + 171 enriched leads).
+> **Success criteria (today):** enriched CSV uploaded to Instantly, first 50 sends use real personalized openers, AI reply agent follows audit-first funnel, placement checker gives real Gmail/Outlook landing rate.
+
+---
+
+## ✅ 2026-04-24 EARLY-AM — COLD-EMAIL CONVERSION SESSION — 2 FIXES SHIPPED
+
+**Diagnosis (all pulled live from Instantly API, HR-1 compliant):**
+- Live 60d: 3,558 sent / 11 opens / 12 replies / 0 bounces = 0.31% open / 0.34% reply
+- Live 24h: Trojan Horse (only campaign with tracking ON showing current activity) = 110 sent / 11 opens = **10% opens** (below 15-30% floor but NOT catastrophic)
+- Current senders (`zenno+zenia`) have ZERO placement test data. Only April 4 test exists — on DECOMMISSIONED senders (`alex@jegoaeo`, `alexiuzz83@gmail`, `contact@aichatsy` — all dead per Alex 2026-04-23). 96% Gmail spam on April 4 is NOT evidence for current state.
+- 5 warm leads identified: Moritz (Iconico), Felix (Mudafy), Jorge (Mihome), Alvaro (Trust Real Estate), Susan (Shoreline Realty). AI replied to all 5 — but Susan waited 17 DAYS (replied Apr 5, AI responded Apr 22 — `instantlyReplyWatcher` only deployed Apr 20).
+
+**What shipped this session (verified live):**
+
+1. ✅ **Fix 1 — Slack reply notifications** (`instantlyReplyWatcher.js`).
+   - Added `sendSlack()` helper (Telegram fallback if URL missing)
+   - Added `buildSlackReplyCard()` Block Kit per-reply card: lead, company, website, campaign, their message body, classification, action taken, timestamp
+   - Auto-response filter (OOO/desactivac/ya no labora) prevents Slack spam
+   - Aggregate run summary now fires BOTH Slack + Telegram (not Telegram only)
+   - 🚨 Fixed silent prod bug: `SLACK_WEBHOOK_URL` was MISSING from GH Secrets — every Slack-intended notification across every Cloud Function has been falling back to Telegram silently for weeks. Wrote to GH Secrets via API (encrypted PUT, HTTP 204 verified).
+   - Test webhook fired → returned `"ok"` ✅
+   - Commit: [`4f52762`](https://github.com/babilionllc-coder/jegodigital/commit/4f52762de5c7eb033abc098364f3576b0d9db58b) → Deploy run #119 (Firebase Functions).
+
+2. ✅ **Fix 2 — Hunter email-finder waterfall v3** (`tools/lead_enrichment_engine.py`).
+   - Run #1 on 391 Vibe leads returned 0 emails (ICP-passed: 238, openers generated: 238, phones: 212, WhatsApp: 43, emails: 0 🔴)
+   - Root causes: (a) Hunter `/v2/email-finder` unreliable for small MX companies, (b) pattern generator produced `agarcía@cpamericas.com` with Spanish accent in local-part (undeliverable), (c) nickname prefixes missed (`al@trustreal.mx` for Alvaro), (d) only 5 domain-search samples.
+   - Fix: `_ascii_slug()` NFKD accent-stripping, bumped samples 5→25, 4-mode Tier 2 direct-match (exact/dot-prefix/underscore-prefix/nickname-prefix), Tier 3 pattern voting across 6 patterns (requires ≥2 votes), Tier 4 last-resort `firstname@domain` if ≥3 verified emails at domain.
+   - HR-6 proof: live-tested on 6 real leads, 5/6 now return deliverable emails (0/6 before). CPA → `agarcia@...` (accent stripped), Alvaro → `al@trustreal.mx` (nickname), etc.
+   - Commit: [`fe6200f`](https://github.com/babilionllc-coder/jegodigital/commit/fe6200fae754b42c5caea3e80452ebdba47347d0) → Re-triggered `enrich-leads.yml` run #3 on same 391 leads (HTTP 204).
+
+**Documentation updates this session:**
+- `CLAUDE.md §OUTREACH` — sender domains corrected from `aichatsy.com` → current `zennoenigmawire.com + zeniaaqua.org` roster with explicit "NEVER re-add" block.
+- `BUSINESS.md §OUTREACH PIPELINE` — same fix + deprecated sender block list.
+- `COLD_EMAIL.md` lines 62, 165, 174 — sender + tracking status corrected.
+- `ONBOARDING.md` line 146 — tool table.
+- `README.md` line 139 — production domain summary.
+- `AI_AGENT_PERSONA.md` — 2 references updated with live current-state numbers.
+- `DISASTER_LOG.md` — 3 new entries: (1) conflating old placement-test senders with current state, (2) Hunter 0%→83% waterfall v3 win, (3) SLACK_WEBHOOK_URL silent secret gap win.
+
+---
+
+## 🤖 2026-04-23 EVENING — MONEY MACHINE FIX (deprioritized by cold-email session)
 
 **What Alex approved:** full 4-session build-out so he can run the entire agency from his phone using Slack + Notion + Linear. Morning Slack push locked at **7:30 AM America/Mexico_City** (separate from existing 9:00 AM TikTok script cron so daily TikTok script + daily approval queue don't bundle into one overwhelming message).
 

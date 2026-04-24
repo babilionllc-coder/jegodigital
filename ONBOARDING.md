@@ -143,7 +143,7 @@ Plus these permanent project rules (not numbered but equally binding):
 | Tool | Purpose |
 |---|---|
 | **Claude AI** | Strategy, content, code, automation |
-| **Instantly.ai** | THE ONLY cold email tool. Sending domain: aichatsy.com |
+| **Instantly.ai** | THE ONLY cold email tool. Sending domains: `zennoenigmawire.com` + `zeniaaqua.org` (10 Google Workspace mailboxes, 300/day capacity). NEVER re-add `@aichatsy.com`, `@jegoaeo.com`, `@jegoleads.*`, or any `@gmail.com` — all deprecated pre-April 2026. |
 | **ElevenLabs + Twilio** | AI cold calling (3 agents, July voice MD6rLAhozcrmkdMZeOBt) |
 | **ManyChat (Sofia)** | WhatsApp + Instagram inbound qualification |
 | **Brevo** | Email marketing for EXISTING leads/clients only (NOT cold) |

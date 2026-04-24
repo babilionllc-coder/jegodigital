@@ -100,7 +100,13 @@ All results: jegodigital.com/showcase · instagram.com/jegodigital
 
 ## OUTREACH PIPELINE — INSTANTLY.AI
 
-**Sending domain:** aichatsy.com (separate from jegodigital.com to protect main domain)
+**Sending domains (live state 2026-04-24):** `zennoenigmawire.com` + `zeniaaqua.org` — 10 Google Workspace mailboxes total (5 per domain), all warmup ON, `stat_warmup_score: 100/100`, 30 sends/day each = **300/day capacity**. Separate from jegodigital.com to protect main domain reputation.
+
+**Mailbox roster (verified live via `/api/v2/accounts`):**
+- `zennoenigmawire.com`: ariana, emily, russell, william, peter
+- `zeniaaqua.org`: kevin, michael, roger, ryan, henry
+
+**DEPRECATED senders — NEVER re-add:** `@aichatsy.com`, `@jegoaeo.com`, `@jegoleads.*`, `@alexiuzz83.gmail.com`. All killed pre-April 2026 for poor Gmail deliverability. Any doc that still mentions `aichatsy.com` as the sending domain is stale.
 
 ### AI Reply Agent Guidance (UPDATED April 19, 2026 — AUDIT-FIRST funnel replaces demo-video-first)
 

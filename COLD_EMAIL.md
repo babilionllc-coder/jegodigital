@@ -59,7 +59,7 @@ All 10 accounts active, all warmup ON, all with `stat_warmup_score: 100`, all wi
 **DNS auth (both sender domains, verified 2026-04-22):**
 - `zeniaaqua.org` — SPF ✅ (Google) · DKIM ✅ (`google._domainkey`) · DMARC ✅ (`p=reject`) · MX ✅ Google Workspace
 - `zennoenigmawire.com` — SPF ✅ (Google) · DKIM ✅ · DMARC ✅ (`p=reject`) · MX ✅ Google Workspace
-- `aichatsy.com` — SPF ✅ (PrivateEmail) · DMARC `p=quarantine` — display domain only, NOT the actual SMTP path. Ignore for deliverability analysis.
+- ~~`aichatsy.com`~~ — **DEPRECATED 2026-04** — no longer a sender, NOT the SMTP path. Ignore entirely. Some older docs still mention it — they're stale.
 
 ---
 
@@ -162,16 +162,16 @@ NEGATIVE REPLY → thanks + remove from sequence. Brief, professional.
 
 ## 📊 SENDING INFRASTRUCTURE
 
-**Sending domain:** `aichatsy.com` (separate from jegodigital.com to protect main domain reputation)
+**Sending domains (verified live 2026-04-24 via `/api/v2/accounts`):** `zennoenigmawire.com` + `zeniaaqua.org` — separate from jegodigital.com to protect main domain reputation. `aichatsy.com` is DEPRECATED and must not be reintroduced.
 
-**Sender accounts (10, all verified 2026-04-22, all warmup_score 100):**
+**Sender accounts (10, all verified 2026-04-24, all stat_warmup_score=100):**
 - 5 × `@zennoenigmawire.com` (ariana, emily, russell, william, peter)
 - 5 × `@zeniaaqua.org` (kevin, michael, roger, ryan, henry)
 - Each account: 30/day limit, custom tracking domain ACTIVE, premium-v1 warmup pool
 - **Total capacity:** 300/day | **Currently utilized:** 68/day = 22.7%
 - **KEEP list** (per memory 2026-04-19): these 10 only. NEVER add `@aichatsy.com` or `@jegoaeo.com` or `@jegoleads.*` back — those 8 sender accounts were killed for poor deliverability.
 
-**Tracking:** All on CTD (custom tracking domain) — `inst.zennoenigmawire.com` or `inst.zeniaaqua.org`. Click tracking and open tracking are per-CAMPAIGN settings (both currently OFF — see Leak #3).
+**Tracking (verified live 2026-04-24):** All on CTD (custom tracking domain) — `inst.zennoenigmawire.com` (`prox.itrackly.com` via Vercel). Click/open tracking is per-CAMPAIGN. **Current state:** `Trojan Horse`, `US-Hispanic-Bilingual-Audit`, `Free Demo Website — MX RE`, `Auditoría Gratis`, `Campaign F - WhatsApp AI Assistant`, `CTD Test — Tracking ON` all have open_tracking=ON. `SEO + Visibilidad`, `Audit_Trojan_MX_Supersearch_v1`, `Campaign E - AI Virtual Staging Demo`, `Campaign D - Listing Intelligence` still have tracking OFF — blind sends.
 
 ---
 
