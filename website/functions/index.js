@@ -2406,6 +2406,16 @@ exports.dailyStrategist = require("./dailyStrategist").dailyStrategist;
 exports.dailyStrategistNow = require("./dailyStrategist").dailyStrategistNow;
 
 // ============================================================
+// dailyPipelineDigest — 6am CDMX Slack DM with full pipeline state.
+// Pulls from Instantly + Brevo + Calendly + queue_depth. Also ships
+// sendingPreviewTonight (9pm CDMX — tomorrow's sends preview).
+// Manual trigger: POST /dailyPipelineDigestOnDemand
+// ============================================================
+exports.dailyPipelineDigest         = require("./dailyPipelineDigest").dailyPipelineDigest;
+exports.dailyPipelineDigestOnDemand = require("./dailyPipelineDigest").dailyPipelineDigestOnDemand;
+exports.sendingPreviewTonight       = require("./dailyPipelineDigest").sendingPreviewTonight;
+
+// ============================================================
 // saveColdCallLead -- ElevenLabs Offer A + C cold-call capture.
 // Upserts Brevo contact (list 35 for Offer A, list 36 for Offer C),
 // enqueues matching 5-email nurture into scheduled_emails (picked up
