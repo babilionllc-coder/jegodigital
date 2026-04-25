@@ -85,21 +85,24 @@ async function queueDepth() {
 }
 
 async function instantlyStats() {
-    // Get overall analytics for last 24h
+    // FIXED 2026-04-25 — was POST with body (returned 0/0/0). Correct call is
+    // GET with query string. Field names from /campaigns/analytics/daily are
+    // `sent`, `opened`/`unique_opened`, `replies`/`unique_replies`, `clicks`.
+    // Without campaign_id the endpoint aggregates across all campaigns.
     const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
     const today     = new Date().toISOString().slice(0, 10);
-    const data = await instantly("POST", "/campaigns/analytics/daily", {
-        start_date: yesterday,
-        end_date:   today,
-    });
+    const data = await instantly(
+        "GET",
+        `/campaigns/analytics/daily?start_date=${yesterday}&end_date=${today}`,
+    );
     if (!data) return { sent: 0, opens: 0, replies: 0, positive_replies: 0 };
-    // Sum across campaigns
+    // Sum across day rows (one row per date in the window)
     let sent = 0, opens = 0, replies = 0;
-    const campaigns = Array.isArray(data) ? data : (data.items || []);
-    for (const c of campaigns) {
-        sent    += c.sent    || c.emails_sent    || 0;
-        opens   += c.opens   || c.emails_opened  || 0;
-        replies += c.replies || c.emails_replied || 0;
+    const rows = Array.isArray(data) ? data : (data.items || data.data || []);
+    for (const r of rows) {
+        sent    += r.sent           || r.emails_sent     || 0;
+        opens   += r.unique_opened  || r.opened          || 0;
+        replies += r.unique_replies || r.replies         || 0;
     }
     return { sent, opens, replies, positive_replies: 0 };  // positive_replies requires reply classifier
 }
