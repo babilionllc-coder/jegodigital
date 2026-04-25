@@ -185,6 +185,22 @@ async function writeToFirestore(reviews) {
         });
     });
 
+    // Compact projection used by both `top3` and `all` arrays.
+    const projectReview = (r) => ({
+        reviewId: r.reviewId,
+        name: r.name,
+        photoUrl: r.photoUrl,
+        reviewerUrl: r.reviewerUrl,
+        isLocalGuide: r.isLocalGuide,
+        stars: r.stars,
+        text: r.text,
+        textTranslated: r.textTranslated,
+        originalLanguage: r.originalLanguage,
+        publishAt: r.publishAt,
+        publishedAtDate: r.publishedAtDate,
+        reviewUrl: r.reviewUrl,
+    });
+
     // Summary doc — single read for the public endpoint.
     const summaryRef = db.collection("public").doc("google_reviews");
     const summary = {
@@ -193,21 +209,11 @@ async function writeToFirestore(reviews) {
         placeReviewsCount: placeReviewsCount || reviews.length,
         eligibleCount: eligible.length,
         top3Ids,
-        // Inline top 3 for fastest homepage rendering (avoids a 2nd Firestore read).
-        top3: eligible.slice(0, HOMEPAGE_TOP_N).map((r) => ({
-            reviewId: r.reviewId,
-            name: r.name,
-            photoUrl: r.photoUrl,
-            reviewerUrl: r.reviewerUrl,
-            isLocalGuide: r.isLocalGuide,
-            stars: r.stars,
-            text: r.text,
-            textTranslated: r.textTranslated,
-            originalLanguage: r.originalLanguage,
-            publishAt: r.publishAt,
-            publishedAtDate: r.publishedAtDate,
-            reviewUrl: r.reviewUrl,
-        })),
+        // Inline top 3 — server-rendered SEO/Schema.org fallback (no-JS users + crawlers).
+        top3: eligible.slice(0, HOMEPAGE_TOP_N).map(projectReview),
+        // Inline ALL eligible reviews — drives the 2-row auto-scrolling marquee.
+        // Bounded to MAX_REVIEWS so the JSON payload never blows up.
+        all: eligible.slice(0, MAX_REVIEWS).map(projectReview),
         lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
         lastUpdatedISO: new Date().toISOString(),
     };
@@ -294,6 +300,8 @@ exports.getGoogleReviews = functions
             const data = snap.data() || {};
             // Strip server timestamp object (returns as { _seconds, _nanoseconds }) — use ISO instead.
             delete data.lastUpdated;
+            // `reviews` (top 3) preserved for backwards compat; `all` is the new
+            // marquee-driving field. Old clients ignore `all`, new clients prefer it.
             res.json({
                 ok: true,
                 placeTitle: data.placeTitle || null,
@@ -302,6 +310,7 @@ exports.getGoogleReviews = functions
                 eligibleCount: data.eligibleCount || 0,
                 lastUpdatedISO: data.lastUpdatedISO || null,
                 reviews: data.top3 || [],
+                all: data.all || data.top3 || [],
             });
         } catch (err) {
             functions.logger.error("getGoogleReviews failed:", err);

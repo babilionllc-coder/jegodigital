@@ -2630,6 +2630,156 @@
                     </article>
                 </div>
 
+                <!-- 2-ROW AUTO-SCROLLING MARQUEE — JS-only.
+                     `hidden` removed by hydration script after fetch succeeds.
+                     Mobile + desktop both animate; pause on hover/focus for a11y.
+                     Each card wraps in <a> so any tap → real Google review URL. -->
+                <div id="reviews-marquee" class="reviews-marquee mb-10" hidden aria-label="All Google reviews, auto-scrolling">
+                    <div class="reviews-row reviews-row-1" data-row="1">
+                        <div class="reviews-track" data-marquee-track></div>
+                    </div>
+                    <div class="reviews-row reviews-row-2" data-row="2">
+                        <div class="reviews-track" data-marquee-track></div>
+                    </div>
+                </div>
+
+                <style>
+                    /* === Auto-scrolling reviews marquee (2 rows, opposite directions) === */
+                    .reviews-marquee {
+                        --marquee-gap: 16px;
+                        --marquee-card-w: 340px;
+                        --marquee-card-w-mobile: 280px;
+                        --marquee-fade-w: 80px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                        position: relative;
+                        /* Soft fade on the edges so cards appear to dissolve in/out */
+                        -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--marquee-fade-w), #000 calc(100% - var(--marquee-fade-w)), transparent);
+                                mask-image: linear-gradient(90deg, transparent, #000 var(--marquee-fade-w), #000 calc(100% - var(--marquee-fade-w)), transparent);
+                    }
+                    .reviews-row {
+                        overflow: hidden;
+                        position: relative;
+                    }
+                    .reviews-track {
+                        display: flex;
+                        gap: var(--marquee-gap);
+                        width: max-content;
+                        will-change: transform;
+                        animation: reviews-scroll-left 60s linear infinite;
+                    }
+                    .reviews-row-2 .reviews-track {
+                        animation-name: reviews-scroll-right;
+                        animation-duration: 75s; /* slightly different speed = visually richer */
+                    }
+                    @keyframes reviews-scroll-left {
+                        0%   { transform: translate3d(0, 0, 0); }
+                        100% { transform: translate3d(-50%, 0, 0); }
+                    }
+                    @keyframes reviews-scroll-right {
+                        0%   { transform: translate3d(-50%, 0, 0); }
+                        100% { transform: translate3d(0, 0, 0); }
+                    }
+                    .reviews-marquee:hover .reviews-track,
+                    .reviews-marquee:focus-within .reviews-track {
+                        animation-play-state: paused;
+                    }
+                    @media (prefers-reduced-motion: reduce) {
+                        .reviews-track { animation: none; }
+                        .reviews-row { overflow-x: auto; }
+                    }
+                    .reviews-card {
+                        flex: 0 0 var(--marquee-card-w);
+                        width: var(--marquee-card-w);
+                        background: rgba(255, 255, 255, 0.04);
+                        border: 1px solid rgba(255, 255, 255, 0.10);
+                        border-radius: 16px;
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                        text-decoration: none;
+                        color: inherit;
+                        transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+                        cursor: pointer;
+                    }
+                    .reviews-card:hover,
+                    .reviews-card:focus-visible {
+                        transform: translateY(-3px);
+                        border-color: rgba(197, 160, 89, 0.40);
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+                        outline: none;
+                    }
+                    .reviews-card-text {
+                        color: rgba(255, 255, 255, 0.72);
+                        font-size: 13px;
+                        line-height: 1.55;
+                        flex: 1;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 5;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                    }
+                    .reviews-card-meta {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 12px;
+                    }
+                    .reviews-card-author {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        min-width: 0;
+                    }
+                    .reviews-card-author img,
+                    .reviews-card-author .reviews-avatar-fallback {
+                        width: 36px; height: 36px;
+                        border-radius: 50%;
+                        flex-shrink: 0;
+                        object-fit: cover;
+                        background: rgba(255, 255, 255, 0.10);
+                    }
+                    .reviews-avatar-fallback {
+                        display: flex; align-items: center; justify-content: center;
+                        background: linear-gradient(135deg, #C5A059, #b08d48);
+                        color: #fff; font-weight: 700; font-size: 13px;
+                    }
+                    .reviews-card-name {
+                        color: #fff; font-weight: 600; font-size: 13px;
+                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                        max-width: 180px;
+                    }
+                    .reviews-card-when {
+                        color: rgba(255, 255, 255, 0.40);
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                        font-size: 10px;
+                    }
+                    .reviews-card-stars {
+                        display: flex; gap: 2px;
+                    }
+                    .reviews-card-stars svg { width: 14px; height: 14px; color: #facc15; }
+                    .reviews-card-google { width: 18px; height: 18px; opacity: 0.6; flex-shrink: 0; }
+                    .reviews-card-foot {
+                        display: flex; align-items: center; justify-content: space-between;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                        font-size: 10px; color: rgba(255, 255, 255, 0.30);
+                    }
+                    .reviews-card:hover .reviews-card-foot,
+                    .reviews-card:focus-visible .reviews-card-foot {
+                        color: #C5A059;
+                    }
+                    @media (max-width: 640px) {
+                        .reviews-marquee {
+                            --marquee-card-w: var(--marquee-card-w-mobile);
+                            --marquee-fade-w: 32px;
+                        }
+                        .reviews-track { animation-duration: 45s; }
+                        .reviews-row-2 .reviews-track { animation-duration: 55s; }
+                    }
+                </style>
+
                 <!-- Last-synced timestamp + auto-refresh hint -->
                 <p class="text-center text-white/30 text-[10px] font-mono mb-8" id="reviews-last-synced">
                     Reviews synced live from Google · Updated daily
@@ -2647,7 +2797,7 @@
                         </svg>
                         View All Reviews on Google
                     </a>
-                    <a href="https://search.google.com/local/writereview?placeid=&kgmid=/g/11zhmvt3cs"
+                    <a href="https://search.google.com/local/writereview?placeid=ChIJY8hblznTcwkRQz9LPstXY5o"
                         target="_blank" rel="noopener"
                         class="inline-flex items-center gap-2 border border-[#C5A059]/40 text-[#C5A059] hover:bg-[#C5A059]/10 font-bold text-sm px-6 py-3 rounded-full transition-all hover:-translate-y-0.5">
                         <i data-lucide="star" class="w-4 h-4"></i>
@@ -2657,20 +2807,24 @@
             </div>
 
             <!-- LIVE GOOGLE REVIEWS HYDRATION SCRIPT
-                 Fetches /api/google-reviews on page load, replaces the 3 fallback cards
-                 with the latest reviews, updates the aggregate rating + review count,
-                 and recalculates Schema.org meta tags so SERP rich-results stay fresh. -->
+                 1. Fetch /api/google-reviews on page load
+                 2. Update aggregate rating + count + Schema.org meta from `placeRating`/`placeReviewsCount`
+                 3. Hide the static 3-card fallback grid (kept in DOM for SEO/no-JS)
+                 4. Build the 2-row auto-scrolling marquee from `data.all` (every eligible review)
+                 5. Re-runs every 5min in case a new review lands while the page is open -->
             <script>
                 (function () {
                     "use strict";
                     var ENDPOINT = "/api/google-reviews";
                     var GRID_ID = "reviews-grid";
+                    var MARQUEE_ID = "reviews-marquee";
                     var RATING_ID = "reviews-rating-value";
                     var COUNT_ID = "reviews-count-value";
                     var RATING_META_ID = "reviews-aggregate-rating-meta";
                     var COUNT_META_ID = "reviews-aggregate-count-meta";
                     var STARS_ID = "reviews-aggregate-stars";
                     var SYNCED_ID = "reviews-last-synced";
+                    var REFRESH_MS = 5 * 60 * 1000; // 5 min in-tab refresh
 
                     function escapeHtml(s) {
                         return String(s == null ? "" : s)
@@ -2681,53 +2835,48 @@
                         return String(name || "?").trim().split(/\s+/).slice(0, 2)
                             .map(function (p) { return p.charAt(0).toUpperCase(); }).join("") || "?";
                     }
-                    function starSvg(filled) {
-                        var color = filled ? "text-yellow-400" : "text-white/15";
-                        return '<svg class="w-4 h-4 ' + color + '" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>';
+                    function starSvg() {
+                        return '<svg fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>';
                     }
-                    function googleSvg() {
-                        return '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0 opacity-60" aria-label="Google"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>';
+                    function googleIconHtml() {
+                        return '<svg class="reviews-card-google" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-label="Google"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>';
                     }
-                    function reviewCardHtml(r) {
+                    function marqueeCardHtml(r) {
                         var name = escapeHtml(r.name || "Verified Google Reviewer");
-                        // Prefer original text, fall back to translated, then truncate at 280 chars.
                         var raw = (r.text || r.textTranslated || "").trim();
-                        if (raw.length > 280) raw = raw.slice(0, 277).replace(/\s+\S*$/, "") + "…";
                         var text = escapeHtml(raw);
-                        // Boost a punchy fragment with <strong>: first sentence up to 60 chars.
-                        var firstSentence = (raw.match(/^[^.!?\n]{8,80}[.!?]/) || [])[0];
-                        if (firstSentence && text.indexOf(escapeHtml(firstSentence)) === 0) {
-                            var rest = text.slice(escapeHtml(firstSentence).length);
-                            text = '<strong class="text-white">' + escapeHtml(firstSentence) + '</strong>' + rest;
-                        }
                         var role = r.isLocalGuide ? "Local Guide" : "Verified Google Reviewer";
                         var when = r.publishAt ? " · " + escapeHtml(r.publishAt) : "";
                         var photoUrl = r.photoUrl
-                            ? r.photoUrl.replace(/=s\d+(-c-rp-mo[\w-]*)?$/, "=s120-c-rp-mo-br100")
+                            ? r.photoUrl.replace(/=s\d+(-c-rp-mo[\w-]*)?$/, "=s96-c-rp-mo-br100")
                             : null;
-                        // Photo block — uses <img> with onerror falling back to gold-gradient initials.
                         var photo = photoUrl
-                            ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + name + '" loading="lazy" referrerpolicy="no-referrer" class="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-white/10" onerror="this.outerHTML=\'&lt;div class=&quot;w-10 h-10 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] flex items-center justify-center text-white font-bold text-sm flex-shrink-0&quot;&gt;' + initials(name) + '&lt;/div&gt;\';">'
-                            : '<div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">' + initials(name) + '</div>';
+                            ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + name + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'&lt;div class=&quot;reviews-avatar-fallback&quot;&gt;' + initials(name) + '&lt;/div&gt;\';">'
+                            : '<div class="reviews-avatar-fallback">' + initials(name) + '</div>';
                         var reviewLink = escapeHtml(r.reviewUrl || "https://share.google/EIfjKkHKNC4sctIYt");
                         var stars = "";
-                        for (var i = 1; i <= 5; i++) stars += starSvg(i <= (r.stars || 0));
+                        for (var i = 1; i <= (r.stars || 0); i++) stars += starSvg();
                         return ''
-                            + '<article class="review-card bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]" itemscope itemtype="https://schema.org/Review">'
+                            + '<a class="reviews-card" href="' + reviewLink + '" target="_blank" rel="noopener" itemscope itemtype="https://schema.org/Review" aria-label="' + (r.stars||0) + '-star Google review by ' + name + '. Tap to read on Google.">'
                             + '<meta itemprop="itemReviewed" content="JegoDigital">'
-                            + '<div class="flex items-center justify-between"><div class="flex items-center gap-3">'
-                            + photo
-                            + '<div itemprop="author" itemscope itemtype="https://schema.org/Person">'
-                            + '<p class="text-white font-semibold text-sm" itemprop="name">' + name + '</p>'
-                            + '<p class="text-white/40 text-[10px] font-mono">' + escapeHtml(role) + when + '</p>'
-                            + '</div></div>' + googleSvg() + '</div>'
-                            + '<div class="flex gap-0.5" aria-label="' + (r.stars || 0) + ' out of 5 stars" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">'
-                            + '<meta itemprop="ratingValue" content="' + (r.stars || 0) + '">'
-                            + '<meta itemprop="bestRating" content="5">'
-                            + stars + '</div>'
-                            + '<p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"' + text + '"</p>'
-                            + '<a href="' + reviewLink + '" target="_blank" rel="noopener" class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View on Google ↗</a>'
-                            + '</article>';
+                            + '<div class="reviews-card-meta">'
+                            +   '<div class="reviews-card-author">'
+                            +     photo
+                            +     '<div itemprop="author" itemscope itemtype="https://schema.org/Person" style="min-width:0;">'
+                            +       '<div class="reviews-card-name" itemprop="name">' + name + '</div>'
+                            +       '<div class="reviews-card-when">' + escapeHtml(role) + when + '</div>'
+                            +     '</div>'
+                            +   '</div>'
+                            +   googleIconHtml()
+                            + '</div>'
+                            + '<div class="reviews-card-stars" aria-label="' + (r.stars||0) + ' out of 5 stars" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">'
+                            +   '<meta itemprop="ratingValue" content="' + (r.stars||0) + '">'
+                            +   '<meta itemprop="bestRating" content="5">'
+                            +   stars
+                            + '</div>'
+                            + '<div class="reviews-card-text" itemprop="reviewBody">"' + text + '"</div>'
+                            + '<div class="reviews-card-foot"><span>View on Google</span><span>↗</span></div>'
+                            + '</a>';
                     }
                     function updateAggregateStars(rating) {
                         var el = document.getElementById(STARS_ID);
@@ -2739,6 +2888,39 @@
                         }
                         el.innerHTML = html;
                     }
+                    function buildMarquee(allReviews) {
+                        var marquee = document.getElementById(MARQUEE_ID);
+                        var grid = document.getElementById(GRID_ID);
+                        if (!marquee || !allReviews || !allReviews.length) return;
+
+                        // Split into two rows. Even-indexed go to row 1, odd-indexed to row 2.
+                        // This keeps the freshest review (index 0) in the visible top row.
+                        var row1 = [], row2 = [];
+                        allReviews.forEach(function (r, i) {
+                            (i % 2 === 0 ? row1 : row2).push(r);
+                        });
+                        // If a row has only 1 card, pad with the other row's content so the
+                        // marquee doesn't look sparse during the initial loop.
+                        if (row1.length < 2) row1 = allReviews.slice();
+                        if (row2.length < 2) row2 = allReviews.slice().reverse();
+
+                        var tracks = marquee.querySelectorAll("[data-marquee-track]");
+                        if (tracks.length >= 2) {
+                            // Render content TWICE per track for a seamless infinite loop
+                            // (animation translates 0% → -50%, so the second copy slides
+                            // into the visible position before snap-back).
+                            var html1 = row1.map(marqueeCardHtml).join("");
+                            var html2 = row2.map(marqueeCardHtml).join("");
+                            tracks[0].innerHTML = html1 + html1;
+                            tracks[1].innerHTML = html2 + html2;
+                            // Mark the duplicates aria-hidden — handled per <a> isn't easy here,
+                            // so we mark the WHOLE second clone via a wrapper in a future pass.
+                        }
+
+                        // Reveal the marquee + hide the SEO/no-JS fallback grid.
+                        marquee.removeAttribute("hidden");
+                        if (grid) grid.style.display = "none";
+                    }
                     function fetchAndRender() {
                         if (!("fetch" in window)) return;
                         fetch(ENDPOINT, { credentials: "omit", cache: "default" })
@@ -2747,7 +2929,8 @@
                                 if (!data || !data.ok) return;
                                 var rating = Number(data.placeRating || 0);
                                 var count = Number(data.placeReviewsCount || 0);
-                                var reviews = Array.isArray(data.reviews) ? data.reviews : [];
+                                var allReviews = Array.isArray(data.all) ? data.all
+                                                : (Array.isArray(data.reviews) ? data.reviews : []);
 
                                 var ratingEl = document.getElementById(RATING_ID);
                                 if (ratingEl && rating) ratingEl.textContent = rating.toFixed(1);
@@ -2759,18 +2942,14 @@
                                 if (cmeta && count) cmeta.setAttribute("content", String(count));
                                 if (rating) updateAggregateStars(rating);
 
-                                if (reviews.length >= 1) {
-                                    var grid = document.getElementById(GRID_ID);
-                                    if (grid) {
-                                        grid.innerHTML = reviews.slice(0, 3).map(reviewCardHtml).join("");
-                                        grid.setAttribute("data-fallback-rendered", "false");
-                                    }
-                                }
+                                buildMarquee(allReviews);
+
                                 var synced = document.getElementById(SYNCED_ID);
                                 if (synced && data.lastUpdatedISO) {
                                     var d = new Date(data.lastUpdatedISO);
                                     if (!isNaN(d.getTime())) {
-                                        synced.textContent = "Reviews synced live from Google · Last update: "
+                                        synced.textContent = allReviews.length
+                                            + " reviews · live from Google · last sync "
                                             + d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
                                     }
                                 }
@@ -2778,13 +2957,16 @@
                                     window.lucide.createIcons();
                                 }
                             })
-                            .catch(function () { /* silent — fallback cards already rendered */ });
+                            .catch(function () { /* silent — server-rendered fallback already shown */ });
                     }
                     if (document.readyState === "loading") {
                         document.addEventListener("DOMContentLoaded", fetchAndRender);
                     } else {
                         fetchAndRender();
                     }
+                    // Auto-refresh every 5 min while tab is open — catches fresh reviews
+                    // that landed since page load (cron is daily; this is opportunistic).
+                    setInterval(fetchAndRender, REFRESH_MS);
                 })();
             </script>
         </section>
