@@ -2434,7 +2434,21 @@
         </section>
 
         <!-- GOOGLE REVIEWS SECTION -->
-        <section class="py-20 px-4 bg-[#0f1115] border-t border-white/5 relative overflow-hidden" id="google-reviews">
+        <!-- LIVE — auto-syncs daily from our verified Google Maps listing.
+             Source: Apify Google-Maps-Reviews-Scraper → /api/google-reviews
+             See website/functions/googleReviewsSync.js -->
+        <section class="py-20 px-4 bg-[#0f1115] border-t border-white/5 relative overflow-hidden" id="google-reviews"
+            itemscope itemtype="https://schema.org/LocalBusiness">
+            <meta itemprop="name" content="JegoDigital">
+            <meta itemprop="url" content="https://jegodigital.com">
+            <meta itemprop="image" content="https://jegodigital.com/images/logo/jegodigitallogo.png">
+            <!-- Aggregate rating (real, server-rendered fallback — JS hydrates with fresh number on load) -->
+            <div itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
+                <meta itemprop="ratingValue" content="4.8" id="reviews-aggregate-rating-meta">
+                <meta itemprop="reviewCount" content="9" id="reviews-aggregate-count-meta">
+                <meta itemprop="bestRating" content="5">
+                <meta itemprop="worstRating" content="1">
+            </div>
             <!-- Subtle background grid -->
             <div class="absolute inset-0 z-0 opacity-5 pointer-events-none"
                 style="background-image: radial-gradient(#C5A059 1px, transparent 1px); background-size: 48px 48px;">
@@ -2442,261 +2456,198 @@
             <div class="max-w-6xl mx-auto relative z-10">
                 <!-- Section Header -->
                 <div class="text-center mb-12">
-                    <!-- Google-style badge -->
-                    <div
-                        class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                            aria-label="Google">
-                            <path fill="#4285F4"
-                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                            <path fill="#34A853"
-                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                            <path fill="#FBBC05"
-                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                            <path fill="#EA4335"
-                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                        </svg>
-                        <span class="text-white/60 text-xs font-mono uppercase tracking-widest">Verified on
-                            Google</span>
+                    <!-- Live + Verified badges -->
+                    <div class="inline-flex items-center gap-2 flex-wrap justify-center mb-6">
+                        <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                aria-label="Google">
+                                <path fill="#4285F4"
+                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853"
+                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05"
+                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                                <path fill="#EA4335"
+                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            </svg>
+                            <span class="text-white/60 text-xs font-mono uppercase tracking-widest">Verified on
+                                Google</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-3 py-2">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-emerald-300 text-[10px] font-mono uppercase tracking-widest">Live · Auto-Synced</span>
+                        </div>
                     </div>
                     <h2 class="text-3xl md:text-5xl font-bold mb-4">What Our Clients Say on <span
                             class="gradient-text">Google</span></h2>
-                    <!-- Aggregate Rating -->
-                    <div class="flex items-center justify-center gap-3 mt-4">
-                        <div class="flex gap-1">
-                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <!-- Aggregate Rating (live: rating + review count populated from /api/google-reviews) -->
+                    <div class="flex items-center justify-center gap-3 mt-4 flex-wrap">
+                        <div class="flex gap-1" id="reviews-aggregate-stars">
+                            <!-- 5 stars rendered. Last star fractionally filled if rating < 5 (set by JS via clip-path).-->
+                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path
                                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
-                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path
                                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
-                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path
                                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
-                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path
                                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
-                            <svg class="w-7 h-7 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-7 h-7 text-yellow-400/40" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                 <path
                                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
                         </div>
-                        <span class="text-white text-2xl font-bold">5.0</span>
-                        <span class="text-white/40 text-sm font-mono">/ Google Reviews</span>
+                        <span class="text-white text-2xl font-bold" id="reviews-rating-value">4.8</span>
+                        <span class="text-white/40 text-sm font-mono">/ <span id="reviews-count-value">9</span> Google Reviews</span>
                     </div>
                 </div>
 
-                <!-- Review Cards Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <!-- Review 1: Rodrigo Elizondo -->
-                    <div class="bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]"
+                <!-- Review Cards Grid — server-rendered fallback uses 3 real reviews (Yorley, Rodrigo, Claudia).
+                     JS replaces these in-place with the freshest 3 from /api/google-reviews on load. -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10" id="reviews-grid"
+                    data-fallback-rendered="true">
+
+                    <!-- Card 1 — Yorley Bustamante (real Google review, 5★, longest detailed text) -->
+                    <article class="review-card bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]"
                         itemscope itemtype="https://schema.org/Review">
-                        <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/LocalBusiness">
-                            <meta itemprop="name" content="JegoDigital">
-                            <meta itemprop="image" content="https://jegodigital.com/assets/images/logo.png">
-                        </div>
+                        <meta itemprop="itemReviewed" content="JegoDigital">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                    RE</div>
+                                <img src="https://lh3.googleusercontent.com/a-/ALV-UjVHZ1qM8rz2ou4aNCYNu3zYBSPORwiPf1V_LPtj_qlf_c5i1N6m=s120-c-rp-mo-br100"
+                                    alt="Yorley Bustamante" loading="lazy" referrerpolicy="no-referrer"
+                                    class="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-white/10"
+                                    onerror="this.outerHTML='&lt;div class=&quot;w-10 h-10 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] flex items-center justify-center text-white font-bold text-sm flex-shrink-0&quot;&gt;YB&lt;/div&gt;';">
+                                <div itemprop="author" itemscope itemtype="https://schema.org/Person">
+                                    <p class="text-white font-semibold text-sm" itemprop="name">Yorley Bustamante</p>
+                                    <p class="text-white/40 text-[10px] font-mono">Verified Google Reviewer · a day ago</p>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                class="flex-shrink-0 opacity-60" aria-label="Google">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            </svg>
+                        </div>
+                        <div class="flex gap-0.5" aria-label="5 out of 5 stars" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
+                            <meta itemprop="ratingValue" content="5">
+                            <meta itemprop="bestRating" content="5">
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                        </div>
+                        <p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"Working with this marketing agency has been one of the best decisions for our business. From the start, they perfectly understood our vision and transformed it into <strong class="text-white">clear, creative, and effective strategies</strong>."</p>
+                        <a href="https://share.google/EIfjKkHKNC4sctIYt" target="_blank" rel="noopener"
+                            class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View on Google ↗</a>
+                    </article>
+
+                    <!-- Card 2 — Rodrigo Elizondo (real Google review, 5★, mentions Flamingo by name) -->
+                    <article class="review-card bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]"
+                        itemscope itemtype="https://schema.org/Review">
+                        <meta itemprop="itemReviewed" content="JegoDigital">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img src="https://lh3.googleusercontent.com/a-/ALV-UjWHDdQMh3VwLqZTrH79tZGgNJBHxRb0UXkhX3YPsRcR8rkzi9Q=s120-c-rp-mo-ba2-br100"
+                                    alt="Rodrigo Elizondo" loading="lazy" referrerpolicy="no-referrer"
+                                    class="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-white/10"
+                                    onerror="this.outerHTML='&lt;div class=&quot;w-10 h-10 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] flex items-center justify-center text-white font-bold text-sm flex-shrink-0&quot;&gt;RE&lt;/div&gt;';">
                                 <div itemprop="author" itemscope itemtype="https://schema.org/Person">
                                     <p class="text-white font-semibold text-sm" itemprop="name">Rodrigo Elizondo</p>
-                                    <p class="text-white/40 text-[10px] font-mono">Co-Founder, Real Estate Flamingo</p>
+                                    <p class="text-white/40 text-[10px] font-mono">Local Guide · Co-Founder, Flamingo Real Estate</p>
                                 </div>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                class="flex-shrink-0 opacity-60">
-                                <path fill="#4285F4"
-                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path fill="#34A853"
-                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path fill="#FBBC05"
-                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                                <path fill="#EA4335"
-                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                class="flex-shrink-0 opacity-60" aria-label="Google">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                             </svg>
                         </div>
-                        <div class="flex gap-0.5" itemprop="reviewRating" itemscope
-                            itemtype="https://schema.org/Rating">
+                        <div class="flex gap-0.5" aria-label="5 out of 5 stars" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
                             <meta itemprop="ratingValue" content="5">
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
+                            <meta itemprop="bestRating" content="5">
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                         </div>
-                        <p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"JegoDigital
-                            didn't just build us a website — they built a <strong class="text-white">Sales
-                                Machine</strong>. We went from zero digital presence to dominating Cancún's real estate
-                            market in 90 days. The AI voice agent alone books 3–5 qualified calls per week,
-                            automatically."</p>
-                        <a href="https://share.google/H6qrQ2jQ2aCTnp7M7" target="_blank" rel="noopener"
-                            class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View
-                            on Google ↗</a>
-                    </div>
+                        <p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"Excellent service! <strong class="text-white">Flamingo Real Estate went from zero to one hundred</strong> thanks to Alex Jego and his team. 100% recommended!"</p>
+                        <a href="https://share.google/EIfjKkHKNC4sctIYt" target="_blank" rel="noopener"
+                            class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View on Google ↗</a>
+                    </article>
 
-                    <!-- Review 2: Alejandro Vargas -->
-                    <div class="bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]"
+                    <!-- Card 3 — Claudia Islas (real Google review, 5★, recent) -->
+                    <article class="review-card bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]"
                         itemscope itemtype="https://schema.org/Review">
-                        <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/LocalBusiness">
-                            <meta itemprop="name" content="JegoDigital">
-                            <meta itemprop="image" content="https://jegodigital.com/assets/images/logo.png">
-                        </div>
+                        <meta itemprop="itemReviewed" content="JegoDigital">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                    AV</div>
+                                <img src="https://lh3.googleusercontent.com/a-/ALV-UjUxSg8YO5bLbBPaC6krKVYeZQCQ3HAHwDwQ6yDlNZh-usg87peB=s120-c-rp-mo-br100"
+                                    alt="Claudia Islas" loading="lazy" referrerpolicy="no-referrer"
+                                    class="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-white/10"
+                                    onerror="this.outerHTML='&lt;div class=&quot;w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0&quot;&gt;CI&lt;/div&gt;';">
                                 <div itemprop="author" itemscope itemtype="https://schema.org/Person">
-                                    <p class="text-white font-semibold text-sm" itemprop="name">Alejandro Vargas</p>
-                                    <p class="text-white/40 text-[10px] font-mono">Real Estate Director, Cancún</p>
+                                    <p class="text-white font-semibold text-sm" itemprop="name">Claudia Islas</p>
+                                    <p class="text-white/40 text-[10px] font-mono">Verified Google Reviewer · 2 hours ago</p>
                                 </div>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                class="flex-shrink-0 opacity-60">
-                                <path fill="#4285F4"
-                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path fill="#34A853"
-                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path fill="#FBBC05"
-                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                                <path fill="#EA4335"
-                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                class="flex-shrink-0 opacity-60" aria-label="Google">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                             </svg>
                         </div>
-                        <div class="flex gap-0.5" itemprop="reviewRating" itemscope
-                            itemtype="https://schema.org/Rating">
+                        <div class="flex gap-0.5" aria-label="5 out of 5 stars" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
                             <meta itemprop="ratingValue" content="5">
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
+                            <meta itemprop="bestRating" content="5">
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                         </div>
-                        <p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"I was skeptical
-                            about AI marketing at first. Within the first month, we had <strong class="text-white">4x
-                                more qualified leads</strong> and our Google Maps ranking jumped to #1 for our target
-                            keywords. The ROI is undeniable. JegoDigital delivers what they promise."</p>
-                        <a href="https://share.google/H6qrQ2jQ2aCTnp7M7" target="_blank" rel="noopener"
-                            class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View
-                            on Google ↗</a>
-                    </div>
-
-                    <!-- Review 3: Studio Level Up -->
-                    <div class="bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]"
-                        itemscope itemtype="https://schema.org/Review">
-                        <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/LocalBusiness">
-                            <meta itemprop="name" content="JegoDigital">
-                            <meta itemprop="image" content="https://jegodigital.com/assets/images/logo.png">
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                    SL</div>
-                                <div itemprop="author" itemscope itemtype="https://schema.org/Person">
-                                    <p class="text-white font-semibold text-sm" itemprop="name">Studio Level Up</p>
-                                    <p class="text-white/40 text-[10px] font-mono">Premier Fitness Studio • Cancún</p>
-                                </div>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                class="flex-shrink-0 opacity-60">
-                                <path fill="#4285F4"
-                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path fill="#34A853"
-                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path fill="#FBBC05"
-                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                                <path fill="#EA4335"
-                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                            </svg>
-                        </div>
-                        <div class="flex gap-0.5" itemprop="reviewRating" itemscope
-                            itemtype="https://schema.org/Rating">
-                            <meta itemprop="ratingValue" content="5">
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                        </div>
-                        <p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"We went from
-                            being invisible to <strong class="text-white">#1 on Google Maps</strong>, 5x more traffic,
-                            and +200% leads. JegoDigital understands real results. Their AI systems work around the
-                            clock — we even get bookings at 3 AM that we would have missed before."</p>
-                        <a href="https://share.google/H6qrQ2jQ2aCTnp7M7" target="_blank" rel="noopener"
-                            class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View
-                            on Google ↗</a>
-                    </div>
+                        <p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"<strong class="text-white">Excellent service!</strong> They answered all my questions in a super professional manner. Highly recommended! 👍👍"</p>
+                        <a href="https://share.google/EIfjKkHKNC4sctIYt" target="_blank" rel="noopener"
+                            class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View on Google ↗</a>
+                    </article>
                 </div>
+
+                <!-- Last-synced timestamp + auto-refresh hint -->
+                <p class="text-center text-white/30 text-[10px] font-mono mb-8" id="reviews-last-synced">
+                    Reviews synced live from Google · Updated daily
+                </p>
 
                 <!-- CTA Row -->
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="https://share.google/H6qrQ2jQ2aCTnp7M7" target="_blank" rel="noopener"
+                    <a href="https://share.google/EIfjKkHKNC4sctIYt" target="_blank" rel="noopener"
                         class="inline-flex items-center gap-2 bg-white text-gray-900 font-bold text-sm px-6 py-3 rounded-full hover:bg-white/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                            <path fill="#4285F4"
-                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                            <path fill="#34A853"
-                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                            <path fill="#FBBC05"
-                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                            <path fill="#EA4335"
-                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                         </svg>
                         View All Reviews on Google
                     </a>
-                    <a href="https://search.google.com/local/writereview?placeid=ChIJY8hblznTcwlDP0s-y1djmg"
+                    <a href="https://search.google.com/local/writereview?placeid=&kgmid=/g/11zhmvt3cs"
                         target="_blank" rel="noopener"
                         class="inline-flex items-center gap-2 border border-[#C5A059]/40 text-[#C5A059] hover:bg-[#C5A059]/10 font-bold text-sm px-6 py-3 rounded-full transition-all hover:-translate-y-0.5">
                         <i data-lucide="star" class="w-4 h-4"></i>
@@ -2704,6 +2655,138 @@
                     </a>
                 </div>
             </div>
+
+            <!-- LIVE GOOGLE REVIEWS HYDRATION SCRIPT
+                 Fetches /api/google-reviews on page load, replaces the 3 fallback cards
+                 with the latest reviews, updates the aggregate rating + review count,
+                 and recalculates Schema.org meta tags so SERP rich-results stay fresh. -->
+            <script>
+                (function () {
+                    "use strict";
+                    var ENDPOINT = "/api/google-reviews";
+                    var GRID_ID = "reviews-grid";
+                    var RATING_ID = "reviews-rating-value";
+                    var COUNT_ID = "reviews-count-value";
+                    var RATING_META_ID = "reviews-aggregate-rating-meta";
+                    var COUNT_META_ID = "reviews-aggregate-count-meta";
+                    var STARS_ID = "reviews-aggregate-stars";
+                    var SYNCED_ID = "reviews-last-synced";
+
+                    function escapeHtml(s) {
+                        return String(s == null ? "" : s)
+                            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+                    }
+                    function initials(name) {
+                        return String(name || "?").trim().split(/\s+/).slice(0, 2)
+                            .map(function (p) { return p.charAt(0).toUpperCase(); }).join("") || "?";
+                    }
+                    function starSvg(filled) {
+                        var color = filled ? "text-yellow-400" : "text-white/15";
+                        return '<svg class="w-4 h-4 ' + color + '" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>';
+                    }
+                    function googleSvg() {
+                        return '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="flex-shrink-0 opacity-60" aria-label="Google"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>';
+                    }
+                    function reviewCardHtml(r) {
+                        var name = escapeHtml(r.name || "Verified Google Reviewer");
+                        // Prefer original text, fall back to translated, then truncate at 280 chars.
+                        var raw = (r.text || r.textTranslated || "").trim();
+                        if (raw.length > 280) raw = raw.slice(0, 277).replace(/\s+\S*$/, "") + "…";
+                        var text = escapeHtml(raw);
+                        // Boost a punchy fragment with <strong>: first sentence up to 60 chars.
+                        var firstSentence = (raw.match(/^[^.!?\n]{8,80}[.!?]/) || [])[0];
+                        if (firstSentence && text.indexOf(escapeHtml(firstSentence)) === 0) {
+                            var rest = text.slice(escapeHtml(firstSentence).length);
+                            text = '<strong class="text-white">' + escapeHtml(firstSentence) + '</strong>' + rest;
+                        }
+                        var role = r.isLocalGuide ? "Local Guide" : "Verified Google Reviewer";
+                        var when = r.publishAt ? " · " + escapeHtml(r.publishAt) : "";
+                        var photoUrl = r.photoUrl
+                            ? r.photoUrl.replace(/=s\d+(-c-rp-mo[\w-]*)?$/, "=s120-c-rp-mo-br100")
+                            : null;
+                        // Photo block — uses <img> with onerror falling back to gold-gradient initials.
+                        var photo = photoUrl
+                            ? '<img src="' + escapeHtml(photoUrl) + '" alt="' + name + '" loading="lazy" referrerpolicy="no-referrer" class="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-white/10" onerror="this.outerHTML=\'&lt;div class=&quot;w-10 h-10 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] flex items-center justify-center text-white font-bold text-sm flex-shrink-0&quot;&gt;' + initials(name) + '&lt;/div&gt;\';">'
+                            : '<div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#C5A059] to-[#b08d48] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">' + initials(name) + '</div>';
+                        var reviewLink = escapeHtml(r.reviewUrl || "https://share.google/EIfjKkHKNC4sctIYt");
+                        var stars = "";
+                        for (var i = 1; i <= 5; i++) stars += starSvg(i <= (r.stars || 0));
+                        return ''
+                            + '<article class="review-card bg-white/[0.04] border border-white/10 hover:border-[#C5A059]/30 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.4)]" itemscope itemtype="https://schema.org/Review">'
+                            + '<meta itemprop="itemReviewed" content="JegoDigital">'
+                            + '<div class="flex items-center justify-between"><div class="flex items-center gap-3">'
+                            + photo
+                            + '<div itemprop="author" itemscope itemtype="https://schema.org/Person">'
+                            + '<p class="text-white font-semibold text-sm" itemprop="name">' + name + '</p>'
+                            + '<p class="text-white/40 text-[10px] font-mono">' + escapeHtml(role) + when + '</p>'
+                            + '</div></div>' + googleSvg() + '</div>'
+                            + '<div class="flex gap-0.5" aria-label="' + (r.stars || 0) + ' out of 5 stars" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">'
+                            + '<meta itemprop="ratingValue" content="' + (r.stars || 0) + '">'
+                            + '<meta itemprop="bestRating" content="5">'
+                            + stars + '</div>'
+                            + '<p class="text-white/70 text-sm leading-relaxed flex-1" itemprop="reviewBody">"' + text + '"</p>'
+                            + '<a href="' + reviewLink + '" target="_blank" rel="noopener" class="text-[10px] text-white/25 font-mono hover:text-[#C5A059] transition-colors mt-auto">View on Google ↗</a>'
+                            + '</article>';
+                    }
+                    function updateAggregateStars(rating) {
+                        var el = document.getElementById(STARS_ID);
+                        if (!el) return;
+                        var html = "";
+                        for (var i = 1; i <= 5; i++) {
+                            var fillClass = i <= Math.round(rating) ? "text-yellow-400" : "text-yellow-400/40";
+                            html += '<svg class="w-7 h-7 ' + fillClass + '" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>';
+                        }
+                        el.innerHTML = html;
+                    }
+                    function fetchAndRender() {
+                        if (!("fetch" in window)) return;
+                        fetch(ENDPOINT, { credentials: "omit", cache: "default" })
+                            .then(function (r) { return r.ok ? r.json() : null; })
+                            .then(function (data) {
+                                if (!data || !data.ok) return;
+                                var rating = Number(data.placeRating || 0);
+                                var count = Number(data.placeReviewsCount || 0);
+                                var reviews = Array.isArray(data.reviews) ? data.reviews : [];
+
+                                var ratingEl = document.getElementById(RATING_ID);
+                                if (ratingEl && rating) ratingEl.textContent = rating.toFixed(1);
+                                var countEl = document.getElementById(COUNT_ID);
+                                if (countEl && count) countEl.textContent = String(count);
+                                var rmeta = document.getElementById(RATING_META_ID);
+                                if (rmeta && rating) rmeta.setAttribute("content", String(rating.toFixed(1)));
+                                var cmeta = document.getElementById(COUNT_META_ID);
+                                if (cmeta && count) cmeta.setAttribute("content", String(count));
+                                if (rating) updateAggregateStars(rating);
+
+                                if (reviews.length >= 1) {
+                                    var grid = document.getElementById(GRID_ID);
+                                    if (grid) {
+                                        grid.innerHTML = reviews.slice(0, 3).map(reviewCardHtml).join("");
+                                        grid.setAttribute("data-fallback-rendered", "false");
+                                    }
+                                }
+                                var synced = document.getElementById(SYNCED_ID);
+                                if (synced && data.lastUpdatedISO) {
+                                    var d = new Date(data.lastUpdatedISO);
+                                    if (!isNaN(d.getTime())) {
+                                        synced.textContent = "Reviews synced live from Google · Last update: "
+                                            + d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+                                    }
+                                }
+                                if (window.lucide && typeof window.lucide.createIcons === "function") {
+                                    window.lucide.createIcons();
+                                }
+                            })
+                            .catch(function () { /* silent — fallback cards already rendered */ });
+                    }
+                    if (document.readyState === "loading") {
+                        document.addEventListener("DOMContentLoaded", fetchAndRender);
+                    } else {
+                        fetchAndRender();
+                    }
+                })();
+            </script>
         </section>
 
         <!-- QUALIFICATION SECTION (IS THIS RIGHT FOR YOU?) -->

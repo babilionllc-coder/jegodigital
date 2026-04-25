@@ -2633,3 +2633,28 @@ exports.tiktokStatsOnDemand = tiktokIntegration.tiktokStatsOnDemand;
 const dailyTiktokViralScript = require("./dailyTiktokViralScript");
 exports.dailyTiktokViralScript = dailyTiktokViralScript.dailyTiktokViralScript;
 exports.dailyTiktokViralScriptOnDemand = dailyTiktokViralScript.dailyTiktokViralScriptOnDemand;
+
+// ============================================================
+// GOOGLE REVIEWS LIVE SYNC (added 2026-04-25)
+// Daily 04:00 CDMX cron. Pulls live Google Maps reviews for the
+// JegoDigital GMB listing via Apify Google-Maps-Reviews-Scraper,
+// normalizes them, and writes to Firestore /public/google_reviews.
+//
+// Replaces the static placeholder testimonial cards on the homepage
+// (Rodrigo / Alejandro / Studio Level Up) with the real Google
+// review block — reviewer Google profile photos, real text, real
+// rating (4.8 not 5.0). Schema.org Review markup is generated
+// dynamically from the same source.
+//
+// HR-9 freshness loop: client_proof now refreshed daily, not monthly.
+//
+// Endpoints:
+//   /api/google-reviews             public read (15-min CDN cache)
+//   /googleReviewsSyncOnDemand      manual refresh (debug / post-deploy)
+//
+// See homepage <script> at /index.html for the consuming code.
+// ============================================================
+const googleReviewsSync = require("./googleReviewsSync");
+exports.googleReviewsSync = googleReviewsSync.googleReviewsSync;
+exports.googleReviewsSyncOnDemand = googleReviewsSync.googleReviewsSyncOnDemand;
+exports.getGoogleReviews = googleReviewsSync.getGoogleReviews;

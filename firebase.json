@@ -560,6 +560,10 @@
         "function": "chat"
       },
       {
+        "source": "/api/google-reviews",
+        "function": "getGoogleReviews"
+      },
+      {
         "source": "/sendContactEmail",
         "function": "sendContactEmail"
       },
