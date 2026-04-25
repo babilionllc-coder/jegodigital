@@ -53,7 +53,7 @@ Answer Engine Optimization = cómo logras que ChatGPT, Gemini y Perplexity recom
 El 34% de búsquedas inmobiliarias en México ya pasa por estos buscadores. Si no estás ahí, no existes.
 
 💬 DM 'STACK' y te mando el resumen de 1 página gratis.
-📞 WhatsApp: +52 998 787 5321
+📞 WhatsApp: +52 998 202 3263
 
 #MarketingInmobiliario #InmobiliariasMexico #AEO #IA2026 #ChatGPT #Inmobiliaria #BienesRaices
 ```
@@ -128,7 +128,7 @@ Las 3 que mencionó no son las más grandes. Son las que mejor hicieron su traba
 Esto es lo que el 90% de brokers no entiende: ChatGPT, Gemini y Perplexity NO saben quién es mejor. Solo saben quién aparece mejor.
 
 💬 ¿Quieres saber qué dice ChatGPT sobre TU agencia? DM 'AUDIT' y te mando el reporte gratis.
-📞 WhatsApp: +52 998 787 5321
+📞 WhatsApp: +52 998 202 3263
 
 #MarketingInmobiliario #Inmobiliaria #ChatGPT #AEO #Cancun #CDMX #BienesRaices
 ```
@@ -210,7 +210,7 @@ Antes de firmar otro mes de Meta ads, revisa estos 3 números en tu Google Maps:
 Esto es el 80% del SEO local. Y es gratis.
 
 💬 DM 'LISTA' para el check-list completo de 5 puntos.
-📞 WhatsApp: +52 998 787 5321
+📞 WhatsApp: +52 998 202 3263
 📅 Calendly en bio
 
 #MarketingInmobiliario #InmobiliariasMexico #GoogleMaps #SEO #Inmobiliaria #BienesRaices #Mexico
@@ -294,7 +294,7 @@ Escenario real:
 Flamingo Real Estate automatizó su WhatsApp con nosotros. Resultado: 88% de leads atendidos en <30 segundos, 24/7. Triplicaron sus citas.
 
 💬 DM 'DEMO' y te mando un video de 1 minuto para que veas cómo funciona.
-📞 WhatsApp: +52 998 787 5321
+📞 WhatsApp: +52 998 202 3263
 
 #MarketingInmobiliario #InmobiliariasMexico #WhatsAppBusiness #AutomatizacionVentas #Inmobiliaria #Flamingo #BienesRaices
 ```

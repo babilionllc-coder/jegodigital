@@ -13,7 +13,7 @@
     // ── CONFIGURATION ─────────────────────────────────────
     const WEBHOOK_URL = 'https://us-central1-jegodigital-e02fb.cloudfunctions.net/brevoLead';
     const CALENDLY_BASE = 'https://calendly.com/jegoalexdigital/30min';
-    const WHATSAPP_NUMBER = '529987875321';
+    const WHATSAPP_NUMBER = '529982023263';
 
     // ── SERVICES ──────────────────────────────────────────
     const services = [

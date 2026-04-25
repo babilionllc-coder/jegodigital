@@ -172,7 +172,7 @@ When lead replies positively (says yes / interested / send audit):
    - Demo link: `jegodigital.com/seo-aeo-demo`
    - Proof: "Flamingo logró 4.4x visibilidad, GoodLife 300% tráfico. Más casos: instagram.com/jegodigital"
    - Calendly (REQUIRED): `calendly.com/jegoalexdigital/30min`
-   - WhatsApp backup: `+52 998 787 5321`
+   - WhatsApp backup: `+52 998 202 3263`
    - Propose 2 times: "¿Martes o jueves esta semana, 15 min?"
 2. **Within 60 min:** deliver audit PDF via Brevo transactional email (separate system — see cold-calling Offer B deliverable pipeline when built).
 3. **Tag lead as `audit_requested`** for follow-up reminder if no Calendly booking within 48h.

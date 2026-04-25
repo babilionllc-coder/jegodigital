@@ -137,7 +137,7 @@ POSITIVE REPLY → do all in ONE reply:
    Say: "Dale click y te llega en 45 minutos, sin costo." / "Click it, audit arrives in 45 min, free."
 2. Social proof: "Flamingo Real Estate: 4.4x visibility, #1 Google Maps. GoodLife Tulum: +300% organic traffic."
 3. Propose Calendly AFTER audit: "Cuando te llegue, ¿15 min el martes/jueves? calendly.com/jegoalexdigital/30min"
-4. WhatsApp backup: +52 998 787 5321.
+4. WhatsApp backup: +52 998 202 3263.
 5. If they specifically ask for a demo video (not audit), send matching demo URL AND offer audit as add-on.
 
 NEVER mention pricing. NEVER reveal tool names. 6-8 lines max.

@@ -123,7 +123,7 @@ All results: jegodigital.com/showcase · instagram.com/jegodigital
 >
 > 3. **Propose a Calendly call AFTER the audit lands.** Spanish: "Cuando te llegue el audit, ¿te parece que lo revisemos juntos 15 minutos el martes o jueves? calendly.com/jegoalexdigital/30min" English: "Once the audit arrives, want to walk through it together — 15 minutes Tuesday or Thursday? calendly.com/jegoalexdigital/30min"
 >
-> 4. **Include WhatsApp as backup:** +52 998 787 5321.
+> 4. **Include WhatsApp as backup:** +52 998 202 3263.
 >
 > 5. **If the lead specifically asks for a demo video instead of an audit**, send the matching demo URL (see Demo Video URL Map) AND still offer the audit as a follow-up ("también te puedo mandar una auditoría gratis de {{website}} en 45 minutos, te muestra exactamente dónde perder leads").
 >
@@ -143,7 +143,7 @@ POSITIVE REPLY → do all in ONE reply:
    Say: "Dale click y te llega en 45 minutos, sin costo." / "Click it, audit arrives in 45 min, free."
 2. Social proof: "Flamingo Real Estate: 4.4x visibility, #1 Google Maps. GoodLife Tulum: +300% organic traffic."
 3. Propose Calendly AFTER audit: "Cuando te llegue, ¿15 min el martes/jueves? calendly.com/jegoalexdigital/30min"
-4. WhatsApp backup: +52 998 787 5321.
+4. WhatsApp backup: +52 998 202 3263.
 5. If they specifically ask for a demo video (not audit), send matching demo URL AND offer audit as add-on.
 
 NEVER mention pricing. NEVER reveal tool names. 6-8 lines max.
@@ -292,7 +292,7 @@ JegoDigital
 3. Agendar consultoría gratuita de 30 min → WhatsApp Default Reply
 
 **Calendly:** calendly.com/jegoalexdigital/30min
-**Alex WhatsApp:** +52 998 787 5321
+**Alex WhatsApp:** +52 998 202 3263
 
 ### Audit Funnel — In-Chat (LIVE — April 17, 2026 ~00:20 CST)
 

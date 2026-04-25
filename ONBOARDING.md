@@ -177,7 +177,7 @@ You deploy autonomously via the GitHub Git Data API. **Never** manual `gcloud`, 
 | | |
 |---|---|
 | **Owner** | Alex Jego · babilionllc@gmail.com |
-| **WhatsApp (public)** | +52 998 787 5321 |
+| **WhatsApp (public)** | +52 998 202 3263 |
 | **WhatsApp (Alex personal)** | +52 998 202 3263 |
 | **Calendly** | https://calendly.com/jegoalexdigital/30min |
 | **Website** | https://jegodigital.com |

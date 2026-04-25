@@ -25,7 +25,7 @@
  *   • Captions always Spanish (unless caller overrides)
  *   • No pricing, no AI tool names
  *   • 5-8 hashtags from approved set
- *   • One CTA: WhatsApp +52 998 787 5321 OR calendly.com/jegoalexdigital/30min
+ *   • One CTA: WhatsApp +52 998 202 3263 OR calendly.com/jegoalexdigital/30min
  */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");

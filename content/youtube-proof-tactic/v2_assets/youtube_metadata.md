@@ -49,7 +49,7 @@ Lo que vas a aprender:
 👉 https://jegodigital.com/auditoria-gratis
 
 📲 Habla con Alex directo:
-WhatsApp: https://wa.me/529987875321
+WhatsApp: https://wa.me/529982023263
 Calendly: https://calendly.com/jegoalexdigital/30min
 
 🌐 Más casos de éxito reales:

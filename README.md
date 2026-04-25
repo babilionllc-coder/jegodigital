@@ -134,6 +134,6 @@ See `/NEXT_STEP.md` for what to do about it.
 
 ## 👤 Owner
 
-**Alex Jego** · babilionllc@gmail.com · WhatsApp +52 998 787 5321 · Calendly: [calendly.com/jegoalexdigital/30min](https://calendly.com/jegoalexdigital/30min)
+**Alex Jego** · babilionllc@gmail.com · WhatsApp +52 998 202 3263 · Calendly: [calendly.com/jegoalexdigital/30min](https://calendly.com/jegoalexdigital/30min)
 
 Production: [jegodigital.com](https://jegodigital.com) · Hosting: Firebase (jegodigital-e02fb) · **Outreach sending domains (live 2026-04-24):** `zennoenigmawire.com` + `zeniaaqua.org` — 10 Google Workspace mailboxes total, separate from jegodigital.com to protect main-domain reputation. ~~aichatsy.com~~ DEPRECATED pre-April 2026.

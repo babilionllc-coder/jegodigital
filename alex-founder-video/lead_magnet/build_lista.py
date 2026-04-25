@@ -340,7 +340,7 @@ footer {
     schema.org y automatización de WhatsApp), te lo hacemos gratis.</p>
     <a class="btn" href="https://calendly.com/jegoalexdigital/30min">AGENDA LLAMADA DE 15 MIN →</a>
     <span class="alt">O mándame un DM en Instagram: @alexjegodigital con la palabra "AUDIT"<br>
-    o WhatsApp directo: +52 998 787 5321</span>
+    o WhatsApp directo: +52 998 202 3263</span>
   </div>
 
   <footer>

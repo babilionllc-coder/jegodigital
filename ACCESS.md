@@ -79,7 +79,7 @@
 | 24 | `ALEX_EMAIL` | 🚀 | Brevo audit CC, error alerts (`jegoalexdigital@gmail.com`) | both `.env` files |
 | 25 | `IG_GRAPH_TOKEN` | 🚀 | `contentPublisher`, Instagram publishing (added 2026-04-20) | `website/functions/.env` |
 | 26 | `MANYCHAT_API_KEY` | 🚀 | `calendlyWebhook` → ManyChat flow (added 2026-04-20) | `website/functions/.env` |
-| 27 | `ALEX_PERSONAL_PHONE` | 🚀 | `telegramHelper` SMS fallback (`+529987875321`, added 2026-04-20) | `website/functions/.env` |
+| 27 | `ALEX_PERSONAL_PHONE` | 🚀 | `telegramHelper` SMS fallback (`+529982023263`, added 2026-04-20) | `website/functions/.env` |
 | 28 | `SEED_SECRET` | 🚀 | `seedPhoneLeadsOnce` auth gate (added 2026-04-20) | `.secrets/SEED_SECRET` |
 | 29 | `OPENAI_API_KEY` | 🚀 | Legacy TTS + blog generators (added 2026-04-20) | `website/.env` |
 | 30 | `PEXELS_API_KEY` | 🚀 | Stock photo search for blog posts (added 2026-04-20) | `website/.env` |
@@ -134,7 +134,7 @@ These are referenced in code but NOT required. The code handles missing values g
   - Pushed 3 newly-backed-up secrets: `OPENAI_API_KEY`, `PEXELS_API_KEY`, `FIREBASE_ADMIN_SA_JSON`
   - Added 8 lines to `deploy.yml` heredoc so every Cloud Function reads from env vars instead of inline `*_FALLBACK` constants
   - Fixed `TWILIO_SMS_FROM` alias bug in `telegramHelper.js` (was never set; real var is `TWILIO_FROM`)
-  - Fixed wrong Alex phone in `telegramHelper.js` comment + fallback (was `+525519897005`, now `+529987875321`)
+  - Fixed wrong Alex phone in `telegramHelper.js` comment + fallback (was `+525519897005`, now `+529982023263`)
   - This registry rewritten as comprehensive source of truth for all 37.
 - **2026-04-21** (earlier) — Added `SLACK_WEBHOOK_URL` + `INSTANTLY_API_KEY` to `deploy.yml` heredoc. Unblocks `dailyRollupSlack` + `dailyDigest`. Commit: `d6b205a4`.
 - **2026-04-21** — Documented autonomous-deploy recipe in `DEPLOY.md` after end-to-end proof (commit `db99362`: rename `/healthz` → `/health`, all 5 workflows green, live service verified). Clarified that `.secrets/github_token` is the Claude-in-sandbox autonomous-push PAT. Rule: Claude should never ask Alex to run `git commit` / `git push` / `firebase deploy` / `gcloud run deploy` — the Data API recipe in `DEPLOY.md` handles it.

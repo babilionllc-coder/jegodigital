@@ -1353,7 +1353,7 @@ ${roadmapHTML}
     </p>
     <a href="https://calendly.com/jegoalexdigital/30min" class="cta-btn">Agendar Llamada Gratuita</a>
     <p style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:16px;">
-        O escribenos por WhatsApp: <a href="https://wa.me/529987875321" style="color:#C5A059;">+52 998 787 5321</a>
+        O escribenos por WhatsApp: <a href="https://wa.me/529982023263" style="color:#C5A059;">+52 998 202 3263</a>
     </p>
 </div>
 
@@ -1429,7 +1429,7 @@ async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues)
         <!-- Footer -->
         <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.05);padding-top:24px;">
             <p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">JegoDigital — Marketing Digital para Inmobiliarias</p>
-            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 787 5321</p>
+            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 202 3263</p>
         </div>
     </div>`;
 
@@ -1500,7 +1500,7 @@ async function sendConfirmationEmail(email, leadName, websiteUrl) {
 
         <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.05);padding-top:24px;">
             <p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">JegoDigital — Marketing Digital para Inmobiliarias</p>
-            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 787 5321</p>
+            <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 202 3263</p>
         </div>
     </div>`;
 

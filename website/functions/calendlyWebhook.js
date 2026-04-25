@@ -56,7 +56,7 @@ const TPL_NOSHOW_D3 = 37;  // Day 3 — value-add re-engagement
 const TPL_NOSHOW_D7 = 38;  // Day 7 — soft breakup, 3-option reply
 const TPL_NOSHOW_D14 = 39; // Day 14 — final breakup + showcase asset
 
-const ALEX_WHATSAPP = "+52 998 787 5321";
+const ALEX_WHATSAPP = "+52 998 202 3263";
 const CALENDLY_LINK = "https://calendly.com/jegoalexdigital/30min";
 
 // ---------- Helpers ----------
@@ -311,7 +311,7 @@ function leadPrecallEmailHtml({ firstName, startDisplay, painPoints }) {
     </ul>
     <div style="background: #f0f4f8; padding: 16px 18px; border-radius: 6px; margin-top: 28px; font-size: 14px;">
       <strong>¿Necesitas reagendar o tienes una duda antes?</strong><br>
-      WhatsApp directo: <a href="https://wa.me/529987875321" style="color: #0f1115;">${ALEX_WHATSAPP}</a>
+      WhatsApp directo: <a href="https://wa.me/529982023263" style="color: #0f1115;">${ALEX_WHATSAPP}</a>
     </div>
     <p style="margin-top: 28px;">Nos vemos pronto.</p>
     <p style="margin: 0;">Alex<br><span style="color: #888; font-size: 13px;">JegoDigital</span></p>
@@ -336,7 +336,7 @@ function leadCanceledEmailHtml({ firstName }) {
     <p style="margin: 24px 0;">
       <a href="${CALENDLY_LINK}" style="background: #C5A059; color: #0f1115; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">Reagendar en 30 segundos</a>
     </p>
-    <p>O escríbeme directo al WhatsApp y lo acomodamos: <a href="https://wa.me/529987875321" style="color: #0f1115;"><strong>${ALEX_WHATSAPP}</strong></a></p>
+    <p>O escríbeme directo al WhatsApp y lo acomodamos: <a href="https://wa.me/529982023263" style="color: #0f1115;"><strong>${ALEX_WHATSAPP}</strong></a></p>
     <p style="margin-top: 28px; color: #666; font-size: 14px;">Por contexto rápido de por qué vale la pena: ayudamos a <strong>GoodLife Tulum a subir 300%</strong> su tráfico orgánico y a <strong>Flamingo Real Estate a alcanzar 4.4x más visibilidad</strong> en búsquedas. 15 minutos y sabes si tiene sentido para ti.</p>
     <p style="margin-top: 24px;">Cuando puedas,</p>
     <p style="margin: 0;">Alex<br><span style="color: #888; font-size: 13px;">JegoDigital</span></p>

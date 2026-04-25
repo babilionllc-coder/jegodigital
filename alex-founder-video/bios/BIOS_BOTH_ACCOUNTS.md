@@ -32,7 +32,7 @@ Videos nuevos todos los días a las 7pm. SEO, AEO, WhatsApp AI, automatización 
 
 📩 DM en Instagram: @alexjegodigital
 📅 Calendly: calendly.com/jegoalexdigital/30min
-📞 WhatsApp: +52 998 787 5321
+📞 WhatsApp: +52 998 202 3263
 ```
 
 ### English version (for Miami luxury secondary market)
@@ -49,7 +49,7 @@ Help real estate agencies rank #1 on Google & ChatGPT without burning on Meta ad
 Primary link: **Linktree** with:
 1. 📩 DM para recibir check-list gratis (→ Instagram DM @alexjegodigital)
 2. 📅 Agendar llamada gratis (→ calendly.com/jegoalexdigital/30min)
-3. 💬 WhatsApp directo con Alex (→ wa.me/529987875321)
+3. 💬 WhatsApp directo con Alex (→ wa.me/529982023263)
 4. 🏠 Casos de éxito: Flamingo, GoodLife, Solik (→ jegodigital.com/showcase)
 5. 🌐 Web: jegodigital.com
 
@@ -124,7 +124,7 @@ JegoDigital gold "J" logomark on #0f1115 black background (existing brand mark).
 - [ ] Bio: paste Spanish bio above
 - [ ] Profile photo: headshot (test shot, solid dark top, window light)
 - [ ] Link: calendly.com/jegoalexdigital/30min (or Linktree once built)
-- [ ] Add contact WhatsApp button: +52 998 787 5321
+- [ ] Add contact WhatsApp button: +52 998 202 3263
 - [ ] Follow: @jegodigital, @realestateflamingo, your 5 top real estate agency prospects
 - [ ] Do NOT post yet — wait until Video 1 is ready Monday
 

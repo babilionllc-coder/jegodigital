@@ -282,7 +282,7 @@ AI reply agent = **audit-first** funnel since 2026-04-19: positive reply → fre
 
 Sofia on WhatsApp + IG via ManyChat. Priority 1: lead agrees to free digital audit (60-min delivery via `submitAuditRequest` Cloud Function). Priority 2: Calendly. Sofia NEVER collects name/email — ManyChat has them.
 
-3 ice breakers live. Calendly: `calendly.com/jegoalexdigital/30min`. Alex WA: `+52 998 787 5321`.
+3 ice breakers live. Calendly: `calendly.com/jegoalexdigital/30min`. Alex WA: `+52 998 202 3263`.
 
 Full flow → [`BUSINESS.md §WhatsApp + Instagram Funnel`](BUSINESS.md#whatsapp--instagram-funnel).
 
@@ -319,7 +319,7 @@ Full list → [`BUSINESS.md §Key Constraints`](BUSINESS.md#key-constraints).
 | YouTube | `https://www.youtube.com/@JegoDigitalchannel` | @JegoDigitalchannel |
 | Instagram | `https://www.instagram.com/jegodigital_agencia/` | @jegodigital_agencia |
 | TikTok | `https://www.tiktok.com/@jegodigital` | @jegodigital |
-| WhatsApp | `https://wa.me/529987875321` | +52 998 787 5321 |
+| WhatsApp | `https://wa.me/529982023263` | +52 998 202 3263 |
 | Facebook | `https://www.facebook.com/profile.php?id=61581425401975` | (page ID) |
 | Calendly | `https://calendly.com/jegoalexdigital/30min` | — |
 | Email | `jegoalexdigital@gmail.com` | — |

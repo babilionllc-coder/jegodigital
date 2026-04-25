@@ -103,7 +103,7 @@ Same as single image but `media_type=STORIES` + 1080×1920 vertical.
 - **Always Spanish** unless explicit override
 - **NEVER** include pricing or AI tool names (Claude, ManyChat, n8n, ChatGPT)
 - **NEVER** "AI-powered" / "automatización con IA"
-- One CTA: WhatsApp `+52 998 787 5321` OR `calendly.com/jegoalexdigital/30min`
+- One CTA: WhatsApp `+52 998 202 3263` OR `calendly.com/jegoalexdigital/30min`
 - 5–8 hashtags from: `#inmobiliaria #InmobiliariaCancún #InmobiliariasMéxico #RivieraMaya #BienesRaicesCancún #MarketingInmobiliario #SEOInmobiliario #RealEstateCancún #JegoDigital #Cancun #PlayaDelCarmen #Tulum`
 - Always end by fetching `permalink` and reporting it to Alex
 
@@ -144,7 +144,7 @@ node tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=A|B|C [--ema
 | B (Audit) | `submit_audit_request` | `POST submitAuditRequest` | Audit delivered + own 4-email post-audit nurture |
 | C (Free Setup) | `save_lead_to_brevo_setup` | `POST saveColdCallLead` with `offer:"C"` | Brevo list **36**, templates **58-62**, cadence **0/1/3/5/10 days** |
 
-All 10 Spanish templates audited against HR-0 (no fabricated numbers), ship with `{{ unsubscribe }}` footer, WhatsApp `wa.me/529987875321`, and single Calendly `/30min` with `utm_campaign=coldcall_a|coldcall_c` for A-vs-C attribution. Template 60 (C-D3) is intentionally time-agnostic so `saveColdCallLead` doesn't need to branch on install date. Full function details: `SYSTEM.md §1.3 saveColdCallLead`.
+All 10 Spanish templates audited against HR-0 (no fabricated numbers), ship with `{{ unsubscribe }}` footer, WhatsApp `wa.me/529982023263`, and single Calendly `/30min` with `utm_campaign=coldcall_a|coldcall_c` for A-vs-C attribution. Template 60 (C-D3) is intentionally time-agnostic so `saveColdCallLead` doesn't need to branch on install date. Full function details: `SYSTEM.md §1.3 saveColdCallLead`.
 
 ### Key Files
 | File | Purpose |

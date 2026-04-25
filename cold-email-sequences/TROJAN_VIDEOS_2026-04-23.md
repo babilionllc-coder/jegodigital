@@ -153,7 +153,7 @@ https://jegodigital.com/trojan-setup/videos?email={{email}}&company={{companyNam
 ⏱ Entrega en 24 horas a su email
 
 Si tiene alguna pregunta, me escribe por acá o al WhatsApp
-+52 998 787 5321.
++52 998 202 3263.
 
 Alex
 JegoDigital

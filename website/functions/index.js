@@ -1613,7 +1613,7 @@ exports.sendCalendlyLink = functions.https.onRequest(async (req, res) => {
   </p>
   <p>En esa llamada Alex te va a mostrar exactamente cómo capturar los leads que ${company} está perdiendo hoy por llamadas perdidas y WhatsApp sin responder.</p>
   <p>Si tienes cualquier duda, respóndeme directamente a este correo.</p>
-  <p style="margin-top: 32px;">Saludos,<br><strong>Alex Jego</strong><br>JegoDigital — Marketing para Inmobiliarias<br>jegodigital.com · +52 998 787 5321</p>
+  <p style="margin-top: 32px;">Saludos,<br><strong>Alex Jego</strong><br>JegoDigital — Marketing para Inmobiliarias<br>jegodigital.com · +52 998 202 3263</p>
 </body>
 </html>`.trim();
 
