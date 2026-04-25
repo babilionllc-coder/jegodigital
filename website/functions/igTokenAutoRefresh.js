@@ -148,7 +148,13 @@ exports.igTokenAutoRefresh = functions
         timeoutSeconds: 60,
         memory: "256MB",
     })
-    .pubsub.schedule("every 50 days 00:00")
+    // 2026-04-25: was "every 50 days 00:00" — Cloud Scheduler rejected as
+    // "schedule or timezone are invalid", which cascaded into deploy exit 2,
+    // skipping the IAM-grant step and leaving new HTTP functions 403.
+    // Standard cron: 1st of every month at 00:00 CDMX = ~30-day refresh
+    // cadence. IG long-lived tokens last 60 days, so 30-day refresh keeps
+    // a healthy buffer.
+    .pubsub.schedule("0 0 1 * *")
     .timeZone("America/Mexico_City")
     .onRun(async () => {
         try {
