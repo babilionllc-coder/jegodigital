@@ -244,7 +244,7 @@ async function runSync() {
 
 // Scheduled — daily at 04:00 America/Mexico_City (low-traffic hour).
 exports.googleReviewsSync = functions
-    .runWith({ timeoutSeconds: 300, memory: "512MB", secrets: ["APIFY_API_KEY"] })
+    .runWith({ timeoutSeconds: 300, memory: "512MB" })
     .pubsub.schedule("0 4 * * *")
     .timeZone("America/Mexico_City")
     .onRun(async () => {
@@ -260,7 +260,7 @@ exports.googleReviewsSync = functions
 
 // On-demand HTTPS — call after deploy or when Alex wants a fresh pull.
 exports.googleReviewsSyncOnDemand = functions
-    .runWith({ timeoutSeconds: 300, memory: "512MB", secrets: ["APIFY_API_KEY"] })
+    .runWith({ timeoutSeconds: 300, memory: "512MB" })
     .https.onRequest(async (req, res) => {
         try {
             const result = await runSync();
