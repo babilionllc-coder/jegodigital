@@ -95,6 +95,10 @@ jobs:
           TIKTOK_CLIENT_SECRET=${{ secrets.TIKTOK_CLIENT_SECRET }}
           TIKTOK_SANDBOX_CLIENT_KEY=${{ secrets.TIKTOK_SANDBOX_CLIENT_KEY }}
           TIKTOK_SANDBOX_CLIENT_SECRET=${{ secrets.TIKTOK_SANDBOX_CLIENT_SECRET }}
+          FB_USER_TOKEN=${{ secrets.FB_USER_TOKEN }}
+          FB_AD_ACCOUNT_ID=${{ secrets.FB_AD_ACCOUNT_ID }}
+          FB_BUSINESS_ID=${{ secrets.FB_BUSINESS_ID }}
+          FB_APP_ID=${{ secrets.FB_APP_ID }}
           ENVEOF
           # Clean leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env
