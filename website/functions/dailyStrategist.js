@@ -331,7 +331,15 @@ function renderDigest(strategist, fixesApplied) {
         ],
     });
 
-    const fallbackText = `🧠 Strategist · ${today} · ${fixesCount} auto-fixes, ${reviewCount} need review. ${strategist.diagnosis}`;
+    // 2026-04-25: was rendering "...need review. undefined" when Gemini
+    // returned a strategist object without a diagnosis field. Defensive
+    // fallback so Slack always gets a clean human-readable line.
+    const diagnosis = strategist.diagnosis
+        || strategist.summary
+        || (fixesCount === 0 && reviewCount === 0
+            ? "No anomalies detected — pipeline running clean."
+            : "(no diagnosis returned)");
+    const fallbackText = `🧠 Strategist · ${today} · ${fixesCount} auto-fixes, ${reviewCount} need review. ${diagnosis}`;
     return { text: fallbackText, blocks };
 }
 
