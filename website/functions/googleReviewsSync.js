@@ -285,7 +285,9 @@ exports.getGoogleReviews = functions
         // CORS — open to anyone; this is public marketing data.
         res.set("Access-Control-Allow-Origin", "*");
         res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-        res.set("Cache-Control", "public, max-age=900, s-maxage=900"); // 15-min CDN cache
+        // Short CDN cache — fresh syncs propagate to live homepage in <1 min.
+        // Tradeoff: ~1 Firestore read per visitor per minute (cheap; ~$0.10/100k reads).
+        res.set("Cache-Control", "public, max-age=60, s-maxage=60");
         if (req.method === "OPTIONS") return res.status(204).end();
 
         try {
