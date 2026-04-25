@@ -2619,3 +2619,17 @@ exports.tiktokOauthStart = tiktokIntegration.tiktokOauthStart;
 exports.tiktokOauthCallback = tiktokIntegration.tiktokOauthCallback;
 exports.tiktokStatsWeekly = tiktokIntegration.tiktokStatsWeekly;
 exports.tiktokStatsOnDemand = tiktokIntegration.tiktokStatsOnDemand;
+
+// ============================================================
+// DAILY TIKTOK VIRAL SCRIPT (added 2026-04-24 PM)
+// Every weekday 09:00 CDMX, pulls breaking AI/RE news from Perplexity,
+// picks today's rotation format (Mon Hidden News → Fri Search Evolution),
+// generates 15-17s value-first script via Gemini 2.5 Flash, posts to
+// Slack #content. NO sales CTA — pure value, viral-first.
+//
+// See skills/tiktok-viral-script/SKILL.md for full format spec.
+// On-demand: /dailyTiktokViralScriptOnDemand?weekday=1-5 (X-Admin-Token).
+// ============================================================
+const dailyTiktokViralScript = require("./dailyTiktokViralScript");
+exports.dailyTiktokViralScript = dailyTiktokViralScript.dailyTiktokViralScript;
+exports.dailyTiktokViralScriptOnDemand = dailyTiktokViralScript.dailyTiktokViralScriptOnDemand;
