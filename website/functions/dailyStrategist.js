@@ -253,14 +253,14 @@ async function applySafeFix(fix) {
 // ============================================================
 
 async function postSlackDigest(text, blocks) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) {
-        functions.logger.error("SLACK_WEBHOOK_URL not set — skipping digest");
-        return;
-    }
+    // 2026-04-25: routed to #daily-ops (morning + evening briefings) via slackPost.
+    const { slackPost } = require('./slackPost');
     const payload = { text };
     if (blocks) payload.attachments = [{ color: "#C5A059", blocks }];
-    await axios.post(url, payload, { timeout: 10000 });
+    const result = await slackPost('daily-ops', payload);
+    if (!result.ok) {
+        functions.logger.error("dailyStrategist Slack digest failed:", result.error || "unknown");
+    }
 }
 
 async function dmAlex(text) {

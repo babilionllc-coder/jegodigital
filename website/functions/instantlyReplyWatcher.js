@@ -62,21 +62,16 @@ async function sendTelegram(text) {
 // Pattern borrowed from dailyRollupSlack.js. Falls back to Telegram if
 // SLACK_WEBHOOK_URL isn't set so we never silently drop a reply alert.
 async function sendSlack(text, blocks) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) {
-        functions.logger.warn("instantlyReplyWatcher: SLACK_WEBHOOK_URL missing, falling back to Telegram");
-        return await sendTelegram(text);
-    }
-    try {
-        const payload = { text };
-        if (blocks) payload.blocks = blocks;
-        await axios.post(url, payload, { timeout: 10000 });
-        return { ok: true };
-    } catch (err) {
-        functions.logger.error("instantlyReplyWatcher Slack send failed:", err.response?.data || err.message);
-        // Hard fallback to Telegram so Alex always sees something
+    // 2026-04-25: routed to #leads-hot (warm replies) via slackPost helper.
+    const { slackPost } = require('./slackPost');
+    const payload = { text };
+    if (blocks) payload.blocks = blocks;
+    const result = await slackPost('leads-hot', payload);
+    if (!result.ok) {
+        functions.logger.error("instantlyReplyWatcher Slack send failed:", result.error || "unknown");
         return await sendTelegram(`[Slack failed] ${text}`);
     }
+    return { ok: true, channel: result.channel, fallback_used: result.fallback_used };
 }
 
 // Build Slack Block Kit payload for a single reply — per-lead card

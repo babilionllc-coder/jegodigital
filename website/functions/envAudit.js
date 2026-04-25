@@ -95,8 +95,10 @@ async function pingSlack(url) {
 }
 
 async function sendAlert(report) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) return { ok: false, reason: "no_webhook" };
+    // 2026-04-25: route OK results to #daily-ops (quiet), failures to #alerts (loud).
+    const { slackPost } = require('./slackPost');
+    const isOkEarly = report.missing.length === 0 && report.invalid.length === 0;
+    const targetChannel = isOkEarly ? 'daily-ops' : 'alerts';
 
     const isOk = report.missing.length === 0 && report.invalid.length === 0;
     const text = isOk
@@ -124,13 +126,12 @@ async function sendAlert(report) {
         },
     ];
 
-    try {
-        await axios.post(url, { text, blocks }, { timeout: 10000 });
-        return { ok: true };
-    } catch (e) {
-        functions.logger.error("envAudit slack send failed:", e.message);
-        return { ok: false, error: e.message };
+    const result = await slackPost(targetChannel, { text, blocks });
+    if (!result.ok) {
+        functions.logger.error("envAudit slack send failed:", result.error || "unknown");
+        return { ok: false, error: result.error };
     }
+    return { ok: true, channel: result.channel };
 }
 
 async function runEnvAudit() {

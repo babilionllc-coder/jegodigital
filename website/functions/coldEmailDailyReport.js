@@ -281,19 +281,19 @@ async function sendTelegram(text) {
 }
 
 async function sendSlack(blocks, fallbackText) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) {
-        functions.logger.warn("SLACK_WEBHOOK_URL missing — Telegram-only");
-        return { ok: false, reason: "no_webhook" };
+    // 2026-04-25: routed to #daily-ops via slackPost helper (was firehose).
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('daily-ops', {
+        blocks,
+        text: fallbackText,
+        unfurl_links: false,
+        unfurl_media: false,
+    });
+    if (!result.ok) {
+        functions.logger.error("coldEmailDailyReport Slack failed:", result.error || "unknown");
+        return { ok: false, reason: result.error || "slack_failed" };
     }
-    try {
-        await axios.post(url, { blocks, text: fallbackText, unfurl_links: false, unfurl_media: false },
-            { timeout: 15000 });
-        return { ok: true };
-    } catch (err) {
-        functions.logger.error("coldEmailDailyReport Slack failed:", err.message);
-        return { ok: false, reason: err.message };
-    }
+    return { ok: true, channel: result.channel, fallback_used: result.fallback_used };
 }
 
 // ---------- Snapshot ----------

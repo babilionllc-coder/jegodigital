@@ -1110,16 +1110,15 @@ async function postSlackWithPdf(pdfBuffer, summaryText, signedUrl, weekKey) {
             functions.logger.warn(`Slack files.upload failed — falling back to webhook: ${err.message}`);
         }
     }
-    const webhook = process.env.SLACK_WEBHOOK_URL;
-    if (!webhook) return { ok: false, mode: "none" };
-    try {
-        await axios.post(webhook, {
-            text: `${summaryText}\n\n📎 <${signedUrl}|Download PDF>`,
-        }, { timeout: 10000 });
-        return { ok: true, mode: "webhook" };
-    } catch (err) {
-        return { ok: false, mode: "webhook", error: err.message };
+    // 2026-04-25: routed to #revenue via slackPost helper (was firehose).
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('revenue', {
+        text: `${summaryText}\n\n📎 <${signedUrl}|Download PDF>`,
+    });
+    if (!result.ok) {
+        return { ok: false, mode: "slackPost", error: result.error };
     }
+    return { ok: true, mode: "slackPost", channel: result.channel };
 }
 
 async function postTelegramWithPdf(pdfBuffer, caption, weekKey) {

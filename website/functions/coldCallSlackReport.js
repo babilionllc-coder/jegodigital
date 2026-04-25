@@ -52,21 +52,20 @@ async function sendTelegram(text) {
 }
 
 async function sendSlack(blocks, fallbackText) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) {
-        functions.logger.warn("coldCallSlackReport: SLACK_WEBHOOK_URL missing — falling back to Telegram");
-        await sendTelegram(fallbackText || "cold-call Slack report (fallback — SLACK_WEBHOOK_URL not set)");
-        return { ok: false, reason: "no_webhook" };
-    }
-    try {
-        await axios.post(url, { blocks, text: fallbackText, unfurl_links: false, unfurl_media: false },
-            { timeout: 15000 });
-        return { ok: true };
-    } catch (err) {
-        functions.logger.error("coldCallSlackReport Slack post failed:", err.message);
+    // 2026-04-25: routed to #cold-call-log via slackPost helper (was firehose).
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('cold-call-log', {
+        blocks,
+        text: fallbackText,
+        unfurl_links: false,
+        unfurl_media: false,
+    });
+    if (!result.ok) {
+        functions.logger.error("coldCallSlackReport Slack post failed:", result.error || "unknown");
         await sendTelegram(fallbackText || "cold-call Slack post FAILED — see logs");
-        return { ok: false, reason: err.message };
+        return { ok: false, reason: result.error || "slack_failed" };
     }
+    return { ok: true, channel: result.channel, fallback_used: result.fallback_used };
 }
 
 /**

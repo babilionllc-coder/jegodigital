@@ -63,15 +63,11 @@ async function postSlackAlert({ level, title, body, details }) {
 }
 
 async function postSlackWebhook({ level, title, body }) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) return false;
+    // 2026-04-25: routed to #alerts (critical/warning only) via slackPost helper.
+    const { slackPost } = require('./slackPost');
     const emoji = level === "critical" ? "🚨" : level === "warning" ? "⚠️" : "ℹ️";
-    try {
-        await axios.post(url, { text: `${emoji} *${title}*\n${body}` }, { timeout: 10000 });
-        return true;
-    } catch (_) {
-        return false;
-    }
+    const result = await slackPost('alerts', { text: `${emoji} *${title}*\n${body}` });
+    return result.ok;
 }
 
 async function logRun(name, data) {

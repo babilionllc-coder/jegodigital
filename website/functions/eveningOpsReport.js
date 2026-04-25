@@ -641,21 +641,16 @@ async function postSlackWithPdf(pdfBuffer, summaryText, signedUrl, dateKey) {
         }
     }
 
-    // Fallback: webhook with signed URL
-    const webhook = process.env.SLACK_WEBHOOK_URL;
-    if (!webhook) {
-        functions.logger.warn("No SLACK_WEBHOOK_URL — skipping Slack");
-        return { ok: false, mode: "none" };
+    // 2026-04-25: routed to #daily-ops via slackPost helper (was firehose).
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('daily-ops', {
+        text: `${summaryText}\n\n📎 <${signedUrl}|Download PDF>`,
+    });
+    if (!result.ok) {
+        functions.logger.error("eveningOpsReport Slack failed:", result.error || "unknown");
+        return { ok: false, mode: "slackPost", error: result.error };
     }
-    try {
-        await axios.post(webhook, {
-            text: `${summaryText}\n\n📎 <${signedUrl}|Download PDF>`,
-        }, { timeout: 10000 });
-        return { ok: true, mode: "webhook" };
-    } catch (err) {
-        functions.logger.error("Slack webhook failed:", err.message);
-        return { ok: false, mode: "webhook", error: err.message };
-    }
+    return { ok: true, mode: "slackPost", channel: result.channel };
 }
 
 // ---------- TELEGRAM DELIVERY ----------
