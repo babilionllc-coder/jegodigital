@@ -233,23 +233,26 @@
         </div>
     </section>
 
-    <!-- Welcome Video — Hero Spotlight -->
+    <!-- Welcome Video — Hero Spotlight (vertical / short-form) -->
     <section class="py-20 relative z-10">
         <div class="container mx-auto px-4 max-w-5xl">
             <div class="text-center mb-10">
                 <span class="text-[#C5A059] font-mono text-xs uppercase tracking-widest mb-2 block">Mensaje del Fundador</span>
                 <h2 class="text-3xl md:text-5xl font-bold mb-4">Conoce a <span class="text-[#C5A059]">Alex Jego</span></h2>
-                <p class="text-slate-400 text-lg max-w-2xl mx-auto">90 segundos para entender cómo trabajamos y por qué somos diferentes.</p>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto">Un mensaje rápido sobre cómo trabajamos y por qué somos diferentes.</p>
             </div>
-            <div class="relative group">
+            <div class="relative group max-w-sm mx-auto">
                 <div class="absolute -inset-1 bg-gradient-to-r from-[#C5A059] to-[#C5A059]/40 rounded-3xl blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div class="relative aspect-video rounded-3xl overflow-hidden border border-[#C5A059]/30 shadow-2xl shadow-[#C5A059]/20">
-                    <iframe class="w-full h-full"
-                        src="https://www.youtube.com/embed/u2XhlRQz3DI"
-                        title="Bienvenido a JegoDigital — Alex Jego"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowfullscreen loading="lazy"></iframe>
+                <div class="relative aspect-[9/16] rounded-3xl overflow-hidden border border-[#C5A059]/30 shadow-2xl shadow-[#C5A059]/20 bg-black">
+                    <video class="w-full h-full object-cover"
+                        src="videos/alexwelcome.mp4"
+                        poster="videos/alexwelcome-poster.jpg"
+                        controls
+                        playsinline
+                        preload="metadata"
+                        title="Bienvenido a JegoDigital — Alex Jego">
+                        Tu navegador no soporta video HTML5. <a href="videos/alexwelcome.mp4" class="text-[#C5A059] underline">Descargar video</a>.
+                    </video>
                 </div>
             </div>
         </div>
