@@ -21,11 +21,11 @@
                 extend: {
                     fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
-                        background: '#0f1115', // Slate 900
-                        surface: '#1e293b',    // Slate 800
-                        primary: '#C5A059',    // Indigo 500
-                        accent: '#FFFFFF',     // Violet 500
-                        highlight: '#f472b6',  // Pink 400
+                        background: '#0f1115', // brand bg
+                        surface: '#1e293b',    // surface dark
+                        primary: '#C5A059',    // brand gold
+                        accent: '#FFFFFF',     // brand white
+                        highlight: '#C5A059',  // gold (was hot-pink — fixed 2026-04-25)
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
@@ -49,16 +49,16 @@
         }
 
         .logo-glow {
-            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+            filter: drop-shadow(0 0 8px rgba(197, 160, 89, 0.5));
             transition: filter 0.3s ease;
         }
 
         .group:hover .logo-glow {
-            filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.8));
+            filter: drop-shadow(0 0 15px rgba(197, 160, 89, 0.8));
         }
 
         .text-glow {
-            text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+            text-shadow: 0 0 20px rgba(197, 160, 89, 0.5);
         }
 
         .hero-gradient-text {
@@ -122,7 +122,7 @@
                 <!-- Logo -->
                 <a href="index.html" class="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
                     <img src="images/logo/jegodigitallogo.png" alt="JegoDigital"
-                        class="h-24 w-auto hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+                        class="h-24 w-auto hover:scale-110 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(197,160,89,0.5)]">
 
                 </a>
                 <div class="hidden md:flex items-center space-x-8">
