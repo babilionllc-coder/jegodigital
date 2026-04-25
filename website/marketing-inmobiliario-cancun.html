@@ -180,23 +180,92 @@
 <body class="bg-background text-white antialiased">
 
     <!-- Nav -->
-    <nav class="fixed w-full z-50 bg-[#0f1115]/90 backdrop-blur-md border-b border-white/5">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-24">
-                <a href="index.html" class="flex-shrink-0 flex items-center gap-2">
+    <!-- Canonical Top Navigation (matches index.html homepage style) -->
+    <div id="scrollProgress" class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-[#C5A059]/0 transition-all" style="width:0"></div>
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" role="navigation" aria-label="Main navigation">
+        <div class="bg-[#0f1115]/90 backdrop-blur-xl border-b border-white/5">
+            <div class="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="/" aria-label="JegoDigital — Inicio" class="flex items-center gap-2">
                     <span class="text-2xl font-black tracking-tighter"><span class="text-[#C5A059]">Jego</span><span class="text-white">Digital</span></span>
                 </a>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="text-slate-300 hover:text-white transition-colors">Inicio</a>
-                    <a href="showcase.html" class="text-slate-300 hover:text-white transition-colors">Casos</a>
-                    <a href="blog.html" class="text-slate-300 hover:text-white transition-colors">Blog</a>
-                    <a href="auditoria-gratis.html"
-                        class="px-6 py-2 rounded-full bg-[#C5A059] hover:bg-[#C5A059]/90 text-white font-bold transition-all">Auditoría
-                        Gratis</a>
+                <!-- Desktop menu -->
+                <div class="hidden md:flex items-center gap-7">
+                    <a href="how-it-works.html" data-nav="how-it-works" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Cómo Funciona</a>
+                    <a href="index.html#services" data-nav="services" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Servicios</a>
+                    <a href="showcase.html" data-nav="showcase" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Casos</a>
+                    <a href="about.html" data-nav="about" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Nosotros</a>
+                    <a href="blog.html" data-nav="blog" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Blog</a>
+                    <!-- Lang switcher -->
+                    <button id="lang-switcher" class="hidden md:flex items-center gap-1.5 text-white/60 hover:text-[#C5A059] font-mono text-xs uppercase tracking-widest transition-colors cursor-pointer" onclick="window.location.href='/'">
+                        <span class="text-white font-bold">ES</span>
+                        <span class="text-white/30">|</span>
+                        <span class="opacity-50">EN</span>
+                    </button>
+                    <!-- CTA -->
+                    <a href="auditoria-gratis.html" class="hidden md:inline-flex items-center gap-2 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold text-xs px-5 py-2.5 rounded-full transition-all">
+                        <span>AUDITORÍA GRATIS</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </a>
                 </div>
+                <!-- Mobile hamburger -->
+                <button id="mobileMenuBtn" class="md:hidden text-white/80 hover:text-[#C5A059] transition-colors p-2" aria-label="Open menu" aria-expanded="false">
+                    <svg id="hamburgerIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="md:hidden hidden border-t border-white/5">
+            <div class="px-6 py-6 space-y-4 bg-[#0f1115]/95 backdrop-blur-xl">
+                <a href="how-it-works.html" data-nav="how-it-works" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Cómo Funciona</a>
+                <a href="index.html#services" data-nav="services" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Servicios</a>
+                <a href="showcase.html" data-nav="showcase" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Casos</a>
+                <a href="about.html" data-nav="about" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Nosotros</a>
+                <a href="blog.html" data-nav="blog" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Blog</a>
+                <a href="auditoria-gratis.html" class="w-full mt-2 inline-flex items-center justify-center gap-2 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold text-sm px-5 py-3 rounded-full transition-all">
+                    <span>AUDITORÍA GRATIS</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </a>
             </div>
         </div>
     </nav>
+    <!-- Nav JS: mobile toggle + active-state highlight + scroll progress -->
+    <script>
+    (function(){
+      var btn = document.getElementById('mobileMenuBtn');
+      var menu = document.getElementById('mobileMenu');
+      var ham = document.getElementById('hamburgerIcon');
+      var close = document.getElementById('closeIcon');
+      if(btn && menu){ btn.addEventListener('click', function(){
+        var open = !menu.classList.contains('hidden');
+        menu.classList.toggle('hidden');
+        if(ham) ham.classList.toggle('hidden', !open);
+        if(close) close.classList.toggle('hidden', open);
+      }); }
+      menu && menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.add('hidden'); ham && ham.classList.remove('hidden'); close && close.classList.add('hidden'); }); });
+      // Active-state: highlight link matching body[data-page]
+      var page = (document.body && document.body.getAttribute('data-page')) || '';
+      if(page){
+        document.querySelectorAll('a.nav-link[data-nav="'+page+'"]').forEach(function(a){
+          a.classList.remove('text-white/60');
+          a.classList.add('text-white','border-b-2','border-[#C5A059]','pb-1');
+        });
+        document.querySelectorAll('a.mobile-nav-link[data-nav="'+page+'"]').forEach(function(a){
+          a.classList.remove('text-white/70');
+          a.classList.add('text-white','bg-[#C5A059]/10','border-l-4','border-[#C5A059]','pl-3','py-2','rounded-md');
+        });
+      }
+      // Scroll progress
+      var bar = document.getElementById('scrollProgress');
+      if(bar){ window.addEventListener('scroll', function(){
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        var pct = h>0 ? (window.scrollY/h)*100 : 0;
+        bar.style.width = pct + '%';
+        bar.style.background = pct>2 ? '#C5A059' : 'transparent';
+      }); }
+    })();
+    </script>
 
     <!-- Hero -->
     <section class="pt-40 pb-16 px-4">
