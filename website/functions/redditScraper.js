@@ -321,27 +321,44 @@ async function scrapeAndIngest() {
 // Function timeout is 60s, which kills the request before Apify returns,
 // meaning zero opportunities ever get written. The timeout MUST be 540s (the
 // GCF Gen 1 max).
+// ────────────────────────────────────────────────────────────────────────────
+// 🛑 DISABLED 2026-04-25 — cost vs revenue audit failed.
+//
+// Why killed (per HR#3 Revenue-First + HR#10 DISASTER_LOG):
+//   • Burning $57.41 in 4 days (80% of total Apify spend, projected ~$430/mo)
+//   • Output: 86 hourly runs targeting r/smallbusiness, r/Entrepreneur,
+//     r/startups, r/SaaS, r/marketing — 99% English-speaking US startup
+//     founders. JegoDigital ICP is Mexican real-estate agencies.
+//   • Funnel result Apr 22-25: 0 Calendly bookings, 0 closed deals.
+//   • 13/86 runs failed (15% error rate — money burned on errors too).
+//
+// Re-enable conditions:
+//   1. Point startUrls at Mexican-targeted subreddits or local FB/IG groups
+//   2. Prove ≥1 Calendly booking from a Reddit reply within a 14-day test
+//   3. Set Apify daily spend cap before re-enabling the cron
+//
+// Manual testing still works via the redditScraperNow HTTPS endpoint below.
+// Schedule changed to yearly (Jan 1) + early-return guard so the function
+// definition stays intact for Firebase but no API calls fire.
+// ────────────────────────────────────────────────────────────────────────────
 exports.redditScraper = functions
-    .runWith({ timeoutSeconds: 540, memory: "512MB" })
+    .runWith({ timeoutSeconds: 60, memory: "256MB" })
     .pubsub
-    .schedule("15 * * * *")
+    .schedule("0 0 1 1 *")  // yearly @ Jan 1 00:00 — effectively never
     .timeZone("America/Mexico_City")
     .onRun(async () => {
-        try {
-            const s = await scrapeAndIngest();
-            if (s.new_written > 0) {
-                await notify(
-                    `🔍 *Reddit Money Machine — hourly pull*\n` +
-                    `New: *${s.new_written}* | Matches: ${s.keyword_matches} | Dups: ${s.duplicates}\n` +
-                    `By service: ${Object.entries(s.by_service).map(([k, v]) => `${k}:${v}`).join(" ") || "none"}`,
-                    { critical: false }
-                );
-            }
-            return s;
-        } catch (err) {
-            functions.logger.error("[redditScraper] crash:", err);
-            return { error: err.message };
-        }
+        functions.logger.info(
+            "[redditScraper] DISABLED 2026-04-25 — see DISASTER_LOG.md. " +
+            "Killed for cost-vs-revenue: $57/cycle Apify spend, 0 Calendly bookings."
+        );
+        return {
+            disabled: true,
+            disabled_at: "2026-04-25",
+            reason: "cost_vs_revenue_audit_failed",
+            cost_per_cycle_usd: 57.41,
+            calendly_bookings_in_test_window: 0,
+            re_enable_via: "edit redditScraper.js + redeploy (see comment)",
+        };
     });
 
 // Manual trigger for testing. Same 540s timeout as the cron.

@@ -540,3 +540,36 @@ The Cloud Function's `source=cold_call_elevenlabs` branch ALWAYS tags leads as H
 
 **Tag:** cold-call · audit-pipeline · hr-0 · consent · brevo · shortcut-abuse · 2026-04-23
 
+
+## 2026-04-25 — Brevo PUT clobbered template #49 mid-test
+**What I tried:** PUT /v3/smtp/templates/49 with `{"htmlContent":"<p>test no-op</p>","subject":"test"}` to check if the endpoint accepts edits without sender. It did (HTTP 204) and silently overwrote "Post-Audit Nurture D+1" with the placeholder.
+**Why it failed:** PUT replaces the full template body. No "no-op" exists for testing — any PUT mutates.
+**What to do instead:** ALWAYS GET → merge → PUT. Never PUT a probe payload to an active template ID. Build a script that fetches first, then writes the diff.
+**Tag:** brevo
+
+## 2026-04-25 PM — Brevo automation-step templates can't be edited via public API
+**What I tried:** PUT/PATCH /v3/smtp/templates/{16,17,19-23,40-44,53-62} — every "_step_#N" template returns 404 "document_not_found". Also tried /v3/automations, /v3/marketingAutomation/*, /v3/scenarios — all 404.
+**Why it failed:** Brevo treats automation step templates as embedded scenario nodes, not standalone editable templates. They're visible via GET /v3/smtp/templates (read-only) but not mutable via PUT. The Marketing Automation API is not exposed on this account tier.
+**What to do instead:**
+  - User-editable templates (#26-35, 39, 49-52, 63) ARE mutable via API.
+  - For automation step templates: use Brevo web UI to either (a) edit the inline content, or (b) swap the step to point at a regular template ID like 35 or 63.
+  - When Chrome MCP is paired, can drive UI swap autonomously.
+**Tag:** brevo
+
+## 2026-04-25 — Reddit "Money Machine" cron killed (cost-vs-revenue audit)
+**What I tried:** Hourly cron in `website/functions/redditScraper.js` (`schedule "15 * * * *"`)
+calling `trudax/reddit-scraper-lite` Apify actor against r/smallbusiness, r/Entrepreneur,
+r/startups, r/SaaS, r/marketing → /opportunities → opportunityClassifier (Gemini score)
+→ opportunityDrafter → telegramApprovalBot for Alex's 1-tap reply.
+**Why it failed:**
+- Cost: $57.41 in 4 days = 80% of total Apify spend, projected ~$430/mo
+- Output: 0 Calendly bookings, 0 closed deals (Apr 22-25 verified live)
+- ICP mismatch: target subreddits are 99% English-speaking US startup founders,
+  JegoDigital sells to Mexican real-estate agencies (Spanish, WhatsApp-first)
+- 15% run failure rate (13/86) — money burned on errors too
+**What to do instead:**
+- Re-enable ONLY after pointing startUrls at Mexican-targeted forums or local
+  FB/IG groups AND proving ≥1 Calendly booking in a 14-day controlled test
+- Set Apify daily spend cap before any re-enable
+- For now: Apify monthly cap reduced from $200 → $73 as circuit breaker
+**Tag:** lead-gen | cold-outreach | cost-vs-revenue
