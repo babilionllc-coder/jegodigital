@@ -97,95 +97,101 @@
 
 <body class="bg-background text-white antialiased selection:bg-accent selection:text-white flex flex-col min-h-screen">
 
-    <!-- Navigation -->
-    <!-- Canonical Top Navigation (matches index.html homepage style) -->
-    <div id="scrollProgress" class="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-[#C5A059]/0 transition-all" style="width:0"></div>
-    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" role="navigation" aria-label="Main navigation">
-        <div class="bg-[#0f1115]/90 backdrop-blur-xl border-b border-white/5">
-            <div class="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-16">
-                <!-- Logo -->
-                <a href="/" aria-label="JegoDigital — Inicio" class="flex items-center gap-2">
-                    <span class="text-2xl font-black tracking-tighter"><span class="text-[#C5A059]">Jego</span><span class="text-white">Digital</span></span>
-                </a>
-                <!-- Desktop menu -->
-                <div class="hidden md:flex items-center gap-7">
-                    <a href="how-it-works.html" data-nav="how-it-works" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Cómo Funciona</a>
-                    <a href="index.html#services" data-nav="services" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Servicios</a>
-                    <a href="showcase.html" data-nav="showcase" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Casos</a>
-                    <a href="about.html" data-nav="about" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Nosotros</a>
-                    <a href="blog.html" data-nav="blog" class="nav-link text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Blog</a>
-                    <!-- Lang switcher -->
-                    <button id="lang-switcher" class="hidden md:flex items-center gap-1.5 text-white/60 hover:text-[#C5A059] font-mono text-xs uppercase tracking-widest transition-colors cursor-pointer" onclick="window.location.href='/'">
-                        <span class="text-white font-bold">ES</span>
-                        <span class="text-white/30">|</span>
-                        <span class="opacity-50">EN</span>
-                    </button>
-                    <!-- CTA -->
-                    <a href="auditoria-gratis.html" class="hidden md:inline-flex items-center gap-2 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold text-xs px-5 py-2.5 rounded-full transition-all">
-                        <span>AUDITORÍA GRATIS</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </a>
-                </div>
-                <!-- Mobile hamburger -->
-                <button id="mobileMenuBtn" class="md:hidden text-white/80 hover:text-[#C5A059] transition-colors p-2" aria-label="Open menu" aria-expanded="false">
-                    <svg id="hamburgerIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
+    <!-- Navigation -->    <!-- Canonical Top Navigation (self-contained — works with or without Tailwind) -->
+    <style id="jd-nav-styles">
+      #scrollProgress{position:fixed;top:0;left:0;right:0;height:2px;width:0;background:#C5A059;z-index:60;transition:width .15s linear}
+      #mainNav{position:fixed;top:0;left:0;right:0;z-index:50;font-family:inherit}
+      #mainNav .jd-bar{background:rgba(15,17,21,0.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.06)}
+      #mainNav .jd-inner{max-width:1280px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:64px}
+      @media(min-width:768px){#mainNav .jd-inner{padding:0 32px}}
+      #mainNav .jd-logo{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+      #mainNav .jd-logo .jd-wordmark{font-size:24px;font-weight:900;letter-spacing:-.04em;line-height:1}
+      #mainNav .jd-logo .jd-gold{color:#C5A059}
+      #mainNav .jd-logo .jd-white{color:#fff}
+      #mainNav .jd-desktop{display:none;align-items:center;gap:28px}
+      @media(min-width:900px){#mainNav .jd-desktop{display:flex}}
+      #mainNav .jd-link{font-size:14px;font-weight:500;color:rgba(255,255,255,0.62);text-decoration:none;transition:color .2s;white-space:nowrap}
+      #mainNav .jd-link:hover{color:#C5A059}
+      #mainNav .jd-link.is-active{color:#fff;border-bottom:2px solid #C5A059;padding-bottom:4px}
+      #mainNav .jd-lang{display:inline-flex;align-items:center;gap:6px;background:none;border:0;cursor:pointer;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,0.62);padding:0}
+      #mainNav .jd-lang:hover{color:#C5A059}
+      #mainNav .jd-lang .lang-active{color:#fff;font-weight:700}
+      #mainNav .jd-lang .lang-sep{color:rgba(255,255,255,0.3)}
+      #mainNav .jd-lang .lang-dim{opacity:.5}
+      #mainNav .jd-cta{display:inline-flex;align-items:center;gap:8px;background:#C5A059;color:#000;font-weight:700;font-size:12px;padding:10px 20px;border-radius:9999px;text-decoration:none;letter-spacing:.04em;transition:background .2s}
+      #mainNav .jd-cta:hover{background:#b08d48}
+      #mainNav .jd-cta svg{width:14px;height:14px}
+      #mainNav .jd-burger{display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:rgba(255,255,255,0.85);cursor:pointer;padding:8px}
+      #mainNav .jd-burger:hover{color:#C5A059}
+      #mainNav .jd-burger svg{width:24px;height:24px}
+      @media(min-width:900px){#mainNav .jd-burger{display:none}}
+      #mainNav .jd-mobile{display:none;border-top:1px solid rgba(255,255,255,0.06);background:rgba(15,17,21,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+      #mainNav .jd-mobile.is-open{display:block}
+      @media(min-width:900px){#mainNav .jd-mobile{display:none !important}}
+      #mainNav .jd-mobile-inner{padding:24px;display:flex;flex-direction:column;gap:16px}
+      #mainNav .jd-mobile-link{font-size:16px;font-weight:500;color:rgba(255,255,255,0.7);text-decoration:none;padding:6px 0;transition:color .2s}
+      #mainNav .jd-mobile-link:hover{color:#C5A059}
+      #mainNav .jd-mobile-link.is-active{color:#fff;background:rgba(197,160,89,0.10);border-left:4px solid #C5A059;padding:8px 12px;border-radius:6px}
+      #mainNav .jd-mobile-cta{margin-top:8px;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#C5A059;color:#000;font-weight:700;font-size:14px;padding:14px 20px;border-radius:9999px;text-decoration:none}
+      #mainNav .jd-mobile-cta:hover{background:#b08d48}
+      body{padding-top:64px}
+    </style>
+    <div id="scrollProgress"></div>
+    <nav id="mainNav" role="navigation" aria-label="Main navigation">
+      <div class="jd-bar">
+        <div class="jd-inner">
+          <a href="/" class="jd-logo" aria-label="JegoDigital — Inicio">
+            <span class="jd-wordmark"><span class="jd-gold">Jego</span><span class="jd-white">Digital</span></span>
+          </a>
+          <div class="jd-desktop">
+            <a href="how-it-works.html" data-nav="how-it-works" class="jd-link">Cómo Funciona</a>
+            <a href="index.html#services" data-nav="services" class="jd-link">Servicios</a>
+            <a href="showcase.html" data-nav="showcase" class="jd-link">Casos</a>
+            <a href="about.html" data-nav="about" class="jd-link">Nosotros</a>
+            <a href="blog.html" data-nav="blog" class="jd-link">Blog</a>
+            <button class="jd-lang" onclick="window.location.href='/'" aria-label="Switch to English">
+              <span class="lang-active">ES</span><span class="lang-sep">|</span><span class="lang-dim">EN</span>
+            </button>
+            <a href="auditoria-gratis.html" class="jd-cta">
+              <span>AUDITORÍA GRATIS</span>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </a>
+          </div>
+          <button id="mobileMenuBtn" class="jd-burger" aria-label="Open menu" aria-expanded="false">
+            <svg id="hamburgerIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg id="closeIcon" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
         </div>
-        <!-- Mobile menu panel -->
-        <div id="mobileMenu" class="md:hidden hidden border-t border-white/5">
-            <div class="px-6 py-6 space-y-4 bg-[#0f1115]/95 backdrop-blur-xl">
-                <a href="how-it-works.html" data-nav="how-it-works" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Cómo Funciona</a>
-                <a href="index.html#services" data-nav="services" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Servicios</a>
-                <a href="showcase.html" data-nav="showcase" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Casos</a>
-                <a href="about.html" data-nav="about" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Nosotros</a>
-                <a href="blog.html" data-nav="blog" class="mobile-nav-link block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Blog</a>
-                <a href="auditoria-gratis.html" class="w-full mt-2 inline-flex items-center justify-center gap-2 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold text-sm px-5 py-3 rounded-full transition-all">
-                    <span>AUDITORÍA GRATIS</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                </a>
-            </div>
+      </div>
+      <div id="mobileMenu" class="jd-mobile">
+        <div class="jd-mobile-inner">
+          <a href="how-it-works.html" data-nav="how-it-works" class="jd-mobile-link">Cómo Funciona</a>
+          <a href="index.html#services" data-nav="services" class="jd-mobile-link">Servicios</a>
+          <a href="showcase.html" data-nav="showcase" class="jd-mobile-link">Casos</a>
+          <a href="about.html" data-nav="about" class="jd-mobile-link">Nosotros</a>
+          <a href="blog.html" data-nav="blog" class="jd-mobile-link">Blog</a>
+          <a href="auditoria-gratis.html" class="jd-mobile-cta">
+            <span>AUDITORÍA GRATIS</span>
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </a>
         </div>
+      </div>
     </nav>
-    <!-- Nav JS: mobile toggle + active-state highlight + scroll progress -->
     <script>
     (function(){
-      var btn = document.getElementById('mobileMenuBtn');
-      var menu = document.getElementById('mobileMenu');
-      var ham = document.getElementById('hamburgerIcon');
-      var close = document.getElementById('closeIcon');
-      if(btn && menu){ btn.addEventListener('click', function(){
-        var open = !menu.classList.contains('hidden');
-        menu.classList.toggle('hidden');
-        if(ham) ham.classList.toggle('hidden', !open);
-        if(close) close.classList.toggle('hidden', open);
-      }); }
-      menu && menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.add('hidden'); ham && ham.classList.remove('hidden'); close && close.classList.add('hidden'); }); });
-      // Active-state: highlight link matching body[data-page]
-      var page = (document.body && document.body.getAttribute('data-page')) || '';
+      var btn=document.getElementById('mobileMenuBtn'),menu=document.getElementById('mobileMenu'),h=document.getElementById('hamburgerIcon'),c=document.getElementById('closeIcon');
+      if(btn&&menu){btn.addEventListener('click',function(){var open=menu.classList.toggle('is-open');if(h)h.style.display=open?'none':'';if(c)c.style.display=open?'':'none';btn.setAttribute('aria-expanded',open?'true':'false');});}
+      menu&&menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('is-open');if(h)h.style.display='';if(c)c.style.display='none';});});
+      var page=(document.body&&document.body.getAttribute('data-page'))||'';
       if(page){
-        document.querySelectorAll('a.nav-link[data-nav="'+page+'"]').forEach(function(a){
-          a.classList.remove('text-white/60');
-          a.classList.add('text-white','border-b-2','border-[#C5A059]','pb-1');
-        });
-        document.querySelectorAll('a.mobile-nav-link[data-nav="'+page+'"]').forEach(function(a){
-          a.classList.remove('text-white/70');
-          a.classList.add('text-white','bg-[#C5A059]/10','border-l-4','border-[#C5A059]','pl-3','py-2','rounded-md');
-        });
+        document.querySelectorAll('a.jd-link[data-nav="'+page+'"]').forEach(function(a){a.classList.add('is-active');});
+        document.querySelectorAll('a.jd-mobile-link[data-nav="'+page+'"]').forEach(function(a){a.classList.add('is-active');});
       }
-      // Scroll progress
-      var bar = document.getElementById('scrollProgress');
-      if(bar){ window.addEventListener('scroll', function(){
-        var h = document.documentElement.scrollHeight - window.innerHeight;
-        var pct = h>0 ? (window.scrollY/h)*100 : 0;
-        bar.style.width = pct + '%';
-        bar.style.background = pct>2 ? '#C5A059' : 'transparent';
-      }); }
+      var bar=document.getElementById('scrollProgress');
+      if(bar){window.addEventListener('scroll',function(){var sh=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(sh>0?(window.scrollY/sh)*100:0)+'%';});}
     })();
     </script>
-
-    <!-- Main Content -->
+<!-- Main Content -->
     <main class="flex-grow pt-40 pb-20 relative">
         <div class="container mx-auto px-4 max-w-4xl">
             <h1 class="text-4xl md:text-5xl font-bold mb-8 hero-gradient-text text-center">Términos y Condiciones</h1>
