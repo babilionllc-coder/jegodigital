@@ -609,7 +609,7 @@ exports.onLeadCreated = functions.firestore.document('leads/{leadId}').onCreate(
                     // SMART NUMBER SELECTION
                     // Default to Mexico, but use US number if lead is +1
                     const US_NUMBER_ID = "phnum_2501kfa9jwrffpftyfrfaeag7fpf";
-                    const MX_NUMBER_ID = "phnum_8701kfbrk0ksft1r0fx2fv79w5y9";
+                    const MX_NUMBER_ID = "phnum_8201kq0efkq6esttrdm916g8n3r0";
 
                     let PHONE_NUMBER_ID = MX_NUMBER_ID; // Default to Mexico
                     if (phoneToCall.startsWith('+1')) {
@@ -819,7 +819,7 @@ exports.voiceAgentCall = functions.https.onRequest(async (req, res) => {
 
         // Smart Number Logic
         const US_NUMBER_ID = "phnum_2501kfa9jwrffpftyfrfaeag7fpf";
-        const MX_NUMBER_ID = "phnum_8701kfbrk0ksft1r0fx2fv79w5y9";
+        const MX_NUMBER_ID = "phnum_8201kq0efkq6esttrdm916g8n3r0";
 
         const phoneToCall = phone.startsWith('+') ? phone : `+52${phone}`; // Assume MX if no code, or handled by UI
 

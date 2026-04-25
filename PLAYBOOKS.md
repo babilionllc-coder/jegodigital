@@ -119,7 +119,7 @@ Builder: `/mnt/jegodigital/flamingo/social_build/build.py` (HTML+Playwright, bra
 > Full details in `cold-calling-ai` skill. This is the quick-reference summary.
 
 ### Live System
-- **Phone:** +52 998 387 1618 (Twilio MX number, ID: `phnum_8801kp77en3ee56t0t291zyv40ne`)
+- **Phone:** +52 998 387 1618 (Twilio MX number, ID: `phnum_8201kq0efkq6esttrdm916g8n3r0` — rotated 2026-04-25 from old `phnum_8801kp77en3ee56t0t291zyv40ne` which returned 404 + caused 100% bridge failure with Twilio error 31921)
 - **Voice:** July — Warm, Youthful (ID: `MD6rLAhozcrmkdMZeOBt`)
 - **LLM:** Gemini 3.1 Flash Lite Preview (set in ElevenLabs dashboard)
 - **TTS:** `eleven_v3_conversational` | **ASR:** `scribe_realtime` | **Turn:** `turn_v2`

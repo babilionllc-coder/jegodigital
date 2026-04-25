@@ -35,7 +35,7 @@ const AGENTS = {
   C: "agent_2701kq0drbt9f738pxjem3zc3fnb", // Free Setup (Trojan Horse)
 };
 
-const PHONE_NUMBER_ID = "phnum_8801kp77en3ee56t0t291zyv40ne";
+const PHONE_NUMBER_ID = "phnum_8201kq0efkq6esttrdm916g8n3r0";
 
 function parseArgs() {
   const args = process.argv.slice(2);

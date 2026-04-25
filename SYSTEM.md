@@ -434,7 +434,7 @@ Autonomous dialer — 50 MX real estate agencies/day, Mon-Fri, 10:00 CDMX. Slack
 
 **Account:** Creator plan, 95,041/131,000 chars used (72.6%)
 **Master voice:** July — Warm, Youthful | Voice ID `MD6rLAhozcrmkdMZeOBt`
-**Phone number:** `+52 998 387 1618` | ElevenLabs PN ID `phnum_8801kp77en3ee56t0t291zyv40ne` | Provider: Twilio | Assigned agent: A (SEO Pitch)
+**Phone number:** `+52 998 387 1618` | ElevenLabs PN ID `phnum_8201kq0efkq6esttrdm916g8n3r0` | Provider: Twilio | Assigned agent: Inbound Receptionist (outbound A/B/C via runtime override) | **2026-04-25:** rotated from old ID `phnum_8801kp77en3ee56t0t291zyv40ne` (returned 404) — root cause of 100% bridge failure (Twilio error 31921)
 
 #### Agent config — SHARED settings (post 2026-04-21 patch)
 

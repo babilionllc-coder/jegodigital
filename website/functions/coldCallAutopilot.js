@@ -87,7 +87,7 @@ async function twilioLookup(e164) {
 
 // ---- Config ----
 const EL_API_KEY_FALLBACK = "sk_b9293d3a3860e09a003d337243506863bf7cf579095e5c9e";
-const MX_PHONE_ID = "phnum_8801kp77en3ee56t0t291zyv40ne"; // +52 998 387 1618 (Sofia MX)
+const MX_PHONE_ID = "phnum_8201kq0efkq6esttrdm916g8n3r0"; // +52 998 387 1618 (Sofia MX)
 const BATCH_SIZE = 120;               // Morning batch — bumped from 50 to 120 (2026-04-21, Alex wants morning-only cadence until 3 YES/day)
 const AFTERNOON_BATCH_SIZE = 0;       // DISABLED 2026-04-21 — afternoon batch is a no-op. Export retained to avoid Scheduler 404 deploy trap (see firebase_deploy_traps memory).
 const FIRE_INTERVAL_MS = 12000;       // 12s between API fires — respects ElevenLabs + Twilio concurrency
