@@ -35,15 +35,14 @@ const LEADS_DS = "adacaa44-3d9a-4c00-8ef4-c0eb45ff091b";
 const CONTENT_DS = "77f8681d-9952-43f8-879f-4c627609d466";
 
 async function postSlack(blocks, text) {
-    const url = SLACK();
-    if (!url) { functions.logger.warn("SLACK_WEBHOOK_URL missing"); return { ok: false }; }
-    try {
-        await axios.post(url, { blocks, text }, { timeout: 10000 });
-        return { ok: true };
-    } catch (e) {
-        functions.logger.error(`Slack post failed: ${e.message}`);
-        return { ok: false, error: e.message };
+    // 2026-04-25: routed to #daily-ops (Morning Command Center brief) via slackPost helper.
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('daily-ops', { blocks, text });
+    if (!result.ok) {
+        functions.logger.error(`mobileCommandCenter Slack post failed: ${result.error || "unknown"}`);
+        return { ok: false, error: result.error };
     }
+    return { ok: true, channel: result.channel };
 }
 
 async function postTelegram(text) {

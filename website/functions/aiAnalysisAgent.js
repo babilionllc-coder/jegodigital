@@ -416,44 +416,21 @@ function buildEscalationBlocks(analysis, escalations, autoFixResults) {
 }
 
 async function postEscalationToSlack(blocks) {
-    const token = process.env.SLACK_BOT_TOKEN;
-    const webhook = process.env.SLACK_WEBHOOK_URL;
-
-    // Prefer bot token (posts to channel, supports threading)
-    if (token) {
-        try {
-            await axios.post(
-                "https://slack.com/api/chat.postMessage",
-                { channel: SLACK_CHANNEL_ID, blocks, text: "🤖 AI Agent — Review Needed" },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json; charset=utf-8",
-                    },
-                    timeout: 15000,
-                },
-            );
-            return { ok: true, method: "bot_token" };
-        } catch (err) {
-            functions.logger.warn(`Slack bot post failed, falling back to webhook: ${err.message}`);
-        }
-    }
-
-    // Webhook fallback
-    if (webhook) {
-        try {
-            await axios.post(
-                webhook,
-                { blocks, text: "🤖 AI Agent — Review Needed" },
-                { headers: { "Content-Type": "application/json" }, timeout: 15000 },
-            );
-            return { ok: true, method: "webhook" };
-        } catch (err) {
-            return { ok: false, error: err.message };
-        }
-    }
-
-    return { ok: false, error: "No SLACK_BOT_TOKEN or SLACK_WEBHOOK_URL configured" };
+    // 2026-04-25: routed to #daily-ops (AI Agent review escalations) via slackPost helper.
+    // Helper handles bot-token + chat.postMessage with proper channel ID, plus
+    // webhook fallback if bot token missing. Replaces the old hardcoded
+    // SLACK_CHANNEL_ID which pointed to a stale channel.
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('daily-ops', {
+        blocks,
+        text: "🤖 AI Agent — Review Needed",
+    });
+    if (!result.ok) return { ok: false, error: result.error };
+    return {
+        ok: true,
+        method: result.fallback_used ? "webhook_fallback" : "bot_token",
+        channel: result.channel,
+    };
 }
 
 // ---------- Firestore logging ----------

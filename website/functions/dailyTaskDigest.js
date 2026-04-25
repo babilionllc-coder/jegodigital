@@ -168,18 +168,14 @@ function buildSlackBlocks(tasks) {
 }
 
 async function postToSlack(blocks) {
-    const webhook = process.env.SLACK_WEBHOOK_URL;
-    if (!webhook) {
-        functions.logger.warn("SLACK_WEBHOOK_URL missing");
-        return { ok: false, skipped: "no_webhook" };
+    // 2026-04-25: routed to #daily-ops via slackPost helper.
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('daily-ops', { blocks, text: "Daily task digest" });
+    if (!result.ok) {
+        functions.logger.error(`dailyTaskDigest Slack post failed: ${result.error || "unknown"}`);
+        return { ok: false, error: result.error };
     }
-    try {
-        await axios.post(webhook, { blocks, text: "Daily task digest" }, { timeout: 10000 });
-        return { ok: true };
-    } catch (e) {
-        functions.logger.error(`Slack post failed: ${e.message}`);
-        return { ok: false, error: e.message };
-    }
+    return { ok: true, channel: result.channel };
 }
 
 async function postToTelegram(tasks) {

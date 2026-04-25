@@ -54,11 +54,12 @@ function confirmationHtml({ ok, title, body, bgColor }) {
 }
 
 async function notifySlackConfirmed(id, quota) {
-    if (!SLACK_WEBHOOK) return;
+    // 2026-04-25: routed to #content (Money Machine confirmations) via slackPost helper.
     try {
-        await axios.post(SLACK_WEBHOOK, {
+        const { slackPost } = require('./slackPost');
+        await slackPost('content', {
             text: `✅ ${id} marked as posted · quota ${quota.used}/${quota.limit} today`,
-        }, { timeout: 8000 });
+        });
     } catch (_) { /* non-fatal */ }
 }
 

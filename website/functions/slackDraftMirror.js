@@ -131,11 +131,12 @@ async function mirrorDraftToSlack(draftSnap) {
     const payload = formatCard(draftSnap.id, draft, quota);
 
     try {
-        const r = await axios.post(SLACK_WEBHOOK, payload, {
-            timeout: 15000,
-            headers: { "Content-Type": "application/json" },
-        });
-        functions.logger.info(`[slackDraftMirror] ${draftSnap.id} mirrored — HTTP ${r.status}`);
+        // 2026-04-25: routed to #content (Money Machine drafts) via slackPost helper.
+        const { slackPost } = require('./slackPost');
+        const result = await slackPost('content', payload);
+        const httpStatus = result.ok ? 200 : 0;
+        const r = { status: httpStatus };
+        functions.logger.info(`[slackDraftMirror] ${draftSnap.id} mirrored to #${result.channel || 'unknown'} — ok=${result.ok}`);
         // Record that we mirrored + move draft status so telegramApprovalBot
         // and scheduledTelegramRecovery don't re-push.
         await draftSnap.ref.set({

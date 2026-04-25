@@ -100,11 +100,8 @@ function diagnose(doc) {
 }
 
 async function postSlackAlert(broken, scanned) {
-    const slackUrl = process.env.SLACK_WEBHOOK_URL;
-    if (!slackUrl) {
-        functions.logger.warn("SLACK_WEBHOOK_URL not set — watchdog cannot post alert");
-        return { ok: false, skipped: true, reason: "no_webhook_url" };
-    }
+    // 2026-04-25: routed to #alerts via slackPost helper.
+    const { slackPost } = require('./slackPost');
 
     const headerText = `🚨 Audit Notification Watchdog — ${broken.length} silent failure${broken.length === 1 ? "" : "s"}`;
     const rows = broken.slice(0, 10).map(b => {
@@ -116,28 +113,27 @@ async function postSlackAlert(broken, scanned) {
         ? `\n_…and ${broken.length - 10} more. Run \`auditNotificationWatchdogOnDemand\` for the full list._`
         : "";
 
-    try {
-        await axios.post(slackUrl, {
-            text: headerText,
-            blocks: [
-                { type: "header", text: { type: "plain_text", text: headerText, emoji: true } },
-                { type: "section", text: { type: "mrkdwn", text: rows + tail } },
-                {
-                    type: "context",
-                    elements: [{
-                        type: "mrkdwn",
-                        text: `_Scanned ${scanned} audit_requests in last ${LOOKBACK_HOURS}h, grace ${GRACE_MINUTES}m. Fix recommendation: check Cloud Functions logs for submitAuditRequest at the timestamps above._`
-                    }]
-                }
-            ],
-            unfurl_links: false,
-            unfurl_media: false
-        }, { timeout: 8000 });
-        return { ok: true };
-    } catch (err) {
-        functions.logger.error("watchdog Slack post failed:", err.response?.data || err.message);
-        return { ok: false, error: err.message };
+    const result = await slackPost('alerts', {
+        text: headerText,
+        blocks: [
+            { type: "header", text: { type: "plain_text", text: headerText, emoji: true } },
+            { type: "section", text: { type: "mrkdwn", text: rows + tail } },
+            {
+                type: "context",
+                elements: [{
+                    type: "mrkdwn",
+                    text: `_Scanned ${scanned} audit_requests in last ${LOOKBACK_HOURS}h, grace ${GRACE_MINUTES}m. Fix recommendation: check Cloud Functions logs for submitAuditRequest at the timestamps above._`
+                }]
+            }
+        ],
+        unfurl_links: false,
+        unfurl_media: false,
+    });
+    if (!result.ok) {
+        functions.logger.error("watchdog Slack post failed:", result.error || "unknown");
+        return { ok: false, error: result.error };
     }
+    return { ok: true, channel: result.channel };
 }
 
 async function runWatchdog() {

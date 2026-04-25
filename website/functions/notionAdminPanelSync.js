@@ -339,8 +339,7 @@ async function createSnapshotPage(blocks, dateStr) {
 }
 
 async function postSlackNotification(pageUrl, dateStr, metrics) {
-    const webhook = process.env.SLACK_WEBHOOK_URL;
-    if (!webhook) { functions.logger.warn("SLACK_WEBHOOK_URL missing"); return; }
+    // 2026-04-25: routed to #revenue (Monday weekly snapshot) via slackPost helper.
     const body = {
         text: `📊 Weekly system snapshot ready — ${dateStr}`,
         blocks: [
@@ -354,7 +353,10 @@ async function postSlackNotification(pageUrl, dateStr, metrics) {
             ] },
         ],
     };
-    try { await axios.post(webhook, body, { timeout: 10000 }); } catch (e) { functions.logger.error("Slack post failed", e?.message || e); }
+    try {
+        const { slackPost } = require('./slackPost');
+        await slackPost('revenue', body);
+    } catch (e) { functions.logger.error("notionAdminPanelSync Slack post failed", e?.message || e); }
 }
 
 // -- Main runner ---------------------------------------------------------

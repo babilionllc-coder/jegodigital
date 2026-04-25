@@ -65,10 +65,10 @@ async function notion(method, path, body = null) {
 }
 
 async function slackPost(text) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) return;
+    // 2026-04-25: routed to #daily-ops (quiet sync logs) via slackPost helper.
     try {
-        await axios.post(url, { text }, { headers: {"Content-Type":"application/json"}, timeout: 8000 });
+        const { slackPost: routedPost } = require('./slackPost');
+        await routedPost('daily-ops', { text });
     } catch (e) { functions.logger.warn("Slack post failed:", e.message); }
 }
 
@@ -104,10 +104,7 @@ async function createNotionLead(lead, campaignMeta) {
     const score = payload.signal_score || "";
     if (opener || topPain) {
         props["Notes"] = { rich_text: [{ text: { content:
-            `Opener: ${opener.slice(0,500)}
-
-Top pain: ${topPain} — ${painDetail}
-Signal score: ${score}`
+            `Opener: ${opener.slice(0,500)}\n\nTop pain: ${topPain} — ${painDetail}\nSignal score: ${score}`
         }}]};
     }
     return await notion("POST", "/pages", {
@@ -164,8 +161,7 @@ async function doLeadSync() {
     await stateRef.set({ last_run_at: admin.firestore.FieldValue.serverTimestamp(), results }, { merge: true });
     if (totalCreated > 0) {
         const breakdown = results.map(r => `${r.campaign}: +${r.created} new`).join(" · ");
-        await slackPost(`🔄 *Notion CRM synced* — ${totalCreated} new leads imported
-${breakdown}`);
+        await slackPost(`🔄 *Notion CRM synced* — ${totalCreated} new leads imported\n${breakdown}`);
     }
     return { totalCreated, totalSkipped, results };
 }
@@ -209,12 +205,9 @@ async function doReplySync() {
     // Alert Slack for every new warm lead
     for (const w of newWarm) {
         await slackPost(
-            `🔥 *WARM LEAD* — ${w.company || w.email} just replied in ${w.campaign}
-` +
-            `Email: ${w.email}
-` +
-            `Open Instantly Unibox: https://app.instantly.ai/app/unibox
-` +
+            `🔥 *WARM LEAD* — ${w.company || w.email} just replied in ${w.campaign}\n` +
+            `Email: ${w.email}\n` +
+            `Open Instantly Unibox: https://app.instantly.ai/app/unibox\n` +
             `_Marked 'Warm' in Notion 🎯 Leads CRM._`
         );
     }

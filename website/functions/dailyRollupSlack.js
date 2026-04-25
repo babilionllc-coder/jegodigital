@@ -33,38 +33,31 @@ const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
 const TG_CHAT_FALLBACK = "6637626501";
 
 async function sendSlack(text, blocks, attachments) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) {
-        // Fallback: send to Telegram so we still know what happened
-        const token = process.env.TELEGRAM_BOT_TOKEN || TG_BOT_FALLBACK;
-        const chatId = process.env.TELEGRAM_CHAT_ID || TG_CHAT_FALLBACK;
-        try {
-            await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
-                chat_id: chatId,
-                text: `[SLACK_WEBHOOK_URL missing — fallback to TG]\n${text}`,
-                parse_mode: "Markdown",
-                disable_web_page_preview: true,
-            }, { timeout: 10000 });
-        } catch (err) {
-            functions.logger.error("dailyRollupSlack TG fallback failed:", err.message);
-        }
-        return { ok: false, fallback: "telegram" };
-    }
+    // 2026-04-25: routed to #daily-ops via slackPost helper. The helper
+    // already implements webhook fallback internally, but we keep the
+    // Telegram fallback for double-redundancy if BOTH bot-token AND
+    // webhook fail.
+    const { slackPost } = require('./slackPost');
+    const payload = { text };
+    if (attachments) payload.attachments = attachments;
+    else if (blocks) payload.blocks = blocks;
+    const result = await slackPost('daily-ops', payload);
+    if (result.ok) return { ok: true, channel: result.channel, fallback_used: result.fallback_used };
+
+    // Final tier: Telegram fallback so close-of-business still lands somewhere
+    const token = process.env.TELEGRAM_BOT_TOKEN || TG_BOT_FALLBACK;
+    const chatId = process.env.TELEGRAM_CHAT_ID || TG_CHAT_FALLBACK;
     try {
-        // Slack requires `text` as a fallback for accessibility + notifications,
-        // even when we're sending attachments/blocks. Payload precedence:
-        //   - attachments (branded gold-bar layout) take priority if given
-        //   - blocks (unwrapped Block Kit) next
-        //   - text fallback always included
-        const payload = { text };
-        if (attachments) payload.attachments = attachments;
-        else if (blocks) payload.blocks = blocks;
-        await axios.post(url, payload, { timeout: 10000 });
-        return { ok: true };
+        await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+            chat_id: chatId,
+            text: `[Slack failed — fallback to TG]\n${text}`,
+            parse_mode: "Markdown",
+            disable_web_page_preview: true,
+        }, { timeout: 10000 });
     } catch (err) {
-        functions.logger.error("dailyRollupSlack Slack send failed:", err.response?.data || err.message);
-        return { ok: false, error: err.message };
+        functions.logger.error("dailyRollupSlack TG fallback failed:", err.message);
     }
+    return { ok: false, fallback: "telegram", error: result.error };
 }
 
 // ---- Date helpers — CDMX is UTC-6 year-round ----

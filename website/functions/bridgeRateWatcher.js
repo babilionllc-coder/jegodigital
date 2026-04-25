@@ -13,11 +13,12 @@ if (!admin.apps.length) admin.initializeApp();
 async function notify(text) {
     const tg = process.env.TELEGRAM_BOT_TOKEN;
     const tgChat = process.env.TELEGRAM_CHAT_ID;
-    const slack = process.env.SLACK_WEBHOOK_URL;
-    if (slack) {
-        try { await axios.post(slack, { text }, { timeout: 8000 }); } catch (e) {
-            functions.logger.warn("slack notify failed:", e.message);
-        }
+    // 2026-04-25: routed to #alerts (bridge-rate watchdog) via slackPost helper.
+    try {
+        const { slackPost } = require('./slackPost');
+        await slackPost('alerts', { text });
+    } catch (e) {
+        functions.logger.warn("slack notify failed:", e.message);
     }
     if (tg && tgChat) {
         try {

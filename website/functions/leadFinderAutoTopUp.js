@@ -358,15 +358,13 @@ exports.leadFinderAutoTopUp = functions
                 date: skipTodayKey, pool_before: eligibleCount, topup_fired: false,
                 reason, ran_at: admin.firestore.FieldValue.serverTimestamp(),
             }, { merge: true });
-            // Slack alert — silent failures are how we got here
-            const slackUrl = process.env.SLACK_WEBHOOK_URL;
-            if (slackUrl) {
-                try {
-                    await axios.post(slackUrl, {
-                        text: `🚨 *leadFinderAutoTopUp SKIPPED* — pool at ${eligibleCount}/${TARGET_POOL_SIZE}, reason: ${reason}. Phone-call queue will starve.`,
-                    }, { timeout: 8000 });
-                } catch (e) { functions.logger.warn("slack alert failed:", e.message); }
-            }
+            // 2026-04-25: routed to #alerts (silent failure — phone queue starves) via slackPost helper.
+            try {
+                const { slackPost } = require('./slackPost');
+                await slackPost('alerts', {
+                    text: `🚨 *leadFinderAutoTopUp SKIPPED* — pool at ${eligibleCount}/${TARGET_POOL_SIZE}, reason: ${reason}. Phone-call queue will starve.`,
+                });
+            } catch (e) { functions.logger.warn("slack alert failed:", e.message); }
         }
 
         if (!DFS_LOGIN || !DFS_PASS) {

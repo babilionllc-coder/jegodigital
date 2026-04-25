@@ -746,16 +746,17 @@ async function runEveningOpsReport(options = {}) {
             postTelegramWithPdf(pdfBuffer, headline, window.key),
         ]);
     } else {
-        // No PDF — fall back to text-only Slack
-        if (process.env.SLACK_WEBHOOK_URL) {
-            try {
-                await axios.post(process.env.SLACK_WEBHOOK_URL, {
-                    text: headline + `\n\n⚠️ PDF render failed: ${pdfError}`,
-                }, { timeout: 10000 });
-                slackResult = { ok: true, mode: "text-only" };
-            } catch (e) {
-                functions.logger.error("Slack fallback failed:", e.message);
+        // 2026-04-25: routed to #daily-ops (text-only fallback when PDF fails) via slackPost.
+        try {
+            const { slackPost } = require('./slackPost');
+            const result = await slackPost('daily-ops', {
+                text: headline + `\n\n⚠️ PDF render failed: ${pdfError}`,
+            });
+            if (result.ok) {
+                slackResult = { ok: true, mode: "text-only", channel: result.channel };
             }
+        } catch (e) {
+            functions.logger.error("eveningOpsReport text-only Slack fallback failed:", e.message);
         }
     }
 

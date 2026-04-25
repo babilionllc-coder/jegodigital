@@ -108,12 +108,12 @@ async function instantlyStats() {
 }
 
 async function postSlack(text, blocks = null) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) { functions.logger.warn("No SLACK_WEBHOOK_URL"); return; }
-    await axios.post(url, blocks ? { text, blocks } : { text }, {
-        headers: { "Content-Type": "application/json" },
-        timeout: 8000,
-    });
+    // 2026-04-25: routed to #daily-ops via slackPost helper.
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('daily-ops', blocks ? { text, blocks } : { text });
+    if (!result.ok) {
+        functions.logger.warn("dailyPipelineDigest postSlack failed:", result.error || "unknown");
+    }
 }
 
 // ============================================================

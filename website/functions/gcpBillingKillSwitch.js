@@ -62,11 +62,11 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 // ─── helpers ─────────────────────────────────────────────────────────────
 
 async function sendSlack(text) {
-    if (!SLACK_WEBHOOK_URL) return { ok: false, reason: "no_webhook" };
+    // 2026-04-25: routed to #alerts (GCP billing kill switch) via slackPost helper.
     try {
-        const r = await axios.post(SLACK_WEBHOOK_URL, { text, unfurl_links: false },
-            { timeout: 10000, validateStatus: () => true });
-        return { ok: r.status === 200, status: r.status };
+        const { slackPost } = require('./slackPost');
+        const result = await slackPost('alerts', { text, unfurl_links: false });
+        return { ok: result.ok, channel: result.channel, error: result.error };
     } catch (e) { return { ok: false, reason: e.message }; }
 }
 

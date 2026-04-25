@@ -72,9 +72,11 @@ async function notifyTelegram(text) {
 }
 
 async function notifySlack(text) {
-    const url = process.env.SLACK_WEBHOOK_URL;
-    if (!url) return;
-    try { await axios.post(url, { text }, { timeout: 10000 }); } catch (e) { /* silent */ }
+    // 2026-04-25: routed to #daily-ops (Notion webhook events, quiet) via slackPost helper.
+    try {
+        const { slackPost } = require('./slackPost');
+        await slackPost('daily-ops', { text });
+    } catch (e) { /* silent */ }
 }
 
 // ─────── Route handlers ───────

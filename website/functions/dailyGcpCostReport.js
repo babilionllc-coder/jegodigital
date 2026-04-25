@@ -260,24 +260,20 @@ async function sendTelegram(text) {
 }
 
 async function sendSlack(text) {
-    if (!SLACK_WEBHOOK_URL) {
-        functions.logger.warn("[dailyGcpCostReport] SLACK_WEBHOOK_URL missing — skipping.");
-        return { ok: false, reason: "no_webhook" };
+    // 2026-04-25: routed to #daily-ops via slackPost helper (3-tier fallback inside).
+    const { slackPost } = require('./slackPost');
+    const result = await slackPost('daily-ops', {
+        text: "GCP Daily Cost Report",
+        blocks: [{
+            type: "section",
+            text: { type: "mrkdwn", text: text.replace(/\*([^*]+)\*/g, "*$1*") },
+        }],
+    });
+    if (!result.ok) {
+        functions.logger.warn("[dailyGcpCostReport] Slack send failed:", result.error || "unknown");
+        return { ok: false, error: String(result.error || "unknown") };
     }
-    try {
-        const payload = {
-            text: "GCP Daily Cost Report",
-            blocks: [{
-                type: "section",
-                text: { type: "mrkdwn", text: text.replace(/\*([^*]+)\*/g, "*$1*") },
-            }],
-        };
-        await axios.post(SLACK_WEBHOOK_URL, payload, { timeout: 15000 });
-        return { ok: true };
-    } catch (err) {
-        functions.logger.warn("[dailyGcpCostReport] Slack send failed:", err.response?.data || err.message);
-        return { ok: false, error: String(err.message || err) };
-    }
+    return { ok: true, channel: result.channel };
 }
 
 // ─── core run ───────────────────────────────────────────────────────────

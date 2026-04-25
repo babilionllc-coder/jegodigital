@@ -1223,14 +1223,14 @@ async function runMondayRevenueReview(options = {}) {
             postTelegramWithPdf(pdfBuffer, headline, window.key),
         ]);
     } else {
-        if (process.env.SLACK_WEBHOOK_URL) {
-            try {
-                await axios.post(process.env.SLACK_WEBHOOK_URL, {
-                    text: headline + `\n\n⚠️ PDF render failed: ${pdfError}`,
-                }, { timeout: 10000 });
-                slackResult = { ok: true, mode: "text-only" };
-            } catch (e) { /* logged earlier */ }
-        }
+        // 2026-04-25: routed to #revenue (text-only fallback when PDF fails) via slackPost.
+        try {
+            const { slackPost } = require('./slackPost');
+            const result = await slackPost('revenue', {
+                text: headline + `\n\n⚠️ PDF render failed: ${pdfError}`,
+            });
+            if (result.ok) slackResult = { ok: true, mode: "text-only", channel: result.channel };
+        } catch (e) { /* logged earlier */ }
     }
 
     // Firestore snapshot — business_reviews/{YYYY-WNN}
