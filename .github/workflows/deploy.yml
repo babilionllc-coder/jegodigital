@@ -243,6 +243,37 @@ jobs:
           done < /tmp/cr_services.txt
           echo "=== IAM binding pass complete ==="
 
+      # 2026-04-25: Firebase Functions v4 with Node 20 deploys as Cloud Functions
+      # Gen 1 (NOT gen2/Cloud Run). The previous step targets ONLY gen2 services,
+      # so new gen1 HTTP functions stayed PRIVATE (returning 403 Forbidden) for
+      # weeks. Symptoms: dailyTiktokViralScriptOnDemand, dailyTaskDigestNow,
+      # creditWatchdogsOnDemand, contentEveningWrapNow all returned 403.
+      # Fix: also grant public invoker on every gen1 HTTPS function.
+      - name: Grant allUsers invoker on all Cloud Functions Gen1 services (public fix)
+        continue-on-error: true
+        run: |
+          echo "=== Listing all Cloud Functions Gen1 in us-central1 ==="
+          gcloud functions list --regions=us-central1 --format='value(name)' \
+            --filter='environment=GEN_1' > /tmp/cf_gen1.txt 2>/dev/null || true
+          # Fallback to any function if filter syntax unsupported
+          if [ ! -s /tmp/cf_gen1.txt ]; then
+            gcloud functions list --regions=us-central1 --format='value(name)' > /tmp/cf_gen1.txt
+          fi
+          COUNT=$(wc -l < /tmp/cf_gen1.txt)
+          echo "Found $COUNT Cloud Functions"
+          while IFS= read -r fn; do
+            [ -z "$fn" ] && continue
+            # Strip the projects/.../locations/.../functions/ prefix if present
+            FNNAME=$(echo "$fn" | sed 's|.*/||')
+            echo "Granting allUsers invoker on gen1 function: $FNNAME"
+            gcloud functions add-iam-policy-binding "$FNNAME" \
+              --region=us-central1 \
+              --member=allUsers \
+              --role=roles/cloudfunctions.invoker \
+              --quiet 2>&1 | tail -2 || echo "  (skipped — already set or error)"
+          done < /tmp/cf_gen1.txt
+          echo "=== Gen1 IAM binding pass complete ==="
+
   deploy-hosting:
     name: Deploy Hosting
     runs-on: ubuntu-latest
