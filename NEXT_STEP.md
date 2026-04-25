@@ -2,8 +2,36 @@
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
 > **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-24 PM (cold-call diagnostic session — pipeline rescued, 2 commits shipped, Monday diagnostic staged)
+> **Last session update:** 2026-04-25 (Live Google Reviews — homepage hydration + daily Apify cron live, 2 commits shipped a771362 + f757b66)
 > **Maintained by:** Claude + Alex
+
+---
+
+## ✅ 2026-04-25 — LIVE GOOGLE REVIEWS ON HOMEPAGE — 2 COMMITS SHIPPED, ALL 3 FUNCTIONS GREEN
+
+**The homepage now displays REAL Google reviews (not the fake placeholders Rodrigo/Alejandro/Studio Level Up that were shipped previously).** Aggregate rating updated from a fabricated 5.0 to the actual 4.8 — HR-0 violation closed.
+
+**Architecture:**
+- Apify `compass~Google-Maps-Reviews-Scraper` actor → Cloud Function → Firestore `/public/google_reviews` → public `/api/google-reviews` endpoint → JS hydrator on homepage.
+- Daily cron `googleReviewsSync` @ 04:00 CDMX (pubsub).
+- HTTPS on-demand `googleReviewsSyncOnDemand` for manual refresh.
+- 15-min CDN cache on the public read.
+
+**Files shipped (commit a771362 + f757b66):**
+- `website/functions/googleReviewsSync.js` — new module (3 exports).
+- `website/functions/index.js` — registered exports.
+- `website/index.html` — homepage section rewrite (real reviewer photos, real top-3 fallback, JS hydrator, Schema.org `AggregateRating` + `Review` markup).
+- `firebase.json` — `/api/google-reviews` rewrite.
+- (fix commit) Removed `secrets:["APIFY_API_KEY"]` from `runWith()` since this codebase loads env from `.env`, not GCP Secret Manager — matches `redditScraper.js`.
+
+**Live verification (HR-6):**
+- `curl https://jegodigital.com/api/google-reviews` → `{ok:true, placeRating:4.8, placeReviewsCount:10, eligibleCount:7, ...}`
+- Top 3: Yorley Bustamante ★5, **TT AND MORE ★5 (live client, posted 22 min before sync ran — system caught it immediately)**, Rodrigo Elizondo ★5 (mentions Flamingo).
+- Reviewer Google profile photos load HTTP 200 from lh3.googleusercontent.com.
+- Schema.org markup count: 10 occurrences on rendered HTML.
+- Hosting deploy run #152 ✅ success. Functions deploy run #153 ✅ getGoogleReviews live, ✅ googleReviewsSyncOnDemand live, ✅ googleReviewsSync scheduled.
+
+**HR-9 freshness loop:** This closes the daily-vs-monthly gap for Google review proof. Anytime a new review lands (positive or negative), the homepage reflects it within 24h automatically. No manual update needed.
 
 ---
 
