@@ -2658,3 +2658,14 @@ const googleReviewsSync = require("./googleReviewsSync");
 exports.googleReviewsSync = googleReviewsSync.googleReviewsSync;
 exports.googleReviewsSyncOnDemand = googleReviewsSync.googleReviewsSyncOnDemand;
 exports.getGoogleReviews = googleReviewsSync.getGoogleReviews;
+
+// ============================================================
+// SLACK WORKFLOW BUILDER backends (added 2026-04-25 PM)
+// Cloud Function targets for /onboard, /quote, /end-day Slack workflows.
+// All require X-Slack-Workflow-Token header. See SLACK_WORKFLOWS.md for
+// full workflow build specs + step-by-step UI build guide.
+// ============================================================
+const slackWorkflows = require("./slackWorkflows");
+exports.onboardClient = slackWorkflows.onboardClient;
+exports.generateQuote = slackWorkflows.generateQuote;
+exports.saveEndOfDay = slackWorkflows.saveEndOfDay;
