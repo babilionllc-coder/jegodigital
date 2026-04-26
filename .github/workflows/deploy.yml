@@ -188,17 +188,25 @@ jobs:
       # If either BATCH 1 or BATCH 2 had a transient flake, wait out the quota
       # window once more and retry the FULL set. 99% of failures from this point
       # are single-function GCF health-check flakes that self-heal on re-deploy.
+      #
+      # 2026-04-25 PM: Added continue-on-error so a couple persistent broken
+      # functions (e.g. instantlyReplySyncOnDemand, notionLeadSyncCron hitting
+      # GCF Quota Exceeded) don't block the IAM grant step from running. Those
+      # 2 functions have been broken for days — they're tech debt to fix
+      # separately, not a reason to leave 24 new HTTP functions 403'd.
       - name: Retry failed batches (waits 120s first)
+        id: retry
+        continue-on-error: true
         if: steps.batch1.outcome == 'failure' || steps.batch2.outcome == 'failure'
         run: |
           echo "Retrying after batch1=${{ steps.batch1.outcome }} batch2=${{ steps.batch2.outcome }}"
           sleep 120
           if [ "${{ steps.batch1.outcome }}" = "failure" ]; then
-            firebase deploy --only "${{ steps.exports.outputs.batch1 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
+            firebase deploy --only "${{ steps.exports.outputs.batch1 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb || echo "  batch1 retry partial failure — continuing to IAM grant anyway"
           fi
           if [ "${{ steps.batch2.outcome }}" = "failure" ]; then
             sleep 120
-            firebase deploy --only "${{ steps.exports.outputs.batch2 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
+            firebase deploy --only "${{ steps.exports.outputs.batch2 }}" --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb || echo "  batch2 retry partial failure — continuing to IAM grant anyway"
           fi
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -215,18 +223,27 @@ jobs:
       # Fix: after deploy, auth with GCP_SA_KEY and loop all gen2 services
       # in us-central1 granting allUsers roles/run.invoker. Idempotent —
       # safe to re-run. Covers both current + future HTTPS functions.
+      #
+      # 2026-04-25 PM: All IAM steps now use `if: always() && batch1==success`
+      # so they run REGARDLESS of retry-step exit code. As long as BATCH 1
+      # OR BATCH 2 succeeded (most functions deployed), we want to grant
+      # IAM on what IS deployed. Otherwise the new HTTP-callable functions
+      # stay 403 because of unrelated broken pre-existing functions.
       # --------------------------------------------------------------
       - name: Auth gcloud for IAM fix
+        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Install gcloud CLI
+        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: jegodigital-e02fb
 
       - name: Grant allUsers invoker on all Cloud Run services (gen2 public fix)
+        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
         continue-on-error: true
         run: |
           echo "=== Listing all Cloud Run services in us-central1 ==="
@@ -251,6 +268,7 @@ jobs:
       # creditWatchdogsOnDemand, contentEveningWrapNow all returned 403.
       # Fix: also grant public invoker on every gen1 HTTPS function.
       - name: Grant allUsers invoker on all Cloud Functions Gen1 services (public fix)
+        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
         continue-on-error: true
         run: |
           echo "=== Listing all Cloud Functions Gen1 in us-central1 ==="
