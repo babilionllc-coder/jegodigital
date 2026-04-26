@@ -2,6 +2,18 @@
 <html lang="en" class="scroll-smooth">
 
 <head>
+    <!-- Consent Mode v2 default (privacy-safe) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
     <!-- Google Tag Manager -->
     <script>(function (w, d, s, l, i) {
             w[l] = w[l] || []; w[l].push({
@@ -13,15 +25,8 @@
         })(window, document, 'script', 'dataLayer', 'GTM-KZCVVPHN');</script>
     <!-- End Google Tag Manager -->
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6BFHHN88JQ"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-6BFHHN88JQ');
-    </script>
+    <!-- GA4 loaded via GTM container GTM-KZCVVPHN (single source of truth) -->
+    <script src="/js/tracking.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/tailwind.min.css">
@@ -214,16 +219,7 @@
     </style>
 
     <link rel="prefetch" href="/es.html">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17966614433"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'AW-17966614433');
-        gtag('config', 'AW-17834320389');
-    </script>
+    <!-- Google Ads conversion tracking consolidated to account 471-527-2770 (managed via GTM) -->
     <!-- Structured Data: Organization + LocalBusiness + Person + Service -->
     <script type="application/ld+json">
     {
