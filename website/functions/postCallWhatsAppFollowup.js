@@ -45,6 +45,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
+const { slackPost } = require("./slackPost");
 
 if (!admin.apps.length) admin.initializeApp();
 
@@ -84,15 +85,15 @@ function classifyOutcome(analysisData) {
         return dataCollection.outcome.value;
     }
 
-    // Fallback: keyword classification on transcript_summary
+    // Fallback: keyword classification on transcript_summary (Spanish + English)
     if (/transferred|transferido|paso con alex|warm transfer/i.test(summary)) return "warm_transfer";
-    if (/whatsapp.*send|envíame.*whatsapp|mándame.*whatsapp|interested.*whatsapp/i.test(summary)) return "interested_whatsapp";
-    if (/no.*interesa|ya tengo agencia|do not call|molesto|aggressive/i.test(summary)) {
-        if (/molesto|aggressive|abusive/i.test(summary)) return "do_not_call";
-        return "polite_exit";
-    }
-    if (/no.*respond|no answer|voicemail|buzón/i.test(summary)) return "no_answer";
-    if (/llám.*después|callback|me llama después/i.test(summary)) return "callback_requested";
+    if (/whatsapp.*send|envíame.*whatsapp|mándame.*whatsapp|interested.*whatsapp|send.*whatsapp/i.test(summary)) return "interested_whatsapp";
+    if (/molesto|aggressive|abusive|hostile|angry|do not call|no llamar/i.test(summary)) return "do_not_call";
+    if (/no.*interesa|ya tengo agencia|already have.*agency|already have.*staff|sufficient staff|not interested|declined.*polite|polite.*exit|polite.*decline|politely declined|declined the offer|no estoy interesad/i.test(summary)) return "polite_exit";
+    if (/no.*respond|no answer|voicemail|buzón|call.*not answered|did not answer/i.test(summary)) return "no_answer";
+    if (/llám.*después|callback|me llama después|call.*later|llamar.*más tarde/i.test(summary)) return "callback_requested";
+    // Default fallback: if call was successful and someone talked, treat as polite exit (better to send followup than miss)
+    if (analysisData?.call_successful === "success" && summary.length > 20) return "polite_exit";
     return "unknown";
 }
 
@@ -198,6 +199,36 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
 
         const tgResult = await sendTelegramWithButtons(tgText, inlineKeyboard);
 
+        // Also post to Slack #leads-hot so it's visible on desktop
+        let slackResult = { ok: false };
+        try {
+            slackResult = await slackPost("leads-hot", {
+                text: `📲 WhatsApp follow-up READY for ${brokerName || phone}`,
+                blocks: [
+                    { type: "header", text: { type: "plain_text", text: `📲 WhatsApp follow-up — ${outcome}` } },
+                    {
+                        type: "section",
+                        fields: [
+                            { type: "mrkdwn", text: `*Lead:*\n${brokerName || "(sin nombre)"}` },
+                            { type: "mrkdwn", text: `*Phone:*\n${phone}` },
+                            { type: "mrkdwn", text: `*Zone:*\n${zone || "?"}` },
+                            { type: "mrkdwn", text: `*Group:*\n${sourceGroup}` },
+                        ],
+                    },
+                    { type: "section", text: { type: "mrkdwn", text: `*Mensaje preparado:*\n>${messageText.replace(/\n/g, "\n>")}` } },
+                    {
+                        type: "actions",
+                        elements: [
+                            { type: "button", text: { type: "plain_text", text: "📱 Abrir WhatsApp" }, url: waDeeplink, style: "primary" },
+                        ],
+                    },
+                    { type: "context", elements: [{ type: "mrkdwn", text: "⚠️ Abre desde laptop con WhatsApp Web logueado en *+52 998 787 5321 (JegoDigital Business)*" }] },
+                ],
+            });
+        } catch (slackErr) {
+            functions.logger.warn("Slack post failed:", slackErr.message);
+        }
+
         return res.json({
             ok: true,
             conversation_id: conversationId,
@@ -205,6 +236,8 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
             queued: true,
             telegram_sent: tgResult.ok,
             telegram_message_id: tgResult.message_id,
+            slack_sent: slackResult.ok,
+            slack_channel: slackResult.channel,
         });
     } catch (err) {
         functions.logger.error("postCallWhatsAppFollowup error:", err);
