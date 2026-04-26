@@ -32,6 +32,11 @@ const args = process.argv.slice(2);
 const DRY_RUN = !args.includes('--execute');
 const BATCH = parseInt(args[args.indexOf('--batch') + 1]) || 999;
 
+// Phones to skip (already called as part of testing) — prevents repeated calls to same lead
+const SKIP_PHONES = new Set([
+    '+529982367673', // Andrea Acevedo — called multiple times during test setup 2026-04-26
+]);
+
 if (!ELEVEN) {
     console.error('❌ ELEVENLABS_API_KEY missing in env');
     process.exit(1);
@@ -48,8 +53,9 @@ leads.sort((a, b) => {
     return (b.posts_count || 0) - (a.posts_count || 0);
 });
 
-const toCall = leads.slice(0, BATCH);
+const toCall = leads.filter(l => !SKIP_PHONES.has(l.phone)).slice(0, BATCH);
 console.log(`\n📞 ${DRY_RUN ? 'DRY-RUN' : 'EXECUTING'} — will ${DRY_RUN ? 'simulate' : 'fire'} ${toCall.length} calls`);
+console.log(`Skipping ${SKIP_PHONES.size} already-tested phones: ${Array.from(SKIP_PHONES).join(', ')}`);
 console.log(`Agent: Offer D — FB Brokers MX (${AGENT_ID})\n`);
 
 const PHONE_ID = process.env.ELEVENLABS_PHONE_ID || 'phnum_8201kq0efkq6esttrdm916g8n3r0';
@@ -87,7 +93,9 @@ async function fireCall(lead) {
             headers: {
                 'xi-api-key': ELEVEN,
                 'Content-Type': 'application/json',
-                'Content-Length': payload.length,
+                // CRITICAL: Buffer.byteLength counts UTF-8 bytes, not chars.
+                // Spanish (Cancún, Raíces) breaks the simple .length approach.
+                'Content-Length': Buffer.byteLength(payload, 'utf8'),
             },
         }, (res) => {
             let body = '';
@@ -100,8 +108,8 @@ async function fireCall(lead) {
                     console.log(`  ✓ ${lead.phone} → conv=${data.conversation_id}  (${lead.first_name || lead.business_name || 'generic'})`);
                     resolve({ ok: true, conversation_id: data.conversation_id, callSid: data.callSid, lead });
                 } else {
-                    // Show the REAL error so we can debug
-                    const errMsg = data ? (data.detail?.message || data.detail || JSON.stringify(data).slice(0, 200)) : body.slice(0, 200);
+                    // Show the REAL error — ElevenLabs returns array of validation errors
+                    const errMsg = JSON.stringify(data || body).slice(0, 600);
                     console.log(`  ✗ ${lead.phone} HTTP ${res.statusCode}: ${errMsg}`);
                     resolve({ ok: false, status: res.statusCode, error: errMsg, body, lead });
                 }

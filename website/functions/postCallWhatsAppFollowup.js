@@ -104,11 +104,11 @@ function buildWhatsAppMessage(ctx) {
     const greeting = broker_first_name ? `Hola ${broker_first_name},` : `Hola,`;
 
     if (outcome === "interested_whatsapp") {
-        return `${greeting}\n\nSoy Alex de JegoDigital — la agencia de marketing con IA para inmobiliarias. Como acordamos en la llamada, le mando el caso de Flamingo Real Estate (Cancún) que pasó de invisible a #1 en Google Maps en 90 días:\n\nhttps://jegodigital.com\n\n¿Cuándo le viene mejor agendar 15 minutos para platicar?\n\nAlex Jego\nFundador, JegoDigital`;
+        return `${greeting}\n\nSoy Alex de JegoDigital — la agencia de marketing con IA para inmobiliarias. Como acordamos en la llamada, le mando el caso de Flamingo Real Estate (Cancún) que pasó de invisible a #1 en Google Maps en 90 días:\n\nhttps://jegodigital.com/showcase\n\n¿Cuándo le viene mejor agendar 15 minutos para platicar?\n\nAlex Jego\nFundador, JegoDigital`;
     }
 
     // Default: polite_exit follow-up
-    return `${greeting}\n\nSoy Alex de JegoDigital. Hace un rato hablamos brevemente sobre marketing para inmobiliarias en ${zone || "su zona"}.\n\nLe dejo el caso de Flamingo Real Estate por si quiere echarle un vistazo cuando tenga tiempo: pasaron de invisibles a #1 en Google Maps en 90 días, sin contratar a nadie de tiempo completo.\n\nhttps://jegodigital.com\n\nLa puerta queda abierta cuando quiera platicar.\n\nSaludos,\nAlex Jego\nJegoDigital`;
+    return `${greeting}\n\nSoy Alex de JegoDigital. Hace un rato hablamos brevemente sobre marketing para inmobiliarias en ${zone || "su zona"}.\n\nLe dejo el caso de Flamingo Real Estate por si quiere echarle un vistazo cuando tenga tiempo: pasaron de invisibles a #1 en Google Maps en 90 días, sin contratar a nadie de tiempo completo.\n\nhttps://jegodigital.com/showcase\n\nLa puerta queda abierta cuando quiera platicar.\n\nSaludos,\nAlex Jego\nJegoDigital`;
 }
 
 /**
