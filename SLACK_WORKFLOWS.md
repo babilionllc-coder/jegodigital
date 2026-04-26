@@ -389,6 +389,71 @@ exports.saveEndOfDay = functions.https.onRequest(async (req, res) => {
 
 ---
 
+## 5i — Full workflow catalog (Tier 3-7, 17 more)
+
+> All backends shipped in `slackWorkflows.js` 2026-04-25 PM commit. Most are **stubs** that queue requests to Firestore + post to the right channel, with TODO comments showing the full skill wiring needed. Build all in the same Slack Workflow Builder UI pattern: Shortcut/Slash command → webhook step → optional message step.
+
+### Tier 3 — Content velocity
+
+| Workflow | Backend Cloud Function | Body params | Posts to |
+|---|---|---|---|
+| `/script <day>` | `scriptOnDemand` | `weekday` (1-5) | `#content` |
+| `/record-done <file>` | `recordDone` | `filename`, `format_name` | `#content` |
+| `/ig-post <client>` | `igPostOnDemand` | `client_or_topic`, `post_type` | `#content` |
+| `/blog <topic>` | `blogOnDemand` | `topic`, `client_name`, `target_kw` | `#content` |
+| `/clip-from-yt <url>` | `clipFromYt` | `youtube_url`, `target_count` | `#content` |
+
+### Tier 4 — Operations
+
+| Workflow | Backend | Effect |
+|---|---|---|
+| `/cost` | `costSnapshot` | Forwards to `dailyGcpCostReportNow` — full GCP billing snapshot |
+| `/health` | `systemHealth` | Forwards to `envAuditNow` — 23-key check |
+| `/credit-check` | `creditCheck` | Live balances: ElevenLabs + Brevo + DataForSEO + Twilio. Routes to `#alerts` |
+
+### Tier 5 — AI agents
+
+| Workflow | Backend | Body params |
+|---|---|---|
+| `/sofia <prompt>` | `sofiaTest` | `prompt`, `agent_id` |
+| `/seo-audit <url>` | `seoAudit` | `url` |
+| `/competitor <domain>` | `competitorBattlecard` | `competitor_domain`, `our_domain` |
+
+### Tier 6 — Self-management
+
+| Workflow | Backend | Body params |
+|---|---|---|
+| `/win <text>` | `logWin` | `text`, `category` |
+| `/disaster <what>` | `logDisaster` | `what_tried`, `why_failed`, `what_to_do_instead`, `tag` |
+| `/morning-rock` | `morningRockProposer` | (none — pulls from Firestore) |
+| `/end-week` (Friday 5 PM) | `endWeekReview` | (none — aggregates wins + disasters) |
+
+### Tier 7 — $1M-stream specials
+
+| Workflow | Backend | Stream | Target $/mo |
+|---|---|---|---|
+| `/partner-onboard <agency>` | `partnerOnboard` | #4 White-label | $200K MXN @ 5 partners |
+| `/dev-contract <project>` | `devContractStart` | #2 Developer contracts | $350K MXN @ 3-4 active |
+
+### How each stub becomes "fully wired"
+
+Most backends above are **functional stubs** — they:
+- ✅ Queue the request to Firestore (so nothing is lost)
+- ✅ Post a confirmation to the appropriate Slack channel
+- ✅ Return a `request_id` Workflow Builder can use
+- ⏳ Have a `TODO:` comment showing the full skill/API wiring still needed
+
+To finish wiring (in priority order, ~30-60 min each):
+1. `igPostOnDemand` + `blogOnDemand` → biggest content multipliers
+2. `seoAudit` + `competitorBattlecard` → close more deals on first call
+3. `morningRockProposer` + `endWeekReview` → discipline compounds
+4. `partnerOnboard` → unlock $200K MXN/mo Stream #4
+5. `recordDone` + `clipFromYt` → daily content cadence
+
+Each "wire it" task is its own Cloud Function update + commit. I can ship them in the same pattern when you're ready.
+
+---
+
 ## 6. Build sequence for tomorrow morning
 
 | Step | Time | What |

@@ -2675,3 +2675,26 @@ exports.setBigRock = slackWorkflows.setBigRock;
 exports.generateClientReport = slackWorkflows.generateClientReport;
 exports.senderHealthCheck = slackWorkflows.senderHealthCheck;
 exports.closedWon = slackWorkflows.closedWon;
+// 2026-04-25 PM: Tier 3-7 (17 more workflows — full SLACK_WORKFLOWS catalog)
+// Content velocity (5)
+exports.scriptOnDemand = slackWorkflows.scriptOnDemand;
+exports.recordDone = slackWorkflows.recordDone;
+exports.igPostOnDemand = slackWorkflows.igPostOnDemand;
+exports.blogOnDemand = slackWorkflows.blogOnDemand;
+exports.clipFromYt = slackWorkflows.clipFromYt;
+// Operations (3)
+exports.costSnapshot = slackWorkflows.costSnapshot;
+exports.systemHealth = slackWorkflows.systemHealth;
+exports.creditCheck = slackWorkflows.creditCheck;
+// AI agents (3)
+exports.sofiaTest = slackWorkflows.sofiaTest;
+exports.seoAudit = slackWorkflows.seoAudit;
+exports.competitorBattlecard = slackWorkflows.competitorBattlecard;
+// Self-management (4)
+exports.logWin = slackWorkflows.logWin;
+exports.logDisaster = slackWorkflows.logDisaster;
+exports.morningRockProposer = slackWorkflows.morningRockProposer;
+exports.endWeekReview = slackWorkflows.endWeekReview;
+// $1M-stream specials (2)
+exports.partnerOnboard = slackWorkflows.partnerOnboard;
+exports.devContractStart = slackWorkflows.devContractStart;
