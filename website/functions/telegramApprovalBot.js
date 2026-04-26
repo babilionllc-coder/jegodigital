@@ -505,6 +505,30 @@ exports.telegramApprovalCallback = functions.https.onRequest(async (req, res) =>
         if (body.callback_query) {
             const cbq = body.callback_query;
             const data = cbq.data || "";
+
+            // ---- ROUTING: WhatsApp follow-up callbacks (wa_sent: / wa_skip:) ----
+            // These come from postCallWhatsAppFollowup.js Telegram alerts.
+            // Format: wa_sent:CONVERSATION_ID  or  wa_skip:CONVERSATION_ID
+            if (/^wa_(sent|skip):/.test(data)) {
+                const colonIdx = data.indexOf(":");
+                const action = data.slice(0, colonIdx);                  // "wa_sent" or "wa_skip"
+                const conversationId = data.slice(colonIdx + 1);
+                const newStatus = action === "wa_sent" ? "sent" : "skipped";
+                try {
+                    await admin.firestore().collection("whatsapp_followup_queue").doc(conversationId).update({
+                        status: newStatus,
+                        marked_sent_at: admin.firestore.FieldValue.serverTimestamp(),
+                        marked_sent_by: cbq.from?.username || cbq.from?.id || "unknown",
+                    });
+                    await answerCallbackQuery(cbq.id, action === "wa_sent" ? "✅ Marcado como enviado" : "🚫 Skip registrado");
+                } catch (err) {
+                    functions.logger.error("[wa-callback] update failed:", err.message);
+                    await answerCallbackQuery(cbq.id, `Error: ${err.message.slice(0, 50)}`);
+                }
+                return res.json({ ok: true, wa_action: action, conversation_id: conversationId });
+            }
+
+            // ---- existing approval bot callbacks (approve_xxx, kill_xxx, etc.) ----
             // CRITICAL: data looks like "approve_reddit_1ssafi5" — the draft ID
             // itself contains underscores. split("_", 2) returns MAX 2 pieces
             // and throws away the rest, so we'd lose everything after the 2nd
