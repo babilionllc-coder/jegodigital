@@ -285,6 +285,110 @@ exports.saveEndOfDay = functions.https.onRequest(async (req, res) => {
 
 ---
 
+## 5d. `/audit <url>` — instant audit on demand
+
+**Effect:** Trigger the audit pipeline for any prospect's URL. PDF lands in your inbox in ~60 minutes. Use during sales calls — paste the URL, audit comes back, share with prospect mid-conversation.
+
+**Trigger:**
+- Type: **Slash command** `/audit`
+- Description: `Manual audit for sales conversations`
+
+**Form:**
+| Variable | Label | Type | Required |
+|---|---|---|---|
+| `url` | Website URL to audit | URL | Yes |
+| `prospect_company` | Prospect company name | Single-line text | No |
+
+**Steps:**
+1. Webhook → `slackAudit` → returns `audit_id`
+2. Send DM to you confirming queue with audit_id
+3. (No prospect email — per HR-0 consent rule, audit goes to YOU only)
+
+**Backend:** `slackAudit` Cloud Function — reuses existing audit pipeline.
+
+---
+
+## 5e. `/big-rock <text>` — set today's Big Rock
+
+**Effect:** Per HR-8, sets the single Big Rock for today. Posts to `#daily-ops`, saves to Firestore, the `/end-day` workflow checks against this at 8 PM Cancún.
+
+**Trigger:**
+- Type: **Slash command** `/big-rock`
+- Description: `Set today's Big Rock per HR-8`
+
+**Form:**
+| Variable | Label | Type | Required |
+|---|---|---|---|
+| `text` | Big Rock (1 sentence) | Multi-line text | Yes |
+| `bucket` | Bucket | Dropdown (A close, B leads, C convert, D infra) | Yes |
+
+**Steps:**
+1. Webhook → `setBigRock` → saves to Firestore + posts to `#daily-ops`
+
+**Backend:** `setBigRock` Cloud Function.
+
+---
+
+## 5f. `/report <client>` — generate monthly report
+
+**Effect:** Triggers `client-reporting` skill. Pulls live data from DataForSEO + Ahrefs + IG + Brevo + Calendly. Returns branded PDF link. Posts to `#revenue`.
+
+**Trigger:**
+- Type: **Slash command** `/report`
+
+**Form:**
+| Variable | Label | Type | Required |
+|---|---|---|---|
+| `client_name` | Client name | Single-line text | Yes |
+| `period` | Month (YYYY-MM) | Single-line text | No (defaults to current) |
+
+**Steps:**
+1. Webhook → `generateClientReport` → queues + returns report_id
+2. Skill executes async; PDF URL posted to `#revenue` when ready
+
+**Backend:** `generateClientReport` Cloud Function (currently stub; full skill wiring TODO).
+
+---
+
+## 5g. `/sender-health` — Instantly account snapshot
+
+**Effect:** Lists all 10 sending mailboxes with warmup score, daily limit, CTD status, healthy flag. Routes to `#alerts` if anything unhealthy, otherwise `#daily-ops`.
+
+**Trigger:**
+- Type: **Slash command** `/sender-health`
+- Or: **Scheduled** every Monday 7 AM Cancún for proactive check
+
+**Form:** None required.
+
+**Steps:**
+1. Webhook → `senderHealthCheck` → posts results to appropriate channel
+
+**Backend:** `senderHealthCheck` Cloud Function.
+
+---
+
+## 5h. `/closed-won <client> <amount>` — celebrate + log
+
+**Effect:** Single source of truth for MRR. Logs the deal to Firestore, increments aggregate MRR counter, posts celebration to `#revenue` with progress vs $1M goal.
+
+**Trigger:**
+- Type: **Slash command** `/closed-won`
+
+**Form:**
+| Variable | Label | Type | Required |
+|---|---|---|---|
+| `client_name` | Client | Single-line text | Yes |
+| `monthly_mxn` | Monthly fee MXN | Number | Yes |
+| `service_pack` | Pack | Dropdown (Crecimiento, Dominación, Custom, White-label) | Yes |
+| `contract_term_months` | Contract term (months) | Number | No (default 12) |
+
+**Steps:**
+1. Webhook → `closedWon` → saves deal, updates MRR aggregate, posts celebration
+
+**Backend:** `closedWon` Cloud Function.
+
+---
+
 ## 6. Build sequence for tomorrow morning
 
 | Step | Time | What |

@@ -2669,3 +2669,9 @@ const slackWorkflows = require("./slackWorkflows");
 exports.onboardClient = slackWorkflows.onboardClient;
 exports.generateQuote = slackWorkflows.generateQuote;
 exports.saveEndOfDay = slackWorkflows.saveEndOfDay;
+// 2026-04-25 PM: Tier 1+2 additions (5 more workflows)
+exports.slackAudit = slackWorkflows.slackAudit;
+exports.setBigRock = slackWorkflows.setBigRock;
+exports.generateClientReport = slackWorkflows.generateClientReport;
+exports.senderHealthCheck = slackWorkflows.senderHealthCheck;
+exports.closedWon = slackWorkflows.closedWon;
