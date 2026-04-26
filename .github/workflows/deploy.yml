@@ -65,6 +65,7 @@ jobs:
           PAGESPEED_API_KEY=${{ secrets.PAGESPEED_API_KEY }}
           SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_WORKFLOW_TOKEN=${{ secrets.SLACK_WORKFLOW_TOKEN }}
           INSTANTLY_API_KEY=${{ secrets.INSTANTLY_API_KEY }}
           IG_GRAPH_TOKEN=${{ secrets.IG_GRAPH_TOKEN }}
           MANYCHAT_API_KEY=${{ secrets.MANYCHAT_API_KEY }}
