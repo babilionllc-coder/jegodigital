@@ -183,11 +183,12 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
         const tgText =
             `📲 *WhatsApp follow-up READY*\n\n` +
             `👤 ${brokerName || "(sin nombre)"} — ${zone || "?"}\n` +
-            `📞 \`${phone}\`\n` +
+            `📞 Lead: \`${phone}\`\n` +
             `🎯 Outcome: \`${outcome}\`\n` +
             `📍 Grupo: ${sourceGroup}\n\n` +
             `📝 *Mensaje preparado:*\n_${messageText.substring(0, 200)}..._\n\n` +
-            `👇 Toca el botón para abrir WhatsApp con el mensaje listo`;
+            `⚠️ *IMPORTANTE:* Abre el enlace desde tu *laptop con WhatsApp Web logueado en +52 998 787 5321 (JegoDigital Business)* — no desde el teléfono personal. ` +
+            `Así Sofía maneja las respuestas en ManyChat automáticamente.`;
 
         const inlineKeyboard = [
             [{ text: "📱 Abrir WhatsApp con mensaje", url: waDeeplink }],
