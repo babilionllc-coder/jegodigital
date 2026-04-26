@@ -52,6 +52,8 @@ const toCall = leads.slice(0, BATCH);
 console.log(`\n📞 ${DRY_RUN ? 'DRY-RUN' : 'EXECUTING'} — will ${DRY_RUN ? 'simulate' : 'fire'} ${toCall.length} calls`);
 console.log(`Agent: Offer D — FB Brokers MX (${AGENT_ID})\n`);
 
+const PHONE_ID = process.env.ELEVENLABS_PHONE_ID || 'phnum_8201kq0efkq6esttrdm916g8n3r0';
+
 async function fireCall(lead) {
     return new Promise((resolve) => {
         const dynamicVars = {
@@ -66,7 +68,7 @@ async function fireCall(lead) {
 
         const payload = JSON.stringify({
             agent_id: AGENT_ID,
-            agent_phone_number_id: process.env.ELEVENLABS_PHONE_ID || 'YOUR_PHONE_ID', // configure in ElevenLabs UI
+            agent_phone_number_id: PHONE_ID,
             to_number: lead.phone,
             conversation_initiation_client_data: {
                 dynamic_variables: dynamicVars,
@@ -91,13 +93,17 @@ async function fireCall(lead) {
             let body = '';
             res.on('data', (d) => (body += d));
             res.on('end', () => {
-                try {
-                    const data = JSON.parse(body);
-                    console.log(`  ✓ ${lead.phone} → conv=${data.conversation_id || 'pending'}  (${lead.first_name || lead.business_name || 'generic'})`);
-                    resolve({ ok: true, conversation_id: data.conversation_id, lead });
-                } catch (e) {
-                    console.log(`  ✗ ${lead.phone} parse error`);
-                    resolve({ ok: false, error: body, lead });
+                let data = null;
+                try { data = JSON.parse(body); } catch (e) { /* not JSON */ }
+
+                if (data && data.success) {
+                    console.log(`  ✓ ${lead.phone} → conv=${data.conversation_id}  (${lead.first_name || lead.business_name || 'generic'})`);
+                    resolve({ ok: true, conversation_id: data.conversation_id, callSid: data.callSid, lead });
+                } else {
+                    // Show the REAL error so we can debug
+                    const errMsg = data ? (data.detail?.message || data.detail || JSON.stringify(data).slice(0, 200)) : body.slice(0, 200);
+                    console.log(`  ✗ ${lead.phone} HTTP ${res.statusCode}: ${errMsg}`);
+                    resolve({ ok: false, status: res.statusCode, error: errMsg, body, lead });
                 }
             });
         });

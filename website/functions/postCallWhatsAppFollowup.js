@@ -138,7 +138,7 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
         await db.collection("call_outcomes").doc(conversationId).set({
             conversation_id: conversationId,
             phone, broker_name: brokerName, broker_first_name: brokerFirstName,
-            source_group, zone, sample_post_url: samplePostUrl,
+            source_group: sourceGroup, zone, sample_post_url: samplePostUrl,
             outcome,
             transcript_summary: analysis.transcript_summary || "",
             call_successful: analysis.call_successful || false,
@@ -169,7 +169,7 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
         await db.collection("whatsapp_followup_queue").doc(conversationId).set({
             conversation_id: conversationId,
             phone, broker_name: brokerName, broker_first_name: brokerFirstName,
-            source_group, zone, sample_post_url: samplePostUrl,
+            source_group: sourceGroup, zone, sample_post_url: samplePostUrl,
             outcome,
             message_text: messageText,
             wa_deeplink: waDeeplink,
