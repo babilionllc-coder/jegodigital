@@ -795,7 +795,14 @@ async function runFullAudit(websiteUrl, leadCity) {
         try { _pcfg = functions.config() || {}; } catch (_) {}
         const PERPLEXITY_KEY = (_pcfg.perplexity && _pcfg.perplexity.key) || process.env.PERPLEXITY_API_KEY;
         if (PERPLEXITY_KEY && hostname) {
-            const aeoQuery = `¿Cuál es la mejor inmobiliaria en ${hostname.replace("www.", "").split(".")[0]}? Recomienda agencias con sitio web.`;
+            // Bilingual AEO query — switches to English when site primarily serves English buyers
+            // (e.g. Miami luxury, NYC, LA Hispanic-bilingual markets).
+            const _languages = (extracted?.languages_supported || []).map(l => (l || "").toLowerCase().slice(0, 2));
+            const _isEnglishSite = _languages.includes("en") && !_languages.includes("es");
+            const _stem = hostname.replace("www.", "").split(".")[0];
+            const aeoQuery = _isEnglishSite
+                ? `What's the best real-estate agency in ${_stem}? Recommend agencies with a strong website.`
+                : `¿Cuál es la mejor inmobiliaria en ${_stem}? Recomienda agencias con sitio web.`;
             const pplxRes = await axios.post("https://api.perplexity.ai/chat/completions", {
                 model: "sonar",
                 messages: [{ role: "user", content: aeoQuery }],
@@ -1373,14 +1380,108 @@ ${roadmapHTML}
 
 
 // ============================================================
-// 3. EMAIL SENDER — Brevo Transactional API
+// 2b. LANGUAGE DETECTION — pick template language from source/site signals
 // ============================================================
-async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues) {
+// Priority: explicit source param > Firecrawl extracted languages > default Spanish.
+// Cold-email funnel sources are tagged: cold_email_us / instantly_reply / cold_email_mx.
+// US/Miami/English campaigns must NOT receive Spanish reports — empirical drop-off was
+// near-total when the funnel was Spanish-only and the lead spoke English.
+function detectAuditLanguage(source, extractedLanguages) {
+    const englishSources = /^(cold_email_us|cold_email_en|cold_email_miami|instantly_reply_us|instantly_reply_en)$/i;
+    if (source && englishSources.test(source)) return "en";
+    if (Array.isArray(extractedLanguages) && extractedLanguages.length) {
+        const langs = extractedLanguages.map(l => (l || "").toLowerCase().slice(0, 2));
+        const hasEs = langs.some(l => l === "es");
+        const hasEn = langs.some(l => l === "en");
+        // English-only sites get English; Spanish-only sites get Spanish; bilingual defaults
+        // to source-language preference (Spanish for non-tagged source — Mexico-first default).
+        if (hasEn && !hasEs) return "en";
+        if (hasEs && !hasEn) return "es";
+    }
+    return "es";
+}
+
+// ============================================================
+// 2c. SLACK PING — fire immediately after audit completes (before email delay)
+// ============================================================
+// Why: gives Alex a real-time signal so he can fire a personal LinkedIn DM or
+// WhatsApp message within minutes of the audit finishing, while the prospect is
+// still warm. Independent of the email delivery delay.
+async function slackNotifyAuditCompleted({ email, name, websiteUrl, score, topIssues, reportUrl, source, lang, dataQuality }) {
+    const SLACK_WEBHOOK = process.env.SLACK_AUDIT_WEBHOOK_URL || process.env.SLACK_WEBHOOK_URL;
+    if (!SLACK_WEBHOOK) {
+        console.log("ℹ️ SLACK_AUDIT_WEBHOOK_URL not set — skipping Slack ping (non-fatal)");
+        return;
+    }
+    const scoreEmoji = score >= 80 ? ":large_green_circle:" : score >= 50 ? ":large_yellow_circle:" : ":red_circle:";
+    const sourceTag = source ? ` _from \`${source}\`_` : "";
+    const issuesText = (topIssues || []).slice(0, 3).map(i => `• *${i.issue}* — ${i.detail}`).join("\n");
+    const payload = {
+        blocks: [
+            { type: "header", text: { type: "plain_text", text: `${scoreEmoji} Audit complete: ${name || email}` } },
+            { type: "section", fields: [
+                { type: "mrkdwn", text: `*Site:*\n<${websiteUrl}|${websiteUrl}>` },
+                { type: "mrkdwn", text: `*Score:*\n${score}/100 (${dataQuality})` },
+                { type: "mrkdwn", text: `*Email:*\n${email}` },
+                { type: "mrkdwn", text: `*Lang/source:*\n${lang}${sourceTag}` },
+            ]},
+            ...(issuesText ? [{ type: "section", text: { type: "mrkdwn", text: `*Top issues:*\n${issuesText}` } }] : []),
+            { type: "actions", elements: [
+                { type: "button", text: { type: "plain_text", text: "View report" }, url: reportUrl, style: "primary" },
+                { type: "button", text: { type: "plain_text", text: "LinkedIn DM ($prospect)" }, url: `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(name || "")}` },
+            ]},
+        ],
+    };
+    try {
+        await axios.post(SLACK_WEBHOOK, payload, { timeout: 8000 });
+        console.log(`💬 Slack audit ping sent for ${email} (score ${score})`);
+    } catch (err) {
+        console.warn(`⚠️ Slack audit ping failed (non-fatal): ${err.message}`);
+    }
+}
+
+// ============================================================
+// 3. EMAIL SENDER — Brevo Transactional API (BILINGUAL + variable delay)
+// ============================================================
+// Variable delay tuned to the source:
+//   - Cold-email-funnel prospects (instantly_reply / cold_email_*): 7 min
+//     They just clicked from their inbox and are still warm. Long enough to feel
+//     reviewed (vs <60s = obviously automated), short enough to keep momentum.
+//   - Organic landing-page traffic / WhatsApp / DM: 45 min
+//     Warm leads, can absorb the "artisan review" framing.
+async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues, source, lang) {
     const BREVO_KEY = process.env.BREVO_API_KEY;
     if (!BREVO_KEY) throw new Error("BREVO_API_KEY not set");
+    const isEnglish = lang === "en";
+    const isColdEmail = !!(source && /^(cold_email|instantly_reply)/i.test(source));
 
-    const firstName = (leadName || "").split(" ")[0] || "Hola";
+    const firstName = (leadName || "").split(" ")[0] || (isEnglish ? "Hi" : "Hola");
     const scoreEmoji = auditScore >= 80 ? "🟢" : auditScore >= 50 ? "🟡" : "🔴";
+
+    // Bilingual copy block — kept inline so we don't fragment the template across files.
+    const T = isEnglish ? {
+        title: "Your Digital Audit Is Ready",
+        subtext: (n, s) => `${n}, your site scored <strong style="color:#C5A059;">${s}/100</strong>`,
+        findings: "Top findings:",
+        ctaPrimary: "View Full Report",
+        ctaSecondaryLead: "Want to fix these issues?",
+        ctaSecondarySub: "Grab 15 minutes with our team — no commitment.",
+        ctaSecondaryBtn: "Book a Call",
+        footerTag: "JegoDigital — Real-Estate Marketing",
+        subjectFragment: "Your Digital Audit",
+        subjectFallback: "Results ready",
+    } : {
+        title: "Tu Auditoria Digital Esta Lista",
+        subtext: (n, s) => `${n}, tu sitio web obtuvo un score de <strong style="color:#C5A059;">${s}/100</strong>`,
+        findings: "Hallazgos principales:",
+        ctaPrimary: "Ver Reporte Completo",
+        ctaSecondaryLead: "¿Quieres solucionar estos problemas?",
+        ctaSecondarySub: "Agenda 15 minutos con nuestro equipo — sin compromiso.",
+        ctaSecondaryBtn: "Agendar Llamada",
+        footerTag: "JegoDigital — Marketing Digital para Inmobiliarias",
+        subjectFragment: "Tu Auditoria Digital",
+        subjectFallback: "Resultados listos",
+    };
 
     // Top 3 issues as bullet points for email
     const issuesBullets = (topIssues || []).slice(0, 3).map(iss =>
@@ -1397,51 +1498,48 @@ async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues)
         <!-- Hero -->
         <div style="text-align:center;margin-bottom:32px;">
             <div style="font-size:48px;margin-bottom:8px;">${scoreEmoji}</div>
-            <h1 style="font-size:24px;font-weight:800;color:#fff;margin:0 0 8px;">Tu Auditoria Digital Esta Lista</h1>
-            <p style="color:rgba(255,255,255,0.5);font-size:15px;margin:0;">
-                ${firstName}, tu sitio web obtuvo un score de <strong style="color:#C5A059;">${auditScore}/100</strong>
-            </p>
+            <h1 style="font-size:24px;font-weight:800;color:#fff;margin:0 0 8px;">${T.title}</h1>
+            <p style="color:rgba(255,255,255,0.5);font-size:15px;margin:0;">${T.subtext(firstName, auditScore)}</p>
         </div>
 
         <!-- Top Issues Preview -->
         ${issuesBullets ? `
         <div style="background:rgba(26,29,36,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px;margin-bottom:24px;">
-            <p style="font-size:13px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Hallazgos principales:</p>
+            <p style="font-size:13px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">${T.findings}</p>
             <table style="width:100%;">${issuesBullets}</table>
         </div>` : ""}
 
         <!-- CTA Button -->
         <div style="text-align:center;margin-bottom:32px;">
-            <a href="${reportUrl}" style="display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#C5A059,#a8863d);color:#0f1115;font-weight:700;font-size:16px;border-radius:12px;text-decoration:none;">
-                Ver Reporte Completo
-            </a>
+            <a href="${reportUrl}" style="display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#C5A059,#a8863d);color:#0f1115;font-weight:700;font-size:16px;border-radius:12px;text-decoration:none;">${T.ctaPrimary}</a>
         </div>
 
         <!-- Secondary CTA -->
         <div style="text-align:center;background:rgba(197,160,89,0.08);border:1px solid rgba(197,160,89,0.2);border-radius:12px;padding:24px;margin-bottom:32px;">
-            <p style="font-size:15px;color:#fff;margin:0 0 8px;">¿Quieres solucionar estos problemas?</p>
-            <p style="font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 16px;">Agenda 15 minutos con nuestro equipo — sin compromiso.</p>
-            <a href="https://calendly.com/jegoalexdigital/30min" style="display:inline-block;padding:12px 32px;border:1px solid #C5A059;color:#C5A059;font-weight:600;font-size:14px;border-radius:10px;text-decoration:none;">
-                Agendar Llamada
-            </a>
+            <p style="font-size:15px;color:#fff;margin:0 0 8px;">${T.ctaSecondaryLead}</p>
+            <p style="font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 16px;">${T.ctaSecondarySub}</p>
+            <a href="https://calendly.com/jegoalexdigital/30min" style="display:inline-block;padding:12px 32px;border:1px solid #C5A059;color:#C5A059;font-weight:600;font-size:14px;border-radius:10px;text-decoration:none;">${T.ctaSecondaryBtn}</a>
         </div>
 
         <!-- Footer -->
         <div style="text-align:center;border-top:1px solid rgba(255,255,255,0.05);padding-top:24px;">
-            <p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">JegoDigital — Marketing Digital para Inmobiliarias</p>
+            <p style="color:rgba(255,255,255,0.25);font-size:12px;margin:0;">${T.footerTag}</p>
             <p style="color:rgba(255,255,255,0.15);font-size:11px;margin:4px 0 0;">jegodigital.com | WhatsApp: +52 998 202 3263</p>
         </div>
     </div>`;
 
-    console.log(`📧 Sending audit email to ${email} (BREVO_KEY present: ${!!BREVO_KEY}, sender: info@jegodigital.com)`);
-    // Schedule email 45 minutes from now — honors the "menos de 1 hora" promise in the confirmation email
-    // with a 15-min safety buffer. 60min was cutting too close and triggered lead impatience.
-    const sendAt = new Date(Date.now() + 45 * 60 * 1000).toISOString();
+    console.log(`📧 Sending audit email to ${email} (lang=${lang}, source=${source || "n/a"}, BREVO_KEY=${!!BREVO_KEY})`);
+    // VARIABLE DELAY: cold-email-funnel prospects get 7 min (still warm in inbox);
+    // organic / DM / WhatsApp leads get 45 min (artisan review framing).
+    const delayMin = isColdEmail ? 7 : 45;
+    const sendAt = new Date(Date.now() + delayMin * 60 * 1000).toISOString();
+    const subjectIssue = (topIssues || [])[0]?.issue || T.subjectFallback;
+    const subject = `${scoreEmoji} ${T.subjectFragment}: ${auditScore}/100 — ${subjectIssue}`;
 
     const emailResp = await axios.post("https://api.brevo.com/v3/smtp/email", {
         sender: { name: "JegoDigital", email: process.env.BREVO_SENDER_EMAIL || "info@jegodigital.com" },
         to: [{ email, name: leadName }],
-        subject: `${scoreEmoji} Tu Auditoria Digital: ${auditScore}/100 — ${(topIssues || [])[0]?.issue || "Resultados listos"}`,
+        subject,
         htmlContent,
         scheduledAt: sendAt
     }, {
@@ -1449,7 +1547,7 @@ async function sendAuditEmail(email, leadName, reportUrl, auditScore, topIssues)
         timeout: 15000
     });
 
-    console.log(`📧 Audit email SCHEDULED for ${email} at ${sendAt} (45min delay) — Brevo response: ${JSON.stringify(emailResp.data)}`);
+    console.log(`📧 Audit email SCHEDULED for ${email} at ${sendAt} (${delayMin}min delay, lang=${lang}) — Brevo response: ${JSON.stringify(emailResp.data)}`);
 }
 
 
@@ -1526,7 +1624,7 @@ exports.processAuditRequest = functions
     .onCreate(async (snap, context) => {
         const data = snap.data();
         const docId = context.params.docId;
-        const { website_url, name, email, city, company } = data;
+        const { website_url, name, email, city, company, source } = data;
 
         if (!website_url || !email) {
             console.error(`❌ Missing data for audit ${docId}: website_url=${website_url}, email=${email}`);
@@ -1610,8 +1708,26 @@ exports.processAuditRequest = functions
                 return; // stop — do not send the bogus audit to the client
             }
 
-            // 6. Send email with report link (quality gate passed)
-            await sendAuditEmail(email, name, reportUrl, auditResults.score, auditResults.issues);
+            // Detect language for bilingual audit (English Miami vs Spanish MX).
+            const auditLang = detectAuditLanguage(source, auditResults?.business?.languages);
+
+            // 5b. Slack ping IMMEDIATELY (before email delay) so Alex can fire personal
+            //     LinkedIn DM / WhatsApp message while the prospect is still in their inbox.
+            //     Non-fatal — never blocks email delivery.
+            try {
+                await slackNotifyAuditCompleted({
+                    email, name, websiteUrl: website_url,
+                    score: auditResults.score,
+                    topIssues: auditResults.issues,
+                    reportUrl,
+                    source, lang: auditLang,
+                    dataQuality: quality,
+                });
+            } catch (e) { console.warn("Slack ping failed:", e.message); }
+
+            // 6. Send email with report link (quality gate passed). Variable delay
+            //    (7 min cold-email, 45 min organic) + bilingual templates.
+            await sendAuditEmail(email, name, reportUrl, auditResults.score, auditResults.issues, source, auditLang);
 
             // 6b. Queue 4-email post-audit nurture sequence (D+1, D+3, D+5, D+7).
             //     The existing processScheduledEmails cron (hourly) picks these up.
