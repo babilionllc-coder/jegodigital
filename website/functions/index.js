@@ -213,6 +213,7 @@ exports.runFbBrokerBatch        = require('./runFbBrokerBatch').runFbBrokerBatch
 exports.runFbBrokerBatchResume  = require('./runFbBrokerBatch').runFbBrokerBatchResume;
 exports.abortFbBrokerBatch      = require('./runFbBrokerBatch').abortFbBrokerBatch;
 exports.fbBrokerBatchStatus     = require('./runFbBrokerBatch').fbBrokerBatchStatus;
+exports.fbBrokerKickoff         = require('./runFbBrokerBatch').fbBrokerKickoff;       // Cloud Scheduler one-shot at 16:00 UTC Apr 27
 exports.dialSupervisor          = require('./dialSupervisor').dialSupervisor;
 exports.dialSupervisorManual    = require('./dialSupervisor').dialSupervisorManual;
 
