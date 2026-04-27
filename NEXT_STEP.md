@@ -1,460 +1,94 @@
-## 🏆 2026-04-26 PM EVENING WIN — Audit funnel + 80-lead Miami + skills addendum
-
-**Audit funnel overhauled** (commit `67d29576`): 5 conversion-blocker fixes — variable email delay (7 min cold-email / 45 min organic), bilingual EN/ES templates + AEO query, Slack ping immediately after audit (speed-to-lead unlock), AI agent reply template with `&autosubmit=1`, Brevo D+1/D+3/D+5/D+7 nurture verified. **Estimated 4.3× cold-reply → Calendly conversion lift.**
-
-**Miami RE Hiring campaign LIVE** (`acffe5c9-9a74-4b3f-8a95-37882a11f96b`): 80 buyer-tier leads, 3-angle A/B/C templates rewritten to score 90+/100. First sends tomorrow 9 AM ET.
-
-**Two new skills shipped:**
-- `audit-funnel` — owns `/auditoria-gratis` end-to-end
-- `playwright-prospect-audit` — per-prospect site rendering for personalization
-
-**Scheduled task** `jegodigital-campaign-pulse` — fires weekdays 5 PM, posts pulse to Telegram.
-
-**Skill audit addendum** (on top of earlier afternoon's audit):
-- KILL `flamingo-tiktok-publisher` (Alex confirmed unused) — full reasoning in DEPRECATED.md §"2026-04-26 PM EVENING — Addendum"
-- KEEP `hyperframes` (Alex saved — planned upcoming use)
-- ADD `audit-funnel` + `playwright-prospect-audit` to KEPT lean stack
-
-Net: 27 lean skills → 26 (flamingo out, 2 in, 1 saved).
-
-**Action required from Alex tomorrow:**
-1. Paste new AI agent reply templates into Instantly UI (`docs/ai-agent-reply-templates.md`) — 4 min
-2. Add Firebase env var `SLACK_AUDIT_WEBHOOK_URL` (or rely on `SLACK_WEBHOOK_URL` fallback) — 2 min
-3. Smoke-test the funnel: send a positive reply from personal Gmail to one of the 10 mailboxes — verify auto-reply, autosubmit, audit email lands in 7 min, Slack ping fires — 5 min
-
----
-
-## 🏆 2026-04-26 PM WIN — Skill audit shipped
-
-**Token diet executed:** Killed ~52 dead-weight skills. ~60% reduction in context-loaded skill descriptions per session. Faster Claude, less token burn per request, sharper focus on revenue work. Full breakdown in [`DEPRECATED.md`](DEPRECATED.md) §"Revenue-First Skill Audit kill list".
-
-**Action required from Alex (run in Claude Code, not here):**
-```bash
-# Uninstall the 6 dead-weight plugins entirely
-/plugin uninstall product-management
-/plugin uninstall finance
-/plugin uninstall data
-/plugin uninstall design
-/plugin uninstall marketing
-/plugin uninstall cowork-plugin-management
-```
-The 8 orphan skills inside `anthropic-skills` (algorithmic-art, canvas-design, web-artifacts-builder, mcp-builder, setup-cowork, doc-coauthoring, theme-factory, pptx) are documented as DEPRECATED — Claude won't invoke them per the deprecation rule.
-
-Token-savings estimate: ~52 skill descriptions × ~80 tokens each = **~4,000 tokens saved per session**. Over a typical 50-session week that's 200K tokens saved.
-
-**Also shipped today:** v10 Sofía educational video → https://youtu.be/4LMbVCXIba0 (full production summary in Notion).
-
----
-
 # JegoDigital — NEXT_STEP
 
-> **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
-> **Update at the END of every session:** mark completed items, promote the next rock, add anything new Alex agreed to.
-> **Last session update:** 2026-04-25 (Live Google Reviews — homepage hydration + daily Apify cron live, 2 commits shipped a771362 + f757b66)
-> **Maintained by:** Claude + Alex
+> **HR#4 + HR#8:** position #1 = TODAY's ONE big rock. Max 1 + 3 supporting per day.
+> **Update at session end:** mark complete, promote next, archive old big-rocks to `/archive/`.
+> **Last session update:** 2026-04-27 (live-API audit + MASTER_PROMPT + AUDIT_DELTA shipped)
+> **Archive of pre-2026-04-27 content:** [`archive/2026-04/NEXT_STEP_2026-04-26_archive.md`](archive/2026-04/NEXT_STEP_2026-04-26_archive.md)
 
 ---
 
-## ✅ 2026-04-25 — LIVE GOOGLE REVIEWS ON HOMEPAGE — 2 COMMITS SHIPPED, ALL 3 FUNCTIONS GREEN
+## 🎯 TODAY'S BIG ROCK — 2026-04-27 (Mon CDMX)
 
-**The homepage now displays REAL Google reviews (not the fake placeholders Rodrigo/Alejandro/Studio Level Up that were shipped previously).** Aggregate rating updated from a fabricated 5.0 to the actual 4.8 — HR-0 violation closed.
-
-**Architecture:**
-- Apify `compass~Google-Maps-Reviews-Scraper` actor → Cloud Function → Firestore `/public/google_reviews` → public `/api/google-reviews` endpoint → JS hydrator on homepage.
-- Daily cron `googleReviewsSync` @ 04:00 CDMX (pubsub).
-- HTTPS on-demand `googleReviewsSyncOnDemand` for manual refresh.
-- 15-min CDN cache on the public read.
-
-**Files shipped (commit a771362 + f757b66):**
-- `website/functions/googleReviewsSync.js` — new module (3 exports).
-- `website/functions/index.js` — registered exports.
-- `website/index.html` — homepage section rewrite (real reviewer photos, real top-3 fallback, JS hydrator, Schema.org `AggregateRating` + `Review` markup).
-- `firebase.json` — `/api/google-reviews` rewrite.
-- (fix commit) Removed `secrets:["APIFY_API_KEY"]` from `runWith()` since this codebase loads env from `.env`, not GCP Secret Manager — matches `redditScraper.js`.
-
-**Live verification (HR-6):**
-- `curl https://jegodigital.com/api/google-reviews` → `{ok:true, placeRating:4.8, placeReviewsCount:10, eligibleCount:7, ...}`
-- Top 3: Yorley Bustamante ★5, **TT AND MORE ★5 (live client, posted 22 min before sync ran — system caught it immediately)**, Rodrigo Elizondo ★5 (mentions Flamingo).
-- Reviewer Google profile photos load HTTP 200 from lh3.googleusercontent.com.
-- Schema.org markup count: 10 occurrences on rendered HTML.
-- Hosting deploy run #152 ✅ success. Functions deploy run #153 ✅ getGoogleReviews live, ✅ googleReviewsSyncOnDemand live, ✅ googleReviewsSync scheduled.
-
-**HR-9 freshness loop:** This closes the daily-vs-monthly gap for Google review proof. Anytime a new review lands (positive or negative), the homepage reflects it within 24h automatically. No manual update needed.
-
----
-
-## 🎯 MONDAY 2026-04-27 10:00 CDMX — DIAGNOSTIC BATCH PRE-STAGED 🔬
-
-> **Auto-fires when `coldCallRun` cron triggers Monday morning. 10 leads, 2 groups:**
+> **HR#7 Monday Weekly Revenue Review + ship 3 critical doc/data fixes surfaced by 2026-04-27 live audit.**
 >
-> - **Group A (5 leads)** — yesterday's proven-working bridges: Senda Bienes Raíces, Encanto de Playa, Vive Polanco, Cancun Broker Inmobiliario, AVALUOS PERICIALES. If these bridge successfully, today's 0% was caused by the lead list.
-> - **Group B (5 leads)** — fresh HOT leads from the new pool: Remax Maya, Century 21 Apolo Cancún, Century 21 Caribbean Paradise, mudarseamerida.com, Tulum Real Estate. If these also bridge, the fix (new first_message) worked universally.
->
-> **Expected outcome:** 4+/5 bridges in Group A means the number/infra is healthy and today's failure was the broken `Hola Name, soy Sofia` first_message. If Group A fails, escalate to number rotation.
->
-> **Monitoring:** `bridgeRateWatcher` cron fires 10:30 CDMX → Slack+TG alert with % bridge rate + sample size. No need to babysit.
->
-> **Staged in:** `call_queue/2026-04-27/leads` (Firestore), 10 docs with `diagnostic: true` + `diagnostic_group: A_yesterday_working | B_fresh_hot`.
+> **Bucket:** D (unblock future revenue) — required infrastructure for the week ahead.
+> **Why today:** Monday is HR#7 mandate AND the 2026-04-27 live-API audit surfaced 2 silent bugs costing real prospects right now.
+
+### 1. HR#7 Weekly Revenue Review (mandatory Monday)
+- Pull live numbers from 8 platforms via `tools/verify_access.sh` + per-platform curls
+- Score: new MRR · qualified leads · Calendly booked · cold-reply→Calendly conv % · CPC closed · pipeline broken/fixed top-3
+- Post Block-Kit summary to `#all-jegodigital` Slack + Telegram
+- Write `/BUSINESS_REVIEW/2026-W18.md` entry
+
+### 2. 🚨 Fix Calendly→Brevo bridge (silent revenue leak)
+- **Bug:** list 30 ("Calendly Booked") shows only 2 contacts, both self-tests. Real bookings (Adrián Apr 15, John Luna Apr 20) never landed in Brevo.
+- **Action:** audit `website/functions/calendlyWebhook.js` `invitee.created` handler. Confirm Brevo `/v3/contacts` upsert with FIRSTNAME/LASTNAME/COMPANY/SOURCE=calendly/STAGE=booked.
+- **Proof:** make a test booking on the real Calendly URL, verify contact appears in list 30 within 60s with correct attributes.
+
+### 3. 🚨 Verify Brevo nurture cron is firing (or document why not)
+- **Symptom:** last 7d Brevo transactional events = 10, ALL to Alex's own gmail (self-tests). No real prospects emailed.
+- **Action:** check `processBrevoNurtureQueue` cron logs (every 30 min). Read Firestore `brevo_nurture_queue` for rows where `sendAt <= now AND sent != true`. If queue empty → confirm zero positive Instantly replies + zero audits this week (also valid). If queue has unsent rows → fix the cron.
+- **Proof:** either (a) cron log shows real send + Brevo events show non-self-test deliveries, OR (b) documented "no leads triggered nurture this week" with reply/audit counts to back it up.
+
+### 4. Doc cleanup wave 1 (already in progress this session)
+- ✅ MASTER_PROMPT.md shipped
+- ✅ AUDIT_DELTA_2026-04-27.md shipped
+- ✅ NEXT_STEP.md cleaned (this file)
+- ⏳ CLAUDE.md update (5 EL agents, 10 active campaigns)
+- ⏳ SYSTEM.md auto-regen (174 functions live)
+- ⏳ Move 16 historical .md to archive/
+
+**Success criteria EOD Monday:**
+- HR#7 review posted to `#all-jegodigital`
+- Calendly→Brevo bridge proven working with one real test booking
+- Brevo nurture cron status documented
+- All 4 doc fixes shipped to main, all GH workflows green
 
 ---
 
-## 🎯 TODAY'S BIG ROCK (HARD RULE #8) — 2026-04-24 PM
+## 📋 PRIORITY QUEUE — work top-down
 
-> **Fix cold-email conversion — from 0.34% reply rate to 3%+ by shipping hyper-personalized enriched campaigns.**
->
-> Two fixes shipped overnight (this session). Three more queued for the rest of today:
->
-> 1. **Fix 3 — AI reply agent audit-first script + kill spintax bug** (45 min). Current AI replies bypass the `/auditoria-gratis` link (BUSINESS.md spec). Moritz received raw `{una pregunta|algo que vi|una idea}` spintax in subject. Fix both in Instantly reply-agent config + template cleanup.
-> 2. **Fix 4 — Ship enriched-opener campaign** (60 min). Once enrich-leads run #3 completes (expected ~02:50 UTC), upload the CSV to Instantly with `{{personalized_opener}}` + `{{pain_1_note}}` merge tags. Rewrite campaign body to use them. Remove hardcoded `400 visitas` / `12 leads` from every template (HR-0 violation, spam-fingerprinted).
-> 3. **Fix 5 — DIY inbox placement checker** (60 min + Alex creates 5 seed inboxes). Proves whether current `zenno+zenia` senders hit Gmail spam (currently unknown — only old senders tested April 4).
->
-> **Bucket:** B (generate qualified leads) → A (convert 5 existing warm leads + 171 enriched leads).
-> **Success criteria (today):** enriched CSV uploaded to Instantly, first 50 sends use real personalized openers, AI reply agent follows audit-first funnel, placement checker gives real Gmail/Outlook landing rate.
+### P0 — Close paying clients THIS WEEK (Bucket A)
+1. **Work the John (Luna Real Estate) Apr 20 Calendly booking** — pull invitee details, check if proposal sent / WA follow-up sent. If not: draft both today.
+2. **Harvest positive Instantly replies past 7d** — Unibox query → fire `/auditoria-gratis?url=...&email=...&firstName=...` per warm reply (audit-first funnel).
+3. **Review last 7d ElevenLabs conversations** (14 calls, 8 success). Any positive transcripts → push audit link + Calendly via WhatsApp.
 
----
-
-## ✅ 2026-04-24 PM — COLD-CALL RESCUE SESSION — 2 COMMITS SHIPPED + DIAGNOSTIC STAGED
-
-**Pulled live from Twilio + ElevenLabs APIs (HR-2 compliant):**
-
-**7-day Twilio bridge-rate trend (proves number is NOT burned):**
-- 2026-04-24 (today): 33 dials, 0 real bridges = **0.0%** 🚨
-- 2026-04-23: 65 dials, 44 bridges = **67.7%** 🟢
-- 2026-04-22: 72 dials, 38 bridges = **52.8%** 🟢
-- 2026-04-21: 30 dials, 4 bridges = **13.3%** 🔴
-
-Same hour (10:00 CDMX) comparison: Apr 22=36.7%, Apr 23=73.1%, Apr 24=0%. **Number healthy yesterday, something specific broke today.**
-
-**Root cause found: first_message template regression**
-- Yesterday's 44 working bridges all used: `"Buen día, hablo de JegoDigital, ¿es la oficina de {Company}?"`
-- Today's 33 failures used: `"Hola {name}, soy Sofia de JegoDigital. ¿Tienes un momento?"` — where `{name}` was the CSV placeholder `"Hola"` for most rows, producing `"Hola Hola, soy Sofia..."` — plausibly rejected by carrier voicemail-detection systems.
-
-**Pipeline gaps discovered + fixed:**
-1. ✅ `leadFinderAutoTopUp` silent-skipping since Apr 21 because code checked `DATAFORSEO_PASSWORD` but GH Secret named `DATAFORSEO_PASS`. Added third fallback + logSkip() writes to Firestore + Slacks on every skip reason. Commit `b3145af`.
-2. ✅ `coldCallPrep` auto-seed only fired when collection empty (not when cooldown-blocked). Now triggers on `batch.length === 0`. Commit `b3145af`.
-3. ✅ ElevenLabs agent `max_duration_seconds` was 240 (default) instead of 60 — phantom 240s calls burned quota. PATCH'd all 3 agents via API. Verified via GET.
-4. ⚠️ `silence_end_call_timeout=20` still silently dropped by ElevenLabs API (known bug per Apr 21 memory). Deferred.
-5. ✅ `first_message` template switched from "Hola X, soy Sofia..." to yesterday-proven "Buen día, hablo de JegoDigital, ¿es la oficina de X?". Commit `4945c36`.
-6. ✅ New `bridgeRateWatcher` Cloud Function — 10:30 CDMX Mon-Fri cron + HTTPS on-demand. Slacks alert if bridge rate <20% on sample ≥5. Commit `4945c36`.
-
-**Notion dashboard shipped** (https://www.notion.so/34cf21a7c6e581ffac50fe226b79388d): hero stats, Twilio 7-day health scorecard, phone_leads breakdown, lead sources, known issues, Slack alerts, recommended next steps. Plus embedded `📋 Phone Leads` database with 40 records (filterable by Priority/City/Status).
-
-**Slack webhook live** — test notification HTTP 200 OK. `SLACK_WEBHOOK_URL` verified in GH Secrets + wired into `deploy.yml`.
-
-**Firestore state after session:**
-- `phone_leads`: 57 → 191 (+144 fresh HOT+WARM)
-- `call_queue/2026-04-27/leads`: 10 staged for Monday diagnostic
-- `call_queue/2026-04-24/leads`: 40 (33 dialed, 7 `held_carrier_reputation`)
-
----
-
-## ✅ 2026-04-24 EARLY-AM — COLD-EMAIL CONVERSION SESSION — 2 FIXES SHIPPED
-
-**Diagnosis (all pulled live from Instantly API, HR-1 compliant):**
-- Live 60d: 3,558 sent / 11 opens / 12 replies / 0 bounces = 0.31% open / 0.34% reply
-- Live 24h: Trojan Horse (only campaign with tracking ON showing current activity) = 110 sent / 11 opens = **10% opens** (below 15-30% floor but NOT catastrophic)
-- Current senders (`zenno+zenia`) have ZERO placement test data. Only April 4 test exists — on DECOMMISSIONED senders (`alex@jegoaeo`, `alexiuzz83@gmail`, `contact@aichatsy` — all dead per Alex 2026-04-23). 96% Gmail spam on April 4 is NOT evidence for current state.
-- 5 warm leads identified: Moritz (Iconico), Felix (Mudafy), Jorge (Mihome), Alvaro (Trust Real Estate), Susan (Shoreline Realty). AI replied to all 5 — but Susan waited 17 DAYS (replied Apr 5, AI responded Apr 22 — `instantlyReplyWatcher` only deployed Apr 20).
-
-**What shipped this session (verified live):**
-
-1. ✅ **Fix 1 — Slack reply notifications** (`instantlyReplyWatcher.js`).
-   - Added `sendSlack()` helper (Telegram fallback if URL missing)
-   - Added `buildSlackReplyCard()` Block Kit per-reply card: lead, company, website, campaign, their message body, classification, action taken, timestamp
-   - Auto-response filter (OOO/desactivac/ya no labora) prevents Slack spam
-   - Aggregate run summary now fires BOTH Slack + Telegram (not Telegram only)
-   - 🚨 Fixed silent prod bug: `SLACK_WEBHOOK_URL` was MISSING from GH Secrets — every Slack-intended notification across every Cloud Function has been falling back to Telegram silently for weeks. Wrote to GH Secrets via API (encrypted PUT, HTTP 204 verified).
-   - Test webhook fired → returned `"ok"` ✅
-   - Commit: [`4f52762`](https://github.com/babilionllc-coder/jegodigital/commit/4f52762de5c7eb033abc098364f3576b0d9db58b) → Deploy run #119 (Firebase Functions).
-
-2. ✅ **Fix 2 — Hunter email-finder waterfall v3** (`tools/lead_enrichment_engine.py`).
-   - Run #1 on 391 Vibe leads returned 0 emails (ICP-passed: 238, openers generated: 238, phones: 212, WhatsApp: 43, emails: 0 🔴)
-   - Root causes: (a) Hunter `/v2/email-finder` unreliable for small MX companies, (b) pattern generator produced `agarcía@cpamericas.com` with Spanish accent in local-part (undeliverable), (c) nickname prefixes missed (`al@trustreal.mx` for Alvaro), (d) only 5 domain-search samples.
-   - Fix: `_ascii_slug()` NFKD accent-stripping, bumped samples 5→25, 4-mode Tier 2 direct-match (exact/dot-prefix/underscore-prefix/nickname-prefix), Tier 3 pattern voting across 6 patterns (requires ≥2 votes), Tier 4 last-resort `firstname@domain` if ≥3 verified emails at domain.
-   - HR-6 proof: live-tested on 6 real leads, 5/6 now return deliverable emails (0/6 before). CPA → `agarcia@...` (accent stripped), Alvaro → `al@trustreal.mx` (nickname), etc.
-   - Commit: [`fe6200f`](https://github.com/babilionllc-coder/jegodigital/commit/fe6200fae754b42c5caea3e80452ebdba47347d0) → Re-triggered `enrich-leads.yml` run #3 on same 391 leads (HTTP 204).
-
-**Documentation updates this session:**
-- `CLAUDE.md §OUTREACH` — sender domains corrected from `aichatsy.com` → current `zennoenigmawire.com + zeniaaqua.org` roster with explicit "NEVER re-add" block.
-- `BUSINESS.md §OUTREACH PIPELINE` — same fix + deprecated sender block list.
-- `COLD_EMAIL.md` lines 62, 165, 174 — sender + tracking status corrected.
-- `ONBOARDING.md` line 146 — tool table.
-- `README.md` line 139 — production domain summary.
-- `AI_AGENT_PERSONA.md` — 2 references updated with live current-state numbers.
-- `DISASTER_LOG.md` — 3 new entries: (1) conflating old placement-test senders with current state, (2) Hunter 0%→83% waterfall v3 win, (3) SLACK_WEBHOOK_URL silent secret gap win.
-
----
-
-## 🤖 2026-04-23 EVENING — MONEY MACHINE FIX (deprioritized by cold-email session)
-
-**What Alex approved:** full 4-session build-out so he can run the entire agency from his phone using Slack + Notion + Linear. Morning Slack push locked at **7:30 AM America/Mexico_City** (separate from existing 9:00 AM TikTok script cron so daily TikTok script + daily approval queue don't bundle into one overwhelming message).
-
-**What shipped this session (verified via live Apify API):**
-1. ✅ Reddit scraper 400 error diagnosed + fixed — `trudax~reddit-scraper-lite` pay-per-event actor was silently auto-setting `maxTotalChargeUsd=$0.000268` per run (lower than container start cost), killing every run in 2.5s. Fix: explicit `&maxTotalChargeUsd=1.00` query param → $30/mo worst case, under $55 Apify cap. Commit `56e9f72fe398e84e0b5d9dd7744a906e5488a445`.
-2. ✅ Deploy to Firebase: workflow success, auto-index + notion log green, validate-video-assets failure unrelated to this change.
-3. ✅ Apify verification: 3 runs SUCCEEDED post-fix (IDs `PPObd1op`, `eSDEF73T`, `gwZfDsZI`) vs 3 FAILED-in-2.5s runs before fix (IDs `F4lj4DXq`, `3cbC0uYK`, `q0LRCpWZ`). Conclusive proof.
-
-**Audit finding that flips the next priority:** earlier belief that drafter was producing empty `draft_text` was a **moneyMachineStatus reporting bug** — the endpoint was reading `draft_text` from the `opportunities` collection (which doesn't have that field) instead of `opportunity_drafts/{id}`. The newer deployed version correctly exposes an `opportunity_drafts` section — and the actual drafts are **stellar**:
-- `reddit_1ssafi5` — 167 words, Gemini 3.1 Pro, status `approved_needs_manual_post` (ROTTING, never posted)
-- `reddit_1ssc6q7` — 162 words, Gemini 3.1 Pro, status `approved_needs_manual_post` (ROTTING, never posted)
-- `reddit_1stgpyp` — 175 words, score 92, status `awaiting_approval_telegram` (BURIED in Telegram, 3-nudge cap already hit)
-
-**So the real gap = Reddit POSTER is missing.** Drafter + classifier + scraper + approval path all work. The 2 approved drafts are stranded with nowhere to go.
-
----
-
-## 🎯 TODAY'S BIG ROCK (HARD RULE #8) — 2026-04-24 (SESSION 1 of 4)
-
-> **Build the Slack Mirror + Reddit Posting path so Money Machine produces its first real public reply.**
->
-> Specifically:
-> 1. New Cloud Function `slackDraftMirror` — every draft that reaches `awaiting_approval_telegram` ALSO posts to Alex's Slack DM with: (a) the full draft text, (b) the Reddit thread URL as tappable link, (c) a "Copy to clipboard" visual cue. Phone-native.
-> 2. New Cloud Function `markDraftPosted` — HTTPS endpoint Alex hits (or a Slack slash-command) after he pastes the reply on Reddit from his phone. Moves draft from `approved_needs_manual_post` → `posted`. Records the live Reddit URL so we can track engagement in Session 3.
-> 3. Hydrate the 3 existing stuck drafts into Slack so they're not wasted — Alex posts them from his phone manually over the next 24h as proof-of-pipeline.
-> 4. Replace the Telegram-only approval with Slack-primary, Telegram-backup (Telegram was getting buried per 2026-04-23 recovery-cron fix — Slack in-app is more reliable).
-
-**Bucket:** B (generate qualified leads) + A (first approved reply = first real test of inbound Money Machine conversion)
-**Success criteria (today):** 3 existing drafts mirrored to Slack DM, Alex posts 2 of them from his phone, both get Reddit URLs logged, opportunities transition to `posted` status. Fresh Reddit scraper cron at :15 past hour pulls new opps, 2+ more drafts generated, also mirrored to Slack.
-
----
-
-## 📅 4-SESSION ROADMAP — PHONE-FIRST AGENCY AUTOPILOT
-
-| Session | What ships | How Alex experiences it |
-|---|---|---|
-| **S1 (2026-04-24)** | Slack mirror + Reddit posting path + Telegram backup | First 2 real Reddit replies posted from phone, pipeline proven end-to-end |
-| **S2 (2026-04-25)** | `dailyTaskDispatcher` @ 07:30 CDMX + Slack List **🎯 Today** + Notion + Linear sync | First 7:30 AM Slack morning ritual happens next morning |
-| **S3 (2026-04-26)** | Add X/Twitter + Quora (Firecrawl) + BiggerPockets (Firecrawl) + Google Reviews scraper lanes | Same 1 Slack view, 4x volume of buyer-intent signals |
-| **S4 (2026-04-27)** | FB Groups semi-auto + IG hashtag Apify scraper + TikTok viral scraper feeding daily script ideas + YouTube weekly card + Linear fully wired + `apifyBudgetCheck` cron | Full phone autopilot live — laptop not required |
-
-**Safety guards baked into every session:**
-- Reddit: MAX 3 replies/day, no link in body, aged account only
-- X: MAX 5/day, real account, residential proxies via Apify
-- FB Groups: manual-click only (screenshots to Slack, Alex taps on phone)
-- IG: Meta Graph API + ManyChat only
-- TikTok: Content Posting API + 3/day cap + 3-min gaps
-- YouTube: Data API + 20 comments/day cap
-- LinkedIn: Sales Nav manual only OR Apify read-only (deferred to S4 or later)
-- Quora + BiggerPockets + HN: LOW ban risk, genuine value only
-- Google Reviews: read-only scrape, zero account interaction
-- Budget: `apifyBudgetCheck` cron pauses non-critical scrapers if MTD > $45
-
----
-
----
-
-## 🎬 2026-04-23 PM — TROJAN VIDEO FACTORY — DELIVERY SCAFFOLD LIVE IN PRODUCTION ✅
-
-**New Trojan Horse hook: "3 Videos Gratis" (Listing Video Factory).** Alex approved the pivot + the shorter Step-1 email copy with `{{firstName}}` + `{{companyName}}` personalization. Style presets: Cinemático, Lifestyle, Luxury. Delivery window: 24h. Photos per video: 3-10.
-
-**Shipped + verified live in commit `b37fecf4a940`:**
-1. ✅ `cold-email-sequences/TROJAN_VIDEOS_2026-04-23.md` — full 5-step Spanish sequence + AI reply agent rules + pre-launch checklist.
-2. ✅ `website/trojan-setup/videos.html` — onboarding form page (dark theme, 3-10 photo dropzone, 3 style cards, lang toggle, signed-URL upload pattern). Live: `https://jegodigital.com/trojan-setup/videos` → HTTP 200.
-3. ✅ `website/functions/trojanVideoOnboarding.js` — two HTTPS endpoints:
-   - `trojanVideoInit` → `{"ok":false,"error":"firstName_required"}` on empty POST (function alive, validation working).
-   - `trojanVideoFinalize` → `{"ok":false,"error":"leadId_required"}` on empty POST (function alive, validation working).
-   - CORS preflight OPTIONS → HTTP 204 on both.
-4. ✅ `DISASTER_LOG.md` — 2 new WIN entries: (a) Firebase Web SDK config gap → signed-URL pivot, (b) 36h stale `.git/index.lock` + UID mismatch → GitHub Git Data API path reproven. Also restored the "Money Machine Telegram recovery cron" entry that was accidentally overwritten (patched in commit `44dbc0ff`).
-5. ✅ `SYSTEM.md` §1.3 — `trojanVideoInit` + `trojanVideoFinalize` added to HTTP endpoints inventory.
-6. ✅ `BUSINESS.md` — Trojan Horse entry section updated to document the "3 Videos Gratis" default hook (videos as lead magnet → Service 1 upsell 2 weeks later).
-
-**Deploy proof (HR-6 compliant):**
-- GitHub Actions run `24819006234` — Deploy to Firebase: ✅ success, Validate video assets: ✅ success, Auto-Index URLs: ✅ success, Smoke Test: ✅ success.
-- 5/5 live HTTPS probes green (hosting + init OPTIONS + init POST + finalize OPTIONS + finalize POST).
-
-**HARD BLOCK on campaign activation — still remaining before any cold email goes out:**
-- [ ] End-to-end test with 1 real test lead (upload 3 photos → verify signed-URL PUT succeeds → Telegram alert fires → Firestore doc lands with `status=submitted`)
-- [ ] Wire `processTrojanVideoRequest` Firestore trigger (reads style preset + photos → fires veo-flow pipeline → writes MP4 URLs back → sends delivery email)
-- [ ] First 3 renders manually QA'd by Alex
-- [ ] Create Instantly campaign `trojan_videos_mx_v1` in **draft mode only** — do NOT activate until all above pass
-
-**Next step for Alex:** Open `https://jegodigital.com/trojan-setup/videos` in a browser, submit a test lead with 3 photos, confirm the Telegram ping arrives and a `trojan_video_leads/{leadId}` Firestore doc appears with `status=submitted`. That closes the onboarding-side verification and unblocks the render-pipeline wiring.
-
----
-
-## ✅ 2026-04-23 early-AM WIN — Firebase deploy health fully restored
-
-**Problem:** After the 2026-04-22 PM batch-split fix (commit `27132638`), 3 functions kept failing GCF health check across every retry: `dailyDigest`, `coldCallMidBatchCheck`, `coldEmailDailyReport`. The batch-split unstuck the other 57 functions but these 3 were stuck in a different failure mode (consistent, not transient).
-
-**Fix:** Added `if (!admin.apps.length) admin.initializeApp();` to the top of each of the 3 standalone module files. Pushed as commit `057fc15f` via GitHub Git Data API (sandbox-autonomous, HR-13 compliant). Run #89 BATCH 1 deployed all 3 previously-crashing modules on the FIRST TRY — conclusive HR-6 proof.
-
-**Bonus:** BATCH 2 hit an unrelated transient flake on `sendT10minReminders`. The retry step (added in the 2026-04-22 batch-split commit) auto-healed it. Proves the retry infrastructure works exactly as designed.
-
-**New permanent rule:** Added to `DEPLOY.md §Guard rails before pushing` as rule #5 — every standalone `.js` module that imports `firebase-admin` MUST include the cold-start init guard. Logged to `DISASTER_LOG.md` 2026-04-23.
-
-**Tech-debt note:** 24 other module files in `website/functions/` also import `firebase-admin` without the guard (audit.js, auditPipeline.js, brevoNurture.js, calendlyWebhook.js, dailyStrategist.js, eveningOpsReport.js, instantlyReplyWatcher.js, mondayRevenueReview.js, etc.). They deploy fine today but are technically vulnerable to the same cold-start race. Not urgent — patch opportunistically as we edit each file. P3 backlog item.
-
----
-
-## 🎯 TODAY'S BIG ROCK (HARD RULE #8) — 2026-04-23
-
-> Cold-call 100 MX real estate agencies from the pre-built target list, route positive replies to Calendly/WhatsApp/Sofia.
->
-> ✅ **2026-04-22 PM shipped (LinkedIn + GMaps pipeline):**
-> 1. Apify LinkedIn Profile Search — 30/36 queries submitted (6 titles × 6 cities), 256 raw profiles fetched.
-> 2. HR-5 6-gate filter — 37/256 decision-makers kept (14.5%), rejected: weak_title(114), not_mx(105), no_re_signal(68), rubbish(31), dup_email(8).
-> 3. Hunter waterfall — 4 LinkedIn emails resolved (12/37 got domain via Google Search Scraper).
-> 4. **Phone pivot** — LinkedIn yielded 0 phones (profiles rarely expose them). Pivoted to Apify `compass~crawler-google-places` scraper — 240 GMaps listings across 9 MX cities, 186 with phones, 148 with websites, 79 with emails.
-> 5. Filter + score + merge → **149 cold-call-ready leads** in `leads/COLD_CALLING_TARGETS_2026-04-23.md` (83 hot / 28 warm / 21 lukewarm / 13 cold / 4 LinkedIn direct).
->
-> Today specifically:
-> - (1) Open `leads/COLD_CALLING_TARGETS_2026-04-23.md` — pick top 40 `hot_gmaps` by score (reviews ≥100 + 4.5+ rating + major brand).
-> - (2) For each: copy the pre-built `node tools/elevenlabs_trigger_call.cjs <phone> "<Company>" --offer=C` command and fire.
-> - (3) Track replies in `fb_leads_tracker.csv` columns `source=gmaps_call`, `status`, `next_step`.
-> - (4) If ≥3 positive replies → push to Calendly same day.
-> - (5) Evening: enrich the 79 emails to Instantly `Trojan Horse` campaign with HR-6 baseline + delta check.
-
-**Bucket:** B (generate qualified leads) + A (close this week — live voice is highest intent)
-**Success criteria (today):** 40 dials attempted, 5+ positive replies logged, 2+ Calendly bookings OR 5+ WhatsApp conversations opened. Email subset (79 leads) uploaded to Trojan Horse campaign `cd9f1abf-3ad5-460c-88e9-29c48bc058b3`.
-
----
-
-## 🔁 DAILY RITUALS (run every morning — 25 min total)
-
-**FB Groups Hybrid Prospecting** (launched 2026-04-22)
-- 7:00 AM — open FB app on phone, scroll priority groups 1-4 in `facebook-groups/FB_GROUPS_PLAYBOOK.md`
-- Screenshot 8-12 hot-signal posts (post + poster profile)
-- Paste all into Claude chat
-- Claude returns personalized DMs + FB message links
-- Batch-send from phone (15 DMs/day max — HR#5 style ceiling)
-- Replies → move to WhatsApp → Sofia → Calendly
-- Weekly review Mondays in `BUSINESS_REVIEW/2026-W<NN>.md`
-- 🚫 DISASTER_LOG 2026-04-22: Chrome MCP scanning blocked by Meta bot-detection. Workflow is phone-first, NEVER Chrome automation.
-- Infra: `facebook-groups/FB_GROUPS_PLAYBOOK.md` + `fb_dm_templates.md` + `fb_leads_tracker.csv`
-- **Target:** 2 Calendly calls/day within 7-14 days
-
----
-
-## 📋 PRIORITY QUEUE — in order. Work top-down.
-
-### P0 — Close paying clients THIS week (Bucket A)
-
-1. **Work the Apr 17 Calendly booking (`Consulta Gratuita`)** — Pull invitee details from Calendly, check if a proposal has been sent, if follow-up WhatsApp has been sent. If not: draft and send both today. **Proof required:** timestamped message + Brevo activity log.
-2. **Harvest all positive replies from Instantly inbox (past 7 days)** — Run Unibox query, extract positives, send each one the pre-filled `/auditoria-gratis` link per §Instantly AI Reply Agent Guidance. **Proof required:** list of N positive reply email addresses + N audit links fired.
-3. **Review yesterday's 74 ElevenLabs conversations** — Any lead flagged positive in transcript gets the audit link + Calendly pushed via WhatsApp. **Proof required:** transcript IDs reviewed + actions taken per transcript.
-
-### P1 — Generate qualified leads THIS week (Bucket B)
-
-4. **Fix Instantly 0% open tracking** — Current state (live pull 2026-04-21): 3,238 sent / 0 opens across all 9 campaigns. This is workspace-level, not per-campaign. Check: (a) `open_tracking_enabled` on workspace, (b) `track_opens` flag on campaigns, (c) DNS SPF/DKIM on aichatsy.com, (d) pixel domain in Instantly account settings. **Proof required:** at least 1 campaign shows nonzero opens within 24h of fix.
-5. **Finish ElevenLabs voicemail fix for Agents B and C** — Agent A is patched (avg 19.5s, 0 zombies). Agent B has 2 zombies (103s, 215s), Agent C has 0 done / 14 failed. Root cause was `silence_end_call_timeout = -1`; fix was 20s. Verify fix landed on B and C via `GET /v1/convai/agents/<id>`. If dropped silently (HR#2 disaster Apr 21), try PUT instead of PATCH. **Proof required:** GET response for both agents shows `silence_end_call_timeout: 20` + next 5 calls on each agent avg <60s.
-6. **Run lead_finder v4** for 200 new MX real estate decision-makers in CDMX+Cancún+Tulum. Route through HARD RULE #5 5-gate quality check BEFORE upload. **Proof required:** CSV path + gate script output `✅ 5/5 gates passed`.
+### P1 — Generate qualified leads THIS WEEK (Bucket B)
+4. **Prune Instantly active campaigns from 10 → 4-6** — sprawl is diluting the 300/day warmup pool. Pause `signal_outbound_*`, `Audit_Trojan_MX_Supersearch_v1`, and any duplicate Trojan variants. Keep top 4 by reply rate.
+5. **Run lead-finder for 200 fresh MX RE decision-makers** — feed into the surviving Trojan Horse V2 + USA Hispanic Hiring campaigns.
+6. **Verify FB Brokers cold-call Offer D** — agent shipped overnight Apr 26-27 (commit `e337918`). Confirm 16:00 UTC Apr 27 kickoff fired + bridge rate ≥ 30%.
 
 ### P2 — Raise conversion rate (Bucket C)
+7. **Audit funnel data layer** — check if `processAuditRequest` is returning real PageSpeed + DataForSEO scores (NEXT_STEP archived flagged "PSI/DFS returning 0 Apr 16"). Notification layer is monitored by `auditNotificationWatchdog`; data layer NOT.
+8. **Fix Instantly tracking domain status** — verify `inst.zennoenigmawire.com` is hitting on real opens (Vercel proxy + DNS).
 
-7. **Fix Agent C (Free Setup) — 0 done / 14 failed pattern** — investigate whether the prompt is triggering instant hangups, whether speed-to-lead hook is too aggressive, whether Twilio SIP is failing. **Proof required:** one clean successful call on Agent C.
-8. **Diagnose audit funnel delivery** — HARD RULE §Audit Funnel notes "PSI/DFS returning 0 (Apr 16)" — if audit is not pulling real data, the email landing in the lead's inbox is a dud. Check `processAuditRequest` Cloud Function logs for last 5 runs. **Proof required:** logs show real PageSpeed scores + real keyword data in last 5 audits. **Note (2026-04-22 PM):** the *notification layer* (Brevo + Telegram + Slack + Alex email) is now monitored by `auditNotificationWatchdog` — silent send failures will Slack-alert within 15 min. This task is now scoped to the **data-pull layer only** (PSI + DataForSEO returning real scores, not 0).
-9. **Refresh top-of-funnel copy** — 0 opens in Instantly could also be subject lines. Test 2 subject variations per campaign via Instantly A/B feature once tracking is fixed.
-10. **Calendly→Brevo auto-contact fix** — When a lead books a Calendly call, the webhook is NOT auto-creating them as a Brevo contact. So the automated follow-up emails never fire for booked leads. Found 2026-04-21: Adrián Vera booked Apr 15 and had zero Brevo record — we lost 3 days of automated follow-up. Every future booking is also skipping the pipeline. Fix: audit `website/functions/calendlyWebhook.js` — confirm `invitee.created` handler calls Brevo `/v3/contacts` upsert with full attributes (FIRSTNAME, LASTNAME, COMPANY, SOURCE=calendly, STAGE=booked). **Proof required:** make a test booking, verify the contact appears in Brevo within 60 seconds with correct attributes.
+### P3 — Unblock future revenue (Bucket D, batch only)
+9. **Toggle 6 dead plugin namespaces in Cowork → Plugins** — frees ~7,500 tokens/session = ~375K tokens/week. Either Alex flips 6 switches OR Claude drives via computer-use.
+10. **Build `verifyClientProofMonthly` Cloud Function** (HR#9 automation).
+11. **Build `weeklyRevenueReview` Cloud Function** (HR#7 automation, runs every Monday).
 
-### P3 — Unblock future revenue (Bucket D)
-
-10. **Update ACCESS.md** — 3 pending updates, reconcile with live `gh secret list` (task #29).
-11. **Fix `tools/verify_access.sh`** — has hardcoded Mac path that fails in sandbox. Needs sandbox-path-aware detection.
-12. **Create `tools/lead_quality_gate.sh`** — HARD RULE #5 enforcement script. Does not yet exist.
-13. **Build `verifyClientProofMonthly` Cloud Function** — HARD RULE #9 automation.
-14. **Build `weeklyRevenueReview` Cloud Function / skill** — HARD RULE #7 automation, runs every Monday.
-
-### P4 — BACKLOG (do NOT start until P0-P3 empty — HARD RULE #3)
-
-17. Everything else → moved to `BACKLOG.md`.
-
----
-
-## ✅ SHIPPED THIS SESSION (2026-04-21 PM)
-
-- HARD RULE #0 (no fabricated numbers) added to CLAUDE.md
-- HARD RULE #1 (never blind on cold email) added with auto-verify script
-- HARD RULE #2 (universal verify-live, 8 platforms) added
-- HARD RULE #3-#10 added (revenue-first, NEXT_STEP-first, lead-quality-gate, never-complete-without-proof, weekly-revenue-review, one-big-rock, client-proof-fresh, log-failures)
-- HARD RULE #11 (always find a way) + #12 (plain-language explanations) + #13 (never ask Alex to work) + #14 (clear next steps) added to CLAUDE.md
-- README.md created (was 1 byte empty)
-- ONBOARDING.md created as single entry point
-- NEXT_STEP.md created (this file)
-- OPERATING_RHYTHM.md created (daily/weekly/monthly/quarterly cadence)
-- DISASTER_LOG.md created (13 entries backfilled in HR#10 format)
-- BACKLOG.md created (P4 parking lot)
-- **COLDCALL.md folded into SYSTEM.md §10** (11 subsections, source-code comments updated to reference SYSTEM.md §10.4, COLDCALL.md reduced to redirect stub) — **task #27 complete**
-- **Evening ops report + dailyStrategist AI agent deployed via chrome-devtools MCP** (commit `72ed715`) — see block below
-- Live data pull confirms: Calendly 0 today / 1 in 7d · Brevo 36% open rate · Instantly 0% open rate (broken) · ElevenLabs A✅ B⚠️ C❌
-
-## ⏭️ ROLLED TO NEXT SESSION
-
-- None from this session's doc-cleanup arc — all of it shipped in commit `c3c9ad71` (2026-04-21 PM, all 3 workflows green).
-- Still pending from P0/P1 queue above: Apr 17 Calendly booking (#1), Instantly positive-reply harvest (#2), yesterday's 74 EL conversations review (#3), Instantly 0% open tracking diagnosis (#4), Agent B+C voicemail fix verification (#5), lead_finder v4 run (#6).
-
-## ✅ SHIPPED 2026-04-22 PM (Brevo nurture trio + deploy.yml batch-split)
-
-**Context:** Alex approved "yes do it make sure its in spanish" — ship an end-to-end nurture loop from every positive Instantly reply through 4 Spanish touches over 14 days on the free Brevo plan, with auto-cancel when they book Calendly. In the same session, 6 functions started failing with the misleading "health check failure" error — root cause diagnosed as GCF deploy-rate quota (60 updates per 100s) and permanently fixed in the workflow.
-
-- **`brevoNurture.js`** shipped (NEW, 22 KB, commits `aeff926` → `5aaad78` → `c4e875c`) — core engine. `pushToBrevoList(email, attrs)` + `queueTrackA(email, replyAt, hook)` upsert contact into Brevo list 25 + write 4 per-touch rows into Firestore `brevo_nurture_queue` (day 0/3/7/14).
-- **`processBrevoNurtureQueue`** scheduled cron (every 30 min CDMX) + **`processBrevoNurtureQueueOnDemand`** HTTP endpoint — scan `brevo_nurture_queue` where `sendAt <= now`, filter `sent !== true && canceled !== true` in code (single-field query, no composite index needed — see DISASTER_LOG 2026-04-22 PM), send via Brevo transactional API, mark `sent:true`. Live URL: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/processBrevoNurtureQueueOnDemand` returned HTTP 200 on smoke test.
-- **`instantlyReplyWatcher.js` patched** — every positive Instantly reply → bridges into `brevoNurture.queueTrackA()`, ledger gets new `brevo_nurture_started` field.
-- **`calendlyWebhook.js` patched** — `invitee.created` → `cancelTrackForEmail(email)` flips all pending rows to `canceled:true` + `brevo_nurture_index.calendlyBooked=true` so no further nurture emails land.
-- **Backfill script `tools/brevo_nurture_backfill.sh` ran tonight, 8/8 delivered.** Existing Instantly repliers found = 9, excluded 1 (unsubscribe), upserted 8/8 into Brevo list 25 (contact IDs 117–124), sent 8/8 age-appropriate transactional emails (day_0 / day_3 / day_10), queued 2–3 future touches per contact.
-- **4 Spanish templates shipped (Track A)** — day 0 "aquí está la auditoría que pediste", day 3 "¿pudiste revisar el análisis?", day 7 "Caso real: Flamingo Real Estate 4.4x", day 14 "último toque antes de archivar". All <2 lines, all drive to Calendly, zero pricing.
-- **`.github/workflows/deploy.yml` hardened (commit `27132638`)** — auto-discovers function exports via `grep -oE '^exports\.[a-zA-Z_][a-zA-Z0-9_]*' index.js`, sorts unique, splits alphabetically into BATCH 1 + BATCH 2, deploys each with `--only "functions:a,..."` and sleeps 120s between. Kills the GCF quota trap that masked 6 "failed" functions (`coldCallRun`, `coldCallMidBatchCheck`, `coldCallRunAfternoon`, `contentPublisher`, `dailyDigest`, `sofiaConversationAudit`) as health-check failures.
-- **DISASTER_LOG.md +3 entries** — (1) Firebase CLI "health check failure" masks GCF deploy-rate quota, (2) Firestore composite-index trap → single-field + in-code filter pattern, (3) GitHub Git Data API blob POST requires `curl --data-binary @file` (never `curl -d @file`, which blows up on E2BIG for 115 KB base64).
-- **SYSTEM.md updated** — Brevo trio added to function inventory + 2 new Firestore collections documented (`brevo_nurture_queue`, `brevo_nurture_index`) + "Three known deploy traps (all fixed)" section now includes the GCF quota fix.
-- **DEPLOY.md updated** — `deploy.yml` section rewritten to document the 2-batch pattern + 120s gap + why the GCF quota surfaces as the wrong error, plus a new Guard Rail #4 for large-blob pushes via `--data-binary @file`.
-
-**Proof:** `outputs/brevo_nurture_morning_proof_2026-04-22.md` — 3-layer architecture, backfill stats, deploy timeline, HR-6 compliance (deploy log + live HTTP 200 + public function URL).
-
-## ✅ SHIPPED 2026-04-22 PM (Option B — audit-notification watchdog)
-
-**Context:** Priscila + Casa Mérida (pre-2026-04-22) lost to silent failures — Brevo/Telegram/Slack/Alex-email all failed inside `submitAuditRequest` with no surface anywhere. Alex chose Option B: a cron watchdog that detects and Slack-alerts silent notification failures within 15 minutes instead of days.
-
-- **`submitAuditRequest` patched** (`website/functions/index.js`) — now tracks per-channel delivery status (`notifications.{brevo,telegram,slack,alex_email}` with `{ok, skipped?, error?, at}`) and flushes it to Firestore at end of handler. Commit `0d1413cf`.
-- **`auditNotificationWatchdog` + `auditNotificationWatchdogOnDemand` shipped** (`website/functions/auditNotificationWatchdog.js`) — every 15 min CDMX, scans 24h of `audit_requests`, flags Case A (notifications missing) or Case B (channel ok=false && !skipped), posts Slack Block Kit alert. 5-min grace + `LEGACY_CUTOFF_MS=2026-04-22 23:30 UTC` eliminate false positives. Commits `0d1413cf` + `d9c6538b` (LEGACY_CUTOFF).
-- **`SLACK_WEBHOOK_URL` already in GH Secrets + wired in `deploy.yml:52`** — watchdog has everything it needs to fire Slack alerts.
-- **6 parallel-race scheduler deploys healed** via empty-commit + `workflow_dispatch` (commit `79d42086`). Deploy run 24808253094 went green — `coldCallRun/MidBatchCheck/RunAfternoon`, `contentPublisher`, `dailyDigest`, `sofiaConversationAudit` all re-synced cleanly.
-- **Live smoke test passed** — submitted post-LEGACY_CUTOFF audit `XxZUgC0TJA3ccEn08zd6` at 23:30:23 UTC → waited out 5-min grace → watchdog returned `scanned:9, healthy:9, broken:0`. All 4 channels reported ok/skipped on fresh submission = flush logic works end-to-end.
-- **SYSTEM.md §1.1 + §1.3 updated** with both new functions (this commit).
-
-## ✅ SHIPPED 2026-04-22 AM
-
-- **4/4 abandoned warm replies shipped** via `POST /api/v2/emails/reply`:
-  - Alvaro (aa@trustreal.mx) — W1 Spanish + apology preamble for accidental test-send → HTTP 200 id=019db3a2
-  - Jorge (jorge@tropicasa.com) — W3 English "team inbox" preamble → HTTP 200
-  - Cambria (cambria@diamanterealtors.com) — W3 English Baja angle → HTTP 200
-  - Susan (susan@shorelinerealtypv.com) — W2 English delay-apology → HTTP 200
-  - All routed through william@zennoenigmawire.com (the 3 personal-Gmail originals were unconnected senders)
-- **reply_classifier.py** committed — 9/9 self-tests pass, classifies warm / bounce / noise:ooo / noise:unsub / noise:spam / ambiguous
-- **blocklist_domains.txt** committed — 50+ domains across 8 categories (corporate RE, chain brokerages, listing aggregators, free email, spam senders)
-- **3 DISASTER_LOG entries** added (accidental TEST-SEND, CF 1010 User-Agent block, unconnected Gmail-alias eaccount 404)
-
-## 📦 SHIPPED IN COMMIT c3c9ad71 (2026-04-21 PM)
-
-- Task #28 — SYSTEM.md §2 planned crons added (`weeklyRevenueReview` HR#7, `verifyClientProofMonthly` HR#9); §10 overview + ASCII + cron table + resolved-list all annotated with DISABLED for afternoon batch; §11 change log reordered chronologically + 4 new entries
-- Task #29 — ACCESS.md live-verified 37/37 against GH API; header bumped to 2026-04-21 PM; changelog entry for today's infra; FILE REFERENCE table expanded with 6 new docs + `twilioCallStatusCallback.js` + `tools/verify_access.sh`
-- Task #35 — single Git Data API push of 13 files (CLAUDE, SYSTEM, ACCESS, README, ONBOARDING, NEXT_STEP, OPERATING_RHYTHM, DISASTER_LOG, BACKLOG, COLDCALL, twilioCallStatusCallback.js, index.js, verify_access.sh); pre-push `node --check` passed both JS files; post-push poll confirmed Deploy to Firebase + Auto-Index URLs + Validate video assets all green on `c3c9ad71`
-
-## 📦 SHIPPED IN COMMIT 72ed715 (2026-04-21 PM evening)
-
-- Task #41 — `eveningOpsReport` Cloud Function deployed. Nightly 21:00 CDMX digest covering cold email / Calendly / ManyChat / cold calls / audits → Slack + Telegram PDF. HTTPS manual trigger: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/eveningOpsReportOnDemand`
-- Task #23 — `dailyStrategist` + `dailyStrategistNow` Cloud Functions deployed. 8am CDMX Gemini-2.0-Flash agent that reads last 24h across all 8 platforms and writes the day's recommended big rock to Firestore `/strategist_recommendations/{date}`. HTTPS manual trigger: `https://us-central1-jegodigital-e02fb.cloudfunctions.net/dailyStrategistNow`
-- `aiAnalysisAgent` helper module live — auto-pauses bounce>5%, zero-open 200+, throttles health<90%; escalates 0-reply-500+ + no-show spikes. Actions logged to Firestore `ai_agent_actions/{date}`
-- 4 stale Cloud Functions deleted cleanly: `mondayRevenueReviewOnDemand`, `coldCallCalibrationDaily`, `mondayRevenueReview`, `coldCallPostRunSweep`
-- **Permanent architectural fix proven:** entire 5-call GitHub Git Data API push (5 blobs + tree + commit + PATCH ref) executed from chrome-devtools MCP using PAT Bearer auth — no sandbox egress needed for api.github.com, no Alex terminal involvement. Commit `72ed715` is the canonical proof point. All 4 GitHub Actions workflows green within ~8 min. Documented in DEPLOY.md §Autonomous Deploy + DISASTER_LOG.md (WIN entry) + new memory `chrome_devtools_github_api_permanent_fix.md`
+### P4 — BACKLOG (do NOT start until P0-P3 empty per HR#3)
+- Everything else → `BACKLOG.md`.
 
 ---
 
 ## 🕰️ STALE CHECK
-
-If a P0 or P1 item has been at the top of this queue for **>7 days without movement**, Claude MUST ask Alex to reprioritize before starting work on it (HARD RULE #4). The #1 item above was placed 2026-04-21 — fresh, OK to proceed.
+If P0/P1 #1 has been at top for >7 days without movement → ask Alex to reprioritize before working on it (HR#4). Today's rock placed 2026-04-27, fresh.
 
 ---
 
 ## 📝 SESSION RITUAL
 
-**Session start (≤5 min):**
-1. `bash tools/verify_access.sh`
-2. `cat NEXT_STEP.md | head -30`
-3. Grep `DISASTER_LOG.md` for relevant keywords
-4. Declare bucket: `[Bucket X] — why this task gets us to a paying client`
-5. Go
+**Start (≤90s):**
+1. Read `MASTER_PROMPT.md` (especially §4 verified-live state)
+2. Read this file — top item is today's rock
+3. Run `bash tools/verify_access.sh` if any platform metric will appear in reply
+4. Declare bucket: `[Bucket X] — why this advances <named lead>`
 
-**Session end (≤3 min):**
-1. Mark completed items (move to SHIPPED section)
+**End (≤3 min):**
+1. Mark today's rock complete (with proof) OR roll tomorrow with reason
 2. Promote next item to position #1
-3. Add anything Alex agreed to during the session
-4. Commit + push this file via Git Data API along with other changes
+3. Archive old big-rock blocks to `/archive/2026-04/`
+4. Append failures to `DISASTER_LOG.md` (HR#10), dead tools to `DEPRECATED.md`
+5. Commit + push via Git Data API (PAT in `.secrets/github_token`)
+6. Self-grade: did this advance $1M? If no, why?

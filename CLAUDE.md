@@ -39,6 +39,8 @@
 | Client Domain | Never invent a client's domain. Canonical source = `website/showcase.html`. Flamingo/RS Viajes/TT&More verified; Goza/GoodLife/Solik have NO verified domain. | [`docs/gates/client-domain.md`](docs/gates/client-domain.md) |
 | SEO Skills Routing | Blog posts → `seo-content-engine` ONLY. Full-domain SEO → `seo-engine`. `seo-aeo-audit` DEPRECATED. | [`docs/gates/seo-skills-routing.md`](docs/gates/seo-skills-routing.md) |
 | Blog Quality Gate | Mandatory 5-step pipeline: Research → Brief → Write → Optimize (≥80/100) → Publish. NO AI images. Real screenshots only. ≥4 contextual in-body internal links. Mandatory @JegoDigitalchannel YouTube embed + VideoObject schema. | [`docs/gates/blog-quality-gate.md`](docs/gates/blog-quality-gate.md) |
+| Lean Skill Stack (2026-04-26 audit) | NEVER invoke skills in `DEPRECATED.md` §audit kill list. Killed plugin namespaces: `product-management:*`, `finance:*`, `data:*`, `design:*`, `marketing:*`, `cowork-plugin-management:*`. Selective from `engineering:*` (only debug/code-review/deploy-checklist) and `sales:*` (only account-research/call-prep). Killed orphans: algorithmic-art, canvas-design, web-artifacts-builder, mcp-builder, setup-cowork, doc-coauthoring, theme-factory, pptx. | [`DEPRECATED.md`](DEPRECATED.md) §audit |
+| MCP Keep List (2026-04-26 LATE) | **NEVER propose to kill these MCPs:** Microsoft_Clarity (Alex uses for session recordings), notebooklm (Alex uses for research), Slack (4c3b490d), ElevenLabs Agents, Apify, Claude_in_Chrome, chrome-devtools, computer-use, workspace, cowork, scheduled-tasks, mcp-registry, plugins, remotion-documentation, session_info, skills. **Killed MCPs:** Control_Chrome (dup of Claude_in_Chrome), Vibe_Prospecting (dup of lead-finder), cowork-onboarding (one-shot), 470b55ef (unidentifiable), 49e75011 v0/Vercel toolbar tools (Vercel deploy/list/get_project tools KEPT for inst.zennoenigmawire.com). **Killed plugin auth stubs:** all `plugin_*__authenticate` except `marketing_ahrefs`, `marketing_canva`, `engineering_github` (kept dormant). | [`DEPRECATED.md`](DEPRECATED.md) §"2026-04-26 PM LATE" |
 
 ---
 
@@ -272,7 +274,7 @@ Full playbook + objection scripts → [`BUSINESS.md §Sales Strategy`](BUSINESS.
 
 AI reply agent = **audit-first** funnel since 2026-04-19: positive reply → free 45-min audit via personalized link `jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply` → social proof one-liner → Calendly AFTER audit lands → WhatsApp backup.
 
-5 active Step-1 templates: Trojan Horse, SEO + Visibilidad, World Cup 2026 (kill July 1), ChatGPT Angle, Speed-to-Lead. **Redes Sociales is DELETED — do NOT recreate.**
+**Live campaigns 2026-04-27 (verified via Instantly API):** 20 total, **10 ACTIVE (status=1)** — sprawl alert, target 4-6 active to concentrate the 300/day warmup pool. Active: USA Hispanic RE Hiring (Apr 25) · US-Hispanic-Bilingual-Audit · Free Demo Website MX RE · Trojan Horse · USA Miami RE Hiring (Apr 26) · Trojan Horse V2 (personalized 2026-04-24) · Auditoría Gratis · Audit_Trojan_MX_Supersearch_v1 · signal_outbound_mx · MX Real Estate Decision-Makers (Apr 27). Plus paused: World Cup 2026 (kill July 1), ChatGPT Angle, Speed-to-Lead, SEO + Visibilidad, plus 5 misc. **Redes Sociales is DELETED — do NOT recreate.** Re-verify campaign list every Monday before HR#7 review (live truth in `MASTER_PROMPT.md §4a`).
 
 12 cold-email rules + full 5-step sequences → [`BUSINESS.md §Outreach Pipeline`](BUSINESS.md#outreach-pipeline--instantlyai). Campaign copy in `cold-email-sequences-2026.md`. For audits/stats/activation, HR#1 applies — `bash tools/verify_access.sh` first.
 
@@ -365,7 +367,17 @@ Full recipes (carousel, single, Reels, Story), catbox.moe hosting, error 9004 fi
 
 ## 📞 AI COLD CALLING (summary)
 
-ElevenLabs Conversational AI + Twilio MX `+52 998 387 1618`, July voice, Gemini 3.1 Flash Lite. 3 split-test agents: **A** SEO Pitch, **B** Free Audit, **C** Free Setup (Trojan). Trigger: `node tools/elevenlabs_trigger_call.cjs <phone> "Name" --offer=A|B|C`.
+ElevenLabs Conversational AI + Twilio MX, July voice, Gemini 3.1 Flash Lite. **Live agents 2026-04-27 (verified via ElevenLabs API): 5 agents.** Trigger: `node tools/elevenlabs_trigger_call.cjs <phone> "Name" --offer=A|B|C|D`.
+
+| Agent ID | Offer | Name | Use |
+|---|---|---|---|
+| `agent_0701kq` | A | Sofia SEO Pitch (MX) v2 | SEO upsell |
+| `agent_4701kq` | B | Sofia Free Audit (MX) v2 | Audit-first funnel — primary |
+| `agent_2701kq` | C | Sofia Free Setup (MX) v2 | Trojan Horse install |
+| `agent_7301kq` | D | Offer D — FB Brokers MX | NEW Apr 26-27, autonomous batch |
+| `agent_1101kq` | — | Sofia Inbound Receptionist | Inbound calls |
+
+7-day health (live): 14 calls / 8 success / 5 initiated / 1 failed · avg 73s · max 272s. Twilio MX uses 3-number round-robin (added Apr 27, commit `aeb43e9`). **0 cloned voices in account** — all 26 voices are ElevenLabs presets, never claim "custom Sofia clone".
 
 Full spec, agent IDs, scripts, TODO → [`PLAYBOOKS.md §AI Cold Calling`](PLAYBOOKS.md#-ai-cold-calling).
 
