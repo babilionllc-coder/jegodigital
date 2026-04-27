@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JegoDigital — El video de 90 segundos</title>
+<meta name="description" content="Cómo Flamingo Real Estate pasó de invisible a #1 en Google Maps con +320% de tráfico orgánico — sin gastar en publicidad.">
+
+<!-- Robots: keep this off the public index. The page is delivered via personalized URL only. -->
+<meta name="robots" content="noindex, nofollow">
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KZCVVPHN');</script>
+<!-- End Google Tag Manager -->
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #C5A059;
+  --gold-light: #E5C585;
+  --gold-dim: rgba(197,160,89,0.12);
+  --gold-border: rgba(197,160,89,0.3);
+  --dark: #0f1115;
+  --surface: #1a1d24;
+  --surface2: #20242e;
+  --gray: #8b9bb4;
+  --text: #e8eaf0;
+  --green: #22c55e;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+nav {
+  background: rgba(15,17,21,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 16px 0;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.logo { display: flex; align-items: center; gap: 8px; }
+.logo img { height: 38px; width: auto; }
+.nav-wa {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--green); color: #0a1f0d; font-weight: 600;
+  text-decoration: none; font-size: 14px;
+  transition: transform 0.15s;
+}
+.nav-wa:hover { transform: translateY(-1px); }
+
+.hero {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 24px;
+  text-align: center;
+}
+
+.greeting {
+  font-size: 14px;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+h1 .gold { color: var(--gold); }
+
+.lede {
+  font-size: 18px;
+  color: var(--gray);
+  max-width: 680px;
+  margin: 0 auto 36px;
+}
+
+.video-wrap {
+  max-width: 900px;
+  margin: 0 auto 28px;
+  padding: 0 24px;
+}
+
+.video-frame {
+  position: relative;
+  background: #000;
+  border-radius: 16px;
+  border: 1px solid var(--gold-border);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(197,160,89,0.06);
+  aspect-ratio: 16/9;
+}
+
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.proof-row {
+  max-width: 900px;
+  margin: 0 auto 56px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .proof-row { grid-template-columns: 1fr; }
+}
+
+.proof-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.proof-num {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.proof-label {
+  font-size: 13px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cta-section {
+  background: linear-gradient(180deg, var(--surface) 0%, var(--dark) 100%);
+  padding: 56px 24px 80px;
+  border-top: 1px solid var(--gold-border);
+}
+
+.cta-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+h2 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+h2 .gold { color: var(--gold); }
+
+.cta-sub {
+  color: var(--gray);
+  font-size: 17px;
+  margin-bottom: 36px;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.calendly-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.calendly-inline-widget {
+  min-width: 320px;
+  height: 720px;
+}
+@media (max-width: 700px) {
+  .calendly-inline-widget { height: 1080px; }
+}
+
+.fallback {
+  margin-top: 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.fallback-line {
+  color: var(--gray); font-size: 14px;
+}
+.fallback-wa {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 24px; border-radius: 10px;
+  background: transparent;
+  border: 1.5px solid var(--green);
+  color: var(--green);
+  font-weight: 600; text-decoration: none;
+  transition: all 0.15s;
+}
+.fallback-wa:hover {
+  background: var(--green);
+  color: #0a1f0d;
+}
+
+footer {
+  background: var(--dark);
+  border-top: 1px solid var(--gold-border);
+  padding: 28px 24px;
+  text-align: center;
+  color: var(--gray);
+  font-size: 13px;
+}
+footer a { color: var(--gold); text-decoration: none; }
+footer .social-row {
+  margin-bottom: 12px;
+  display: flex; justify-content: center; gap: 18px;
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KZCVVPHN"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <img src="/images/logo/jegodigitallogo.png" alt="JegoDigital">
+    </a>
+    <a id="nav-wa" class="nav-wa" target="_blank" rel="noopener">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="greeting" id="greeting">Tu video personalizado · 90 segundos</div>
+    <h1 id="headline">El caso <span class="gold">Flamingo Real Estate</span></h1>
+    <p class="lede" id="lede">De invisible en Google a #1 en Maps en su zona — sin gastar un peso en publicidad. Mira lo que hicimos.</p>
+  </section>
+
+  <div class="video-wrap">
+    <div class="video-frame">
+      <video id="caseVideo" controls preload="metadata" playsinline>
+        <source id="videoSrc" src="/videos/JegoFlamingoShowcaseES.mp4" type="video/mp4">
+        Tu navegador no soporta video HTML5.
+      </video>
+    </div>
+  </div>
+
+  <div class="proof-row">
+    <div class="proof-card">
+      <div class="proof-num">4.4×</div>
+      <div class="proof-label">visibilidad en Google</div>
+    </div>
+    <div class="proof-card">
+      <div class="proof-num">+320%</div>
+      <div class="proof-label">tráfico orgánico</div>
+    </div>
+    <div class="proof-card">
+      <div class="proof-num">#1</div>
+      <div class="proof-label">Google Maps en su zona</div>
+    </div>
+  </div>
+
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2><span id="ctaName">¿Quieres lo mismo</span> <span class="gold">para tu agencia?</span></h2>
+      <p class="cta-sub">Agenda 15 minutos — te muestro qué se puede hacer específicamente para tu sitio. Sin pitch, sin presión.</p>
+
+      <div class="calendly-card">
+        <div class="calendly-inline-widget" id="calendly-embed" data-url="about:blank"></div>
+      </div>
+
+      <div class="fallback">
+        <div class="fallback-line">¿Prefieres WhatsApp directo?</div>
+        <a id="fallback-wa" class="fallback-wa" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          Escribir a Alex en WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="social-row">
+    <a href="https://www.youtube.com/@JegoDigitalchannel" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/jegodigital_agencia/" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.tiktok.com/@jegodigital" target="_blank" rel="noopener">TikTok</a>
+    <a href="https://wa.me/529982023263" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+  <div>JegoDigital · Marketing IA para Inmobiliarias · <a href="/">jegodigital.com</a></div>
+</footer>
+
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+
+<script>
+(function() {
+  // ---- Read URL params ----
+  var params = new URLSearchParams(window.location.search);
+  var firstName = (params.get('fn') || params.get('firstName') || '').trim();
+  var lang = (params.get('lang') || 'es').toLowerCase();
+  var company = (params.get('company') || params.get('companyName') || '').trim();
+  var utmSource   = params.get('utm_source')   || 'video_page';
+  var utmCampaign = params.get('utm_campaign') || 'direct';
+  var utmMedium   = params.get('utm_medium')   || 'unknown';
+  var utmContent  = params.get('utm_content')  || '';
+  var email       = params.get('email')        || '';
+
+  // Sanitize firstName (max 30 chars, strip HTML/control chars)
+  function clean(s) {
+    return (s || '').replace(/[<>"'&\\\\\\/]/g, '').slice(0, 30);
+  }
+  firstName = clean(firstName);
+  company   = clean(company);
+
+  // Capitalize firstName
+  if (firstName) {
+    firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+  }
+
+  // ---- Personalize copy ----
+  var greeting = document.getElementById('greeting');
+  var headline = document.getElementById('headline');
+  var lede     = document.getElementById('lede');
+  var ctaName  = document.getElementById('ctaName');
+
+  if (firstName) {
+    greeting.textContent = 'Hola ' + firstName + ' · tu video de 90 segundos';
+    ctaName.textContent  = firstName + ', ¿quieres lo mismo';
+  }
+
+  if (lang === 'en') {
+    greeting.textContent = (firstName ? 'Hi ' + firstName + ' · ' : '') + 'Your 90-second video';
+    headline.innerHTML   = 'The <span class="gold">Flamingo Real Estate</span> case';
+    lede.textContent     = 'From invisible on Google to #1 on Maps in their zone — without spending a peso on ads. Watch what we did.';
+    ctaName.textContent  = (firstName ? firstName + ', want the same' : 'Want the same');
+    document.querySelector('h2 .gold').textContent = 'for your agency?';
+    document.querySelector('.cta-sub').textContent = "Book 15 min — I'll show you what's specifically possible for your site. No pitch, no pressure.";
+    document.querySelector('.proof-row .proof-card:nth-child(1) .proof-label').textContent = 'Google visibility';
+    document.querySelector('.proof-row .proof-card:nth-child(2) .proof-label').textContent = 'organic traffic';
+    document.querySelector('.proof-row .proof-card:nth-child(3) .proof-label').textContent = 'Google Maps in their zone';
+    document.querySelector('.fallback-line').textContent = 'Prefer WhatsApp?';
+    document.querySelector('.fallback-wa').lastChild.textContent = ' Message Alex on WhatsApp';
+    document.title = 'JegoDigital — The 90-second video';
+
+    // Switch to English version of video if available
+    document.getElementById('videoSrc').src = '/videos/JegoFlamingoShowcase.mp4';
+    document.getElementById('caseVideo').load();
+  }
+
+  // ---- Build Calendly URL with UTM passthrough ----
+  // Calendly inline widget needs data-url set BEFORE the widget script reads it.
+  var calBase = 'https://calendly.com/jegoalexdigital/30min';
+  var calParams = new URLSearchParams({
+    primary_color: 'c5a059',
+    text_color: 'e8eaf0',
+    background_color: '1a1d24',
+    hide_event_type_details: '0',
+    hide_gdpr_banner: '1',
+    utm_source: utmSource,
+    utm_campaign: utmCampaign,
+    utm_medium: utmMedium,
+    utm_content: utmContent || 'video_page',
+  });
+  if (firstName) calParams.set('name', firstName + (company ? ' · ' + company : ''));
+  if (email)     calParams.set('email', email);
+  if (company)   calParams.set('a1', company);
+
+  var calUrl = calBase + '?' + calParams.toString();
+  document.getElementById('calendly-embed').setAttribute('data-url', calUrl);
+
+  // ---- Build WhatsApp URL with personalized prefilled message ----
+  var waText = firstName
+    ? 'Hola Alex! Soy ' + firstName + (company ? ' de ' + company : '') + ', vi tu video y quiero saber más.'
+    : 'Hola Alex! Vi tu video y quiero saber más.';
+  var waUrl = 'https://wa.me/529982023263?text=' + encodeURIComponent(waText);
+  document.getElementById('nav-wa').href      = waUrl;
+  document.getElementById('fallback-wa').href = waUrl;
+
+  // ---- Tracking ----
+  window.dataLayer = window.dataLayer || [];
+  function track(event, extra) {
+    var data = {
+      event: event,
+      first_name: firstName || null,
+      company: company || null,
+      lang: lang,
+      utm_source: utmSource,
+      utm_campaign: utmCampaign,
+      utm_medium: utmMedium,
+    };
+    if (extra) for (var k in extra) data[k] = extra[k];
+    window.dataLayer.push(data);
+  }
+
+  track('video_page_view');
+
+  var v = document.getElementById('caseVideo');
+  var played = false;
+  var quartiles = { q25: false, q50: false, q75: false, q100: false };
+
+  v.addEventListener('play', function() {
+    if (!played) {
+      played = true;
+      track('video_play');
+    }
+  });
+  v.addEventListener('timeupdate', function() {
+    if (!v.duration) return;
+    var pct = v.currentTime / v.duration;
+    if (pct >= 0.25 && !quartiles.q25) { quartiles.q25 = true; track('video_progress_25'); }
+    if (pct >= 0.50 && !quartiles.q50) { quartiles.q50 = true; track('video_progress_50'); }
+    if (pct >= 0.75 && !quartiles.q75) { quartiles.q75 = true; track('video_progress_75'); }
+  });
+  v.addEventListener('ended', function() {
+    if (!quartiles.q100) { quartiles.q100 = true; track('video_complete'); }
+  });
+
+  // Calendly events via postMessage
+  function isCalendlyEvent(e) {
+    return e.origin === 'https://calendly.com' && e.data.event && e.data.event.indexOf('calendly.') === 0;
+  }
+  window.addEventListener('message', function(e) {
+    if (!isCalendlyEvent(e)) return;
+    if (e.data.event === 'calendly.event_scheduled') {
+      track('calendly_booking', { calendly_event_uri: e.data.payload && e.data.payload.event && e.data.payload.event.uri });
+    } else if (e.data.event === 'calendly.profile_page_viewed') {
+      track('calendly_widget_loaded');
+    } else if (e.data.event === 'calendly.event_type_viewed') {
+      track('calendly_event_type_viewed');
+    }
+  });
+
+  // WhatsApp click tracking
+  document.getElementById('nav-wa').addEventListener('click', function() {
+    track('whatsapp_click', { source: 'nav' });
+  });
+  document.getElementById('fallback-wa').addEventListener('click', function() {
+    track('whatsapp_click', { source: 'fallback' });
+  });
+})();
+</script>
+</body>
+</html>
