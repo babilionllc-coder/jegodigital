@@ -2623,6 +2623,21 @@ exports.igTokenAutoRefresh = igTokenAutoRefresh.igTokenAutoRefresh;
 exports.igTokenAutoRefreshOnDemand = igTokenAutoRefresh.igTokenAutoRefreshOnDemand;
 
 // ============================================================
+// IG + TIKTOK BATCH QUEUE PROCESSOR (added 2026-04-27 PM)
+// Replaces Cowork-side scheduled-tasks for IG/TikTok batch publishing.
+// Cron every 15 min America/Mexico_City reads Firestore ig_batch_queue
+// where status="ready" AND fireAt<=now. Publishes carousel/single/reel
+// to @jegodigital_agencia IG via Graph API; for Reels with tiktokDraft
+// flag, also pushes MP4 to @jegodigital TikTok inbox via Content
+// Posting API v2 inbox.share. Laptop-off compatible — runs entirely on
+// GCP. See igBatchQueue.js + /instagram/batch-2026-04-29-may-03/CALENDAR.md
+// ============================================================
+const igBatchQueueMod = require("./igBatchQueue");
+exports.processIgBatchQueue = igBatchQueueMod.processIgBatchQueue;
+exports.processIgBatchQueueOnDemand = igBatchQueueMod.processIgBatchQueueOnDemand;
+exports.seedIgBatchQueue = igBatchQueueMod.seedIgBatchQueue;
+
+// ============================================================
 // TIKTOK INTEGRATION (added 2026-04-24 PM)
 // Full OAuth + weekly stats digest for @jegodigital TikTok.
 // Uses Sandbox mode (test user: @jegodigital, @lumieraivideos).
