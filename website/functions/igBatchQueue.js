@@ -526,6 +526,58 @@ exports.seedIgBatchQueue = functions
     });
 
 // ============================================================
+// Bulk-update HTTP trigger — flip queue docs from pending_assets → ready.
+// POST body: { token, updates: [{docId, assetUrls, caption, status?}] }
+// Same token gate as seedIgBatchQueue.
+// ============================================================
+exports.flipIgBatchReady = functions
+    .runWith({ timeoutSeconds: 60, memory: "256MB" })
+    .https.onRequest(async (req, res) => {
+        try {
+            const expected = process.env.IG_BATCH_SEED_TOKEN;
+            const got =
+                req.query.token ||
+                req.headers["x-seed-token"] ||
+                (req.body && req.body.token);
+            if (!expected || got !== expected) {
+                return res
+                    .status(403)
+                    .json({ ok: false, error: "invalid or missing token" });
+            }
+            const updates = req.body && req.body.updates;
+            if (!Array.isArray(updates) || !updates.length) {
+                return res
+                    .status(400)
+                    .json({ ok: false, error: "body.updates[] required" });
+            }
+            const db = admin.firestore();
+            const batch = db.batch();
+            const results = [];
+            for (const u of updates) {
+                if (!u.docId) {
+                    results.push({ docId: null, ok: false, error: "no docId" });
+                    continue;
+                }
+                const ref = db.collection("ig_batch_queue").doc(u.docId);
+                const patch = {
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                };
+                if (u.assetUrls) patch.assetUrls = u.assetUrls;
+                if (u.caption) patch.caption = u.caption;
+                if (u.status) patch.status = u.status;
+                else patch.status = "ready";
+                batch.set(ref, patch, { merge: true });
+                results.push({ docId: u.docId, ok: true, patch: Object.keys(patch) });
+            }
+            await batch.commit();
+            res.json({ ok: true, count: results.length, results });
+        } catch (e) {
+            functions.logger.error("flipIgBatchReady failed", e);
+            res.status(500).json({ ok: false, error: e.message });
+        }
+    });
+
+// ============================================================
 // On-demand HTTP trigger — for manual testing + post-deploy verification
 // curl -X POST https://us-central1-jegodigital-e02fb.cloudfunctions.net/processIgBatchQueueOnDemand
 // ============================================================

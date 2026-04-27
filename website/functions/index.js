@@ -2636,6 +2636,7 @@ const igBatchQueueMod = require("./igBatchQueue");
 exports.processIgBatchQueue = igBatchQueueMod.processIgBatchQueue;
 exports.processIgBatchQueueOnDemand = igBatchQueueMod.processIgBatchQueueOnDemand;
 exports.seedIgBatchQueue = igBatchQueueMod.seedIgBatchQueue;
+exports.flipIgBatchReady = igBatchQueueMod.flipIgBatchReady;
 
 // ============================================================
 // TIKTOK INTEGRATION (added 2026-04-24 PM)
