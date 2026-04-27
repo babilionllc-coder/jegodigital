@@ -1,0 +1,11 @@
+{
+  "docId": "ig-batch-03-flamingo-stat-single",
+  "format": "single",
+  "fireAt": "2026-04-29T19:00:00Z",
+  "path": "A",
+  "client": "flamingo",
+  "verifyRequired": [
+    "ahrefs.organic_traffic_delta_realestateflamingo.com.mx"
+  ],
+  "warning": "RE-VERIFY +320% claim against live GSC/Ahrefs before flipping status='ready'. If number drifted >20% per HR#9, swap to qualitative claim."
+}

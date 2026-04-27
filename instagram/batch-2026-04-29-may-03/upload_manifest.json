@@ -1,0 +1,46 @@
+{
+  "ig-batch-01-s1-leads-carousel": {
+    "format": "carousel",
+    "fireAt": "2026-04-29T13:00:00Z",
+    "assetUrls": {
+      "images": [
+        "http://tmpfiles.org/dl/35459915/slide_1.png",
+        "http://tmpfiles.org/dl/35459919/slide_2.png",
+        "http://tmpfiles.org/dl/35459923/slide_3.png",
+        "http://tmpfiles.org/dl/35459925/slide_4.png",
+        "http://tmpfiles.org/dl/35459927/slide_5.png"
+      ]
+    },
+    "caption": "\ud83c\udf19 Tu pr\u00f3ximo lead llega a las 11:47 PM.\n\nY si tu equipo trabaja 9 a 7, lo perdiste.\n\n\u2713 62% de b\u00fasquedas inmobiliarias ocurren despu\u00e9s de las 7pm\n\u2713 Cada lead que espera >5min tiene 80% menos chance de cerrar\n\u2713 Sofia (IA en WhatsApp + Web + SMS) responde en segundos, califica y agenda\n\nImplementamos Sofia en tu agencia sin costo de setup.\nT\u00fa solo pagas cuando genera leads.\n\n\ud83d\udcc5 Agenda 30 min con Alex \u2192 link en bio\ncalendly.com/jegoalexdigital/30min\n\n#InmobiliariaMexico #BienesRaicesMx #IAparaInmobiliarias #MarketingInmobiliario #CapturaDeLeads #WhatsAppAI #InmobiliariaCancun #InmobiliariaTulum\n.\n.\n#realestatemexico #realestate #inmobiliaria #realtor #propiedades",
+    "verifyRequired": [],
+    "warning": null
+  },
+  "ig-batch-03-flamingo-stat-single": {
+    "format": "single",
+    "fireAt": "2026-04-29T19:00:00Z",
+    "assetUrls": {
+      "image": "http://tmpfiles.org/dl/35459932/single.png"
+    },
+    "caption": "\ud83d\udcca Caso real: Flamingo Real Estate (Canc\u00fan).\n\n+320% de tr\u00e1fico org\u00e1nico en 6 meses.\n\nLo que cambi\u00f3:\n\u2713 SEO t\u00e9cnico + schema completo\n\u2713 4 art\u00edculos optimizados/mes\n\u2713 Captura de leads 24/7 con IA\n\u2713 Sitio mobile-first 98+ PageSpeed\n\nEsto no es excepci\u00f3n. Es metodolog\u00eda.\n\n\ud83d\udcc5 Agenda una llamada con Alex \u2192 link en bio\ncalendly.com/jegoalexdigital/30min\n\n#InmobiliariaCancun #SEOInmobiliario #CasoDeExito #BienesRaicesMx #InmobiliariaMexico\n.\n.\n#realestate #cancun #realestatemexico",
+    "verifyRequired": [
+      "ahrefs.organic_traffic_delta_realestateflamingo.com.mx"
+    ],
+    "warning": "RE-VERIFY +320% claim against live GSC/Ahrefs before flipping status='ready'. If number drifted >20% per HR#9, swap to qualitative claim."
+  },
+  "ig-batch-04-crm-mockup-carousel": {
+    "format": "carousel",
+    "fireAt": "2026-04-29T22:00:00Z",
+    "assetUrls": {
+      "images": [
+        "http://tmpfiles.org/dl/35459934/slide_1.png",
+        "http://tmpfiles.org/dl/35459937/slide_2.png",
+        "http://tmpfiles.org/dl/35459939/slide_3.png",
+        "http://tmpfiles.org/dl/35459943/slide_4.png",
+        "http://tmpfiles.org/dl/35459946/slide_5.png"
+      ]
+    },
+    "caption": "\ud83d\udda5\ufe0f Tu pr\u00f3ximo CRM no es Excel.\n\nY no te cuesta $300/mes.\n\nEs un panel hecho a medida para tu agencia:\n\u2713 Pipeline visual de cada lead\n\u2713 WhatsApp + Email + Calendly integrado\n\u2713 Alertas Telegram cuando es hot lead\n\nLas agencias que lo usan ven +30 a +200 leads/mes adicionales (rango real, seg\u00fan ICP y zona).\n\n\ud83d\udcc5 Agenda demo de 30 min con Alex \u2192 link en bio\ncalendly.com/jegoalexdigital/30min\n\n#CRMInmobiliario #InmobiliariaMexico #BienesRaicesMx #IAparaInmobiliarias #MarketingInmobiliario #PipelineDeLeads\n.\n.\n#realestate #realtor #realestatemexico #inmobiliaria",
+    "verifyRequired": [],
+    "warning": null
+  }
+}
