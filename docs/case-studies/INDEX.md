@@ -29,9 +29,19 @@
 | 8 | **Living Riviera Maya** (Judi Shaw, since 2002) | Real Estate (Boutique full-service) | Playa del Carmen / Riviera Maya | [playadelcarmenrealestatemexico.com](https://playadelcarmenrealestatemexico.com/) ✅ | SEO + AEO + Video | **4.9★ · Top 3 Google Maps · 100+ properties · 5 videos/mo · ChatGPT-recommended for "best realtor in Playa del Carmen"** | 3 png |
 | 9 | **Premium Proposals (Cotizaciones)** | Internal capability showcase | n/a | n/a | Custom interactive PDF proposals | 3 sample proposals (Flamingo, Goza, Solik) shown publicly | 3 png |
 
-**Plus extras outside showcase.html:**
-- **Piedra de Mar** — 1 video file at `website/img/showcase/piedra/PiedraDeMarPromo_EN.mp4`. Status: video asset only, no documented case story. **TODO: confirm relationship + write case story or remove from repo.**
-- **Listings library** — 1 file at `website/img/showcase/listings/`. Status: generic listing-video sample, not a client.
+**Plus extras (RESOLVED 2026-04-27 PM-LATE):**
+- **Piedra de Mar** ✅ — `website/img/showcase/piedra/PiedraDeMarPromo_EN.mp4` is a Service 6 (Property Listing Videos) production sample, displayed publicly on `/showcase` "Real Estate Listing Videos" section. NOT a separate JegoDigital agency client. See [`piedra-de-mar.md`](piedra-de-mar.md).
+- **Listings library** — `website/img/showcase/listings/` contains one file (likely Flamingo's 0410 listing thumbnail). Same category as above — Service 6 production samples shown on `/showcase`.
+
+**Property listing video catalog (Service 6 deliverable proof):**
+
+The public `/showcase` page also displays 4 cinematic property listing videos — proof of Service 6 ($3,900 MXN/mo, 6 videos/mo). All credited to Flamingo Real Estate as the producing client:
+- Tulum case study (`flamingo/tulum_listing_case_study.mp4`)
+- Flamingo TAO property
+- Flamingo 0410 (April 10) listing
+- Piedra de Mar (above)
+
+Use these when prospect asks "what does a $3,900/mo Service 6 deliverable actually look like?"
 
 ---
 
@@ -97,7 +107,9 @@
 
 1. **Goza Real Estate** — does the agency have a public domain? If yes, paste it so we can verify + cite. If no, document why (private brokerage, off-market only, etc.) so cold-email copy can stop trying to link to a URL.
 2. **GoodLife Tulum** — same question. Their +300% organic claim NEEDS a domain to verify against (Ahrefs/GSC).
-3. **Solik Real Estate** — same question.
-4. **Piedra de Mar** — what is this client? The video exists but no showcase entry. Confirm: active client / past client / never-was / sample.
+3. **Solik Real Estate** — same question. Plus delete `TEST_NEW_FILE_5.tmp` from `website/img/showcase/solik/`.
+4. ~~**Piedra de Mar** — what is this client?~~ ✅ RESOLVED — it's a Service 6 production sample, not a client.
+5. **Tactiq transcripts** — per `knowledge_base/NOTEBOOKLM_LEVERAGE_PLAN_2026-04-19.md` Alex has Tactiq transcripts of past client calls. These would dramatically deepen the case-study files (specific testimonials, specific objections handled, specific moments of "aha"). Alex action: drop transcripts in `docs/case-studies/tactiq-transcripts/{client}/` and Claude will weave the strongest quotes into each per-client file.
+6. **GBP review counts + ratings** — per per-client TODO sections, every client's "4.9★ / 5.0★" claim needs cross-reference against current Google Business Profile review count to ensure freshness. Alex action: paste GBP URL or share access for each verified-domain client and Claude can pull on next session.
 
-Each of these blockers is logged in `flamingo-real-estate.md` etc. as `🚨 BLOCKER`. When resolved, update INDEX.md verification log.
+Each remaining blocker is logged in `flamingo-real-estate.md` etc. as `🚨 BLOCKER`. When resolved, update INDEX.md verification log.

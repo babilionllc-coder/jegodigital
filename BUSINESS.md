@@ -43,9 +43,10 @@
 | 8 | **Asistente de Ventas 24/7** | AI voice agent that handles outbound/inbound calls, qualifies prospects, books appointments 24/7. |
 | 9 | **Email Marketing y Seguimiento** | Automated nurture sequences, monthly newsletters, re-engagement campaigns, lead segmentation, open/click analytics. |
 
-**Bundles:**
-- **Pack Crecimiento** (1+2+4) — bundled discount
-- **Pack Dominacion** (1+2+3+4+6) — bundled discount
+**Bundles (validated pricing 2026-04-27):**
+- **Pack Crecimiento** (1+2+4) — **$18,900 MXN/mo** (raised from $10,900 per validated dossier)
+- **Pack Dominación** (1+2+3+4+6) — **$28,900 MXN/mo** (raised from $16,900 per validated dossier)
+- **Miami USD tier:** Pack Crecimiento USD $1,099/mo · Pack Dominación USD $1,699/mo
 
 ---
 
@@ -68,31 +69,77 @@
 
 | Client | Results |
 |---|---|
-| **Flamingo Real Estate** (Cancún) — ACTIVE | 4.4x search visibility, #1 Google Maps, +320% organic traffic, 88% leads automated |
-| **GoodLife Tulum** | +300% organic traffic ← **Primary cold email social proof** |
-| **Goza Real Estate** | 3x lead volume, 98 PageSpeed, 24/7 AI coverage |
-| **Solik Real Estate** | 95% lead qualify rate, #1 Maps, bilingual AI |
+| **Flamingo Real Estate** (Cancún) — ACTIVE, ✅ verified | 4.4× visibility, #1 Google Maps Cancún, +320% organic, 88% leads automated, **<30s WA response, 3× citas booked, all in 90 days** |
+| **GoodLife Tulum** — 🚨 NO public domain on file | 5× leads, +300% organic, 42% email open, 100+ properties — **primary investor / ROI social proof** |
+| **Goza Real Estate** — 🚨 NO public domain on file | 98 PageSpeed, 3× leads, 24/7 AI, 50+ properties |
+| **Solik Real Estate** — 🚨 NO public domain on file | 95% qualify, #1 Maps, bilingual EN/ES, 6-service ecosystem (escrow + automation + CRM + email + AI center) |
+| **RS Viajes Rey Colimán** (Colima) — ACTIVE, ✅ verified | 33-yr brand · 10 destinations · 4.9★ · 4 services — **non-RE proof point** (travel agency) |
+| **TT&More** (Cancún) — ACTIVE, ✅ verified | 98 PageSpeed · 13-destination quote calc · 24/7 bilingual AI · WhatsApp booking — **non-RE proof point** (transportation) + best before/after visuals |
+| **Sur Selecto** (Playa del Carmen / Tulum / Bacalar / Cancún) — ACTIVE, ✅ verified | 5.0★ · ChatGPT-listed · 64 keywords · 5 videos/mo — **AEO showcase + AMPI authority** |
+| **Living Riviera Maya** (Playa del Carmen) — ACTIVE, ✅ verified | 4.9★ · Top 3 Maps · 100+ properties · 5 videos/mo · ChatGPT-recommended (Judi Shaw, since 2002) — **legacy broker proof** |
 
-All results: jegodigital.com/showcase · instagram.com/jegodigital
+🛑 **Single source of truth:** [`docs/case-studies/INDEX.md`](docs/case-studies/INDEX.md) — read this BEFORE citing ANY client number anywhere. Per-client deep files at `docs/case-studies/{slug}.md`. Per-channel cite playbook included.
 
-⚠️ **Per HARD RULE #9 (CLAUDE.md):** these numbers must be re-verified on the 1st of every month. If any moved down >20%, pull it from cold-email copy until reverified. Only Flamingo has a verified domain (`realestateflamingo.com.mx`); the other 3 clients must be kept in copy only, not used in URL tests — see CLIENT DOMAIN RULE in CLAUDE.md.
+All results displayed publicly: jegodigital.com/showcase · instagram.com/jegodigital_agencia
+
+⚠️ **Per HARD RULE #9 (CLAUDE.md):** these numbers must be re-verified on the 1st of every month. If any moved down >20%, pull it from cold-email copy until reverified. Per CLIENT DOMAIN RULE: **Goza, GoodLife, Solik have NO verified domain on file** — use NAME and STATS in copy but never link to a URL. Alex action: confirm public domain status for each (or document why none exists).
 
 ---
 
-## SALES STRATEGY — THE TROJAN HORSE
+## SALES STRATEGY — VALIDATED OFFER (2026-04-27)
 
+> ⚠️ **STRATEGY UPDATED 2026-04-27 — old "FREE setup Trojan Horse" model is DEPRECATED.**
+> Authoritative source-of-truth: [`docs/strategy/jegodigital-validated-offer-2026-04-27.md`](docs/strategy/jegodigital-validated-offer-2026-04-27.md)
+> Backed by: [`docs/research/jegodigital-offer-strategy-validation-2026-04-27.md`](docs/research/jegodigital-offer-strategy-validation-2026-04-27.md) (~640 lines, every claim cited)
+>
+> **Why deprecated:** Atlanta Ventures + 7 other sources confirm paid pilots out-convert free pilots **4-6×** in B2B services. Pack Crecimiento at $10,900 MXN/mo is 22% of Hiweb mid-size Mexican agency benchmark — pricing must rise to hit $1M USD ARR.
+
+**The new validated pitch (replaces "free setup"):**
+
+> **"Pague el primer mes de Pack Crecimiento ($18,900 MXN). Si en 14 días no captura un lead real, devolvemos el 100% — y le dejamos el sistema instalado para siempre."**
+
+The 4 Hormozi Grand Slam pillars:
+- **Skin in the game** (paid upfront — auto-filters tire-kickers)
+- **Concrete deliverable** (a real lead in 14 days)
+- **Zero downside** (full refund if it fails)
+- **Free system if it fails** ("feel stupid saying no" element)
+
+Expected close rate: **35-55%** of cold-email positive replies (vs 8-12% for old free-setup Trojan Horse).
+
+**Updated pricing:**
+
+| Tier | OLD price | **NEW price (2026-04-27)** |
+|---|---|---|
+| Pack Lead Capture (Service 1) | $8,000 MXN/mo | $8,000 MXN/mo (paid pilot offer) |
+| **Pack Crecimiento** (1+2+4) | $10,900 MXN/mo | **$18,900 MXN/mo** ← raised |
+| **Pack Dominación** (1+2+3+4+6) | $16,900 MXN/mo | **$28,900 MXN/mo** ← raised |
+| Sitio Web Premium (one-shot) | $14,900 MXN | **$24,900 MXN** ← raised |
+| Developer contracts | $80K-200K MXN | **$150K-300K MXN** ← raised |
+| Miami Hispanic Pack Crecimiento | — | **$1,099 USD/mo** (USD market) |
+
+**The 5-step flow:**
 1. Lead in → Sofia qualifies on WhatsApp
-2. Offer free setup for Service 1 (Captura de Leads 24/7) — remove all friction
-3. They see immediate ROI (captured a lead they would have lost)
-4. Follow up in 2 weeks → "You captured X leads you would have lost"
-5. Upsell to SEO Local (Service 2) or Pack Crecimiento bundle
-6. **Never quote full price on WhatsApp** — push to Calendly call
-7. **Anchor with results** (Flamingo 4.4x, GoodLife 300%) before any price discussion
+2. Push to Calendly call (NEVER quote price in chat)
+3. On Calendly call: anchor with **Flamingo 4.4x / GoodLife 300%**, then offer Pack Crecimiento at $18,900 MXN with 14-day money-back guarantee
+4. If they hesitate at $18,900 → fallback to Pack Lead Capture solo at $8,000 MXN with same money-back terms
+5. After month 1 lands a real lead → upsell to Pack Dominación at $28,900 MXN at end-of-month-1 close call
 
-**Objection responses:**
-- "No tengo presupuesto" → "Empezamos gratis — sin costo de instalación"
-- "¿Cuánto cuesta?" → "Depende de tu zona. ¿15 minutos esta semana? calendly.com/jegoalexdigital/30min"
-- "Mándame información" → 3 bullet points max + Calendly link. **NEVER a PDF. NEVER pricing.**
+**Objection responses (updated):**
+- "No tengo presupuesto" → "Por eso ofrezco devolución total a 14 días. Si no funciona, recupera todo y se queda con el sistema instalado. Riesgo cero."
+- "¿Cuánto cuesta?" → "Depende del paquete. La inversión arranca en $8,000 MXN/mes con devolución garantizada. ¿15 min esta semana? calendly.com/jegoalexdigital/30min"
+- "Mándame información" → 3 bullet points: (1) Flamingo 4.4x visibilidad / #1 Maps, (2) Pilot $8K-$18K MXN con devolución 100% en 14 días, (3) calendly.com/jegoalexdigital/30min. **NEVER a PDF.**
+
+### 30-day A/B/C controlled experiment (start within 7 days)
+
+Per the validated dossier, run 3 cells in parallel to confirm Cell B (paid pilot at raised price) beats Cell A (current Trojan Horse) by ≥2× cost-per-paid-customer:
+
+- **Cell A — Control:** keep current "free setup" copy on 5 existing Instantly campaigns
+- **Cell B — Paid pilot + raised price:** "$18,900 MXN, 14-day money-back" copy on 5 swapped campaigns (THE EXPECTED WINNER)
+- **Cell C — High-ticket developer outbound:** $150-300K MXN per project pitch to 50 hand-picked Mexican RE developers
+
+**3 KPIs to track:** cost-per-paid-customer · day-30 cumulative revenue per cell · reply-to-paid conversion rate.
+
+Full experimental spec + decision rules + implementation checklist in [`docs/strategy/jegodigital-validated-offer-2026-04-27.md`](docs/strategy/jegodigital-validated-offer-2026-04-27.md).
 
 **Cold-call → Brevo nurture capture (LIVE 2026-04-22 evening):** every positive cold call on Offer A (SEO Pitch) or Offer C (Free Setup Trojan Horse) → ElevenLabs agent fires `save_lead_to_brevo_seo` / `save_lead_to_brevo_setup` → `saveColdCallLead` Cloud Function → Brevo list 35/36 + 5 Spanish email touches (0/1/3/5/7 for A, 0/1/3/5/10 for C). Offer B (Free Audit) uses the separate `submitAuditRequest` audit-delivery pipeline. All 10 templates audited against HR-0, compliant with CAN-SPAM unsubscribe, and attributed via `utm_campaign=coldcall_a|coldcall_c` on a single `/30min` Calendly link. Full spec: `SYSTEM.md §1.3 saveColdCallLead` + `PLAYBOOKS.md §AI Cold Calling`.
 

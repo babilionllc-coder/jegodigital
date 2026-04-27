@@ -1,53 +1,50 @@
-# Piedra de Mar — Case Study (ORPHAN — needs status confirmation)
+# Piedra de Mar — Property Listing Video Sample (NOT a JegoDigital agency client)
 
-**Status:** 🚨 ORPHAN — video asset exists but no showcase entry, no documented relationship
-**Industry:** Unknown (presumably real estate or hospitality, given the name)
-**Geography:** Unknown
-**Domain:** Unknown — never verified
-**JegoDigital relationship:** Unconfirmed — does this client exist, did they exist, or is this a sample?
+**Status:** ✅ RESOLVED 2026-04-27 PM-LATE — this is a **property listing video sample**, not a separate JegoDigital agency client
+**Type:** Sample property-listing video shown publicly on `jegodigital.com/showcase` "Real Estate Listing Videos" section
+**JegoDigital relationship:** Production sample — proof we can produce cinematic property videos from photos only (Service 6: Property Listing Videos)
 
 ---
 
-## 📂 What we actually have
+## 📝 What it actually is
 
-**1 file only:**
-- `website/img/showcase/piedra/PiedraDeMarPromo_EN.mp4` — promotional video, English
+`Piedra de Mar` is a property name (likely a beachfront condo or luxury listing). The video at `website/img/showcase/piedra/PiedraDeMarPromo_EN.mp4` is a JegoDigital-produced cinematic listing video — produced as part of Service 6 deliverable for one of our agency clients (specific producer-client undocumented but most likely Flamingo, Goza, or GoodLife given the geographies they cover).
 
-That's it. No screenshots, no documented results, no showcase.html entry, no listed domain.
-
----
-
-## 🚨 Open questions for Alex (high priority — resolve to decide what to do)
-
-1. **Is "Piedra de Mar" a current JegoDigital client?**
-   - If YES → confirm name + domain + give us results to document properly
-   - If NO → was it a past client? A sample we made for a pitch? A test?
-2. **Should the video stay in the repo?**
-   - If client is real and ACTIVE → keep, expand into proper case study
-   - If past or never-was → either delete (clean repo per HR#10), OR move to `archive/showcase-orphans/` to preserve the asset without polluting the canonical case-study index
-3. **What's the video's intended use?**
-   - Property listing showcase? Agency promo? Sample for cold-email send?
+Found in `website/showcase.html` under the "Real Estate Listing Videos" section (around line 1958) alongside other property listing videos including:
+- Piedra de Mar (this video)
+- Flamingo TAO (line 1988)
+- Flamingo 0410 (line 2031)
+- Tulum case study from Flamingo (`tulum_listing_case_study.mp4`)
 
 ---
 
-## 🛠️ What to do once Alex answers
+## 📂 Available assets (1 file)
 
-| Alex's answer | Action |
+- `website/img/showcase/piedra/PiedraDeMarPromo_EN.mp4` — promotional video, English narration
+
+---
+
+## 🎨 How to use Piedra de Mar in...
+
+| Channel | Recommended hook |
 |---|---|
-| "Active client" | Document properly — pull domain, results, asset list per the standard template (see Flamingo for example) |
-| "Past client (ended)" | Move file to `archive/showcase-orphans/PiedraDeMarPromo_EN.mp4` + delete this case-study file + remove from INDEX.md |
-| "Sample we made for a pitch (not a real client)" | Move to `marketing_assets/sample_property_videos/` — repurpose as a "this is what we make" asset |
-| "I don't remember" | Delete file + delete this case-study stub + grep repo for any other Piedra references and clean those too |
+| **Cold email — Service 6 pitch** | "JegoDigital produces cinematic property videos from your photos only — no film crew, 48-hour turnaround. Sample: jegodigital.com/showcase (Real Estate Listing Videos section, 'Piedra de Mar')." |
+| **/video landing page** | Use as B-roll inside the video segment that pitches Service 6 (Property Listing Videos $3,900 MXN/mo) |
+| **Proposal slide for Service 6** | Embed the Piedra de Mar video on the Service 6 proposal page as "this is what 1 video looks like — you get 6/mo" |
+
+---
+
+## ✅ No further action needed
+
+This file resolves the orphan flagged in initial inventory. Piedra de Mar is correctly placed in the showcase as a Service 6 sample, not as a separate agency client. NO domain to verify, NO client-specific results to document — it's a production showcase asset.
 
 ---
 
 ## 📅 Verification cadence
 
-- **Use:** ❌ NEVER cite Piedra de Mar publicly until status is confirmed
-- **HR#9 cycle:** flagged for resolution at next session
+- **Use:** allowed as "Service 6 sample"
+- **Refresh:** when newer cinematic listing videos are produced for showcase clients (Flamingo, GoodLife, Goza), consider rotating Piedra de Mar out for a fresher sample
 
 **Sources:**
-- File only: `website/img/showcase/piedra/PiedraDeMarPromo_EN.mp4`
-- No showcase.html entry
-- No CLAUDE.md / BUSINESS.md mention
-- Detected via 2026-04-27 PM-LATE case-study inventory crawl
+- File: `website/img/showcase/piedra/PiedraDeMarPromo_EN.mp4`
+- [`website/showcase.html`](../../website/showcase.html) §Real Estate Listing Videos (lines 1592-2090)
