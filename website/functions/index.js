@@ -2718,3 +2718,16 @@ exports.endWeekReview = slackWorkflows.endWeekReview;
 // $1M-stream specials (2)
 exports.partnerOnboard = slackWorkflows.partnerOnboard;
 exports.devContractStart = slackWorkflows.devContractStart;
+
+// ============================================================
+// BREVO EVENT WEBHOOK — per-template analytics + Hot-Lead Slack alerts
+// (added 2026-04-26 PM — closes the Brevo analytics blind spot)
+// Brevo posts every transactional event (delivered/opened/click/bounce/...)
+// to /brevoEventWebhook → Firestore brevo_events/{eventId} +
+// brevo_event_summaries/{YYYY-MM-DD}, with #leads-hot Slack ping on
+// Hot-Lead opens/clicks. See brevoEventWebhook.js for full shape.
+// ============================================================
+const brevoEventWebhookMod = require("./brevoEventWebhook");
+exports.brevoEventWebhook = brevoEventWebhookMod.brevoEventWebhook;
+exports.brevoEventWebhookSmokeTest = brevoEventWebhookMod.brevoEventWebhookSmokeTest;
+
