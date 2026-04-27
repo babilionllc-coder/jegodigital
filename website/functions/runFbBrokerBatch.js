@@ -312,7 +312,38 @@ exports.abortFbBrokerBatch = functions.https.onRequest(async (req, res) => {
 });
 
 // ============================================================
-// 4. Status — quick check
+// 4. AUTONOMOUS KICKOFF — Cloud Scheduler at 16:00 UTC on April 27, 2026
+// (= 10:00am CDMX tomorrow). Cron format: "min hour day-of-month month day-of-week"
+// "0 16 27 4 *" fires April 27 at 16:00 UTC, every year. Fine for one-shot — by 2027
+// this function will be removed.
+// ============================================================
+exports.fbBrokerKickoff = functions.pubsub
+    .schedule("0 16 27 4 *")
+    .timeZone("Etc/UTC")
+    .onRun(async () => {
+        try {
+            // Self-check: don't fire if state is already active (e.g., manual run earlier)
+            const cur = (await admin.firestore().doc(SESSION_DOC).get()).data() || {};
+            if (cur.state && ["phase1_running", "phase2_running", "awaiting_approval"].includes(cur.state)) {
+                await notify(`⏰ *Kickoff skipped* — batch already in state '${cur.state}'`);
+                return null;
+            }
+            await notify(`⏰ *Cloud Scheduler kickoff* — firing autonomous FB Brokers batch now`);
+            await axios.post(
+                "https://us-central1-jegodigital-e02fb.cloudfunctions.net/runFbBrokerBatch",
+                {},
+                { timeout: 5000 } // fire-and-forget; the batch runs for 45 min
+            ).catch((err) => functions.logger.warn("[kickoff] non-blocking err:", err.code || err.message));
+            return null;
+        } catch (err) {
+            functions.logger.error("[fbBrokerKickoff] crash:", err);
+            await notify(`💥 *Kickoff CRASHED*: ${err.message}`).catch(() => {});
+            return null;
+        }
+    });
+
+// ============================================================
+// 5. Status — quick check
 // ============================================================
 exports.fbBrokerBatchStatus = functions.https.onRequest(async (req, res) => {
     const snap = await admin.firestore().doc(SESSION_DOC).get();
