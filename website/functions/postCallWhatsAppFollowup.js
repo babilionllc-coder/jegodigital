@@ -108,6 +108,11 @@ function buildWhatsAppMessage(ctx) {
         return `${greeting}\n\nSoy Alex de JegoDigital — la agencia de marketing con IA para inmobiliarias. Como acordamos en la llamada, le mando el caso de Flamingo Real Estate (Cancún) que pasó de invisible a #1 en Google Maps en 90 días:\n\nhttps://jegodigital.com/showcase\n\n¿Cuándo le viene mejor agendar 15 minutos para platicar?\n\nAlex Jego\nFundador, JegoDigital`;
     }
 
+    if (outcome === "warm_transfer" || outcome === "callback_requested") {
+        // HOT LEAD — broker said yes to talking with Alex during the AI call. Most urgent follow-up.
+        return `${greeting}\n\nSoy Alex de JegoDigital. Mi asistente Sofía acaba de hablar con usted y me comentó que está interesado en saber más sobre nuestro sistema de IA para inmobiliarias.\n\nLe mando el caso de Flamingo Real Estate (Cancún): pasaron de invisibles a #1 en Google Maps en 90 días — https://jegodigital.com/showcase\n\n¿Le mando un calendario para 15 min hoy o mañana?\n\nhttps://calendly.com/jegoalexdigital/30min\n\nAlex Jego\nFundador, JegoDigital`;
+    }
+
     // Default: polite_exit follow-up
     return `${greeting}\n\nSoy Alex de JegoDigital. Hace un rato hablamos brevemente sobre marketing para inmobiliarias en ${zone || "su zona"}.\n\nLe dejo el caso de Flamingo Real Estate por si quiere echarle un vistazo cuando tenga tiempo: pasaron de invisibles a #1 en Google Maps en 90 días, sin contratar a nadie de tiempo completo.\n\nhttps://jegodigital.com/showcase\n\nLa puerta queda abierta cuando quiera platicar.\n\nSaludos,\nAlex Jego\nJegoDigital`;
 }
@@ -146,8 +151,11 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
             received_at: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        // Only queue WhatsApp follow-up for specific outcomes
-        const followupOutcomes = ["polite_exit", "interested_whatsapp"];
+        // Queue WhatsApp follow-up for any outcome where the broker engaged.
+        // Includes warm_transfer because we don't have a real warm-transfer dial setup —
+        // the AI says "le paso con Alex" but Alex isn't actually patched in.
+        // Those calls are HOT LEADS we MUST follow up via WhatsApp.
+        const followupOutcomes = ["polite_exit", "interested_whatsapp", "warm_transfer", "callback_requested"];
         if (!followupOutcomes.includes(outcome)) {
             return res.json({ ok: true, outcome, queued: false, reason: "outcome not in followup list" });
         }
