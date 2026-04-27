@@ -67,6 +67,7 @@ jobs:
           SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_WORKFLOW_TOKEN=${{ secrets.SLACK_WORKFLOW_TOKEN }}
           INSTANTLY_API_KEY=${{ secrets.INSTANTLY_API_KEY }}
+          IG_BATCH_SEED_TOKEN=${{ secrets.IG_BATCH_SEED_TOKEN }}
           IG_GRAPH_TOKEN=${{ secrets.IG_GRAPH_TOKEN }}
           MANYCHAT_API_KEY=${{ secrets.MANYCHAT_API_KEY }}
           ALEX_PERSONAL_PHONE=${{ secrets.ALEX_PERSONAL_PHONE }}
