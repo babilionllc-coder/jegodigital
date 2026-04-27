@@ -29,8 +29,26 @@ const admin = require("firebase-admin");
 const axios = require("axios");
 
 // ---------------- Brevo lists ----------------
-const LIST_HOT_LEADS = 25;   // Hot Leads - Engaged Under 30 Days
-const LIST_WARM_RE   = 26;   // Warm Leads - Real Estate (fallback)
+// Legacy combined lists (kept for backwards compatibility, contacts will
+// continue to flow here too — but new code routes by language to the
+// segmented lists below for cleaner sends).
+const LIST_HOT_LEADS = 25;   // Hot Leads - Engaged Under 30 Days (legacy combined)
+const LIST_WARM_RE   = 26;   // Warm Leads - Real Estate (legacy combined fallback)
+
+// Language-segmented lists added 2026-04-26 PM (USA Hispanic Hiring leads
+// were getting Spanish nurture by default — these split EN vs ES so wrong-
+// language sends can't happen even if detectLang() ever fails).
+const LIST_HOT_EN  = 37;     // Hot Leads EN — Engaged USA/Bilingual
+const LIST_HOT_ES  = 38;     // Hot Leads ES — Engaged Mexico
+const LIST_WARM_EN = 39;     // Warm Leads EN — Real Estate USA/Bilingual
+const LIST_WARM_ES = 40;     // Warm Leads ES — Real Estate Mexico
+
+function pickHotList(lang) {
+    return (lang || "").toLowerCase() === "en" ? LIST_HOT_EN : LIST_HOT_ES;
+}
+function pickWarmList(lang) {
+    return (lang || "").toLowerCase() === "en" ? LIST_WARM_EN : LIST_WARM_ES;
+}
 
 // ---------------- Campaign → hook map ----------------
 // Maps Instantly campaign_id → Spanish hook phrase used in Email 1.
@@ -55,24 +73,109 @@ function pickHook(campaignId) {
     return CAMPAIGN_HOOKS[campaignId] || DEFAULT_HOOK;
 }
 
-// Rough English detection — switches to EN templates if reply was in English.
+// Multi-signal English detection — replaces 9-marker heuristic that missed
+// many EN replies and routed Hispanic-USA leads to Spanish nurture.
+// Signals scored: reply body stopwords, sender email TLD/domain, lead first name.
+// Returns 'en' if score_en > score_es, else 'es' (Spanish-first default since
+// MX is the primary market). 2026-04-26 PM upgrade — see BREVO_AUDIT_*.md.
+function detectLang({ text = "", email = "", firstName = "" } = {}) {
+    const t = (text || "").toLowerCase();
+    const em = (email || "").toLowerCase();
+    const fn = (firstName || "").toLowerCase().split(/\s+/)[0] || "";
+    const domain = em.includes("@") ? em.split("@")[1] : "";
+
+    let scoreEn = 0;
+    let scoreEs = 0;
+
+    // ---- Body-of-reply stopword ratio (strongest signal when present)
+    if (t) {
+        const enStop = [" the ", " your ", " thanks", " hi ", " hello ", " yes ", " please ",
+                        " interested", " sounds good", " let's talk", " tell me more",
+                        " send me", " can you", " i would", " we are", " i'm", " what ",
+                        " how ", " when ", " more info", " video", " demo "];
+        const esStop = [" hola", " gracias", " sí ", " si ", " por favor", " me interesa",
+                        " mándame", " envíame", " puedes", " quiero", " quisiera", " somos",
+                        " soy ", " qué ", " cómo ", " cuándo ", " agendar", " llamada",
+                        " video", " demo", " adelante", " ok ", " perfecto", " claro"];
+        for (const m of enStop) if (t.includes(m)) scoreEn += 1;
+        for (const m of esStop) if (t.includes(m)) scoreEs += 1;
+    }
+
+    // ---- Sender TLD (very strong for ES — .mx, .com.mx, .es always Spanish)
+    const esDomains = [".mx", ".com.mx", ".es", ".com.ar", ".com.co", ".cl", ".pe", ".uy"];
+    for (const s of esDomains) if (domain.endsWith(s)) scoreEs += 4;
+
+    // ---- Domain keyword (Spanish business markers)
+    const esKeywords = ["inmobiliaria", "casas", "bienes", "cancun", "merida", "tulum",
+                        "playa", "cdmx", "mexico", "rivieramaya", "propiedades",
+                        "tropicasa", "trustreal", "oceanfrontcancun"];
+    for (const k of esKeywords) if (domain.includes(k)) scoreEs += 3;
+
+    // ---- First name (strong but tricky — many overlap)
+    const enNames = new Set(["mitch","stephen","steve","john","michael","robert","william",
+        "james","richard","charles","joseph","thomas","christopher","daniel","paul","mark",
+        "donald","steven","andrew","kenneth","george","joshua","kevin","brian","edward",
+        "ronald","timothy","jason","jeffrey","ryan","jacob","gary","nicholas","eric",
+        "jonathan","larry","justin","scott","brandon","frank","benjamin","gregory","samuel",
+        "raymond","patrick","jack","dennis","tyler","aaron","adam","nathan","henry",
+        "douglas","peter","zachary","kyle","walter","ethan","jeremy","harold","keith",
+        "christian","roger","noah","gerald","carl","terry","sean","austin","arthur",
+        "lawrence","jesse","dylan","bryan","jordan","mary","patricia","jennifer","linda",
+        "elizabeth","barbara","jessica","karen","lisa","nancy","betty","helen","donna",
+        "carol","ruth","sharon","michelle","kimberly","deborah","dorothy","amy","angela",
+        "ashley","brenda","emma","olivia","cynthia","marie","janet","catherine","frances",
+        "christine","samantha","debra","rachel","cambria","susan","claire","melody",
+        "jaquelin","heather","cheryl","andrea","quin","syring"]);
+    const esNames = new Set(["jose","maria","juan","luis","carlos","pedro","antonio",
+        "alejandro","francisco","manuel","jorge","rafael","miguel","jesus","javier",
+        "sergio","fernando","ricardo","roberto","eduardo","andres","adrian","mario",
+        "victor","arturo","enrique","salvador","oscar","gabriel","hector","julio","marco",
+        "ramon","agustin","diego","emilio","felipe","guillermo","ivan","leonardo",
+        "marcelo","mateo","pablo","rodrigo","santiago","tomas","sebastian","carmen",
+        "rosa","ana","laura","sandra","isabel","sofia","lucia","elena","silvia","cristina",
+        "beatriz","gabriela","natalia","julia","adriana","daniela","carolina","paula",
+        "monica","veronica","marisol","marta","lourdes","luisa","margarita","susana",
+        "priscila","leticia","nayeli","alejandra"]);
+    if (fn) {
+        if (esNames.has(fn) && !enNames.has(fn)) scoreEs += 3;
+        else if (enNames.has(fn) && !esNames.has(fn)) scoreEn += 3;
+    }
+
+    // ---- Email-prefix patterns
+    const prefix = em.includes("@") ? em.split("@")[0] : "";
+    if (["contacto","ventas","reserva","soporte","atencion","recepcion"].includes(prefix)) scoreEs += 2;
+    if (["contact","sales","reservations","bookings","support","reply"].includes(prefix)) scoreEn += 1;
+
+    // ---- Tiebreaker: TLD on .com/.net/.io with no ES signal → EN
+    if (Math.abs(scoreEn - scoreEs) <= 1) {
+        const enLeaningTlds = [".com",".net",".help",".io",".org",".cz",".online",".top"];
+        for (const s of enLeaningTlds) {
+            if (domain.endsWith(s) && scoreEs === 0) { scoreEn += 1; break; }
+        }
+    }
+
+    return scoreEn > scoreEs ? "en" : "es";
+}
+
+// Backwards-compat shim — old code paths still call looksEnglish(text).
 function looksEnglish(text) {
-    if (!text) return false;
-    const t = text.toLowerCase();
-    const enMarkers = [" the ", " your ", " thanks", " hi ", " hello", "interested", "sounds good", "let's talk", "tell me more"];
-    return enMarkers.some((m) => t.includes(m));
+    return detectLang({ text }) === "en";
 }
 
 // ---------------- Templates ----------------
 const CALENDLY = "https://calendly.com/jegoalexdigital/30min";
 
-function wrapHtml(innerHtml) {
+function wrapHtml(innerHtml, lang = "es") {
+    const footerEs = `Alex Jego · JegoDigital · Cancún, México<br>
+Si prefieres que no te escriba más, respóndeme "no gracias" y te elimino hoy mismo.`;
+    const footerEn = `Alex Jego · JegoDigital · Cancun, Mexico<br>
+Reply "no thanks" and I'll remove you from my list today.`;
+    const footer = lang === "en" ? footerEn : footerEs;
     return `<!DOCTYPE html><html><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 15px; line-height: 1.55; color: #1a1a1a; max-width: 560px; margin: 0 auto; padding: 20px;">
 ${innerHtml}
 <br><br>
 <p style="font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 12px; margin-top: 30px;">
-Alex Jego · JegoDigital · Cancún, México<br>
-Si prefieres que no te escriba más, respóndeme "no gracias" y te elimino hoy mismo.
+${footer}
 </p>
 </body></html>`;
 }
@@ -161,7 +264,7 @@ function tplEn_0({ firstName, hook, company }) {
 <p><a href="${CALENDLY}" style="display:inline-block; background:#C5A059; color:#0f1115; padding:12px 22px; border-radius:6px; text-decoration:none; font-weight:600;">Book 30 min →</a></p>
 <p>Prefer WhatsApp first? Reply with your number and I'll text you.</p>
 <p>Alex</p>
-        `),
+        `, "en"),
     };
 }
 function tplEn_1({ firstName }) {
@@ -170,10 +273,10 @@ function tplEn_1({ firstName }) {
         subject: `${firstName || "Hey"} — here's what Flamingo RE just hit`,
         html: wrapHtml(`
 <p>Hi${fn},</p>
-<p>One of my clients (Flamingo Real Estate, Cancún) just shared their quarterly numbers:</p>
+<p>One of my clients (Flamingo Real Estate, Cancun) just shared their quarterly numbers:</p>
 <ul style="padding-left:18px;">
   <li><strong>4.4x</strong> more Google search visibility</li>
-  <li><strong>#1</strong> on Google Maps for "inmobiliaria Cancún"</li>
+  <li><strong>#1</strong> on Google Maps for "real estate Cancun"</li>
   <li><strong>+320%</strong> organic site traffic</li>
   <li><strong>88%</strong> of leads handled with zero human intervention</li>
 </ul>
@@ -181,7 +284,7 @@ function tplEn_1({ firstName }) {
 <p>Want me to walk you through what it would look like for you?</p>
 <p><a href="${CALENDLY}" style="display:inline-block; background:#C5A059; color:#0f1115; padding:12px 22px; border-radius:6px; text-decoration:none; font-weight:600;">Book 30 min →</a></p>
 <p>Alex</p>
-        `),
+        `, "en"),
     };
 }
 function tplEn_2({ firstName }) {
@@ -200,7 +303,7 @@ function tplEn_2({ firstName }) {
 </ul>
 <p>One word works.</p>
 <p>Alex</p>
-        `),
+        `, "en"),
     };
 }
 function tplEn_3({ firstName, company }) {
@@ -215,7 +318,7 @@ function tplEn_3({ firstName, company }) {
 <p><a href="${CALENDLY}" style="display:inline-block; background:#C5A059; color:#0f1115; padding:12px 22px; border-radius:6px; text-decoration:none; font-weight:600;">Book whenever →</a></p>
 <p>Best of luck with ${co}.</p>
 <p>Alex Jego<br>Founder, JegoDigital</p>
-        `),
+        `, "en"),
     };
 }
 
@@ -324,11 +427,17 @@ async function startTrackA({
         return { ok: true, skipped: true, reason: "already_enrolled" };
     }
 
-    const lang = looksEnglish(replyBody) ? "en" : "es";
+    // 2026-04-26 PM upgrade: pass full context (reply body + email + firstName)
+    // to the new detectLang() — way better than the old looksEnglish() which
+    // only checked for 9 markers and routed many EN leads to Spanish nurture.
+    const lang = detectLang({ text: replyBody, email, firstName });
     const hook = pickHook(campaignId);
     const touches = buildTouches({ firstName, company, hook, lang, replyDate });
 
     // Upsert Brevo contact
+    // 2026-04-26 PM: route to language-segmented lists (37 EN / 38 ES) IN ADDITION
+    // to legacy combined Hot Leads list 25, so segmentation works even if
+    // detectLang() ever fails downstream.
     const upsert = await brevoUpsertContact({
         email,
         firstName,
@@ -340,7 +449,7 @@ async function startTrackA({
             TRACK: "track_a_reply_nurture",
             LANG: lang,
         },
-        addToListIds: [LIST_HOT_LEADS],
+        addToListIds: [LIST_HOT_LEADS, pickHotList(lang)],
     });
 
     // Queue touches (skip any at/before startFromTouch if backfilling)

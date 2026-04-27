@@ -1731,13 +1731,24 @@ exports.processAuditRequest = functions
 
             // 6b. Queue 4-email post-audit nurture sequence (D+1, D+3, D+5, D+7).
             //     The existing processScheduledEmails cron (hourly) picks these up.
-            //     Templates: 49 (check-in), 50 (Flamingo proof), 51 (GoodLife proof), 52 (breakup).
+            //     ES templates: 49 (check-in), 50 (Flamingo proof), 51 (GoodLife proof), 52 (breakup).
+            //     EN templates: 64-67 (added 2026-04-26 PM — language routing fix).
+            //     auditLang is detected at line 1712 — pass through to pick correct template.
             //     Why: leads who don't book in first 24h have 15-25% recovery with multi-touch
             //     nurture citing real client proof. Non-fatal if queueing fails.
             try {
                 const firstName = (name || "").split(" ")[0] || "Hola";
                 const websiteHost = (website_url || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
-                const nurturePlan = [
+                const isEnglish = auditLang === "en";
+                const defaultCompany = isEnglish
+                    ? (company || websiteHost || "your agency")
+                    : (company || websiteHost || "tu inmobiliaria");
+                const nurturePlan = isEnglish ? [
+                    { template_id: 64, delayMs: 1 * 24 * 60 * 60 * 1000, tag: "post-audit-en-d1" },
+                    { template_id: 65, delayMs: 3 * 24 * 60 * 60 * 1000, tag: "post-audit-en-d3" },
+                    { template_id: 66, delayMs: 5 * 24 * 60 * 60 * 1000, tag: "post-audit-en-d5" },
+                    { template_id: 67, delayMs: 7 * 24 * 60 * 60 * 1000, tag: "post-audit-en-d7" },
+                ] : [
                     { template_id: 49, delayMs: 1 * 24 * 60 * 60 * 1000, tag: "post-audit-d1" },
                     { template_id: 50, delayMs: 3 * 24 * 60 * 60 * 1000, tag: "post-audit-d3" },
                     { template_id: 51, delayMs: 5 * 24 * 60 * 60 * 1000, tag: "post-audit-d5" },
@@ -1755,14 +1766,15 @@ exports.processAuditRequest = functions
                         status: "pending",
                         params: {
                             FIRSTNAME: firstName,
-                            COMPANY: company || websiteHost || "tu inmobiliaria",
+                            COMPANY: defaultCompany,
                             WEBSITE: websiteHost || website_url
                         },
+                        lang: isEnglish ? "en" : "es",
                         source_request_id: docId,
                         created_at: admin.firestore.FieldValue.serverTimestamp(),
                     });
                 }
-                console.log(`📧 Queued 4-email nurture for ${email} (D+1 D+3 D+5 D+7)`);
+                console.log(`📧 Queued 4-email nurture for ${email} (lang=${isEnglish?'en':'es'}, D+1 D+3 D+5 D+7)`);
             } catch (nurtureErr) {
                 console.error(`⚠️ Post-audit nurture queueing failed (non-fatal):`, nurtureErr.message);
             }

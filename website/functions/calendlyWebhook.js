@@ -51,10 +51,24 @@ const LIST_BOOKED = 30;   // "Calendly - Booked (Pre-call)"
 const LIST_CANCELED = 31; // "Calendly - Canceled (Re-engage)"
 const LIST_NO_SHOW = 33;  // "Calendly - No-Show (Recovery)"
 
-// Brevo template IDs for no-show recovery sequence (created 2026-04-15)
-const TPL_NOSHOW_D3 = 37;  // Day 3 — value-add re-engagement
-const TPL_NOSHOW_D7 = 38;  // Day 7 — soft breakup, 3-option reply
-const TPL_NOSHOW_D14 = 39; // Day 14 — final breakup + showcase asset
+// Brevo template IDs for no-show recovery sequence
+// ES templates created 2026-04-15, EN templates added 2026-04-26 PM (language routing fix)
+const TPL_NOSHOW_D3 = 37;     // Day 3 ES — value-add re-engagement
+const TPL_NOSHOW_D7 = 38;     // Day 7 ES — soft breakup, 3-option reply
+const TPL_NOSHOW_D14 = 39;    // Day 14 ES — final breakup + showcase asset
+const TPL_NOSHOW_D3_EN = 68;  // Day 3 EN
+const TPL_NOSHOW_D7_EN = 69;  // Day 7 EN
+const TPL_NOSHOW_D14_EN = 70; // Day 14 EN
+
+// Pick template by detected language (default ES — MX is primary market).
+// Reads contact's LANG attribute from Brevo if available, otherwise heuristic on email.
+function pickNoShowTemplate(day, lang) {
+    const isEn = (lang || "").toLowerCase() === "en";
+    if (day === 3)  return isEn ? TPL_NOSHOW_D3_EN  : TPL_NOSHOW_D3;
+    if (day === 7)  return isEn ? TPL_NOSHOW_D7_EN  : TPL_NOSHOW_D7;
+    if (day === 14) return isEn ? TPL_NOSHOW_D14_EN : TPL_NOSHOW_D14;
+    return TPL_NOSHOW_D3; // safe default
+}
 
 const ALEX_WHATSAPP = "+52 998 202 3263";
 const CALENDLY_LINK = "https://calendly.com/jegoalexdigital/30min";
@@ -601,12 +615,29 @@ exports.calendlyWebhook = functions.https.onRequest(async (req, res) => {
                 `_Calendly ya envió el email inmediato "nos perdimos"._\n_Secuencia Brevo +3d/+7d/+14d agendada._`;
             await sendTelegram(tgText);
 
+            // Detect language from email + name + already-stored Brevo LANG attribute
+            // (added 2026-04-26 PM language routing fix). Heuristic identical to
+            // brevoNurture.detectLang() — TLD + name + business keywords.
+            const _emLower = (nsEmail || "").toLowerCase();
+            const _domain = _emLower.includes("@") ? _emLower.split("@")[1] : "";
+            const _fnLower = (nsFirstName || "").toLowerCase();
+            const _esTld = [".mx",".com.mx",".es",".com.ar",".com.co",".cl",".pe"].some(s => _domain.endsWith(s));
+            const _esKw = ["inmobiliaria","casas","bienes","cancun","merida","tulum","propiedades"].some(k => _domain.includes(k));
+            const _esNames = new Set(["jose","maria","juan","luis","carlos","jorge","alejandro","francisco","manuel","priscila","leticia","monica","carolina","gabriela"]);
+            const _enNames = new Set(["mitch","stephen","cambria","susan","claire","melody","olivia","jaquelin","heather","cheryl","john","michael","james","jennifer","mary"]);
+            let nsLang = "es";
+            if (_esTld || _esKw) nsLang = "es";
+            else if (_enNames.has(_fnLower) && !_esNames.has(_fnLower)) nsLang = "en";
+            else if (_esNames.has(_fnLower) && !_enNames.has(_fnLower)) nsLang = "es";
+            else if (_domain.endsWith(".com") || _domain.endsWith(".net") || _domain.endsWith(".io")) nsLang = "en";
+
             const brevoResult = await upsertBrevoContact({
                 email: nsEmail, name: nsName,
                 attributes: {
                     LEAD_TEMPERATURE: "No-Show",
                     CAMPAIGN_SOURCE: "Calendly-NoShow",
                     NO_SHOW_DATE: nsStartUtc ? new Date(nsStartUtc).toISOString().slice(0, 10) : "",
+                    LANG: nsLang,
                 },
                 addToList: [LIST_NO_SHOW],
                 removeFromList: [LIST_BOOKED],
@@ -616,13 +647,14 @@ exports.calendlyWebhook = functions.https.onRequest(async (req, res) => {
             // Brevo's scheduledAt reliably supports up to ~72h, so we write all
             // three to Firestore and let a nightly scheduler (see
             // exports.processScheduledEmails) dispatch them at T-0.
+            // 2026-04-26 PM: now language-aware — picks EN templates 68/69/70 if nsLang=en.
             const scheduleResults = [];
             if (nsEmail) {
                 const now = Date.now();
                 const queue = [
-                    { templateId: TPL_NOSHOW_D3, delayMs: 3 * 24 * 60 * 60 * 1000, tag: "no-show-d3" },
-                    { templateId: TPL_NOSHOW_D7, delayMs: 7 * 24 * 60 * 60 * 1000, tag: "no-show-d7" },
-                    { templateId: TPL_NOSHOW_D14, delayMs: 14 * 24 * 60 * 60 * 1000, tag: "no-show-d14" },
+                    { templateId: pickNoShowTemplate(3,  nsLang), delayMs: 3  * 24 * 60 * 60 * 1000, tag: `no-show-d3-${nsLang}` },
+                    { templateId: pickNoShowTemplate(7,  nsLang), delayMs: 7  * 24 * 60 * 60 * 1000, tag: `no-show-d7-${nsLang}` },
+                    { templateId: pickNoShowTemplate(14, nsLang), delayMs: 14 * 24 * 60 * 60 * 1000, tag: `no-show-d14-${nsLang}` },
                 ];
                 for (const item of queue) {
                     try {
