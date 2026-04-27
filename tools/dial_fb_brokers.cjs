@@ -50,10 +50,18 @@ const DELAY_S = (() => {
     return Number.isFinite(n) && n >= 0 ? n : 30;
 })();
 
-// Phones to skip (already called as part of testing) — prevents repeated calls to same lead
+// Phones to skip (already called) — prevents repeated calls to same lead.
+// Hardcoded list = test-burned numbers. /tmp/already_called.txt = mid-batch resume list.
 const SKIP_PHONES = new Set([
     '+529982367673', // Andrea Acevedo — called multiple times during test setup 2026-04-26
 ]);
+// Auto-load /tmp/already_called.txt if present (resume after Cloud Function timeout)
+try {
+    const extra = require('fs').readFileSync('/tmp/already_called.txt', 'utf8');
+    const phones = extra.split(/\r?\n/).map(p => p.trim()).filter(Boolean);
+    phones.forEach(p => SKIP_PHONES.add(p));
+    console.log(`(loaded ${phones.length} extra skip phones from /tmp/already_called.txt)`);
+} catch (e) { /* file not present — fine */ }
 
 if (!ELEVEN) {
     console.error('❌ ELEVENLABS_API_KEY missing in env');
