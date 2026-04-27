@@ -506,6 +506,40 @@ exports.telegramApprovalCallback = functions.https.onRequest(async (req, res) =>
             const cbq = body.callback_query;
             const data = cbq.data || "";
 
+            // ---- ROUTING: FB Brokers batch checkpoint (fb_continue: / fb_abort:) ----
+            // These come from runFbBrokerBatch.js Phase 1 → Phase 2 checkpoint.
+            // Format: fb_continue:SESSION_ID  or  fb_abort:SESSION_ID
+            if (/^fb_(continue|abort):/.test(data)) {
+                const colonIdx = data.indexOf(":");
+                const action = data.slice(0, colonIdx);          // "fb_continue" or "fb_abort"
+                const sessionId = data.slice(colonIdx + 1);
+                try {
+                    if (action === "fb_continue") {
+                        await answerCallbackQuery(cbq.id, "▶️ Resuming Phase 2 (firing remaining calls)…");
+                        // Fire-and-forget — Cloud Functions can't await long-running invocations
+                        // from a webhook handler (Telegram retries if we don't respond fast).
+                        // The resume function itself reads state from Firestore.
+                        axios.post(
+                            "https://us-central1-jegodigital-e02fb.cloudfunctions.net/runFbBrokerBatchResume",
+                            {},
+                            { timeout: 5000 } // we don't wait for it to finish
+                        ).catch((err) => functions.logger.warn("[fb-callback] resume kickoff non-blocking err:", err.code || err.message));
+                    } else {
+                        await admin.firestore().doc("system/fb_dial_state").set({
+                            state: "aborted",
+                            aborted_reason: "telegram_button",
+                            aborted_at: admin.firestore.FieldValue.serverTimestamp(),
+                            aborted_by: cbq.from?.username || cbq.from?.id || "unknown",
+                        }, { merge: true });
+                        await answerCallbackQuery(cbq.id, "🛑 Batch aborted — current loop will exit before next call.");
+                    }
+                } catch (err) {
+                    functions.logger.error("[fb-callback] failed:", err.message);
+                    await answerCallbackQuery(cbq.id, `Error: ${err.message.slice(0, 50)}`);
+                }
+                return res.json({ ok: true, fb_action: action, session_id: sessionId });
+            }
+
             // ---- ROUTING: WhatsApp follow-up callbacks (wa_sent: / wa_skip:) ----
             // These come from postCallWhatsAppFollowup.js Telegram alerts.
             // Format: wa_sent:CONVERSATION_ID  or  wa_skip:CONVERSATION_ID

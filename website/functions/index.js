@@ -203,6 +203,19 @@ exports.sendT10minReminders = require('./calendlyWebhook').sendT10minReminders;
 exports.postCallWhatsAppFollowup = require('./postCallWhatsAppFollowup').postCallWhatsAppFollowup;
 exports.markWhatsAppFollowupSent = require('./postCallWhatsAppFollowup').markWhatsAppFollowupSent;
 
+// FB Brokers AUTONOMOUS batch dial pipeline (added 2026-04-27 PM).
+// Cloud Scheduler triggers runFbBrokerBatch at 16:00 UTC (10am CDMX). Phase 1 fires 5
+// calls, then sends Telegram with ✅ Continue / ❌ Abort buttons. On Continue,
+// telegramApprovalCallback POSTs runFbBrokerBatchResume which fires the remaining 86.
+// dialSupervisor runs every 1min during active batch — auto-pauses on bad patterns,
+// auto-drops carrier-flagged numbers from MX rotation pool.
+exports.runFbBrokerBatch        = require('./runFbBrokerBatch').runFbBrokerBatch;
+exports.runFbBrokerBatchResume  = require('./runFbBrokerBatch').runFbBrokerBatchResume;
+exports.abortFbBrokerBatch      = require('./runFbBrokerBatch').abortFbBrokerBatch;
+exports.fbBrokerBatchStatus     = require('./runFbBrokerBatch').fbBrokerBatchStatus;
+exports.dialSupervisor          = require('./dialSupervisor').dialSupervisor;
+exports.dialSupervisorManual    = require('./dialSupervisor').dialSupervisorManual;
+
 // Sync Function (Replaces Python Script)
 exports.uploadCampaignLogs = functions.https.onRequest(async (req, res) => {
     try {
