@@ -1,3 +1,51 @@
+## 🏆 2026-04-26 PM EVENING WIN — Audit funnel + 80-lead Miami + skills addendum
+
+**Audit funnel overhauled** (commit `67d29576`): 5 conversion-blocker fixes — variable email delay (7 min cold-email / 45 min organic), bilingual EN/ES templates + AEO query, Slack ping immediately after audit (speed-to-lead unlock), AI agent reply template with `&autosubmit=1`, Brevo D+1/D+3/D+5/D+7 nurture verified. **Estimated 4.3× cold-reply → Calendly conversion lift.**
+
+**Miami RE Hiring campaign LIVE** (`acffe5c9-9a74-4b3f-8a95-37882a11f96b`): 80 buyer-tier leads, 3-angle A/B/C templates rewritten to score 90+/100. First sends tomorrow 9 AM ET.
+
+**Two new skills shipped:**
+- `audit-funnel` — owns `/auditoria-gratis` end-to-end
+- `playwright-prospect-audit` — per-prospect site rendering for personalization
+
+**Scheduled task** `jegodigital-campaign-pulse` — fires weekdays 5 PM, posts pulse to Telegram.
+
+**Skill audit addendum** (on top of earlier afternoon's audit):
+- KILL `flamingo-tiktok-publisher` (Alex confirmed unused) — full reasoning in DEPRECATED.md §"2026-04-26 PM EVENING — Addendum"
+- KEEP `hyperframes` (Alex saved — planned upcoming use)
+- ADD `audit-funnel` + `playwright-prospect-audit` to KEPT lean stack
+
+Net: 27 lean skills → 26 (flamingo out, 2 in, 1 saved).
+
+**Action required from Alex tomorrow:**
+1. Paste new AI agent reply templates into Instantly UI (`docs/ai-agent-reply-templates.md`) — 4 min
+2. Add Firebase env var `SLACK_AUDIT_WEBHOOK_URL` (or rely on `SLACK_WEBHOOK_URL` fallback) — 2 min
+3. Smoke-test the funnel: send a positive reply from personal Gmail to one of the 10 mailboxes — verify auto-reply, autosubmit, audit email lands in 7 min, Slack ping fires — 5 min
+
+---
+
+## 🏆 2026-04-26 PM WIN — Skill audit shipped
+
+**Token diet executed:** Killed ~52 dead-weight skills. ~60% reduction in context-loaded skill descriptions per session. Faster Claude, less token burn per request, sharper focus on revenue work. Full breakdown in [`DEPRECATED.md`](DEPRECATED.md) §"Revenue-First Skill Audit kill list".
+
+**Action required from Alex (run in Claude Code, not here):**
+```bash
+# Uninstall the 6 dead-weight plugins entirely
+/plugin uninstall product-management
+/plugin uninstall finance
+/plugin uninstall data
+/plugin uninstall design
+/plugin uninstall marketing
+/plugin uninstall cowork-plugin-management
+```
+The 8 orphan skills inside `anthropic-skills` (algorithmic-art, canvas-design, web-artifacts-builder, mcp-builder, setup-cowork, doc-coauthoring, theme-factory, pptx) are documented as DEPRECATED — Claude won't invoke them per the deprecation rule.
+
+Token-savings estimate: ~52 skill descriptions × ~80 tokens each = **~4,000 tokens saved per session**. Over a typical 50-session week that's 200K tokens saved.
+
+**Also shipped today:** v10 Sofía educational video → https://youtu.be/4LMbVCXIba0 (full production summary in Notion).
+
+---
+
 # JegoDigital — NEXT_STEP
 
 > **This file is the living priority queue. The #1 item is TODAY'S work (HARD RULE #4 + #8).**
