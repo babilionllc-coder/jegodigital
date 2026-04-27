@@ -124,18 +124,33 @@ Builder: `/mnt/jegodigital/flamingo/social_build/build.py` (HTML+Playwright, bra
 - **LLM:** Gemini 3.1 Flash Lite Preview (set in ElevenLabs dashboard)
 - **TTS:** `eleven_v3_conversational` | **ASR:** `scribe_realtime` | **Turn:** `turn_v2`
 
-### 3 Split-Test Offers (all created April 16, 2026)
+### Split-Test Offers (Apr 16, 2026 — extended Apr 27 with Offer E Miami Bilingual)
 
-| Offer | Agent ID | Strategy | CTA |
-|---|---|---|---|
-| **A — SEO Pitch** | `agent_0701kq0drf5ceq6t5md9p6dt6xbb` | Google/ChatGPT visibility hook | Book Calendly with Alex |
-| **B — Free Audit** | `agent_4701kq0drd9pf9ebbqcv6b3bb2zw` | Free 7-area business audit scored 0-100, emailed in 60 min | Lead says "yes" + confirms email |
-| **C — Free Setup** | `agent_2701kq0drbt9f738pxjem3zc3fnb` | Free AI lead capture install (Trojan Horse), speed-to-lead hook | Book Calendly install call |
+| Offer | Agent ID | Strategy | CTA | Market |
+|---|---|---|---|---|
+| **A — SEO Pitch** | `agent_0701kq0drf5ceq6t5md9p6dt6xbb` | Google/ChatGPT visibility hook | Book Calendly with Alex | MX (Spanish) |
+| **B — Free Audit** | `agent_4701kq0drd9pf9ebbqcv6b3bb2zw` | Free 7-area business audit scored 0-100, emailed in 60 min | Lead says "yes" + confirms email | MX (Spanish) |
+| **C — Free Setup / Pilot 14 Días v3** | `agent_2701kq0drbt9f738pxjem3zc3fnb` | Paid 14-day pilot, 100% money-back, system stays installed (replaces old free-setup Trojan Horse) | save_lead_to_brevo_setup -> book_calendly_live | MX (Spanish) |
+| **D — FB Brokers** | `agent_7301kq5jxe0gf3vbmp92c974stzc` | Apr 26-27 autonomous batch | TBD | MX (Spanish) |
+| **MIA / E — Pilot 14 Days (Miami Bilingual) v3** | `agent_1401kq8c8jtvew9r6m05g83eyg60` | Bilingual EN/ES Sofia, paid 14-day pilot 100% money-back, system stays installed; auto-detects language; no price in agent (Alex handles on Calendly) | save_lead_to_brevo_setup -> book_calendly_live OR warm-transfer to Alex | Miami Hispanic luxury (EN primary, ES fallback) — **wired into dialer 2026-04-27** |
+| **Inbound Receptionist** | `agent_1101kq0dradtfhc8fzq96kp4hth7` | Inbound calls | — | MX (Spanish) |
 
 ### Trigger Script
 ```bash
-node tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=A|B|C [--email=X] [--company=X]
+# MX (Offer A/B/C/D — round-robin across 3 MX numbers)
+node website/tools/elevenlabs_trigger_call.cjs +52XXXXXXXXXX "Name" --offer=B [--email=X] [--company=X] [--city=X] [--website=https://...]
+
+# Miami Hispanic bilingual (Offer MIA or E — uses US +1 pool)
+node website/tools/elevenlabs_trigger_call.cjs +1305XXXXXXX "Maria Garcia" --offer=MIA --company="Coral Gables Realty" --email="maria@cgr.com" --city="Miami"
+
+# Auto-routing: --offer omitted + phone starts +1 → MIA agent + US pool; +52 → Offer B + MX pool
+# --lang=en forces Miami agent regardless of phone prefix
 ```
+
+### Phone pools (round-robin per pool)
+- **MX_POOL** (3 numbers, MX caller ID): `+529983871618` (MX#1 Cancún) · `+529983871354` (MX#2 Cancún) · `+528121887124` (MX#3 MTY)
+- **US_POOL** (1 number, US caller ID): `+19783967234` (US#1 Massachusetts 978) — **suboptimal for Miami answer rate; Alex should buy a +1 305 or +1 786 number from Twilio console** (`https://console.twilio.com/us1/develop/phone-numbers/manage/search` → Country=US, Locality=Miami, Capabilities=Voice → ~$1.15/mo + $0.013/min) and import via ElevenLabs UI → Conversational AI → Phone Numbers → Import. Toll-free `+18556090422` exists in Twilio but is **inbound-only** (toll-free outbound caller IDs cut answer rates 30-40%).
+- **Mixing forbidden:** MX brokers expect MX caller ID, Miami brokers expect US caller ID. Never wire a US number into MX_POOL or vice-versa.
 
 ### Tools wired to agents (Brevo nurture capture — LIVE 2026-04-22 evening)
 | Offer | Tool | Target | Outcome |
@@ -149,7 +164,7 @@ All 10 Spanish templates audited against HR-0 (no fabricated numbers), ship with
 ### Key Files
 | File | Purpose |
 |---|---|
-| `/website/tools/elevenlabs_trigger_call.cjs` | Trigger calls (supports --offer=A/B/C) |
+| `/website/tools/elevenlabs_trigger_call.cjs` | Trigger calls (supports --offer=A/B/C/D/MIA/E with MX + US pool round-robin, auto-routes by phone prefix) |
 | `/website/tools/elevenlabs_list_agents.cjs` | List all agents in account |
 | `/website/tools/elevenlabs_get_agent.cjs` | Get agent config details |
 | `/website/tools/elevenlabs_check_phone.cjs` | List registered phone numbers |
