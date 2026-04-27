@@ -25,7 +25,15 @@ require('dotenv').config({ path: path.join(__dirname, '../website/functions/.env
 
 const ELEVEN = process.env.ELEVENLABS_API_KEY;
 const AGENT_ID = 'agent_7301kq5jxe0gf3vbmp92c974stzc';
-const TWILIO_PHONE = '+529983871618'; // JegoDigital MX number
+
+// 3-number MX rotation (added 2026-04-26) — round-robin to spread risk and reduce per-number flagging
+// by Mexican telecom carriers. Each number can only flag itself, so spreading 91 calls across 3 = ~30 each.
+const MX_PHONE_POOL = [
+    { id: 'phnum_8201kq0efkq6esttrdm916g8n3r0', number: '+529983871618', label: 'MX#1 Original' },
+    { id: 'phnum_0401kq692pspfgkafmvmpr6e7mhn', number: '+529983871354', label: 'MX#2'          },
+    { id: 'phnum_8901kq692r32e5y89de42wp9xghs', number: '+528121887124', label: 'MX#3 MTY'      },
+];
+
 const CALL_LIST_PATH = path.join(__dirname, '../leads/fb_groups_2026-04-25/call_list_cleaned.json');
 
 const args = process.argv.slice(2);
@@ -56,12 +64,29 @@ leads.sort((a, b) => {
 const toCall = leads.filter(l => !SKIP_PHONES.has(l.phone)).slice(0, BATCH);
 console.log(`\n📞 ${DRY_RUN ? 'DRY-RUN' : 'EXECUTING'} — will ${DRY_RUN ? 'simulate' : 'fire'} ${toCall.length} calls`);
 console.log(`Skipping ${SKIP_PHONES.size} already-tested phones: ${Array.from(SKIP_PHONES).join(', ')}`);
-console.log(`Agent: Offer D — FB Brokers MX (${AGENT_ID})\n`);
+console.log(`Agent: Offer D — FB Brokers MX (${AGENT_ID})`);
+console.log(`Phone rotation (round-robin):`);
+MX_PHONE_POOL.forEach((p, i) => console.log(`  [${i+1}] ${p.number}  (${p.label})`));
+const perNumber = Math.ceil(toCall.length / MX_PHONE_POOL.length);
+console.log(`  → ~${perNumber} calls per number\n`);
 
-const PHONE_ID = process.env.ELEVENLABS_PHONE_ID || 'phnum_8201kq0efkq6esttrdm916g8n3r0';
+// Round-robin counter — each call advances to next phone in pool
+let _rotationIndex = 0;
+function pickPhone() {
+    // Allow override via env (single number forced)
+    if (process.env.ELEVENLABS_PHONE_ID) {
+        return MX_PHONE_POOL.find(p => p.id === process.env.ELEVENLABS_PHONE_ID)
+            || { id: process.env.ELEVENLABS_PHONE_ID, number: '(env override)', label: 'env' };
+    }
+    const phone = MX_PHONE_POOL[_rotationIndex % MX_PHONE_POOL.length];
+    _rotationIndex++;
+    return phone;
+}
 
 async function fireCall(lead) {
     return new Promise((resolve) => {
+        const phone = pickPhone();
+
         const dynamicVars = {
             first_name: lead.first_name || '',
             business_name: lead.business_name || '',
@@ -74,7 +99,7 @@ async function fireCall(lead) {
 
         const payload = JSON.stringify({
             agent_id: AGENT_ID,
-            agent_phone_number_id: PHONE_ID,
+            agent_phone_number_id: phone.id,
             to_number: lead.phone,
             conversation_initiation_client_data: {
                 dynamic_variables: dynamicVars,
@@ -82,8 +107,8 @@ async function fireCall(lead) {
         });
 
         if (DRY_RUN) {
-            console.log(`  [DRY] ${lead.phone.padEnd(15)} → ${lead.opening_strategy.padEnd(8)} → ${lead.first_name || lead.business_name || '(generic)'}  (${lead.category})`);
-            return resolve({ ok: true, dry: true, lead });
+            console.log(`  [DRY] ${phone.label.padEnd(8)} → ${lead.phone.padEnd(15)} → ${lead.opening_strategy.padEnd(8)} → ${lead.first_name || lead.business_name || '(generic)'}  (${lead.category})`);
+            return resolve({ ok: true, dry: true, lead, from: phone.number });
         }
 
         const req = https.request({
@@ -105,13 +130,13 @@ async function fireCall(lead) {
                 try { data = JSON.parse(body); } catch (e) { /* not JSON */ }
 
                 if (data && data.success) {
-                    console.log(`  ✓ ${lead.phone} → conv=${data.conversation_id}  (${lead.first_name || lead.business_name || 'generic'})`);
-                    resolve({ ok: true, conversation_id: data.conversation_id, callSid: data.callSid, lead });
+                    console.log(`  ✓ [${phone.label}] ${lead.phone} → conv=${data.conversation_id}  (${lead.first_name || lead.business_name || 'generic'})`);
+                    resolve({ ok: true, conversation_id: data.conversation_id, callSid: data.callSid, lead, from: phone.number });
                 } else {
                     // Show the REAL error — ElevenLabs returns array of validation errors
                     const errMsg = JSON.stringify(data || body).slice(0, 600);
-                    console.log(`  ✗ ${lead.phone} HTTP ${res.statusCode}: ${errMsg}`);
-                    resolve({ ok: false, status: res.statusCode, error: errMsg, body, lead });
+                    console.log(`  ✗ [${phone.label}] ${lead.phone} HTTP ${res.statusCode}: ${errMsg}`);
+                    resolve({ ok: false, status: res.statusCode, error: errMsg, body, lead, from: phone.number });
                 }
             });
         });
