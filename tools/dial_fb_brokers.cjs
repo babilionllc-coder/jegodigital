@@ -40,6 +40,16 @@ const args = process.argv.slice(2);
 const DRY_RUN = !args.includes('--execute');
 const BATCH = parseInt(args[args.indexOf('--batch') + 1]) || 999;
 
+// Inter-call delay in SECONDS (default 30s). Spread dialing to avoid carrier flagging
+// and let Alex keep up with Telegram alerts. Set --delay 0 ONLY for dry-run testing.
+// 30s × 91 calls = ~45 min of dial time; per-MX-number pace is 1 call every ~90s (very safe).
+const DELAY_S = (() => {
+    const idx = args.indexOf('--delay');
+    if (idx === -1) return 30;
+    const n = parseInt(args[idx + 1]);
+    return Number.isFinite(n) && n >= 0 ? n : 30;
+})();
+
 // Phones to skip (already called as part of testing) — prevents repeated calls to same lead
 const SKIP_PHONES = new Set([
     '+529982367673', // Andrea Acevedo — called multiple times during test setup 2026-04-26
@@ -68,7 +78,19 @@ console.log(`Agent: Offer D — FB Brokers MX (${AGENT_ID})`);
 console.log(`Phone rotation (round-robin):`);
 MX_PHONE_POOL.forEach((p, i) => console.log(`  [${i+1}] ${p.number}  (${p.label})`));
 const perNumber = Math.ceil(toCall.length / MX_PHONE_POOL.length);
-console.log(`  → ~${perNumber} calls per number\n`);
+console.log(`  → ~${perNumber} calls per number`);
+
+// Pacing summary
+const totalSeconds = (toCall.length - 1) * DELAY_S;
+const minutes = Math.floor(totalSeconds / 60);
+const seconds = totalSeconds % 60;
+const perNumberInterval = (DELAY_S * MX_PHONE_POOL.length); // each number rests this long between its calls
+console.log(`Pacing: ${DELAY_S}s between dials  →  ${minutes}m ${seconds}s total dial time`);
+console.log(`        each MX number rests ~${perNumberInterval}s between its own calls`);
+if (DELAY_S < 15 && !DRY_RUN && toCall.length > 5) {
+    console.log(`        ⚠️  WARNING: delay <15s with ${toCall.length} calls risks carrier flagging`);
+}
+console.log('');
 
 // Round-robin counter — each call advances to next phone in pool
 let _rotationIndex = 0;
@@ -151,10 +173,19 @@ async function fireCall(lead) {
 
 (async () => {
     const results = [];
-    for (const lead of toCall) {
+    for (let i = 0; i < toCall.length; i++) {
+        const lead = toCall[i];
         const r = await fireCall(lead);
         results.push(r);
-        if (!DRY_RUN) await new Promise(r => setTimeout(r, 1500)); // 1.5s gap between calls
+
+        // Sleep between calls (skip on dry-run, skip on the very last call)
+        if (!DRY_RUN && DELAY_S > 0 && i < toCall.length - 1) {
+            const next = toCall[i + 1];
+            const remaining = toCall.length - 1 - i;
+            const etaMin = Math.ceil((remaining * DELAY_S) / 60);
+            console.log(`     ⏳ sleep ${DELAY_S}s — next: ${next.first_name || next.business_name || next.phone}  (${remaining} left, ~${etaMin}m to go)`);
+            await new Promise(r => setTimeout(r, DELAY_S * 1000));
+        }
     }
 
     const ok = results.filter(r => r.ok).length;
