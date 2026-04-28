@@ -269,8 +269,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="video-wrap">
     <div class="video-frame">
-      <video id="caseVideo" controls preload="metadata" playsinline>
-        <source id="videoSrc" src="/videos/JegoFlamingoShowcaseES.mp4" type="video/mp4">
+      <video id="caseVideo" controls preload="metadata" playsinline poster="/videos/JegoMultiClientShowcase_v1_poster.jpg">
+        <source id="videoSrc" src="/videos/JegoMultiClientShowcase_v1.mp4" type="video/mp4">
         Tu navegador no soporta video HTML5.
       </video>
     </div>
@@ -373,9 +373,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     document.querySelector('.fallback-wa').lastChild.textContent = ' Message Alex on WhatsApp';
     document.title = 'JegoDigital — The 90-second video';
 
-    // Switch to English version of video if available
-    document.getElementById('videoSrc').src = '/videos/JegoFlamingoShowcase.mp4';
-    document.getElementById('caseVideo').load();
+    // English variant — currently uses same multi-client showcase (Spanish VO).
+    // TODO next session: render English Tony VO + swap to /videos/JegoMultiClientShowcase_v1_en.mp4
+    // For now keep multi-client video, just update copy.
   }
 
   // ---- Build Calendly URL with UTM passthrough ----
