@@ -118,21 +118,27 @@ async function postToBrevo(email, firstName, attributes = {}) {
 /**
  * Fire the audit pipeline so the lead gets a full audit emailed to them.
  */
-async function fireAuditPipeline(email, url, firstName, leadgenId) {
+async function fireAuditPipeline(email, url, firstName, leadgenId, extraAttrs = {}) {
   if (!url || !email) {
     console.warn('[metaLeadFormWebhook] Missing url or email for audit, skipping');
     return null;
   }
-  const r = await fetch(AUDIT_INTERNAL_ENDPOINT, {
+  // submitAuditRequest expects: website_url, name, email, source, company (NOT url, firstName)
+  const r = await fetch(AUDIT_INTERNAL_ENDPOINT + '?source=meta_lead_form', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      website_url: url,
+      name: firstName || 'Inmobiliaria',
       email,
-      url,
-      firstName: firstName || 'Inmobiliaria',
       source: 'meta_lead_form',
-      campaign: 'hiring_intent_retarget',
-      leadgenId,
+      // Pass through Lead Form qualification answers as company-side context
+      // so the audit narrative can mention "you mentioned X" — these are
+      // saved into Firestore audit doc and used by the email template.
+      meta_leads_per_month: extraAttrs.leads_per_month || '',
+      meta_main_frustration: extraAttrs.main_frustration || '',
+      meta_leadgen_id: leadgenId,
+      meta_campaign: 'hiring_intent_retarget',
     }),
   });
   const txt = await r.text();
@@ -219,9 +225,13 @@ exports.metaLeadFormWebhook = functions
             fields.url ||
             fields.sitio_web ||
             fields.website ||
+            fields.site_url ||
             '';
           const whatsapp =
             fields.whatsapp || fields.telefono || fields.phone || fields.phone_number || '';
+          // Lead Form qualification answers — used to personalize audit + segment Brevo
+          const leadsPerMonth = fields.leads_per_month || fields['_cuantos_leads_por_mes_manejas_hoy?'] || '';
+          const mainFrustration = fields.main_frustration || fields['_que_te_frustra_mas_de_tu_marketing_actual?'] || '';
 
           // 2. Write to Firestore (audit log)
           await db.collection('meta_lead_events').doc(leadgenId).set(
@@ -244,7 +254,7 @@ exports.metaLeadFormWebhook = functions
             { merge: true }
           );
 
-          // 3. POST to Brevo
+          // 3. POST to Brevo (with qualification answers for segmentation)
           const brevoResult = await postToBrevo(email, firstName, {
             LASTNAME: lastName,
             URL: url,
@@ -252,10 +262,17 @@ exports.metaLeadFormWebhook = functions
             META_LEADGEN_ID: leadgenId,
             META_AD_ID: adId,
             META_CAMPAIGN_ID: campaignId,
+            LEADS_PER_MONTH: leadsPerMonth,
+            MAIN_FRUSTRATION: mainFrustration,
           });
 
           // 4. Fire audit pipeline (gets the full audit emailed in <60min)
-          const auditResult = await fireAuditPipeline(email, url, firstName, leadgenId);
+          //    submitAuditRequest expects website_url + name + email (NOT url + firstName).
+          //    Pass qualification answers so audit narrative can reference them.
+          const auditResult = await fireAuditPipeline(email, url, firstName, leadgenId, {
+            leads_per_month: leadsPerMonth,
+            main_frustration: mainFrustration,
+          });
 
           // 5. Telegram ping
           await notifyTelegram(
