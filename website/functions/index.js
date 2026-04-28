@@ -2653,6 +2653,18 @@ exports.seedIgBatchQueue = igBatchQueueMod.seedIgBatchQueue;
 exports.flipIgBatchReady = igBatchQueueMod.flipIgBatchReady;
 
 // ============================================================
+// CONTENT AUTOPILOT (added 2026-04-28 PM)
+// Daily ideas research (Perplexity) + 5 stories/day generator + IG Stories
+// publishing branch in processIgBatchQueue. Fully autonomous, Mac off.
+// See docs/CONTENT_ENGINE.md for architecture.
+// ============================================================
+const contentAutopilotMod = require("./contentAutopilot");
+exports.generateContentIdeas = contentAutopilotMod.generateContentIdeas;
+exports.generateContentIdeasOnDemand = contentAutopilotMod.generateContentIdeasOnDemand;
+exports.generateDailyStories = contentAutopilotMod.generateDailyStories;
+exports.generateDailyStoriesOnDemand = contentAutopilotMod.generateDailyStoriesOnDemand;
+
+// ============================================================
 // TIKTOK INTEGRATION (added 2026-04-24 PM)
 // Full OAuth + weekly stats digest for @jegodigital TikTok.
 // Uses Sandbox mode (test user: @jegodigital, @lumieraivideos).

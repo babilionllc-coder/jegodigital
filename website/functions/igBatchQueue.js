@@ -209,6 +209,45 @@ async function publishCarousel(doc, igUserId, token) {
 }
 
 /**
+ * Publish a 9:16 Story to Instagram.
+ * doc.assetUrls.image = HTTPS URL to a 1080x1920 PNG.
+ * Stories don't take captions in the API and don't return public permalinks.
+ */
+async function publishStory(doc, igUserId, token) {
+    const imageUrl = doc.assetUrls?.image;
+    if (!imageUrl) throw new Error("missing assetUrls.image (story)");
+
+    const createResp = await axios.post(
+        `${IG_GRAPH_BASE}/${igUserId}/media`,
+        null,
+        {
+            params: {
+                image_url: imageUrl,
+                media_type: "STORIES",
+                access_token: token,
+            },
+            timeout: 30000,
+        }
+    );
+    const creationId = createResp.data.id;
+
+    const pubResp = await axios.post(
+        `${IG_GRAPH_BASE}/${igUserId}/media_publish`,
+        null,
+        {
+            params: { creation_id: creationId, access_token: token },
+            timeout: 30000,
+        }
+    );
+    const mediaId = pubResp.data.id;
+
+    return {
+        mediaId,
+        permalink: `https://www.instagram.com/stories/jegodigital_agencia/${mediaId}/`,
+    };
+}
+
+/**
  * Publish a 9:16 Reel to Instagram.
  * doc.assetUrls.video = HTTPS URL to MP4.
  * Reels can take 30-90s to encode; we poll status_code up to 6 times.
@@ -339,6 +378,8 @@ async function processOne(docSnap) {
             result = await publishSingle(doc, igUserId, token);
         else if (doc.format === "reel")
             result = await publishReel(doc, igUserId, token);
+        else if (doc.format === "story")
+            result = await publishStory(doc, igUserId, token);
         else throw new Error(`unknown format: ${doc.format}`);
 
         // For Reels, also push to TikTok drafts
