@@ -2663,6 +2663,10 @@ exports.generateContentIdeas = contentAutopilotMod.generateContentIdeas;
 exports.generateContentIdeasOnDemand = contentAutopilotMod.generateContentIdeasOnDemand;
 exports.generateDailyStories = contentAutopilotMod.generateDailyStories;
 exports.generateDailyStoriesOnDemand = contentAutopilotMod.generateDailyStoriesOnDemand;
+exports.generateDailySingles = contentAutopilotMod.generateDailySingles;
+exports.generateDailySinglesOnDemand = contentAutopilotMod.generateDailySinglesOnDemand;
+exports.generateDailyCarousel = contentAutopilotMod.generateDailyCarousel;
+exports.generateDailyCarouselOnDemand = contentAutopilotMod.generateDailyCarouselOnDemand;
 
 // ============================================================
 // TIKTOK INTEGRATION (added 2026-04-24 PM)

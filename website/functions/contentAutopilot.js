@@ -625,3 +625,429 @@ exports.generateDailyStoriesOnDemand = functions
             res.status(500).json({ ok: false, error: e.message });
         }
     });
+
+// ============================================================
+// 3. SINGLE POSTS — 1080x1350 feed posts, 2/day at 1pm + 7pm ET
+// Replaces the old Cowork-side instagram-ai-post (Mac-dependent)
+// ============================================================
+const TPL_SINGLE_DARK = `<!doctype html><html><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; background: #0f1115; color: #fff; font-family: ${FONT_STACK}; overflow: hidden; }
+  .accent { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #C5A059; }
+  .logo { position: absolute; top: 60px; left: 60px; font-size: 32px; font-weight: 800; letter-spacing: 2px; }
+  .gold { color: #C5A059; }
+  .label { position: absolute; top: 140px; left: 60px; font-size: 26px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: #C5A059; }
+  .hook { position: absolute; top: 240px; left: 60px; right: 60px; font-size: 88px; line-height: 1.0; font-weight: 900; }
+  .body { position: absolute; top: 720px; left: 60px; right: 60px; font-size: 36px; line-height: 1.4; color: #E8E8E8; font-weight: 500; }
+  .cta { position: absolute; bottom: 180px; left: 60px; right: 60px; background: #C5A059; color: #0f1115; padding: 32px 36px; border-radius: 28px; font-size: 36px; font-weight: 800; text-align: center; }
+  .footer { position: absolute; bottom: 50px; left: 60px; right: 60px; display: flex; justify-content: space-between; font-size: 22px; color: #A0A0A5; }
+</style></head><body>
+  <div class="accent"></div>
+  <div class="logo"><span class="gold">JEGO</span>DIGITAL</div>
+  <div class="label">{{LABEL}}</div>
+  <div class="hook">{{HOOK}}</div>
+  <div class="body">{{BODY}}</div>
+  <div class="cta">{{CTA}}</div>
+  <div class="footer"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
+</body></html>`;
+
+const TPL_SINGLE_GOLD = `<!doctype html><html><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; background: #C5A059; color: #0f1115; font-family: ${FONT_STACK}; overflow: hidden; }
+  .logo { position: absolute; top: 60px; left: 60px; font-size: 32px; font-weight: 800; letter-spacing: 2px; }
+  .label { position: absolute; top: 140px; left: 60px; font-size: 26px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; }
+  .hook { position: absolute; top: 240px; left: 60px; right: 60px; font-size: 100px; line-height: 0.98; font-weight: 900; }
+  .emojis { position: absolute; top: 700px; left: 60px; right: 60px; font-size: 80px; text-align: center; }
+  .body { position: absolute; top: 850px; left: 60px; right: 60px; font-size: 38px; line-height: 1.35; font-weight: 600; }
+  .cta { position: absolute; bottom: 180px; left: 60px; right: 60px; background: #0f1115; color: #C5A059; padding: 36px 36px; border-radius: 28px; font-size: 38px; font-weight: 800; text-align: center; }
+  .footer { position: absolute; bottom: 50px; left: 60px; right: 60px; display: flex; justify-content: space-between; font-size: 22px; opacity: 0.7; }
+</style></head><body>
+  <div class="logo">JEGODIGITAL</div>
+  <div class="label">{{LABEL}}</div>
+  <div class="hook">{{HOOK}}</div>
+  <div class="emojis">{{EMOJIS}}</div>
+  <div class="body">{{BODY}}</div>
+  <div class="cta">{{CTA}}</div>
+  <div class="footer"><span>📅 link en bio</span><span>@jegodigital_agencia</span></div>
+</body></html>`;
+
+const SINGLE_VARIANTS = [
+    { name: "DARK", template: TPL_SINGLE_DARK },
+    { name: "GOLD", template: TPL_SINGLE_GOLD },
+];
+
+async function renderHtmlToPngSized(html, w, h) {
+    const resp = await axios.post(
+        MOCKUP_RENDERER,
+        { html, width: w, height: h, deviceScaleFactor: 1, format: "png" },
+        {
+            responseType: "arraybuffer",
+            timeout: 30000,
+            headers: { "Content-Type": "application/json" },
+        }
+    );
+    return Buffer.from(resp.data);
+}
+
+async function uploadAssetPng(buffer, kind, id) {
+    const bucket = admin.storage().bucket();
+    const path = `ig_${kind}/${new Date().toISOString().slice(0, 10)}/${id}.png`;
+    const file = bucket.file(path);
+    await file.save(buffer, {
+        metadata: {
+            contentType: "image/png",
+            cacheControl: "public, max-age=86400",
+        },
+        public: true,
+        validation: false,
+    });
+    return `https://storage.googleapis.com/${bucket.name}/${path}`;
+}
+
+async function generateSinglesNow(count = 2) {
+    const db = admin.firestore();
+    const today = new Date().toISOString().slice(0, 10);
+
+    let snap = await db
+        .collection("content_ideas")
+        .where("used", "==", false)
+        .where("formatHint", "in", ["single", "tip", "quote", "stat"])
+        .orderBy("score", "desc")
+        .limit(count)
+        .get();
+    if (snap.empty) {
+        snap = await db
+            .collection("content_ideas")
+            .where("used", "==", false)
+            .orderBy("score", "desc")
+            .limit(count)
+            .get();
+        if (snap.empty)
+            throw new Error("no unused content_ideas — run generateContentIdeas");
+    }
+
+    const ETHours = [13, 19]; // 1pm + 7pm ET = 17 + 23 UTC (EDT)
+    const today0 = new Date();
+    today0.setUTCHours(0, 0, 0, 0);
+
+    const created = [];
+    for (let i = 0; i < snap.docs.length && i < count; i++) {
+        const ideaDoc = snap.docs[i];
+        const idea = ideaDoc.data();
+        const id = `single-${today}-${ideaDoc.id}`;
+        try {
+            const variant =
+                SINGLE_VARIANTS[i % SINGLE_VARIANTS.length];
+
+            const fields = await callGeminiForSingleFields(idea, variant.name);
+            const html = fillTemplate(variant.template, fields);
+            const png = await renderHtmlToPngSized(html, 1080, 1350);
+            const url = await uploadAssetPng(png, "singles", id);
+
+            const fireAt = new Date(today0);
+            fireAt.setUTCHours(ETHours[i] + 4, 0, 0, 0);
+            if (fireAt < new Date())
+                fireAt.setUTCDate(fireAt.getUTCDate() + 1);
+
+            await db.collection("ig_batch_queue").doc(id).set({
+                format: "single",
+                status: "ready",
+                fireAt: admin.firestore.Timestamp.fromDate(fireAt),
+                topic: idea.topic || idea.hook,
+                angle: idea.angle || "tip",
+                path: "B",
+                source: "content-engine-auto",
+                ideaId: ideaDoc.id,
+                assetUrls: { image: url },
+                caption: buildCaptionFromIdea(idea, fields),
+                tiktokDraft: false,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                retryCount: 0,
+            });
+            await ideaDoc.ref.update({
+                used: true,
+                usedAt: admin.firestore.FieldValue.serverTimestamp(),
+                usedAs: id,
+            });
+            created.push({
+                id,
+                topic: idea.topic || idea.hook,
+                fireAt: fireAt.toISOString(),
+                url,
+            });
+        } catch (e) {
+            functions.logger.error(`single ${i} failed: ${e.message}`);
+        }
+    }
+    return { count: created.length, singles: created };
+}
+
+async function callGeminiForSingleFields(idea, variantName) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) throw new Error("no GEMINI_API_KEY");
+    const fieldSpec =
+        variantName === "DARK"
+            ? `Required keys: label (uppercase 4-14 chars + emoji), hook (5-10 words, 1-2 emojis), body (2 sentences max 200 chars + 1 emoji), cta (hard action like "DM 'AUDIT'" + emoji)`
+            : `Required keys: label (uppercase 4-14 chars + emoji), hook (5-10 words on gold bg), emojis (5 emojis spaced), body (1 sentence value prop max 160 chars), cta (booking CTA + emoji)`;
+    const prompt = `Fill an Instagram feed post (1080x1350) for @jegodigital_agencia, Mexican real estate AI agency. Variant: ${variantName}.
+Idea: ${JSON.stringify({ hook: idea.hook, angle: idea.angle, topic: idea.topic })}
+${fieldSpec}
+Spanish only. Return STRICT JSON. No markdown.`;
+    const resp = await axios.post(
+        `${GEMINI_URL}?key=${key}`,
+        {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 600,
+                responseMimeType: "application/json",
+            },
+        },
+        { headers: { "Content-Type": "application/json" }, timeout: 30000 }
+    );
+    return JSON.parse(resp.data.candidates[0].content.parts[0].text);
+}
+
+function buildCaptionFromIdea(idea, fields) {
+    const hookText = (fields.hook || idea.hook || "").replace(/<[^>]+>/g, "");
+    const body = fields.body || idea.topic || "";
+    const cta = fields.cta || "📅 link en bio";
+    const tags = (idea.hashtags || [])
+        .slice(0, 8)
+        .map((t) => "#" + t.replace(/^#/, ""))
+        .join(" ");
+    return `${hookText}\n\n${body}\n\n${cta}\n📅 calendly.com/jegoalexdigital/30min\n\n${tags}`;
+}
+
+exports.generateDailySingles = functions
+    .runWith({ timeoutSeconds: 300, memory: "1GB" })
+    .pubsub.schedule("0 10 * * *")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        try {
+            const r = await generateSinglesNow(2);
+            await postSlack({
+                level: "info",
+                title: `${r.count} singles queued for today`,
+                body: r.singles
+                    .map((s, i) => `${i + 1}. _${s.topic}_ — ${s.fireAt.slice(11, 16)} UTC`)
+                    .join("\n"),
+            });
+            return null;
+        } catch (e) {
+            functions.logger.error("generateDailySingles failed", e);
+            await postSlack({ level: "warning", title: "Daily singles failed", body: e.message });
+            return null;
+        }
+    });
+
+exports.generateDailySinglesOnDemand = functions
+    .runWith({ timeoutSeconds: 300, memory: "1GB" })
+    .https.onRequest(async (req, res) => {
+        try {
+            const expected = process.env.IG_BATCH_SEED_TOKEN;
+            const got = req.query.token || req.headers["x-seed-token"];
+            if (!expected || got !== expected)
+                return res.status(403).json({ ok: false, error: "invalid token" });
+            const count = Number(req.query.count) || 2;
+            const r = await generateSinglesNow(count);
+            res.json({ ok: true, ...r });
+        } catch (e) {
+            res.status(500).json({ ok: false, error: e.message });
+        }
+    });
+
+// ============================================================
+// 4. CAROUSELS — 1080x1350 5-slide feed posts, 1/day at 1pm ET
+// Replaces the old Cowork-side daily-instagram-carousel
+// ============================================================
+const SLIDE_TEMPLATES = {
+    intro: `<!doctype html><html><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; background: #0f1115; color: #fff; font-family: ${FONT_STACK}; }
+  .accent { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #C5A059; }
+  .logo { position: absolute; top: 60px; left: 60px; font-size: 30px; font-weight: 800; letter-spacing: 2px; }
+  .gold { color: #C5A059; }
+  .label { position: absolute; top: 140px; left: 60px; font-size: 26px; font-weight: 800; letter-spacing: 4px; color: #C5A059; }
+  .hook { position: absolute; top: 280px; left: 60px; right: 60px; font-size: 110px; line-height: 0.98; font-weight: 900; }
+  .sub { position: absolute; top: 1000px; left: 60px; right: 60px; font-size: 38px; color: #C5A059; font-weight: 700; }
+  .swipe { position: absolute; bottom: 80px; right: 60px; font-size: 28px; color: #C5A059; font-weight: 700; }
+</style></head><body>
+  <div class="accent"></div><div class="logo"><span class="gold">JEGO</span>DIGITAL</div>
+  <div class="label">{{LABEL}}</div><div class="hook">{{HOOK}}</div>
+  <div class="sub">{{SUB}}</div><div class="swipe">DESLIZA →</div>
+</body></html>`,
+
+    body: `<!doctype html><html><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; background: #0f1115; color: #fff; font-family: ${FONT_STACK}; }
+  .accent { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #C5A059; }
+  .num { position: absolute; top: 100px; left: 60px; font-size: 220px; font-weight: 900; color: #C5A059; line-height: 1; opacity: 0.4; }
+  .title { position: absolute; top: 380px; left: 60px; right: 60px; font-size: 76px; line-height: 1.0; font-weight: 900; }
+  .body { position: absolute; top: 750px; left: 60px; right: 60px; font-size: 36px; line-height: 1.4; color: #E8E8E8; font-weight: 500; }
+  .swipe { position: absolute; bottom: 80px; right: 60px; font-size: 26px; color: #C5A059; font-weight: 700; }
+</style></head><body>
+  <div class="accent"></div><div class="num">{{NUM}}</div>
+  <div class="title">{{TITLE}}</div><div class="body">{{BODY}}</div>
+  <div class="swipe">DESLIZA →</div>
+</body></html>`,
+
+    cta: `<!doctype html><html><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1350px; background: #C5A059; color: #0f1115; font-family: ${FONT_STACK}; }
+  .logo { position: absolute; top: 60px; left: 60px; font-size: 32px; font-weight: 800; letter-spacing: 2px; }
+  .label { position: absolute; top: 140px; left: 60px; font-size: 28px; font-weight: 800; letter-spacing: 4px; }
+  .hook { position: absolute; top: 280px; left: 60px; right: 60px; font-size: 100px; line-height: 0.98; font-weight: 900; }
+  .body { position: absolute; top: 800px; left: 60px; right: 60px; font-size: 38px; line-height: 1.35; font-weight: 600; }
+  .cta { position: absolute; bottom: 200px; left: 60px; right: 60px; background: #0f1115; color: #C5A059; padding: 38px 36px; border-radius: 28px; font-size: 40px; font-weight: 800; text-align: center; }
+  .handle { position: absolute; bottom: 60px; left: 60px; font-size: 24px; opacity: 0.7; }
+</style></head><body>
+  <div class="logo">JEGODIGITAL</div><div class="label">{{LABEL}}</div>
+  <div class="hook">{{HOOK}}</div><div class="body">{{BODY}}</div>
+  <div class="cta">{{CTA}}</div><div class="handle">@jegodigital_agencia · 📅 link en bio</div>
+</body></html>`,
+};
+
+async function callGeminiForCarouselSlides(idea) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) throw new Error("no GEMINI_API_KEY");
+    const prompt = `Generate a 5-slide Instagram carousel for @jegodigital_agencia (Mexican real estate AI agency).
+Idea: ${JSON.stringify({ hook: idea.hook, angle: idea.angle, topic: idea.topic })}
+
+Return JSON with this exact structure (Spanish only, all text MUST include emojis where indicated):
+
+{
+  "slide1": { "label": "uppercase 4-14 chars + emoji", "hook": "5-9 word hook with 1-2 emojis", "sub": "1 line teaser of payoff" },
+  "slide2": { "num": "1", "title": "5-8 words", "body": "1-2 sentences max 200 chars" },
+  "slide3": { "num": "2", "title": "5-8 words", "body": "1-2 sentences max 200 chars" },
+  "slide4": { "num": "3", "title": "5-8 words", "body": "1-2 sentences max 200 chars" },
+  "slide5": { "label": "uppercase 4-14 chars + emoji", "hook": "5-9 word direct CTA", "body": "1 sentence value prop max 140 chars", "cta": "Hard action like 'DM AUDIT'" }
+}
+
+Slides 2-4 are the body — 3 distinct points/steps/tips. Slide 1 hooks. Slide 5 closes with CTA.
+
+STRICT JSON. No markdown.`;
+    const resp = await axios.post(
+        `${GEMINI_URL}?key=${key}`,
+        {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 1500,
+                responseMimeType: "application/json",
+            },
+        },
+        { headers: { "Content-Type": "application/json" }, timeout: 45000 }
+    );
+    return JSON.parse(resp.data.candidates[0].content.parts[0].text);
+}
+
+async function generateCarouselNow() {
+    const db = admin.firestore();
+    const today = new Date().toISOString().slice(0, 10);
+
+    let snap = await db
+        .collection("content_ideas")
+        .where("used", "==", false)
+        .where("formatHint", "in", ["carousel", "tip", "myth-buster"])
+        .orderBy("score", "desc")
+        .limit(1)
+        .get();
+    if (snap.empty) {
+        snap = await db
+            .collection("content_ideas")
+            .where("used", "==", false)
+            .orderBy("score", "desc")
+            .limit(1)
+            .get();
+        if (snap.empty)
+            throw new Error("no unused content_ideas — run generateContentIdeas");
+    }
+
+    const ideaDoc = snap.docs[0];
+    const idea = ideaDoc.data();
+    const id = `carousel-${today}-${ideaDoc.id}`;
+
+    const slides = await callGeminiForCarouselSlides(idea);
+    const urls = [];
+
+    // Render 5 slides: intro / body / body / body / cta
+    const slideMap = [
+        { tpl: SLIDE_TEMPLATES.intro, data: slides.slide1 },
+        { tpl: SLIDE_TEMPLATES.body, data: slides.slide2 },
+        { tpl: SLIDE_TEMPLATES.body, data: slides.slide3 },
+        { tpl: SLIDE_TEMPLATES.body, data: slides.slide4 },
+        { tpl: SLIDE_TEMPLATES.cta, data: slides.slide5 },
+    ];
+
+    for (let i = 0; i < slideMap.length; i++) {
+        const html = fillTemplate(slideMap[i].tpl, slideMap[i].data);
+        const png = await renderHtmlToPngSized(html, 1080, 1350);
+        const url = await uploadAssetPng(png, "carousels", `${id}-slide-${i + 1}`);
+        urls.push(url);
+    }
+
+    const today0 = new Date();
+    today0.setUTCHours(0, 0, 0, 0);
+    const fireAt = new Date(today0);
+    fireAt.setUTCHours(13 + 4, 0, 0, 0); // 1pm ET = 17 UTC
+    if (fireAt < new Date()) fireAt.setUTCDate(fireAt.getUTCDate() + 1);
+
+    await db.collection("ig_batch_queue").doc(id).set({
+        format: "carousel",
+        status: "ready",
+        fireAt: admin.firestore.Timestamp.fromDate(fireAt),
+        topic: idea.topic || idea.hook,
+        angle: idea.angle || "tip",
+        path: "B",
+        source: "content-engine-auto",
+        ideaId: ideaDoc.id,
+        assetUrls: { images: urls },
+        caption: buildCaptionFromIdea(idea, slides.slide1),
+        tiktokDraft: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        retryCount: 0,
+    });
+    await ideaDoc.ref.update({
+        used: true,
+        usedAt: admin.firestore.FieldValue.serverTimestamp(),
+        usedAs: id,
+    });
+
+    return { id, topic: idea.topic || idea.hook, fireAt: fireAt.toISOString(), urls };
+}
+
+exports.generateDailyCarousel = functions
+    .runWith({ timeoutSeconds: 540, memory: "1GB" })
+    .pubsub.schedule("0 12 * * *")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        try {
+            const r = await generateCarouselNow();
+            await postSlack({
+                level: "info",
+                title: `Carousel queued for today: ${r.topic}`,
+                body: `Fires ${r.fireAt.slice(11, 16)} UTC · 5 slides at <https://storage.googleapis.com|GCS>`,
+            });
+            return null;
+        } catch (e) {
+            functions.logger.error("generateDailyCarousel failed", e);
+            await postSlack({ level: "warning", title: "Daily carousel failed", body: e.message });
+            return null;
+        }
+    });
+
+exports.generateDailyCarouselOnDemand = functions
+    .runWith({ timeoutSeconds: 540, memory: "1GB" })
+    .https.onRequest(async (req, res) => {
+        try {
+            const expected = process.env.IG_BATCH_SEED_TOKEN;
+            const got = req.query.token || req.headers["x-seed-token"];
+            if (!expected || got !== expected)
+                return res.status(403).json({ ok: false, error: "invalid token" });
+            const r = await generateCarouselNow();
+            res.json({ ok: true, ...r });
+        } catch (e) {
+            res.status(500).json({ ok: false, error: e.message });
+        }
+    });
