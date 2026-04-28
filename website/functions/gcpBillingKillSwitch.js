@@ -56,8 +56,14 @@ const WARN_THRESHOLD = 0.5;   // 50%  -> Slack/Telegram warning only
 const KILL_THRESHOLD = 0.95;  // 95%  -> detach billing (safer than 100%)
 const PROJECT_ID = process.env.GCLOUD_PROJECT || "jegodigital-e02fb";
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+// Telegram fallback (matches brevoEventWebhook.js + coldCallLiveMonitor.js pattern).
+// In-repo fallback ensures budget alerts fire even if env vars aren't injected at deploy.
+// 2026-04-28: added by Alex per Apr 26 Veo MX$519.53 spike investigation. Without this
+// fallback, Telegram messages silently failed with "no_creds" and we never saw alerts.
+const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
+const TG_CHAT_FALLBACK = "6637626501";
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || TG_BOT_FALLBACK;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || TG_CHAT_FALLBACK;
 
 // ─── helpers ─────────────────────────────────────────────────────────────
 
