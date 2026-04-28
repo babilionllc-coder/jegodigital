@@ -2,8 +2,8 @@
 
 > **Purpose:** The **business brain** of JegoDigital — the 9 services we sell, the clients we target, the proof we cite, the sales motion, the exact outreach copy, and the revenue math that drives everything.
 > **Read this file when:** You're writing outreach copy, editing cold email templates, tweaking Sofia's WhatsApp funnel, building a proposal, or answering "how does JegoDigital actually make money?"
-> **Sister files:** `CLAUDE.md` (the rules) · `PLAYBOOKS.md` (how we ship: IG, cold calls, mockups) · `AI_AGENT_PERSONA.md` (the strategic brain).
-> **Last updated:** 2026-04-21 (extracted from CLAUDE.md during Phase 2 refactor)
+> **Sister files:** `CLAUDE.md` (the rules) · `BLUEPRINT.md` (master strategy + §2.5 Acceleration Layer) · `PLAYBOOKS.md` (how we ship: IG, cold calls, mockups) · `AI_AGENT_PERSONA.md` (the strategic brain).
+> **Last updated:** 2026-04-27 PM (added Competitive Counter-Positioning + Accelerator Products + revenue acceleration math — sync with BLUEPRINT.md §2.5)
 
 ---
 
@@ -12,11 +12,13 @@
 1. [The 9 Services](#the-9-services)
 2. [Target Client (ICP)](#target-client)
 3. [Verified Results (social proof)](#verified-results)
-4. [Sales Strategy — Trojan Horse](#sales-strategy--the-trojan-horse)
-5. [Outreach Pipeline — Instantly.ai](#outreach-pipeline--instantlyai)
-6. [WhatsApp + Instagram Funnel — ManyChat + Sofia](#whatsapp--instagram-funnel)
-7. [Key Constraints](#key-constraints)
-8. [Revenue Goal & 5 Revenue Streams](#revenue-goal--5-revenue-streams)
+4. [Competitive Counter-Positioning (Trichter + Digital Piloto)](#competitive-counter-positioning)
+5. [Sales Strategy — Validated Offer](#sales-strategy--validated-offer-2026-04-27)
+6. [Accelerator Products (2026-04-27 PM)](#accelerator-products-2026-04-27-pm)
+7. [Outreach Pipeline — Instantly.ai](#outreach-pipeline--instantlyai)
+8. [WhatsApp + Instagram Funnel — ManyChat + Sofia](#whatsapp--instagram-funnel)
+9. [Key Constraints](#key-constraints)
+10. [Revenue Goal & 5 Revenue Streams](#revenue-goal--5-revenue-streams)
 
 ---
 
@@ -86,6 +88,38 @@ All results displayed publicly: jegodigital.com/showcase · instagram.com/jegodi
 
 ---
 
+## COMPETITIVE COUNTER-POSITIONING
+
+> **Added 2026-04-27 PM** — direct intel on the closest competitors to JegoDigital and the positioning frame we use to win against them. Sister doc: `BLUEPRINT.md §2.5 Move 2`.
+
+### The two real competitors (everything else is noise)
+
+| Competitor | What they sell | Estimated price | Positioning weakness we exploit |
+|---|---|---|---|
+| **Trichter Consulting** (Mexico) | Consulting + intelligent funnels + AI lead scoring + WhatsApp automation + chatbots that handle objections | No public pricing — estimated **$30-80K MXN/mo retainer**. Cite project: $120M MXN sales generated for a Mazatlán developer. | Pure **consultancy** model — they advise, they don't operate. Brokers must still hire executors. They cannot guarantee outcomes. |
+| **Digital Piloto** (India, 9 yrs) | AI-driven digital marketing for Mexican real estate, "measurable ROI" framing | Likely $1-3K USD/mo retainer (offshore pricing) | Foreign agency, no on-the-ground Mexican RE relationships, no AMPI presence, no local case studies. Cultural + language gap on premium luxury accounts. |
+
+### The frame we own (and they cannot)
+
+> *"Trichter te dice qué hacer. JegoDigital lo hace por ti — pagas por leads calificados, no por horas."*
+
+JegoDigital is positioned as the **operator**, not the consultant. The differentiation is structural: their business model requires billable hours; ours scales on AI marginal cost. We can guarantee outcomes (Garantía 60s, 14-day money-back, performance pricing) because the AI stack actually delivers them — they cannot make those guarantees without burning their own margin.
+
+### Where to deploy the counter-position
+
+- **`/vs-consultoria` page** — comparison table targeting "trichter consulting alternativa" + "consultoría inmobiliaria IA México alternativa" + "marketing inmobiliario IA México"
+- **Cold-call rebuttals** — when prospect says "ya tenemos un consultor" → Sofia/Alex script: "*Perfecto. Un consultor te dice qué hacer; nosotros lo hacemos por ti. Si en 14 días no captura un lead real, devolvemos el 100%. ¿Cuándo te conviene una llamada de 15 min?*"
+- **Calendly close talk track** — anchor frame BEFORE pricing: "*La diferencia con Trichter o cualquier consultor es que nosotros operamos el sistema. Tú no contratas horas, contratas resultados.*"
+- **Cold-email copy angle** — `cold-email-copywriting` skill should add 2 templates explicitly using the consultant-vs-operator frame.
+
+### Anti-frame (what we never say)
+
+- ❌ Never name Trichter or Digital Piloto in cold email or paid ad copy (legal risk + signals defensiveness)
+- ❌ Never claim "we're the only AI agency in Mexico" — Trichter exists, brokers will Google
+- ❌ Never compete on consulting depth — that's their lane, we'd lose the comparison
+
+---
+
 ## SALES STRATEGY — VALIDATED OFFER (2026-04-27)
 
 > ⚠️ **STRATEGY UPDATED 2026-04-27 — old "FREE setup Trojan Horse" model is DEPRECATED.**
@@ -142,6 +176,106 @@ Per the validated dossier, run 3 cells in parallel to confirm Cell B (paid pilot
 Full experimental spec + decision rules + implementation checklist in [`docs/strategy/jegodigital-validated-offer-2026-04-27.md`](docs/strategy/jegodigital-validated-offer-2026-04-27.md).
 
 **Cold-call → Brevo nurture capture (LIVE 2026-04-22 evening):** every positive cold call on Offer A (SEO Pitch) or Offer C (Free Setup Trojan Horse) → ElevenLabs agent fires `save_lead_to_brevo_seo` / `save_lead_to_brevo_setup` → `saveColdCallLead` Cloud Function → Brevo list 35/36 + 5 Spanish email touches (0/1/3/5/7 for A, 0/1/3/5/10 for C). Offer B (Free Audit) uses the separate `submitAuditRequest` audit-delivery pipeline. All 10 templates audited against HR-0, compliant with CAN-SPAM unsubscribe, and attributed via `utm_campaign=coldcall_a|coldcall_c` on a single `/30min` Calendly link. Full spec: `SYSTEM.md §1.3 saveColdCallLead` + `PLAYBOOKS.md §AI Cold Calling`.
+
+---
+
+## ACCELERATOR PRODUCTS (2026-04-27 PM)
+
+> **Why this section exists:** the validated paid-pilot offer (above) closes the agency-retainer ladder, but mathematically caps at ~$226K USD/yr with one operator. To compress the 24-month roadmap to 12-15 months we ship 4 productized accelerators that attack high-ticket developer contracts, the AEO citation moat, the conversion-speed guarantee lever, and transparent performance pricing. Sister doc: `BLUEPRINT.md §2.5`.
+
+### Accelerator 1 — Lanzamiento Preventa 90 Días (high-ticket developer SKU)
+
+**Pitch (in person, never in cold email):** *"Lanzamos tu preventa en 90 días con un sistema completo: landing dedicado, Sofia bilingüe ES/EN/FR, ads en Google y Meta contra el nombre del desarrollo, sitio AEO con schema Article + RealEstateAgent + FAQPage, reporte semanal en Slack. $150-300K MXN por proyecto, dependiendo del tamaño del lanzamiento."*
+
+**Pipeline targets (publicly announced 2026 preventas, all ungrabbed by competitors):**
+- Ritz-Carlton Residences Riviera Maya · Villa Capri (Xpu-Ha) · NALÚ Sanctuary · Distrito Zen (Puerto Cancún) · Nickelodeon Hotel Riviera Maya preventa · the broader $300M new-Cancún-hotel construction wave
+
+**Outreach:** Apify-scrape preventa news mentions → enrich marketing directors via `linkedin-hiring-intent` skill → personalized 3-email Instantly sequence + LinkedIn DM. Skill update: `lead-finder` add `--mode=developer-preventa`.
+
+**Math:** 6 contracts × $200K MXN avg = $1.2M MXN annual contribution (~$100K MXN/mo) — by itself accelerates Phase 2 of the roadmap by ~6 months. Templated delivery means marginal effort drops after contract #2.
+
+**Where to land prospects:** new dedicated landing page `jegodigital.com/lanzamiento-preventa` (build in `website-builder` skill, brand-locked #0f1115 + #C5A059, Flamingo + GoodLife as social proof anchors).
+
+### Accelerator 2 — Garantía 60 Segundos (productized response-time guarantee)
+
+**Public guarantee:** *"Si Sofia no responde en 60 segundos, este mes va por nuestra cuenta."*
+
+**Why this is a closing lever no competitor can copy:** sub-1-min response = 7× more likely to convert; sub-30-min = 21× higher than slower competitors. Sofia already does this with current ManyChat + ElevenLabs setup. Putting it in writing as a public guarantee is structural — Trichter (consultancy with humans) literally cannot match it.
+
+**Where to deploy:**
+- Homepage hero (Spanish + English)
+- Every Pack Crecimiento + Pack Dominación deliverables list (signed contracts include the guarantee clause)
+- Calendly call closing line — Alex must say it verbatim
+- Cold email step 4 social-proof slot
+- Sofia ManyChat ice-breaker copy
+
+**Measurement Cloud Function:** `sofiaResponseTimeMonitor` logs every Sofia first-touch (WA + IG + web chat) → Firestore `response_times` collection → monthly client report includes "Tiempo promedio de respuesta: Xs" as proof of guarantee fulfillment. If a single client month shows >60s avg, that month's invoice is auto-credited.
+
+### Accelerator 3 — Reporte AEO 2026 (audit funnel rebrand)
+
+**Old:** `/auditoria-gratis` — generic SEO audit, gets confused with PageSpeed audits.
+**New:** `/reporte-aeo-2026` — leads with the 2026 AEO trend, lands as a category-defining product.
+
+**Hero copy:** *"Descubre por qué ChatGPT, Gemini y Perplexity no te están recomendando."*
+
+**Public LLM citation score (0-100):** computed live by firing 5 buyer-intent prompts in parallel across Perplexity + ChatGPT + Gemini:
+1. "¿Cuál es la mejor inmobiliaria en {city}?"
+2. "¿Qué desarrollador de propiedades recomiendas en {region}?"
+3. "Mejor agencia de bienes raíces en {city} 2026"
+4. "Inmobiliarias confiables en {city}"
+5. "Best real estate agency in {city} Mexico" (English variant)
+
+Each prompt scored on (a) appears in answer (yes/no), (b) appears in cited sources (yes/no), (c) sentiment if mentioned. Score normalized 0-100. Score is shareable on LinkedIn → creates inbound that retainer pitches don't.
+
+**Pipeline updates:**
+- Rename URL with 301 redirect (preserve all backlinks)
+- Extend `submitAuditRequest` Cloud Function with `citationScoreModule`
+- Update `audit-funnel` skill SKILL.md to document new module
+- Update Brevo audit-delivery email template to lead with the citation score
+- Update Sofia ManyChat audit-offer copy to say "Reporte AEO 2026" instead of "auditoría gratis"
+
+### Accelerator 4 — Public Performance Tier SKUs (`/precios`)
+
+**Three tiers, publicly priced** (anchored below industry CPL benchmark of $416-480 USD ≈ $7,500 MXN — fair pricing, but still 9-10× retainer ceiling per high-volume account):
+
+| Tier | Price | Definition |
+|---|---|---|
+| **Form Fill** | $300 MXN | Lead submits name + email + URL via web form |
+| **Qualified WhatsApp** | $750 MXN | ≥3 WA conversation turns + Sofia confirms decision-maker |
+| **Booked Calendly Show** | $1,500 MXN | Calendly booked AND lead actually shows up to the call |
+
+**Math example:** one client doing 30 booked appointments/mo = $45,000 MXN — 9× the Pack Lead Capture ceiling on a single account. Top 3 retainer clients (Flamingo + 2 others) have the volume to justify the conversion.
+
+**Side benefit:** publicly priced performance tier acts as a tire-kicker filter — anyone balking at $1,500 MXN per booked showing was never going to pay $28,900 MXN/mo for Pack Dominación.
+
+**Billing infrastructure:** Stripe metered billing reading from Firestore `qualified_leads` collection nightly. Update `client-onboarding` skill with Performance Tier SKU schema + monthly invoice template.
+
+### Accelerator 5 — `jegodigital.com/observatorio` (transparency-as-moat dashboard)
+
+**Public anonymized dashboard, refresh every 60s:**
+- Sofia conversations handled today (count)
+- Average response time across all clients (seconds — proof of Garantía 60s)
+- Leads qualified this week (count)
+- Audits delivered this week (count)
+- Live LLM citation count for client portfolio (aggregate across 5 prompts × all clients)
+- Current Google Maps positions (anonymized to "Cliente A / B / C")
+
+**HR-0 compliance:** all numbers come from live Firestore + DataForSEO + ElevenLabs API reads. Zero estimates, zero "industry averages." If an API is down, the dashboard says "Recargando…" — never falls back to cached numbers.
+
+**Why it's a moat:** Trichter and Digital Piloto cannot ship this because their consultancy model has nothing to display in real time. Brokers in 2026 trust transparent AI more than opaque "agency magic" — and `/observatorio` makes the AI stack the brand promise instead of the hidden liability it currently is.
+
+**Build:** single Cloud Function `observatorioMetrics` + static HTML page on `jegodigital.com/observatorio` (Firebase Hosting). No login, no auth — fully public. Brand-locked #0f1115 + #C5A059.
+
+### How the 5 accelerators stack with the validated offer
+
+| Channel/touchpoint | Validated offer (§ Sales Strategy) | + Accelerator overlay |
+|---|---|---|
+| Homepage hero | Pack Crecimiento + 14-day money-back | + Garantía 60 Segundos badge + `/observatorio` link |
+| Cold email reply | Free audit + Calendly + WhatsApp | + Reporte AEO 2026 link replaces auditoria-gratis |
+| Calendly close | Anchor Flamingo 4.4× → Pack Crecimiento $18,900 + 14-day money-back | + Garantía 60s as additional risk reversal + Performance Tier as upsell after month 1 |
+| Cold call positive | ElevenLabs Sofia → Brevo nurture + Calendly | + counter-position vs Trichter ("operador, no consultor") |
+| Outbound to developers | Generic Trojan Horse | **NEW: Lanzamiento Preventa 90 Días** $150-300K MXN — primary high-ticket motion |
+| `/precios` page | Hidden pricing (Calendly only) | + Public Performance Tier SKUs visible (form fill / WhatsApp / Calendly show) |
 
 ---
 
@@ -351,6 +485,86 @@ JegoDigital
 
 ---
 
+## PAID RETARGETING SIEGE — Google Demand Gen + Meta Lead Form (LIVE 2026-04-28)
+
+> 🚀 **Live operations doc:** [`docs/operations/MARKETING_OPS_HUB.md`](docs/operations/MARKETING_OPS_HUB.md) — single source of truth for what's running NOW (Meta Lead Form, audiences, Brevo nurture, CAPI events, KPI targets).
+>
+> 📚 **Skill:** [`docs/skills/meta-ads-jegodigital/SKILL.md`](docs/skills/meta-ads-jegodigital/SKILL.md) — full playbook (19 sections, 11 cited research sources). Use this skill EVERY TIME for Meta Ads work.
+
+**The play:** Cold-email-engaged + LinkedIn hiring-intent + DIAL_READY leads (2,238 verified, deduped from 9 active Instantly campaigns + Apify hiring scrape) get paid retargeting on Meta + Google while cold email + AI cold call cadence runs on the same list. Multi-channel siege: by week 2, JegoDigital is inescapable.
+
+**Reality check vs. original plan:** the "1,767 LinkedIn hiring-intent" referenced in the original 2026-04-27 plan was aspirational — the actual scrape only produced ~46 LinkedIn hiring-intent leads with verified emails. The 2,238 audience is built from the broader Instantly + LinkedIn + cold-call pool, all verification_status=1 only. Quality over the imagined number.
+
+### Why hiring-intent leads are the highest-quality paid audience we can buy
+- **Budget signal** — they're hiring marketing roles → they have budget
+- **Pain signal** — they're hiring → they have a marketing problem they can't solve internally
+- **Decision-maker** — Hunter.io verified CMO/CFO/Director, not gatekeepers
+- **Already in our funnel** — Instantly cold-emailing them + ElevenLabs Sofia calling them
+
+### Channel #1 — Google Demand Gen retargeting
+
+| Setting | Value |
+|---|---|
+| Account | `471-527-2770` (under MCC `799-799-5839`) |
+| Type | Demand Gen |
+| Audience | Customer Match `1767_hiring_intent_2026-04-27` (the hashed CSV) |
+| Optimized targeting | OFF (no lookalikes — pure 1,767 focus) |
+| Surfaces | YouTube + YouTube Shorts + Gmail + Discover + Display |
+| Budget | MX$150/day |
+| Frequency cap | 8/week per person |
+| Geo | Mexico + Miami-Dade |
+| Languages | Spanish + English |
+| Bid | Maximize Clicks |
+| Creative | 5 case-study images (Flamingo, GoodLife, Solik, Goza, offer card) + 27s Spanish video |
+| Landing | jegodigital.com/auditoria-gratis (full audit pipeline) |
+
+**Master prompt:** `docs/campaigns/MASTER_PROMPT_google_ads_demand_gen.md`
+**Creative kit:** `creatives/demand-gen-2026-04-27/{1x1,4x5,9x16,16x9,videos}/`
+
+### Channel #2 — Meta/Facebook Lead Form retargeting
+
+| Setting | Value |
+|---|---|
+| Account | Meta Ad Account `968739288838315` |
+| Objective | **Leads (Meta Instant Lead Form, NOT website)** — see strategy dossier for why |
+| Audience | TWO ad sets — AS-1: same 1,767 Customer Match · AS-2: Pixel-based site visitors who didn't convert |
+| Placements | **FB Feed only** (skip IG/Marketplace/Audience Network/Reels for v1; add IG Feed week 2 if FB saturates) |
+| Budget | MX$50/day total — 60% AS-1, 40% AS-2 |
+| Frequency cap | 4/week per ad set |
+| Geo | Mexico + Miami-Dade |
+| Languages | Spanish + English |
+| Creative | Same as Google Demand Gen (4:5 case studies + 27s video) |
+| Lead form | Email (pre-filled) · URL del sitio · WhatsApp |
+| Webhook | `metaLeadFormWebhook` → Brevo (Hiring Intent FB list) + `submitAuditRequest` → automatic audit delivery in <5 min |
+
+**Why Lead Form (not website landing page):** Meta Instant Lead Form converts 5-10% (vs 1-3% landing page) for warm pre-qualified audiences. Our 1,767 list is hand-verified — quality is filtered upstream, friction = lost leads. Backstopped with webhook → Brevo → automatic /auditoria-gratis pipeline → email delivery, so they still get the full audit experience.
+
+**Why FB Feed only for v1:** Simpler delivery, faster signal. Skip IG/Marketplace/Audience Network/Messenger Inbox/Reels initially. Add IG Feed in week 2 only if FB saturates the 1,767 list.
+
+**Strategy dossier:** `docs/research/facebook-ads-strategy-2026-04-27.md` (Perplexity-validated)
+**Campaign blueprint:** `docs/campaigns/facebook-custom-audience-retargeting-2026-04-27.md`
+
+### Combined cross-channel touch budget per lead per week
+
+| Touchpoint | Frequency |
+|---|---|
+| Cold email (Instantly) | 5 emails over 12 days |
+| AI cold call (ElevenLabs Sofia, MX or US bilingual) | 1-2 attempts |
+| **Google Demand Gen** — YouTube/Gmail/Discover/Display | 8/week |
+| **Meta FB Feed** — Lead Form ad | 4/week (per ad set, so up to 8 across both ad sets) |
+| **Total paid touches** | **12-16/week** + email/call drip |
+
+That's ~2 paid impressions per lead per day, every day, across YouTube + Gmail + FB + Display, while we email + call them. The brand becomes inescapable in 14-30 days.
+
+### Anti-goals (what we NEVER do)
+- ❌ Run paid ads to broad keyword searches (we tried it — paused 2026-04-27)
+- ❌ Add lookalike audiences (would dilute 1,767 focus until we have ROI proof)
+- ❌ Quote price in any ad copy (HR-0 — Calendly call only)
+- ❌ Run Meta on Marketplace, Audience Network, or Messenger Inbox (consumer/intrusive)
+- ❌ Skip the webhook plumbing for Meta Lead Form (without it, leads die in Meta's UI)
+
+---
+
 ## KEY CONSTRAINTS
 
 - **Focus on OUTCOMES:** more showings, more deals, less time chasing leads
@@ -363,22 +577,46 @@ JegoDigital
 
 ## REVENUE GOAL & 5 REVENUE STREAMS
 
-**Goal:** $1,000,000 USD/year ($1,670,000 MXN/month) — 24-month runway
+**Goal:** $1,000,000 USD/year ($1,670,000 MXN/month)
+**Baseline runway:** 24 months · **Accelerated runway (with §2.5 Acceleration Layer firing):** 12-15 months
 
 **5 Revenue Streams:**
-1. Recurring agency clients (35 clients on retainer) → $420,000 MXN/mo
-2. Real estate developer contracts ($80K–$200K MXN per project) → $350,000 MXN/mo
-3. Performance-based deals (base + per qualified lead) → $400,000 MXN/mo
-4. White-label / agency partners (license AI stack) → $250,000 MXN/mo
-5. High-ticket projects (premium sites, AI installs, consulting) → $250,000 MXN/mo
 
-**Weekly KPIs:**
-- Outbound messages (OpenClaw): 500/week
+| # | Stream | Monthly target | Vehicle |
+|---|---|---|---|
+| 1 | Recurring agency clients (35 on retainer) | $420,000 MXN | Pack Crecimiento $18,900 + Pack Dominación $28,900 (validated 2026-04-27) |
+| 2 | Real estate developer contracts ($150-300K MXN/project) | $350,000 MXN | **Lanzamiento Preventa 90 Días** SKU (Accelerator 1) — 6 contracts/yr at $200K avg |
+| 3 | Performance-based deals (base + per qualified lead) | $400,000 MXN | **Public Performance Tier SKUs** (Accelerator 4) — $300/$750/$1,500 per outcome |
+| 4 | White-label / agency partners (license AI stack) | $250,000 MXN | $40-60K MXN/mo per partner × 5 partners (Phase 4 lever) |
+| 5 | High-ticket projects (premium sites, AI installs, consulting) | $250,000 MXN | Sitio Web Premium $24,900 + bespoke AI installations |
+
+**Acceleration math (with §2.5 firing on all 7 moves):**
+
+| Phase | Baseline (24-mo plan) | Accelerated (§2.5 plan) | Source of compression |
+|---|---|---|---|
+| $700K MXN/mo MRR | Month 12 | **Month 6** | 1-2 Lanzamiento Preventa contracts ($300-400K MXN) + Performance Tier conversion of top 3 retainer clients |
+| $1.1M MXN/mo MRR | Month 18 | **Month 9-12** | 4-5 Lanzamiento Preventa contracts cycling + AEO citation moat compounding inbound |
+| $1.67M MXN/mo MRR ($1M ARR) | Month 24 | **Month 12-15** | All 5 streams firing + 2-3 white-label partners signed |
+
+**Weekly KPIs (updated 2026-04-27 PM with Accelerator overlay):**
+- Outbound messages (Instantly cold email): 500/week
 - Discovery calls (Calendly): 10/week
-- Free Trojan Horse installs: 3/week
-- New recurring revenue: $50,000 MXN/week
+- **NEW: Developer marketing-director outreach** (Lanzamiento Preventa pipeline): 25/week, target 1 closed Lanzamiento contract per month
+- **NEW: LLM citation score deltas** (Reporte AEO 2026): track Flamingo + Solik + GoodLife monthly, target +10 points/mo
+- **NEW: Sofia avg response time** (Garantía 60s monitoring): <60s avg, no client month >60s
+- New recurring revenue: $50,000 MXN/week (existing) + $25,000 MXN/week from Lanzamiento + Performance Tier (NEW)
 - Churn: < 5%/month
 
 ---
+
+---
+
+## VERSION CONTROL
+
+| Date | Major changes |
+|---|---|
+| 2026-04-21 | Initial extraction from CLAUDE.md (Phase 2 refactor) |
+| 2026-04-27 AM | Validated Offer 2026-04-27 — paid pilot replaces free Trojan Horse, raised pricing tiers ($18,900 / $28,900 MXN) |
+| 2026-04-27 PM | **Acceleration overlay** — added Competitive Counter-Positioning (Trichter + Digital Piloto), Accelerator Products (Lanzamiento Preventa, Garantía 60s, Reporte AEO 2026, Performance Tier SKUs, /observatorio dashboard), revenue acceleration math (24-mo → 12-15-mo compressed runway), updated weekly KPIs with developer outreach + citation score + response time targets. Sister: `BLUEPRINT.md §2.5`. |
 
 *End of BUSINESS.md — keep copy fresh, update weekly when campaigns/templates change.*

@@ -1,6 +1,7 @@
 # JegoDigital — Master Business Blueprint
-**Version:** 2026-04-27 v1 · **Owner:** Alex Jego · **Maintained by:** Claude AI sessions
-**Read time:** ~12 min · **Status:** AUTHORITATIVE — single source of truth for any AI agent or human picking up this project
+**Version:** 2026-04-27 v1.1 · **Owner:** Alex Jego · **Maintained by:** Claude AI sessions
+**Read time:** ~14 min · **Status:** AUTHORITATIVE — single source of truth for any AI agent or human picking up this project
+**v1.1 changes:** added §2.5 Acceleration Layer (7 moves to pull $1M ARR forward 6-9 months), updated §8 trajectory with compressed timeline, added §13 acceleration priorities, v1.1 entry in §15.
 
 > **Read this first.** This blueprint consolidates business strategy, validated offer, dual-market plan, all 8 channel playbooks, KPIs, decision rules, and the 30-day controlled experiment. Every claim cites a research dossier. Every number is HR-0 compliant (live API or marked `[needs primary research]`).
 >
@@ -76,6 +77,80 @@
 
 > 🚨 **HARD RULE — HR-0:** **NEVER quote price in any automated channel.** Not in cold email body. Not in WhatsApp messages. Not in cold call scripts. Not in ad copy. Pricing only on live Calendly call with Alex.
 > 30-day A/B test will validate whether to raise Pack Crecimiento → $18,900 MXN/mo (Cell C). Until then: keep current.
+
+---
+
+## §2.5 Acceleration Layer — 7 moves to pull $1M ARR forward by 6-9 months
+
+**Added:** 2026-04-27 PM · **Source:** competitive intel (Trichter Consulting + Digital Piloto teardown) + 2026 AEO/conversion research synthesis · **Status:** ACTIVE — overlays §2 validated offer, does not replace it.
+
+The validated paid-pilot offer (§2) closes the agency-retainer ladder. These 7 moves attack the **other** levers — high-ticket developer contracts, AEO citation moat, productized guarantees, and counter-positioning vs the closest direct competitor (Trichter Consulting) — to compress the 24-month roadmap to ~12-15 months.
+
+### Move 1 — "Lanzamiento Preventa 90 Días" developer package (P0 revenue lever)
+- **SKU:** $150-300K MXN per 90-day project (aligns with validated developer pricing in §2)
+- **Target:** 6 contracts/year ≈ $1.2M MXN annual contribution (~$100K MXN/mo equivalent) — by itself accelerates Phase 2 by ~6 months
+- **Includes:** dedicated landing page · Sofia bilingual ES/EN/FR · Meta + Google preventa ads against the development name + brand keywords · AEO authority site (FAQPage + RealEstateAgent + Article schema) · weekly Slack report · escrow/financing FAQ wired into Sofia
+- **Pipeline targets (public preventas, all ungrabbed by Trichter or Digital Piloto):** Ritz-Carlton Residences Riviera Maya · Villa Capri (Xpu-Ha) · NALÚ Sanctuary · Distrito Zen (Puerto Cancún) · Nickelodeon Hotel Riviera Maya · plus the $300M new-Cancún-hotel construction wave
+- **Outreach:** Apify-scrape preventa news → `linkedin-hiring-intent` skill for marketing directors → personalized 3-email Instantly sequence + LinkedIn DM. Skill to update: `lead-finder` add `--mode=developer-preventa` flag.
+- **Why fastest:** one $200K MXN contract = ~24 months of a single-service retainer. Templated delivery means marginal effort drops after contract #2.
+
+### Move 2 — Counter-position vs Trichter Consulting (and Digital Piloto)
+- **Tagline:** *"Trichter te dice qué hacer. JegoDigital lo hace por ti — pagas por leads calificados, no por horas."*
+- **Action:** ship `jegodigital.com/vs-consultoria` comparison page targeting "trichter consulting alternativa" + "consultoría inmobiliaria IA México alternativa" + "marketing inmobiliario IA México" — steal their inbound by occupying the operator-vs-consultant frame they can't credibly claim.
+- **Backstop intel:** Trichter sells consulting + infrastructure (no public pricing — estimated $30-80K MXN/mo retainer). Digital Piloto (India, 9 yrs) is the foreign competitor. Both sell *advice*; we sell *outcomes*. Use this same frame in Sofia's Calendly-call talk track and on every cold-call rebuttal to "ya tenemos un consultor."
+- **Skill to update:** `cold-email-copywriting` — add 2 templates ("the consultant alternative" angle).
+
+### Move 3 — Engineer the 12-month AEO citation moat (concretely, this quarter)
+- **Why now:** content with proper schema = **2.5× AI-citation chance**; **44.2% of all LLM citations come from the first 30% of text** (intros are the entire game); ChatGPT cites Wikipedia 47.9%; Perplexity cites Reddit 46.7%; 60% of US/EU searches now end in zero clicks. Window closes by Q4 2026 once every Mexican agency copies the playbook.
+- **Three sub-moves:**
+  - **(a) Wikipedia entries** for Flamingo, GoodLife, Solik citing public sources (PR releases, AMPI listings, news mentions). No Mexican real estate agency has working Wikipedia presence — first mover wins.
+  - **(b) Reddit seeding** — long-form helpful content on r/MexicoCity, r/Cancun, r/Tulum, r/realestate. Not link-spam — actual useful answers that reference our domain expertise. Perplexity's #1 citation source.
+  - **(c) Restructure every blog post** so the answer is in the first 200 words. Update `seo-engine` skill brief template to make this a quality-gate fail criterion (no publish if answer is below the fold).
+- **Skill to update:** `seo-engine` SKILL.md — add "intro-200-words" gate to the blog quality-gate (`docs/gates/blog-quality-gate.md`).
+
+### Move 4 — Productize the "Garantía 60 Segundos" guarantee
+- **Pitch:** *"Si Sofia no responde en 60 segundos, este mes va por nuestra cuenta."*
+- **Why it works:** sub-1-min response = **7× more likely to convert**; sub-30-min = 21× higher than slower competitors. Sofia already does this; no human-staffed agency in Mexico can credibly match it. Putting it in writing as a public guarantee is a closing lever no competitor can copy.
+- **Action:** add to homepage hero · add to every Calendly call closing line · add to Pack Crecimiento + Pack Dominación deliverables list · add to cold email step 4 social-proof slot · add measurement Cloud Function (`sofiaResponseTimeMonitor`) that logs every Sofia first-touch for monthly proof reporting.
+
+### Move 5 — Repackage the audit funnel as "Reporte AEO 2026"
+- **Why:** AEO citation tracking is the hottest tooling category in 2026 marketing — same pipeline, ride trending demand. The current `/auditoria-gratis` brand is generic; "Reporte AEO 2026" rides the AEO hype curve and creates inbound that retainer pitches can't.
+- **Action:** rename `/auditoria-gratis` → `/reporte-aeo-2026` (301 redirect old URL, preserve all backlinks). Lead with: *"Descubre por qué ChatGPT, Gemini y Perplexity no te están recomendando."* Add a public **LLM citation score (0-100)** to the report, computed live across 5 buyer-intent prompts ("mejor inmobiliaria en {city}", "qué desarrollador recomiendas en {region}", etc.) — that score is shareable on LinkedIn and creates inbound.
+- **Skill to update:** `audit-funnel` SKILL.md — add `citationScoreModule` powered by Perplexity + ChatGPT + Gemini live-prompt tests. Cloud Function: extend `submitAuditRequest` to fire 5 LLM prompts in parallel and return a normalized 0-100 score.
+
+### Move 6 — Public performance pricing tier (3 SKUs on `/precios`)
+- **Three public tiers** (anchored below industry CPL benchmark of $416-480 USD ≈ $7,500 MXN — fair, but still ~10× retainer ceiling per high-volume account):
+  - **$300 MXN per form fill** (lowest-quality lead — name + email + URL only)
+  - **$750 MXN per qualified WhatsApp conversation** (≥3 turns + decision-maker confirmed via Sofia logs)
+  - **$1,500 MXN per booked Calendly that shows up** (highest-quality, fully attributable)
+- **Math:** one client doing 30 booked appointments/mo = $45,000 MXN — 9× the Pack Lead Capture ceiling on a single account. Convert top 3 retainer clients first (they have the volume to justify it and they trust the proof).
+- **Side benefit:** publicly priced performance tier pre-qualifies cheap shoppers (anyone balking at $1,500 MXN per booked showing was never going to pay $28,900 MXN/mo for Pack Dominación).
+- **Skill to update:** `client-onboarding` add Performance Tier SKU schema + Stripe metered billing setup (read from Firestore `qualified_leads` collection nightly).
+
+### Move 7 — `jegodigital.com/observatorio` real-time public dashboard
+- **Why:** stop hiding the AI stack — productize transparency as a moat. Trichter can't do this because they're consulting. 2026 surveys consistently show brokers trust transparent AI more than opaque "agency magic." Hiding the stack creates one-Alex-bus risk and underprices the offer.
+- **Display (anonymized aggregates only, refresh every 60s):** Sofia conversations handled today · average response time across all clients · leads qualified this week · audits delivered this week · live LLM citation count for client portfolio · current Google Maps positions for active clients (anonymized to "Cliente A / B / C")
+- **Backstops:** zero client-identifying data on the public page · aggregate counts only · all numbers HR-0 compliant (live Firestore + DataForSEO + ElevenLabs API reads, never cached or estimated). Built as a single Cloud Function + static HTML page.
+
+### 30-60-90 day sequencing for the acceleration layer
+
+| Window | Ship |
+|---|---|
+| **Days 1-30** | Lanzamiento Preventa package shipped · cold-outreach 50 Riviera Maya developers · audit funnel renamed to Reporte AEO 2026 · `/vs-consultoria` page live · Garantía 60s on homepage hero |
+| **Days 31-60** | Wikipedia entries for 3 clients submitted · Reddit seeding cadence running · public performance pricing live on `/precios` · Garantía 60s in every Calendly closing line · **first developer contract closed (target: ≥$150K MXN)** |
+| **Days 61-90** | `/observatorio` dashboard live · 2 more developer contracts in pipeline · convert top 3 retainer clients to performance pricing (target: 2× revenue per converted account) · Wikipedia + Reddit content compounding into measurable LLM citations (track via Reporte AEO 2026 score deltas on Flamingo/Solik/GoodLife) |
+
+### Acceleration math (compressed roadmap)
+
+If the acceleration layer lands as designed, §8 compresses by ~6-9 months:
+
+| Phase | §8 baseline target | §2.5 accelerated target |
+|---|---|---|
+| Phase 2 ($700K MXN/mo MRR) | Month 12 | **Month 6** |
+| Phase 3 ($1.1M MXN/mo MRR) | Month 18 | **Month 9-12** |
+| $1M ARR run rate ($1.67M MXN/mo) | Month 24 | **Month 12-15** |
+
+Compression source: (a) developer contracts at $200K MXN avg × 6/yr = $1.2M MXN annual (high ticket × low marginal effort once templated), (b) performance-pricing flip on top 3 retainer clients (2× revenue per account), (c) AEO citation moat creating compounding inbound that doesn't require ad spend.
 
 ---
 
@@ -179,45 +254,92 @@
 
 **Skill used:** `manychat-jegodigital`
 
-### 4.5 Google Ads — ⚠️ PARTIAL
+### 4.5 Google Ads — 🟢 PIVOTED to Demand Gen retargeting (2026-04-27 PM)
 
-**Account 471-527-2770 (jegoalexdigital@gmail.com):**
+**Account 471-527-2770 (jegoalexdigital@gmail.com) — under MCC `799-799-5839`:**
 
-**Active campaign:** `MX+Miami RE Search — Lead Form 2026-04-27` (campaignId 23797646867)
-- **Status:** Enabled — **but blocked by Google billing flag** ("Payment method can't be charged")
-- **Budget:** MX$150/day
-- **Bidding:** ❌ Maximize Conversions (should be Maximize Clicks per dossier — 0 conv logged)
-- **Geos:** ❌ 6 regions (should be 2 — MX + Miami-Dade only per dossier)
-- **Keywords:** ✅ 15 phrase-match Spanish
-- **Ads:** ⚠️ 1 RSA (need 3+ per Google best practice)
-- **Lead Form Asset:** ✅ "Auditoría Gratis Inmobiliarias" — pending review
-- **URL exclusions:** ✅ /blog, /empleos, /privacy, /careers, /about, /team, /case-studies
-- **Conversion tracking:** ❌ Not yet imported from GA4 (Tasks #24, #25 — gates Smart Bidding)
-- **Customer Match audience:** ✅ JegoDigital_Engaged_Leads_2026-04 (1,767 hashed) populating
+**Strategic decision (2026-04-27 PM, locked by Alex):**
+> **One focused campaign. Limited budget. Optimize the hell out of it.**
+> Pause keyword-broadcasting Search → ship ONE Demand Gen retargeting campaign against the 1,767 hiring-intent leads. The Customer Match list IS the audience, not a bid modifier.
 
-**Account 769-855-4952 (babilionllc@gmail.com):** Has 1,404 historical visitors — Display retargeting NOT yet built (Task #32).
+**Search campaign (`MX+Miami RE Search — Lead Form 2026-04-27` campaignId 23797646867):**
+- **Status:** Pausing (was Enabled). Wrong target — broadcasts to anyone searching keywords, not the 1,767.
+- Bidding switched to Max Clicks ✓ · Geo cut to MX + Miami-Dade ✓ · 70 negative keywords added ✓ · 20 sitelinks added ✓
+- Lead Form asset disapproved (phone in ad text) — needs Alex 60-second manual fix
 
-**Missing assets (per validated dossier — not yet created):**
-- 4 Sitelinks
-- 4-6 Callouts
-- 1+ Structured snippets
-- Business name + Business logo
-- Image asset (1200×628)
-- Call extension
-- 2 more RSAs (Trojan + Flamingo angles)
+**NEW: Demand Gen — Hiring Intent Retarget 2026-04-27 (about to ship):**
+- **Type:** Demand Gen
+- **Audience:** Customer Match `1767_hiring_intent` (already uploaded, hashed) — ONLY this, no lookalikes
+- **Surfaces:** YouTube + YouTube Shorts + Gmail Promotions + Discover + Display Network
+- **Geo:** Mexico + Miami-Dade
+- **Languages:** English + Spanish
+- **Bid:** Maximize Clicks
+- **Budget:** MX$150/day (full account budget)
+- **Frequency cap:** 8/week per person
+- **Optimized targeting:** OFF (no lookalikes — pure 1,767 focus)
+- **Creative:** 5 case-study 1:1 + 9:16 images + 1 brand card + 1 offer card + 27s video (Spanish Tony VO) — built 2026-04-27 PM
+- **Landing:** `jegodigital.com/auditoria-gratis?source=demandgen&utm_campaign=hiring_intent_retarget`
 
-**Demand Gen retargeting campaign — ❌ NOT BUILT.** This is the biggest unused asset — the 1,767 Customer Match list sitting idle.
+**Master prompt:** `docs/campaigns/MASTER_PROMPT_google_ads_demand_gen.md` (drop into any agent for re-execution)
+**Creative kit:** `creatives/demand-gen-2026-04-27/{1x1,4x5,9x16,16x9,videos}/`
+**Skill:** `google-ads-jegodigital`
 
-**Skill used:** `google-ads-jegodigital` (newly created, 389 lines, 13 corrections applied)
+### 4.6 Facebook/Meta Ads — 🟢 LIVE (2026-04-28)
 
-### 4.6 Facebook Ads — ❌ NOT BUILT
+> 🚀 **Live ops doc:** [`docs/operations/MARKETING_OPS_HUB.md`](docs/operations/MARKETING_OPS_HUB.md) — campaign IDs, audiences, KPI targets, change log
+> 📚 **Skill (re-runnable playbook):** [`docs/skills/meta-ads-jegodigital/SKILL.md`](docs/skills/meta-ads-jegodigital/SKILL.md)
 
-- Pixel installed on website (per existing config)
-- No active campaigns
-- No Customer Match audience uploaded to Meta yet (Pixel data only)
-- Plan: mirror Google Demand Gen with Meta Advantage+ retargeting + lookalike
+**Live state:**
 
-**Skill used:** None yet — need a `meta-ads-jegodigital` skill following the validated dossier.
+| Setting | Value |
+|---|---|
+| **Account** | Meta Ad Account `968739288838315` |
+| **Campaign ID** | `120241114978100662` (Meta — Hiring Intent Retarget v1) |
+| **Status** | 🟢 ACTIVE |
+| **Objective** | OUTCOME_LEADS (Lead Form) |
+| **Daily budget** | $5 USD ($3 + $2) |
+| **Lead Form ID** | `942858358503290` (5 questions, Spanish, quality-optimized) |
+| **Placements** | FB Feed only |
+| **Geo** | Mexico (state-level) |
+| **Languages** | Spanish + English |
+| **Ad sets** | AS-1 LF: JD_AllVerified_2238 ($3/day) · AS-2 LF: Pixel ($2/day) |
+| **Creative** | 1 video (27s 9:16) + 7 image creatives (4:5 case studies + offer + brand) |
+
+**Pipeline (LIVE end-to-end):**
+```
+Meta FB Lead Form fill
+  ↓ webhook
+metaLeadFormWebhook Cloud Function:
+  ├─ Firestore meta_lead_events
+  ├─ Brevo list 41 + 9 attributes
+  ├─ Welcome email (Brevo template 71) → <30 sec
+  ├─ 5-email nurture queued (templates 72-76, D+1/D+3/D+7/D+14/D+21)
+  ├─ Meta CAPI Lead event (server-side dedup)
+  ├─ submitAuditRequest fires → audit emailed in 45 min + CAPI CompleteRegistration
+  ├─ Telegram ping → @AlexJegoBot
+  └─ Slack ping → #leads-hot (mobile push ON)
+
+If lead books Calendly:
+  ├─ Cancel remaining nurture (no spam)
+  ├─ Meta CAPI Schedule event (the high-value buyer signal)
+  └─ Standard pre-call/post-call Brevo flow
+```
+
+**Reality check vs. original plan:** the "1,767 LinkedIn hiring-intent" referenced in earlier blueprint drafts was aspirational — only ~46 LinkedIn hiring-intent leads with verified emails actually existed. The 2,238 audience is built from the broader Instantly + LinkedIn + cold-call pool, all `verification_status=1` only. Quality over imagined number.
+
+**Tokens:** never-expiring USER + PAGE token locked in GitHub Secrets (post 2026-04-28 OAuth re-auth + long-lived exchange).
+
+**8 known gaps + status:** see `docs/operations/MARKETING_OPS_HUB.md` § Known Gaps — 5 fixed in Phase 1 (CAPI, welcome email, form fields, nurture, Slack); 3 pending (audience refresh weekly, founder Reel, Lookalike at 50+ conversions).
+
+**Blockers before launch:**
+- Verify Pixel firing on jegodigital.com (Events Manager → PageView + Lead events)
+- Domain verification on Meta (iOS 14.5+ tracking requires this)
+- Working payment method on Meta side (Mastercard 2479 currently failing on Google — verify Meta has different/working card)
+
+**Strategy dossier:** `docs/research/facebook-ads-strategy-2026-04-27.md` (Perplexity-validated, includes full campaign YAML spec at §8)
+**Campaign blueprint:** `docs/campaigns/facebook-custom-audience-retargeting-2026-04-27.md`
+
+**Skill used:** None yet — `meta-ads-jegodigital` skill needs to be created post-launch from the validated dossier.
 
 ### 4.7 Social Media — ⚠️ MIXED
 
@@ -327,7 +449,9 @@ When budget grows to MX$15K/mo, add Display retargeting ($50/day) + scale Demand
 
 ---
 
-## §8. The path to $1M USD ARR (24-month roadmap)
+## §8. The path to $1M USD ARR (24-month baseline · §2.5 compresses to ~12-15 months)
+
+> **Note:** the timeline below is the conservative baseline. With the §2.5 Acceleration Layer firing on all 7 moves, Phase 2 hits month 6, Phase 3 hits month 9-12, and $1M ARR run rate hits month 12-15. See §2.5 acceleration math table.
 
 **Q2 2026 (Mo 1-3):** Foundation
 - 30-day A/B/C experiment validates offer mechanic
@@ -469,6 +593,31 @@ When budget grows to MX$15K/mo, add Display retargeting ($50/day) + scale Demand
 
 ## §13. What's NEXT (priority queue, 2026-04-27 PM)
 
+### §2.5 Acceleration Layer priorities (NEW — interleave with existing P0/P1/P2)
+
+**Days 1-30 (Acceleration P0):**
+- [ ] **Lanzamiento Preventa 90 Días package** — landing page template + 90-day deliverable spec + pricing matrix ($150-300K MXN) shipped to `/lanzamiento-preventa`
+- [ ] **50 developer marketing-director outbound** — Apify-scrape Ritz-Carlton + Villa Capri + NALÚ + Distrito Zen + Nickelodeon developer teams via `linkedin-hiring-intent` skill, ship personalized 3-email Instantly sequence
+- [ ] **Rename audit funnel** — `/auditoria-gratis` → `/reporte-aeo-2026` (301 redirect, all backlinks preserved)
+- [ ] **Build LLM citation score module** — extend `submitAuditRequest` to fire 5 buyer-intent prompts in parallel across ChatGPT + Perplexity + Gemini, return normalized 0-100 score
+- [ ] **Ship `/vs-consultoria` page** — counter-positioning vs Trichter Consulting + Digital Piloto, optimized for "trichter alternativa" + "consultoría inmobiliaria IA México alternativa"
+- [ ] **Garantía 60 Segundos on homepage hero** — copy + Spanish/English version + measurement Cloud Function (`sofiaResponseTimeMonitor`) logging every Sofia first-touch
+
+**Days 31-60 (Acceleration P1):**
+- [ ] **Wikipedia entries** — Flamingo, GoodLife, Solik (3 entries citing public sources, AMPI listings, news mentions). No Mexican RE agency has Wikipedia presence — first mover wins ChatGPT 47.9% citation share
+- [ ] **Reddit seeding cadence** — 2 long-form helpful answers/week on r/MexicoCity, r/Cancun, r/Tulum, r/realestate. Perplexity's #1 citation source (46.7%)
+- [ ] **Public Performance Tier SKUs live on `/precios`** — $300 / $750 / $1,500 MXN tiers + Stripe metered billing reading from Firestore `qualified_leads`
+- [ ] **First developer contract closed** — target ≥$150K MXN, Riviera Maya preventa client
+- [ ] **Garantía 60s wired into all 6 Calendly close scripts** + Pack Crecimiento/Dominación deliverables list
+
+**Days 61-90 (Acceleration P2):**
+- [ ] **`/observatorio` real-time dashboard** — anonymized aggregate metrics, refresh every 60s, single Cloud Function + static HTML
+- [ ] **Convert top 3 retainer clients to Performance Tier** — Flamingo + 2 others (target: 2× revenue per converted account)
+- [ ] **Update `seo-engine` skill** — add intro-200-words gate to blog quality-gate doc (`docs/gates/blog-quality-gate.md`)
+- [ ] **Update `cold-email-copywriting` skill** — add "consultant alternative" angle (2 templates leveraging Trichter counter-position)
+- [ ] **Update `audit-funnel` skill** — citationScoreModule documented + Reporte AEO 2026 rebrand reflected
+- [ ] **Track citation deltas** — re-run Reporte AEO 2026 against Flamingo + Solik + GoodLife at days 60 and 90, measure citation count growth
+
 ### P0 — This week (gates everything else)
 - [ ] **Calendly admin** — 7 fixes per audit doc (Alex login, 10 min)
 - [ ] **Conversion tracking import** — Tools → Conversions → Import from GA4 → 5 actions (30 min Chrome MCP)
@@ -525,6 +674,7 @@ When budget grows to MX$15K/mo, add Display retargeting ($50/day) + scale Demand
 | Version | Date | Author | Major changes |
 |---|---|---|---|
 | 1.0 | 2026-04-27 | Claude (this session) | Initial consolidation of validated offer + dual-market + 8 channels + experiment plan + roadmap |
+| 1.1 | 2026-04-27 PM | Claude (acceleration session) | Added §2.5 Acceleration Layer (7 moves: Lanzamiento Preventa · vs-Trichter counter-position · AEO citation moat · Garantía 60s · Reporte AEO 2026 rebrand · public Performance Tier SKUs · /observatorio dashboard). Added compressed roadmap math to §8 (12-15 mo vs 24 mo). Added 18-item §13 acceleration priority queue (P0/P1/P2 across 30/60/90 days). Source: 2026-04-27 PM strategic research synthesis (Trichter Consulting + Digital Piloto teardown + AEO 2026 statistics + LATAM WhatsApp conversion data + Riviera Maya preventa pipeline scan). |
 
 **Update cycle:** Quarterly minimum. Sooner if any P0 / Hard-pivot trigger fires (see §10).
 
