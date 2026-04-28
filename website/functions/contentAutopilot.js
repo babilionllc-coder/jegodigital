@@ -208,61 +208,222 @@ exports.generateContentIdeasOnDemand = functions
     });
 
 // ============================================================
-// 2. STORY HTML template — brand-locked, single placeholder
+// 2. STORY HTML templates — 5 engagement-optimized variants
+// Per 2026 research: interactive sticker mockups + emoji-heavy + hard CTAs
+// drive 40-50% more engagement vs corporate static cards.
+// IG Graph API doesn't support real stickers, so we use visual mockups
+// with DM/comment CTAs to drive responses.
 // ============================================================
-const STORY_TEMPLATE_HTML = `<!doctype html>
-<html><head><meta charset="utf-8"><style>
+const FONT_STACK =
+    "'Liberation Sans', 'DejaVu Sans', 'Noto Color Emoji', Arial, sans-serif";
+
+const COMMON_CSS = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 1080px; height: 1920px; background: #0f1115; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif; overflow: hidden; }
+  html, body { width: 1080px; height: 1920px; font-family: ${FONT_STACK}; overflow: hidden; }
+  .logo { position: absolute; top: 80px; left: 80px; font-size: 36px; font-weight: 800; letter-spacing: 2px; z-index: 10; }
+  .gold { color: #C5A059; }
+  .footer-handle { position: absolute; bottom: 70px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: center; font-size: 26px; opacity: 0.85; z-index: 10; }
+  .eyebrow { font-size: 30px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; }
+`;
+
+// Variant 1: DARK_STAT — bold stat-driven, dark bg
+const TPL_DARK_STAT = `<!doctype html><html><head><meta charset="utf-8"><style>${COMMON_CSS}
+  body { background: #0f1115; color: #fff; }
   .accent { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #C5A059; }
-  .logo { position: absolute; top: 80px; left: 80px; font-size: 36px; font-weight: 700; letter-spacing: 2px; }
-  .logo .gold { color: #C5A059; }
-  .label { position: absolute; top: 180px; left: 80px; font-size: 32px; color: #C5A059; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; }
-  .hook { position: absolute; top: 440px; left: 80px; right: 80px; font-size: 92px; line-height: 1.05; font-weight: 800; }
-  .hook .gold { color: #C5A059; }
-  .body { position: absolute; top: 1180px; left: 80px; right: 80px; font-size: 38px; line-height: 1.4; color: #E8E8E8; font-weight: 400; }
-  .footer { position: absolute; bottom: 90px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: center; font-size: 28px; }
-  .cta { color: #C5A059; font-weight: 700; }
-  .handle { color: #A0A0A5; }
-  .swipe { position: absolute; bottom: 220px; left: 0; right: 0; text-align: center; font-size: 28px; color: #C5A059; font-weight: 600; letter-spacing: 4px; }
+  .label { position: absolute; top: 180px; left: 80px; color: #C5A059; }
+  .hook { position: absolute; top: 380px; left: 80px; right: 80px; font-size: 96px; line-height: 1.0; font-weight: 900; }
+  .body { position: absolute; top: 1100px; left: 80px; right: 80px; font-size: 42px; line-height: 1.35; color: #E8E8E8; font-weight: 500; }
+  .cta { position: absolute; bottom: 240px; left: 80px; right: 80px; background: #C5A059; color: #0f1115; padding: 38px 40px; border-radius: 32px; font-size: 38px; font-weight: 800; text-align: center; }
+  .footer-handle { color: #A0A0A5; }
 </style></head><body>
   <div class="accent"></div>
   <div class="logo"><span class="gold">JEGO</span>DIGITAL</div>
-  <div class="label">{{LABEL}}</div>
+  <div class="eyebrow label">{{LABEL}}</div>
   <div class="hook">{{HOOK}}</div>
   <div class="body">{{BODY}}</div>
-  <div class="swipe">{{SWIPE}} ▲</div>
-  <div class="footer">
-    <span class="cta">📅 calendly.com/jegoalexdigital/30min</span>
-    <span class="handle">@jegodigital_agencia</span>
-  </div>
+  <div class="cta">{{CTA}}</div>
+  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
 </body></html>`;
 
-async function callGeminiForStoryFields(idea) {
+// Variant 2: GOLD_CTA — full gold bg, dark text, conversion-focused
+const TPL_GOLD_CTA = `<!doctype html><html><head><meta charset="utf-8"><style>${COMMON_CSS}
+  body { background: #C5A059; color: #0f1115; }
+  .logo { color: #0f1115; }
+  .label { position: absolute; top: 180px; left: 80px; color: #0f1115; }
+  .hook { position: absolute; top: 360px; left: 80px; right: 80px; font-size: 110px; line-height: 0.98; font-weight: 900; }
+  .body { position: absolute; top: 1080px; left: 80px; right: 80px; font-size: 44px; line-height: 1.3; font-weight: 600; }
+  .cta { position: absolute; bottom: 220px; left: 80px; right: 80px; background: #0f1115; color: #C5A059; padding: 42px 40px; border-radius: 32px; font-size: 42px; font-weight: 800; text-align: center; }
+  .emoji-row { position: absolute; top: 940px; left: 80px; right: 80px; font-size: 80px; text-align: center; }
+  .footer-handle { color: #0f1115; opacity: 0.7; }
+</style></head><body>
+  <div class="logo">JEGODIGITAL</div>
+  <div class="eyebrow label">{{LABEL}}</div>
+  <div class="hook">{{HOOK}}</div>
+  <div class="emoji-row">{{EMOJIS}}</div>
+  <div class="body">{{BODY}}</div>
+  <div class="cta">{{CTA}}</div>
+  <div class="footer-handle"><span>📅 link en bio</span><span>@jegodigital_agencia</span></div>
+</body></html>`;
+
+// Variant 3: WHITE_PATTERN — pattern interrupt, white bg, big number
+const TPL_WHITE_PATTERN = `<!doctype html><html><head><meta charset="utf-8"><style>${COMMON_CSS}
+  body { background: #FFFFFF; color: #0f1115; }
+  .logo { color: #0f1115; }
+  .label { position: absolute; top: 180px; left: 80px; background: #0f1115; color: #C5A059; padding: 14px 28px; border-radius: 16px; font-weight: 800; }
+  .number { position: absolute; top: 360px; left: 80px; right: 80px; font-size: 280px; line-height: 0.9; font-weight: 900; color: #C5A059; }
+  .hook { position: absolute; top: 760px; left: 80px; right: 80px; font-size: 64px; line-height: 1.0; font-weight: 900; }
+  .body { position: absolute; top: 1100px; left: 80px; right: 80px; font-size: 40px; line-height: 1.35; color: #444; font-weight: 500; }
+  .cta { position: absolute; bottom: 240px; left: 80px; right: 80px; background: #0f1115; color: #C5A059; padding: 38px 40px; border-radius: 32px; font-size: 38px; font-weight: 800; text-align: center; }
+  .footer-handle { color: #888; }
+</style></head><body>
+  <div class="logo">JEGODIGITAL</div>
+  <div class="eyebrow label">{{LABEL}}</div>
+  <div class="number">{{NUMBER}}</div>
+  <div class="hook">{{HOOK}}</div>
+  <div class="body">{{BODY}}</div>
+  <div class="cta">{{CTA}}</div>
+  <div class="footer-handle"><span>📅 link en bio</span><span>@jegodigital_agencia</span></div>
+</body></html>`;
+
+// Variant 4: FAKE_POLL — visual mockup of a poll, drives DMs (highest engagement variant)
+const TPL_FAKE_POLL = `<!doctype html><html><head><meta charset="utf-8"><style>${COMMON_CSS}
+  body { background: #0f1115; color: #fff; }
+  .accent { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #C5A059; }
+  .label { position: absolute; top: 180px; left: 80px; color: #C5A059; }
+  .hook { position: absolute; top: 360px; left: 80px; right: 80px; font-size: 80px; line-height: 1.0; font-weight: 900; }
+  .poll { position: absolute; top: 880px; left: 80px; right: 80px; background: rgba(255,255,255,0.97); border-radius: 36px; padding: 50px 50px 60px; }
+  .poll-q { font-size: 38px; color: #0f1115; font-weight: 800; text-align: center; margin-bottom: 36px; }
+  .poll-row { display: flex; gap: 24px; }
+  .poll-opt { flex: 1; background: #0f1115; color: #fff; border-radius: 28px; padding: 32px 20px; text-align: center; font-size: 36px; font-weight: 800; }
+  .poll-opt.b { background: #C5A059; color: #0f1115; }
+  .cta { position: absolute; bottom: 240px; left: 80px; right: 80px; font-size: 42px; font-weight: 800; text-align: center; color: #C5A059; }
+  .footer-handle { color: #A0A0A5; }
+</style></head><body>
+  <div class="accent"></div>
+  <div class="logo"><span class="gold">JEGO</span>DIGITAL</div>
+  <div class="eyebrow label">{{LABEL}}</div>
+  <div class="hook">{{HOOK}}</div>
+  <div class="poll">
+    <div class="poll-q">{{POLL_Q}}</div>
+    <div class="poll-row">
+      <div class="poll-opt">{{POLL_A}}</div>
+      <div class="poll-opt b">{{POLL_B}}</div>
+    </div>
+  </div>
+  <div class="cta">👉 {{CTA}}</div>
+  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
+</body></html>`;
+
+// Variant 5: EMOJI_HEAVY — approachable, 5+ emojis distributed, high profile-tap rate
+const TPL_EMOJI_HEAVY = `<!doctype html><html><head><meta charset="utf-8"><style>${COMMON_CSS}
+  body { background: linear-gradient(135deg, #0f1115 0%, #1a1d24 100%); color: #fff; }
+  .accent { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #C5A059; }
+  .label { position: absolute; top: 180px; left: 80px; color: #C5A059; }
+  .emoji-top { position: absolute; top: 320px; left: 80px; font-size: 140px; }
+  .hook { position: absolute; top: 540px; left: 80px; right: 80px; font-size: 86px; line-height: 1.0; font-weight: 900; }
+  .body { position: absolute; top: 1020px; left: 80px; right: 80px; font-size: 40px; line-height: 1.4; color: #E8E8E8; font-weight: 500; }
+  .body .accent-em { color: #C5A059; font-weight: 800; }
+  .emoji-bottom { position: absolute; top: 1380px; left: 80px; right: 80px; font-size: 70px; text-align: center; letter-spacing: 16px; }
+  .cta { position: absolute; bottom: 240px; left: 80px; right: 80px; background: #C5A059; color: #0f1115; padding: 38px 40px; border-radius: 32px; font-size: 38px; font-weight: 800; text-align: center; }
+  .footer-handle { color: #A0A0A5; }
+</style></head><body>
+  <div class="accent"></div>
+  <div class="logo"><span class="gold">JEGO</span>DIGITAL</div>
+  <div class="eyebrow label">{{LABEL}}</div>
+  <div class="emoji-top">{{EMOJI_BIG}}</div>
+  <div class="hook">{{HOOK}}</div>
+  <div class="body">{{BODY}}</div>
+  <div class="emoji-bottom">{{EMOJIS}}</div>
+  <div class="cta">{{CTA}}</div>
+  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
+</body></html>`;
+
+const STORY_VARIANTS = [
+    { name: "DARK_STAT", template: TPL_DARK_STAT, fields: ["LABEL", "HOOK", "BODY", "CTA"] },
+    { name: "GOLD_CTA", template: TPL_GOLD_CTA, fields: ["LABEL", "HOOK", "EMOJIS", "BODY", "CTA"] },
+    { name: "WHITE_PATTERN", template: TPL_WHITE_PATTERN, fields: ["LABEL", "NUMBER", "HOOK", "BODY", "CTA"] },
+    { name: "FAKE_POLL", template: TPL_FAKE_POLL, fields: ["LABEL", "HOOK", "POLL_Q", "POLL_A", "POLL_B", "CTA"] },
+    { name: "EMOJI_HEAVY", template: TPL_EMOJI_HEAVY, fields: ["LABEL", "EMOJI_BIG", "HOOK", "BODY", "EMOJIS", "CTA"] },
+];
+
+function pickVariantForIdea(idea, idx) {
+    // Round-robin distributes the 5 variants across the 5 daily stories so they don't all look identical
+    const pollAngles = ["question", "poll", "quiz"];
+    if (pollAngles.includes(idea.angle)) return STORY_VARIANTS[3]; // FAKE_POLL
+    if (idea.angle === "stat") return STORY_VARIANTS[2]; // WHITE_PATTERN
+    if (idea.angle === "quote" || idea.angle === "myth-buster") return STORY_VARIANTS[0]; // DARK_STAT
+    if (idea.angle === "tip" || idea.angle === "behind-the-scenes") return STORY_VARIANTS[4]; // EMOJI_HEAVY
+    if (idea.angle === "case-study") return STORY_VARIANTS[1]; // GOLD_CTA
+    // fallback: round-robin by idx
+    return STORY_VARIANTS[idx % STORY_VARIANTS.length];
+}
+
+async function callGeminiForStoryFields(idea, variantName) {
     const key = process.env.GEMINI_API_KEY;
     if (!key) throw new Error("no GEMINI_API_KEY");
-    const prompt = `You are filling fields for a 1080x1920 Instagram Story for @jegodigital_agencia (Mexican real estate AI agency).
 
-Idea: ${JSON.stringify({
-        hook: idea.hook,
-        angle: idea.angle,
-        topic: idea.topic,
-    })}
+    // Variant-specific field schema (per 2026 IG research-backed templates)
+    const fieldSpecs = {
+        DARK_STAT: `Required keys (Spanish, hook MUST include 1-3 emojis, CTA MUST be a hard action like "DM 'AUDIT'" or "Comenta tu zona"):
+- "label": uppercase tag 4-14 chars (e.g. "🔥 MITO", "💡 DATO", "⚡ AVISO")
+- "hook": punchy 5-10 word headline. Wrap key word with <span class="gold">word</span>. Include 1-2 emojis.
+- "body": 1-2 sentence body, max 160 chars, with 1 emoji
+- "cta": "DM 'X'" / "Comenta 'Y'" / "Capturalo 📸" — hard CTA, max 50 chars, with emoji`,
 
-Return JSON with exactly these keys (Spanish, no English, no emojis except where stated):
-- "label": short uppercase tag, max 14 chars (e.g. "DATO", "CONSEJO", "MITO")
-- "hook": punchy 4-12 word headline, can wrap. Mark 1-3 KEY words with <span class="gold">word</span> for gold emphasis.
-- "body": 1-2 sentence supporting body, max 180 chars
-- "swipe": 2-4 word call-to-action like "DESLIZA ARRIBA" or "MÁS EN BIO"
+        GOLD_CTA: `Required keys (Spanish, this is a CONVERSION-focused CTA story on a gold background):
+- "label": uppercase tag 4-14 chars with emoji ("📅 ÚLTIMA SEMANA")
+- "hook": 5-10 word direct CTA in dark text, can include 1 emoji ("Tu próxima venta empieza HOY 🚀")
+- "emojis": 5-7 emojis in a row (e.g. "✅ 🎯 💼 📈 🏠")
+- "body": 1 sentence promise/value (max 140 chars), no emoji
+- "cta": "Hablemos: link en bio 🔗" or "DM 'CITA' ahora" — direct booking CTA`,
 
-NO markdown. STRICT JSON only.`;
+        WHITE_PATTERN: `Required keys (Spanish, this is a BIG STAT pattern interrupt on white):
+- "label": uppercase tag 4-14 chars with emoji ("📊 DATO REAL")
+- "number": just a number/percentage (e.g. "320%", "4.4x", "98", "11:47PM"). NO words.
+- "hook": 4-8 words explaining the number ("tráfico orgánico en 6 meses")
+- "body": 1 sentence framing why it matters (max 140 chars), with 1 emoji
+- "cta": "Quieres este número? DM 'YO' 👋" — connect stat to outcome`,
+
+        FAKE_POLL: `Required keys (Spanish, this is a poll-mockup that drives DMs):
+- "label": uppercase tag 4-14 chars with emoji ("🤔 TÚ DECIDES")
+- "hook": 4-8 word question ("¿Cuál pesa más?")
+- "poll_q": the actual poll question, max 40 chars, with emoji ("¿Tu mayor pain con leads? 🤔")
+- "poll_a": option A, max 18 chars, lead with emoji ("🔇 Leads fríos")
+- "poll_b": option B, max 18 chars, lead with emoji ("📵 No respuesta")
+- "cta": "DM 'A' o 'B' por tu plan 🎯" — drives DMs since real polls aren't API-accessible`,
+
+        EMOJI_HEAVY: `Required keys (Spanish, approachable founder-tone, max emojis):
+- "label": uppercase tag 4-14 chars with emoji ("🌟 BTS", "👀 SECRETO")
+- "emoji_big": 1 BIG emoji (e.g. "🤯", "💸", "🚀") — this is the visual focal point
+- "hook": 5-10 word punchy line, mark 1 word with <span class="accent-em">word</span>
+- "body": 1-2 sentences, max 160 chars, can include 1-2 emojis
+- "emojis": 4-6 emojis spaced ("🏠 ⚡ 🎯 💼 📈")
+- "cta": "Cuéntanos en DM 💬" / "Comenta '+1' si aplica" — light social CTA`,
+    };
+
+    const prompt = `You are filling fields for an Instagram Story (1080x1920) for @jegodigital_agencia, a Mexican real estate AI agency.
+
+Variant: ${variantName}
+Idea: ${JSON.stringify({ hook: idea.hook, angle: idea.angle, topic: idea.topic })}
+
+${fieldSpecs[variantName]}
+
+Rules:
+- Spanish ONLY (Mexican usage). No English.
+- Use emojis where specified — they DRIVE engagement per 2026 IG research.
+- Hook should make the viewer STOP scrolling (curiosity, controversy, or a number).
+- CTA must be a HARD action (DM, Comenta, Captura) not generic ("link en bio").
+- Avoid corporate jargon. Talk like a friend who knows real estate.
+
+Return STRICT JSON. No markdown, no prose.`;
+
     const resp = await axios.post(
         `${GEMINI_URL}?key=${key}`,
         {
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-                temperature: 0.6,
-                maxOutputTokens: 500,
+                temperature: 0.7,
+                maxOutputTokens: 600,
                 responseMimeType: "application/json",
             },
         },
@@ -270,6 +431,16 @@ NO markdown. STRICT JSON only.`;
     );
     const text = resp.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
     return JSON.parse(text);
+}
+
+function fillTemplate(template, fields) {
+    let html = template;
+    for (const [k, v] of Object.entries(fields)) {
+        const placeholder = `{{${k.toUpperCase()}}}`;
+        html = html.split(placeholder).join(v ?? "");
+    }
+    // Strip any leftover placeholders
+    return html.replace(/\{\{[A-Z_]+\}\}/g, "");
 }
 
 async function renderHtmlToPng(html) {
@@ -347,14 +518,14 @@ async function generateStoriesNow(count = 5) {
         const storyId = `story-${today}-${ideaDoc.id}`;
 
         try {
-            // 1. Gemini fills the template fields
-            const fields = await callGeminiForStoryFields(idea);
+            // 1. Pick a story variant for this idea (per 2026 engagement research)
+            const variant = pickVariantForIdea(idea, i);
 
-            // 2. Substitute into template
-            const html = STORY_TEMPLATE_HTML.replace("{{LABEL}}", fields.label || "DATO")
-                .replace("{{HOOK}}", fields.hook || idea.hook)
-                .replace("{{BODY}}", fields.body || idea.topic || "")
-                .replace("{{SWIPE}}", fields.swipe || "MÁS EN BIO");
+            // 2. Gemini fills variant-specific fields
+            const fields = await callGeminiForStoryFields(idea, variant.name);
+
+            // 3. Substitute into template
+            const html = fillTemplate(variant.template, fields);
 
             // 3. Render to PNG via mockup-renderer
             const png = await renderHtmlToPng(html);
