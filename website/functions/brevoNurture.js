@@ -368,26 +368,30 @@ async function brevoUpsertContact({ email, firstName, lastName, attributes = {},
     }
 }
 
-async function brevoSendTransactional({ to, toName, subject, html, tags = [] }) {
+async function brevoSendTransactional({ to, toName, subject, html, tags = [], templateId = null, params = null }) {
     const key = process.env.BREVO_API_KEY;
     if (!key) return { ok: false, skipped: true };
     try {
-        const r = await axios.post("https://api.brevo.com/v3/smtp/email", {
-            sender: {
+        const body = {
+            to: [{ email: to, name: toName || to }],
+            tags,
+        };
+        if (templateId) {
+            // Template-based send (sender + subject + HTML come from the Brevo template itself)
+            body.templateId = parseInt(templateId, 10);
+            if (params) body.params = params;
+        } else {
+            // Inline HTML send (legacy path — used by Track A nurture)
+            body.sender = {
                 name: "Alex · JegoDigital",
                 email: process.env.BREVO_SENDER_EMAIL || "info@jegodigital.com",
-            },
-            to: [{ email: to, name: toName || to }],
-            subject,
-            htmlContent: html,
-            tags,
-            replyTo: { email: "jegoalexdigital@gmail.com", name: "Alex Jego" },
-        }, {
-            headers: {
-                "api-key": key,
-                "Content-Type": "application/json",
-                accept: "application/json",
-            },
+            };
+            body.subject = subject;
+            body.htmlContent = html;
+            body.replyTo = { email: "jegoalexdigital@gmail.com", name: "Alex Jego" };
+        }
+        const r = await axios.post("https://api.brevo.com/v3/smtp/email", body, {
+            headers: { "api-key": key, "Content-Type": "application/json", accept: "application/json" },
             timeout: 15000,
         });
         return { ok: true, messageId: r.data?.messageId };
@@ -554,7 +558,9 @@ async function processNurtureQueue({ limit = 40 } = {}) {
             toName: d.firstName || d.email,
             subject: d.subject,
             html: d.html,
-            tags: ["nurture", d.track, `touch_${d.touchNumber}`, d.campaignId || "no_campaign"],
+            templateId: d.templateId || null,  // FB nurture uses template IDs (72-76)
+            params: d.params || null,           // {FIRSTNAME, COMPANY, URL}
+            tags: ["nurture", d.track, `touch_${d.touchNumber}`, d.campaignId || d.track || "no_campaign"],
         });
 
         if (r.ok) {
@@ -632,10 +638,92 @@ async function cancelTrackForEmail(email, reason = "calendly_booked") {
     return { canceled: toCancel.length };
 }
 
+// =============================================================
+// FB LEAD FORM NURTURE — 5-email sequence over 21 days
+// Templates: 72 (D+1), 73 (D+3), 74 (D+7), 75 (D+14), 76 (D+21)
+// Triggered from metaLeadFormWebhook after Brevo contact creation.
+// Uses templateId path of brevoSendTransactional (sends through Brevo
+// templates so Alex can edit copy in Brevo UI without code deploys).
+//
+// Auto-cancels on Calendly booking (handled by cancelTrackForEmail).
+//
+// Per 2026 nurture research (B2B):
+//   - Front-loaded cadence (D+1, D+3, D+7, D+14, D+21)
+//   - 4-7 emails = 3× reply rate of shorter sequences
+//   - 3:1 give-value-before-asking rule honored
+//   - Template-based for editability without redeploys
+// =============================================================
+
+const FB_NURTURE_SCHEDULE = [
+    { touch: 1, templateId: 72, sendAfterHours: 24,  subject: "una pregunta sobre tu auditoría" },
+    { touch: 2, templateId: 73, sendAfterHours: 72,  subject: "lo que flamingo hizo diferente" },
+    { touch: 3, templateId: 74, sendAfterHours: 168, subject: "idea para {{COMPANY}}" },
+    { touch: 4, templateId: 75, sendAfterHours: 336, subject: "¿hablamos 15 min?" },
+    { touch: 5, templateId: 76, sendAfterHours: 504, subject: "última, prometido" },
+];
+
+async function enqueueFBNurture({ email, firstName, company = "", websiteUrl = "", leadgenId = null }) {
+    if (!email) return { ok: false, error: "no_email" };
+    const db = admin.firestore();
+    const emailLc = email.toLowerCase();
+    const idxRef = db.collection("brevo_nurture_index").doc(emailLc);
+
+    // Idempotency — if already enrolled in fb_lead_form track, skip
+    const idxDoc = await idxRef.get();
+    if (idxDoc.exists && idxDoc.data()?.track === "fb_lead_form") {
+        return { ok: true, skipped: true, reason: "already_enrolled" };
+    }
+
+    const now = Date.now();
+    const batch = db.batch();
+    const queued = [];
+
+    for (const t of FB_NURTURE_SCHEDULE) {
+        const ref = db.collection("brevo_nurture_queue").doc();
+        batch.set(ref, {
+            email: emailLc,
+            firstName: firstName || "Inmobiliaria",
+            company: company || "",
+            track: "fb_lead_form",
+            touchNumber: t.touch,
+            templateId: t.templateId,
+            params: {
+                FIRSTNAME: firstName || "Inmobiliaria",
+                COMPANY: company || "tu agencia",
+                URL: websiteUrl || "tu sitio",
+                CALENDLY: "https://calendly.com/jegoalexdigital/30min?utm_source=brevo&utm_campaign=fb_nurture",
+            },
+            subject: t.subject, // backup if templateId fails
+            sendAt: admin.firestore.Timestamp.fromMillis(now + t.sendAfterHours * 3600 * 1000),
+            sent: false,
+            canceled: false,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            leadgenId: leadgenId || null,
+        });
+        queued.push({ touch: t.touch, sendAt: new Date(now + t.sendAfterHours * 3600 * 1000).toISOString() });
+    }
+
+    batch.set(idxRef, {
+        email: emailLc,
+        firstName,
+        company,
+        track: "fb_lead_form",
+        startedAt: admin.firestore.FieldValue.serverTimestamp(),
+        leadgenId: leadgenId || null,
+        calendlyBooked: false,
+        canceled: false,
+    }, { merge: true });
+
+    await batch.commit();
+    return { ok: true, queued: queued.length, touches: queued };
+}
+
 module.exports = {
     startTrackA,
     processNurtureQueue,
     cancelTrackForEmail,
+    enqueueFBNurture,           // NEW — 5-email FB Lead Form sequence
+    FB_NURTURE_SCHEDULE,        // exposed for skill docs + tests
     // exposed for tests
     pickHook,
     looksEnglish,

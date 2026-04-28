@@ -308,6 +308,19 @@ exports.metaLeadFormWebhook = functions
           //     Per 2026 research: <5 min response = 21× conversion lift.
           const welcomeResult = await sendFBWelcomeEmail(email, firstName, url);
 
+          // 4a1. ENQUEUE 5-email nurture sequence (D+1, D+3, D+7, D+14, D+21).
+          //      Auto-cancels if lead books Calendly. Templates 72-76 in Brevo.
+          let nurtureResult = null;
+          try {
+            const { enqueueFBNurture } = require('./brevoNurture');
+            nurtureResult = await enqueueFBNurture({
+              email, firstName, company: lead.field_data?.find(f => f.name === 'company_name')?.values?.[0] || '',
+              websiteUrl: url, leadgenId,
+            });
+          } catch (e) {
+            console.error('[metaLeadFormWebhook] enqueueFBNurture failed (non-fatal):', e.message);
+          }
+
           // 4a2. Meta CAPI Lead event — sends to Meta server-side for dedup
           //      with native Pixel tracking. Improves Event Match Quality.
           let capiLeadResult = null;
@@ -328,7 +341,7 @@ exports.metaLeadFormWebhook = functions
             main_frustration: mainFrustration,
           });
 
-          // 5. Telegram ping (includes welcome status)
+          // 5. Telegram ping (includes welcome + nurture status)
           await notifyTelegram(
             `🎯 <b>Meta Lead Form fill</b>\n` +
               `<b>Email:</b> ${email}\n` +
@@ -337,8 +350,39 @@ exports.metaLeadFormWebhook = functions
               `<b>Name:</b> ${firstName} ${lastName}\n` +
               `<b>Leads/mo:</b> ${leadsPerMonth || '—'} | <b>Frustration:</b> ${mainFrustration || '—'}\n` +
               `<b>Campaign:</b> hiring_intent_retarget\n` +
-              `<b>Brevo:</b> ${brevoResult?.status || 'skip'} | <b>Welcome:</b> ${welcomeResult?.status || 'skip'} | <b>Audit:</b> ${auditResult?.status || 'skip'}`
+              `<b>Brevo:</b> ${brevoResult?.status || 'skip'} | <b>Welcome:</b> ${welcomeResult?.status || 'skip'} | <b>Nurture:</b> ${nurtureResult?.queued || 0}/5 | <b>Audit:</b> ${auditResult?.status || 'skip'}`
           );
+
+          // 5b. Slack ping → #leads-hot channel (mobile push ON)
+          try {
+            const { slackPost } = require('./slackPost');
+            await slackPost('leads-hot', {
+              text: `🎯 New Meta Lead Form fill: ${firstName} (${email})`,
+              blocks: [
+                { type: 'header', text: { type: 'plain_text', text: '🎯 Meta Lead Form fill' } },
+                {
+                  type: 'section',
+                  fields: [
+                    { type: 'mrkdwn', text: `*Name:*\n${firstName} ${lastName}` },
+                    { type: 'mrkdwn', text: `*Email:*\n${email}` },
+                    { type: 'mrkdwn', text: `*Site:*\n<${url || '#'}|${url || '—'}>` },
+                    { type: 'mrkdwn', text: `*WhatsApp:*\n${whatsapp || '—'}` },
+                    { type: 'mrkdwn', text: `*Leads/mo:*\n${leadsPerMonth || '—'}` },
+                    { type: 'mrkdwn', text: `*Frustration:*\n${mainFrustration || '—'}` },
+                  ],
+                },
+                {
+                  type: 'context',
+                  elements: [{
+                    type: 'mrkdwn',
+                    text: `Brevo: ${brevoResult?.status || 'skip'} • Welcome: ${welcomeResult?.status || 'skip'} • Nurture: ${nurtureResult?.queued || 0}/5 queued • Audit: ${auditResult?.status || 'skip'}`,
+                  }],
+                },
+              ],
+            });
+          } catch (e) {
+            console.error('[metaLeadFormWebhook] Slack ping failed (non-fatal):', e.message);
+          }
 
           console.log(`[metaLeadFormWebhook] ✓ Processed lead ${leadgenId} (${email})`);
         } catch (e) {

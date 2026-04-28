@@ -482,6 +482,18 @@ exports.calendlyWebhook = functions.https.onRequest(async (req, res) => {
                 console.error("[calendlyWebhook] Meta CAPI Schedule failed (non-fatal):", capiErr.message);
             }
 
+            // ──────────────────────────────────────────────────────────────
+            // Cancel any in-flight Brevo nurture for this lead.
+            // If they booked Calendly, they no longer need D+1/D+3/D+7
+            // sequence emails — they're now in the pre-call/post-call flow.
+            // ──────────────────────────────────────────────────────────────
+            try {
+                const { cancelTrackForEmail } = require("./brevoNurture");
+                if (email) await cancelTrackForEmail(email, "calendly_booked");
+            } catch (cancelErr) {
+                console.error("[calendlyWebhook] Brevo nurture cancel failed (non-fatal):", cancelErr.message);
+            }
+
             const leadEmailResult = email ? await sendBrevoEmail({
                 to: email, toName: name,
                 subject: `Confirmado: nos vemos ${startDisplay.split(" · ")[0]} · JegoDigital`,
