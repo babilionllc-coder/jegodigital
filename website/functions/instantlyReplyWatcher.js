@@ -321,15 +321,21 @@ exports.instantlyReplyWatcher = functions
                 }
             }
 
-            // Per-campaign autonomous reply (added 2026-04-28) — sends a tailored
-            // response via Instantly /api/v2/emails/reply using the routing table
-            // in instantlyReplyRouter.js. Different campaigns get different links,
-            // CTAs, and social proof. Falls back to Brevo nurture (above) if the
-            // campaign UUID isn't in the routing table.
-            // CRITICAL: Instantly's global AI Reply Agent must be DISABLED on
-            // routed campaigns to prevent double-replies (Unibox config required).
-            let routedReplySentId = null;
-            let routedReplyError = null;
+            // Per-campaign autonomous reply DISABLED 2026-04-28 PM — Instantly's
+            // global JegoDigital AI Reply Agent now handles per-campaign routing
+            // via its updated Guidance prompt (sees campaign name in conversation
+            // context and branches to the correct primary link per campaign).
+            //
+            // Decision: simpler than maintaining a parallel reply system, native
+            // Instantly Unibox visibility, agent handles edge cases (questions,
+            // pricing objections, ambiguous replies) better than templated routing.
+            //
+            // The instantlyReplyRouter module + CAMPAIGN_ROUTES table are kept on
+            // disk as backup. To re-enable: uncomment the block below + ensure the
+            // global AI Reply Agent is paused first to prevent double-replies.
+            const routedReplySentId = null;
+            const routedReplyError = "ai_agent_handles_routing"; // by design, not a failure
+            /* DISABLED — see comment above
             if (outcome === "positive" || outcome === "positive_with_objection") {
                 try {
                     const router = require("./instantlyReplyRouter");
@@ -345,16 +351,16 @@ exports.instantlyReplyWatcher = functions
                     });
                     if (routeRes.ok) {
                         routedReplySentId = routeRes.sentId;
-                        functions.logger.info(`✅ routed reply sent for ${ctx.email} via ${routeRes.route} (lang=${routeRes.lang})`);
+                        functions.logger.info(`routed reply sent for ${ctx.email}`);
                     } else {
                         routedReplyError = routeRes.reason || "unknown";
-                        functions.logger.info(`⏭ no route for ${ctx.email}: ${routedReplyError}`);
                     }
                 } catch (err) {
                     routedReplyError = err.message;
                     functions.logger.warn(`reply routing failed for ${replyId}:`, err.message);
                 }
             }
+            */
 
             // Hot-alert criteria: positive OR positive_with_objection OR question with
             // decision-maker signals. These all go to Telegram so Alex can respond fast.
