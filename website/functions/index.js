@@ -1910,6 +1910,20 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
         });
         functions.logger.info(`✅ Audit request saved: ${docRef.id} for ${website_url} (source=${source})`);
 
+        // Meta CAPI — CompleteRegistration event so Meta optimizes the
+        // FB Lead Form ad set toward audit-completing buyers, not browsers.
+        // Only fires for FB-sourced leads to avoid polluting other source data.
+        if (source === "meta_lead_form") {
+          try {
+            const { sendCompleteRegistrationEvent } = require("./metaCAPIDispatcher");
+            await sendCompleteRegistrationEvent({
+              email, firstName, source, websiteUrl: website_url, eventId: docRef.id,
+            });
+          } catch (capiErr) {
+            functions.logger.warn("[submitAuditRequest] CAPI CompleteRegistration failed (non-fatal):", capiErr.message);
+          }
+        }
+
         // Delivery tracking — each sub-step writes its result here; flushed to
         // Firestore at the end so auditNotificationWatchdog can detect silent
         // failures without tailing Cloud Functions logs (HARD RULE #6).

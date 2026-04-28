@@ -455,6 +455,33 @@ exports.calendlyWebhook = functions.https.onRequest(async (req, res) => {
                 removeFromList: [LIST_CANCELED],
             });
 
+            // ──────────────────────────────────────────────────────────────
+            // Meta Conversion API — Schedule event
+            // Why: Meta optimizes against the events it sees. Without this,
+            // Meta only sees Lead Form fills (noisy). With Schedule events
+            // fed back, Meta optimizes for booked-call buyers, not browsers.
+            // Per Meta's own data: 15-30% lower CPL once CAPI is wired.
+            // Fail-soft: any CAPI error MUST NOT break the calendly webhook.
+            // ──────────────────────────────────────────────────────────────
+            try {
+                const { sendScheduleEvent } = require("./metaCAPIDispatcher");
+                const [firstName, ...lastNameParts] = (name || "").split(/\s+/);
+                const inviteeUri = invitee?.uri || invitee?.event || "";
+                await sendScheduleEvent({
+                    email,
+                    firstName,
+                    lastName: lastNameParts.join(" "),
+                    phone: smsClean,
+                    country: "mx",
+                    eventId: `calendly_${inviteeUri.split('/').pop() || Date.now()}`,
+                    calendlyEventUrl: invitee?.event || "https://calendly.com/jegoalexdigital/30min",
+                    value: 50, // approx USD value of a booked call (avg deal $1k × 5% close rate)
+                    currency: "USD",
+                });
+            } catch (capiErr) {
+                console.error("[calendlyWebhook] Meta CAPI Schedule failed (non-fatal):", capiErr.message);
+            }
+
             const leadEmailResult = email ? await sendBrevoEmail({
                 to: email, toName: name,
                 subject: `Confirmado: nos vemos ${startDisplay.split(" · ")[0]} · JegoDigital`,

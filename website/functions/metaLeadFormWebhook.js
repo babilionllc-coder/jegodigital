@@ -308,6 +308,18 @@ exports.metaLeadFormWebhook = functions
           //     Per 2026 research: <5 min response = 21× conversion lift.
           const welcomeResult = await sendFBWelcomeEmail(email, firstName, url);
 
+          // 4a2. Meta CAPI Lead event — sends to Meta server-side for dedup
+          //      with native Pixel tracking. Improves Event Match Quality.
+          let capiLeadResult = null;
+          try {
+            const { sendLeadEvent } = require('./metaCAPIDispatcher');
+            capiLeadResult = await sendLeadEvent({
+              email, firstName, phone: whatsapp, country: 'mx', leadgenId,
+            });
+          } catch (e) {
+            console.error('[metaLeadFormWebhook] CAPI Lead event failed (non-fatal):', e.message);
+          }
+
           // 4b. Fire audit pipeline (gets the full audit emailed in <60min)
           //     submitAuditRequest expects website_url + name + email (NOT url + firstName).
           //     Pass qualification answers so audit narrative can reference them.
