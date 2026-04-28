@@ -321,6 +321,41 @@ exports.instantlyReplyWatcher = functions
                 }
             }
 
+            // Per-campaign autonomous reply (added 2026-04-28) — sends a tailored
+            // response via Instantly /api/v2/emails/reply using the routing table
+            // in instantlyReplyRouter.js. Different campaigns get different links,
+            // CTAs, and social proof. Falls back to Brevo nurture (above) if the
+            // campaign UUID isn't in the routing table.
+            // CRITICAL: Instantly's global AI Reply Agent must be DISABLED on
+            // routed campaigns to prevent double-replies (Unibox config required).
+            let routedReplySentId = null;
+            let routedReplyError = null;
+            if (outcome === "positive" || outcome === "positive_with_objection") {
+                try {
+                    const router = require("./instantlyReplyRouter");
+                    const routeRes = await router.routeReply({
+                        replyToUuid: replyId,
+                        campaignId: em.campaign || em.campaign_id || null,
+                        eaccount: em.eaccount || em.from_address_email || null,
+                        originalSubject: em.subject || subject || "",
+                        replyBody: body,
+                        leadEmail: ctx.email,
+                        leadFirstName: ctx.firstName,
+                        leadCompanyName: ctx.company,
+                    });
+                    if (routeRes.ok) {
+                        routedReplySentId = routeRes.sentId;
+                        functions.logger.info(`✅ routed reply sent for ${ctx.email} via ${routeRes.route} (lang=${routeRes.lang})`);
+                    } else {
+                        routedReplyError = routeRes.reason || "unknown";
+                        functions.logger.info(`⏭ no route for ${ctx.email}: ${routedReplyError}`);
+                    }
+                } catch (err) {
+                    routedReplyError = err.message;
+                    functions.logger.warn(`reply routing failed for ${replyId}:`, err.message);
+                }
+            }
+
             // Hot-alert criteria: positive OR positive_with_objection OR question with
             // decision-maker signals. These all go to Telegram so Alex can respond fast.
             if (outcome === "positive" || outcome === "positive_with_objection") {
@@ -351,6 +386,8 @@ exports.instantlyReplyWatcher = functions
                 outcome,
                 audit_queued: auditQueued,
                 brevo_nurture_started: nurtureStarted,
+                routed_reply_sent_id: routedReplySentId,
+                routed_reply_error: routedReplyError,
                 processed_at: admin.firestore.FieldValue.serverTimestamp(),
             });
 
