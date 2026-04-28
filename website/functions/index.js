@@ -2626,7 +2626,7 @@ exports.igTokenAutoRefreshOnDemand = igTokenAutoRefresh.igTokenAutoRefreshOnDema
 // IG + TIKTOK BATCH QUEUE PROCESSOR (added 2026-04-27 PM)
 // Replaces Cowork-side scheduled-tasks for IG/TikTok batch publishing.
 // Cron every 15 min America/Mexico_City reads Firestore ig_batch_queue
-// where status="ready" AND fireAt<=now. Publishes carousel/single/reel
+// where status='ready' AND fireAt<=now. Publishes carousel/single/reel
 // to @jegodigital_agencia IG via Graph API; for Reels with tiktokDraft
 // flag, also pushes MP4 to @jegodigital TikTok inbox via Content
 // Posting API v2 inbox.share. Laptop-off compatible — runs entirely on
@@ -2748,3 +2748,10 @@ const brevoEventWebhookMod = require("./brevoEventWebhook");
 exports.brevoEventWebhook = brevoEventWebhookMod.brevoEventWebhook;
 exports.brevoEventWebhookSmokeTest = brevoEventWebhookMod.brevoEventWebhookSmokeTest;
 
+// ============================================================
+// Meta Lead Form webhook — receives FB Instant Lead Form fills,
+// fires Brevo (Hiring Intent FB list) + submitAuditRequest pipeline.
+// Endpoint: /metaLeadFormWebhook
+// ============================================================
+const metaLeadFormWebhookMod = require("./metaLeadFormWebhook");
+exports.metaLeadFormWebhook = metaLeadFormWebhookMod.metaLeadFormWebhook;
