@@ -69,6 +69,8 @@ jobs:
           INSTANTLY_API_KEY=${{ secrets.INSTANTLY_API_KEY }}
           IG_BATCH_SEED_TOKEN=${{ secrets.IG_BATCH_SEED_TOKEN }}
           IG_GRAPH_TOKEN=${{ secrets.IG_GRAPH_TOKEN }}
+          IG_BUSINESS_ACCOUNT_ID=${{ secrets.IG_BUSINESS_ACCOUNT_ID }}
+          IG_USER_ID=${{ secrets.IG_USER_ID }}
           MANYCHAT_API_KEY=${{ secrets.MANYCHAT_API_KEY }}
           ALEX_PERSONAL_PHONE=${{ secrets.ALEX_PERSONAL_PHONE }}
           SEED_SECRET=${{ secrets.SEED_SECRET }}
