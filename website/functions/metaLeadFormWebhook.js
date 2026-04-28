@@ -116,6 +116,43 @@ async function postToBrevo(email, firstName, attributes = {}) {
 }
 
 /**
+ * Send the FB welcome email immediately (within 30 sec of form fill).
+ * Bridges the 45-min audit silence so we don't lose the highest-intent moment.
+ * Per 2026 research: <5 min response = 21x conversion lift.
+ *
+ * Brevo transactional template ID 71 ("FB Welcome — Auditoría cocinándose 2026-04")
+ * Subject: "✅ {firstName}, tu auditoría llega en 60 min"
+ */
+async function sendFBWelcomeEmail(email, firstName, url) {
+  if (!BREVO_API_KEY) return null;
+  const TEMPLATE_ID = parseInt(process.env.BREVO_FB_WELCOME_TEMPLATE_ID || '71', 10);
+  try {
+    const r = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        templateId: TEMPLATE_ID,
+        to: [{ email, name: firstName || 'Inmobiliaria' }],
+        params: {
+          FIRSTNAME: firstName || 'Inmobiliaria',
+          URL: url || 'tu sitio',
+        },
+      }),
+    });
+    const txt = await r.text();
+    if (!r.ok) {
+      console.error('[metaLeadFormWebhook] welcome email error:', r.status, txt);
+      return null;
+    }
+    console.log(`[metaLeadFormWebhook] ✓ welcome email sent to ${email}`);
+    return { status: r.status, body: txt };
+  } catch (e) {
+    console.error('[metaLeadFormWebhook] welcome email exception:', e.message);
+    return null;
+  }
+}
+
+/**
  * Fire the audit pipeline so the lead gets a full audit emailed to them.
  */
 async function fireAuditPipeline(email, url, firstName, leadgenId, extraAttrs = {}) {
@@ -266,23 +303,29 @@ exports.metaLeadFormWebhook = functions
             MAIN_FRUSTRATION: mainFrustration,
           });
 
-          // 4. Fire audit pipeline (gets the full audit emailed in <60min)
-          //    submitAuditRequest expects website_url + name + email (NOT url + firstName).
-          //    Pass qualification answers so audit narrative can reference them.
+          // 4a. WELCOME EMAIL — fires within 30 sec of form fill.
+          //     Bridges the 45-min audit silence.
+          //     Per 2026 research: <5 min response = 21× conversion lift.
+          const welcomeResult = await sendFBWelcomeEmail(email, firstName, url);
+
+          // 4b. Fire audit pipeline (gets the full audit emailed in <60min)
+          //     submitAuditRequest expects website_url + name + email (NOT url + firstName).
+          //     Pass qualification answers so audit narrative can reference them.
           const auditResult = await fireAuditPipeline(email, url, firstName, leadgenId, {
             leads_per_month: leadsPerMonth,
             main_frustration: mainFrustration,
           });
 
-          // 5. Telegram ping
+          // 5. Telegram ping (includes welcome status)
           await notifyTelegram(
             `🎯 <b>Meta Lead Form fill</b>\n` +
               `<b>Email:</b> ${email}\n` +
               `<b>URL:</b> ${url || '—'}\n` +
               `<b>WhatsApp:</b> ${whatsapp || '—'}\n` +
               `<b>Name:</b> ${firstName} ${lastName}\n` +
+              `<b>Leads/mo:</b> ${leadsPerMonth || '—'} | <b>Frustration:</b> ${mainFrustration || '—'}\n` +
               `<b>Campaign:</b> hiring_intent_retarget\n` +
-              `<b>Brevo:</b> ${brevoResult?.status || 'skip'} | <b>Audit:</b> ${auditResult?.status || 'skip'}`
+              `<b>Brevo:</b> ${brevoResult?.status || 'skip'} | <b>Welcome:</b> ${welcomeResult?.status || 'skip'} | <b>Audit:</b> ${auditResult?.status || 'skip'}`
           );
 
           console.log(`[metaLeadFormWebhook] ✓ Processed lead ${leadgenId} (${email})`);
