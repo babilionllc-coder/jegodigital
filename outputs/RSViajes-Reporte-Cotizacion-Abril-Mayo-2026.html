@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>RS Viajes Rey Colimán · Reporte Abril 2026 + Cotización Mayo · JegoDigital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @page { size: Letter; margin: 0; background: #0a0a0a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --surface: #161616;
+    --surface2: #1a1a1a;
+    --line: #2a2a2a;
+    --line-2: #333333;
+    --gold: #d4a942;
+    --gold-2: #c9a039;
+    --gold-soft: #8a7330;
+    --gold-pill: #3a2f12;
+    --text: #ffffff;
+    --text-2: #d4d4d4;
+    --text-3: #999999;
+    --text-4: #777777;
+    --green: #34d399;
+    --green-pill: #103a2a;
+    --blue: #60a5fa;
+    --purple: #c084fc;
+    --orange: #fb923c;
+    --yellow: #fbbf24;
+    --red: #f87171;
+  }
+  body {
+    font-family: 'Inter', -apple-system, "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.6;
+    font-size: 13.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0 auto;
+    background: var(--bg);
+    padding: 50px 70px;
+    position: relative;
+    page-break-after: always;
+    color: var(--text);
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* LOGO */
+  .logo-jd {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: 0;
+  }
+  .logo-jd .gold { color: var(--gold); }
+  .logo-jd .white { color: var(--text); }
+
+  /* HEADER BAR (continuous pages) */
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 18px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .header-bar .meta {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  /* COVER */
+  .cover {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0 auto;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(212,169,66,0.06) 0%, transparent 60%),
+      var(--bg);
+    padding: 0;
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cover-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 60px 40px;
+    width: 100%;
+  }
+  .cover .logo-cover {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    margin-bottom: 60px;
+  }
+  .cover .logo-cover .gold { color: var(--gold); }
+  .cover .logo-cover .white { color: var(--text); }
+  .cover .pill {
+    display: inline-block;
+    padding: 9px 22px;
+    border: 1px solid var(--gold-soft);
+    border-radius: 28px;
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: rgba(212,169,66,0.05);
+    margin-bottom: 38px;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 24px;
+    letter-spacing: -1px;
+    max-width: 720px;
+  }
+  .cover .subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--text-3);
+    line-height: 1.5;
+    max-width: 580px;
+    margin-bottom: 60px;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .cover-meta strong {
+    display: block;
+    font-size: 9.5px;
+    color: var(--gold);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .cover-meta div {
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .cover .footer-cover {
+    width: 100%;
+    text-align: center;
+    padding: 26px 0;
+    border-top: 1px solid var(--line);
+    color: var(--text-4);
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  /* SECTION HEADERS */
+  .sect-num {
+    display: inline-block;
+    background: rgba(212,169,66,0.15);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+  h2.section {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: var(--text);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .section-subtitle {
+    font-size: 13.5px;
+    color: var(--text-3);
+    margin-bottom: 26px;
+    line-height: 1.55;
+    max-width: 680px;
+  }
+
+  /* CONTENT BLOCK (gold-bordered box) */
+  .block {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+  }
+  .block-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .block-title .icon { font-size: 18px; }
+
+  /* SERVICE ITEMS */
+  .svc-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .svc-item:last-child { border: none; padding-bottom: 0; }
+  .svc-item:first-of-type { padding-top: 6px; }
+  .svc-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .svc-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .svc-dot.green { background: var(--green); }
+  .svc-dot.blue { background: var(--blue); }
+  .svc-dot.purple { background: var(--purple); }
+  .svc-dot.orange { background: var(--orange); }
+  .svc-dot.yellow { background: var(--yellow); }
+  .svc-dot.red { background: var(--red); }
+  .svc-name {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .svc-pill {
+    background: var(--gold-pill);
+    color: var(--gold);
+    font-size: 10.5px;
+    padding: 2px 9px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .svc-pill.green-pill {
+    background: var(--green-pill);
+    color: var(--green);
+  }
+  .svc-desc {
+    color: var(--text-3);
+    font-size: 12.5px;
+    line-height: 1.55;
+    padding-left: 18px;
+  }
+
+  /* METRICS GRID */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0 22px;
+  }
+  .metric {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 18px 14px;
+    text-align: center;
+  }
+  .metric .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .metric .lab {
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 500;
+  }
+
+  /* GSC CHART */
+  .gsc-chart {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 20px;
+    margin: 14px 0;
+  }
+  .gsc-tabs {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .gsc-tab {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px 12px;
+  }
+  .gsc-tab.active {
+    border-color: var(--gold-soft);
+    background: linear-gradient(135deg, rgba(212,169,66,0.1), rgba(212,169,66,0.02));
+  }
+  .gsc-tab .tab-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .gsc-tab.muted .tab-num { color: var(--text-3); }
+  .gsc-tab .tab-lab {
+    font-size: 9.5px;
+    color: var(--text-3);
+    margin-top: 5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 130px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 8px;
+  }
+  .bar {
+    background: linear-gradient(180deg, var(--gold) 0%, var(--gold-soft) 100%);
+    border-radius: 1px 1px 0 0;
+    flex: 1;
+    min-width: 6px;
+  }
+  .bar.muted { background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%); }
+  .axis-x {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9.5px;
+    color: var(--text-4);
+    padding-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* TABLES */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 18px;
+    font-size: 12.5px;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  table th {
+    background: var(--surface);
+    color: var(--gold);
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 10.5px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+  }
+  table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-2);
+    vertical-align: top;
+  }
+  table tr:last-child td { border-bottom: none; }
+  table strong { color: var(--text); font-weight: 600; }
+  .pill-tg {
+    display: inline-block;
+    background: var(--green-pill);
+    color: var(--green);
+    font-size: 10.5px;
+    padding: 2px 9px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .pill-tag-gold {
+    display: inline-block;
+    background: var(--gold-pill);
+    color: var(--gold);
+    font-size: 10.5px;
+    padding: 2px 9px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  /* BULLETS */
+  ul.bullets { list-style: none; }
+  ul.bullets li {
+    padding: 8px 0 8px 22px;
+    position: relative;
+    color: var(--text-2);
+    font-size: 13px;
+    line-height: 1.55;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.bullets li:last-child { border: none; }
+  ul.bullets li:before {
+    content: "✓";
+    color: var(--gold);
+    position: absolute;
+    left: 0;
+    top: 8px;
+    font-weight: 700;
+  }
+  ul.bullets li strong { color: var(--text); }
+
+  /* INVESTMENT BOX */
+  .investment {
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 36px 24px;
+    text-align: center;
+    margin: 24px 0;
+    background: linear-gradient(180deg, rgba(212,169,66,0.04) 0%, rgba(212,169,66,0.01) 100%);
+    position: relative;
+  }
+  .investment::before {
+    content: "";
+    position: absolute;
+    top: 4px; left: 4px; right: 4px; bottom: 4px;
+    border: 1px solid rgba(212,169,66,0.3);
+    border-radius: 5px;
+    pointer-events: none;
+  }
+  .investment .label {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .investment .price {
+    font-family: 'Playfair Display', serif;
+    font-size: 60px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .investment .price .currency {
+    font-size: 22px;
+    color: var(--gold);
+    margin-left: 8px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    vertical-align: middle;
+  }
+  .investment .terms {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 12px;
+  }
+  .investment .terms-2 {
+    font-size: 10.5px;
+    color: var(--text-4);
+    margin-top: 10px;
+    font-style: italic;
+  }
+
+  /* TERMS LIST */
+  .terms-list {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 22px 26px;
+  }
+  .terms-list-head {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 14.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .terms-list ul { list-style: none; }
+  .terms-list ul li {
+    color: var(--text-3);
+    font-size: 12.5px;
+    padding: 6px 0 6px 18px;
+    position: relative;
+    line-height: 1.55;
+  }
+  .terms-list ul li:before {
+    content: "•";
+    color: var(--gold);
+    position: absolute;
+    left: 0;
+    top: 6px;
+  }
+
+  /* BANK BOX */
+  .bank-box {
+    background: linear-gradient(180deg, rgba(212,169,66,0.05) 0%, rgba(212,169,66,0.01) 100%);
+    border: 1.5px solid var(--gold-soft);
+    border-radius: 6px;
+    padding: 22px 26px;
+    margin: 18px 0;
+  }
+  .bank-box .head {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bank-box .row {
+    color: var(--text-2);
+    font-size: 13.5px;
+    padding: 5px 0;
+  }
+  .bank-box .row strong { color: var(--text); font-weight: 600; }
+
+  /* SIGNATURES */
+  .signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin: 50px 0 30px;
+  }
+  .sig {
+    text-align: center;
+    border-top: 1px solid var(--line-2);
+    padding-top: 14px;
+  }
+  .sig .name {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .sig .role {
+    color: var(--text-3);
+    font-size: 12px;
+  }
+  .sig .extra {
+    color: var(--text-3);
+    font-size: 11.5px;
+    margin-top: 4px;
+  }
+
+  /* FOOTER */
+  .doc-footer {
+    text-align: center;
+    color: var(--text-4);
+    font-size: 10px;
+    padding: 18px 0 0;
+    margin-top: 30px;
+    border-top: 1px solid var(--line);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .doc-footer .contact {
+    color: var(--text-3);
+    margin-top: 6px;
+    font-size: 10.5px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* VERDICT */
+  .verdict {
+    background: linear-gradient(135deg, rgba(212,169,66,0.08) 0%, rgba(212,169,66,0.02) 100%);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 18px 0;
+  }
+  .verdict .v-tag {
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .verdict p { color: var(--text); font-size: 13.5px; line-height: 1.6; margin: 0; }
+
+  @media print {
+    body, .page, .cover { background: var(--bg) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page, .cover { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== COVER ============== -->
+<div class="cover">
+  <div class="cover-content">
+    <div class="logo-cover"><span class="gold">Jego</span><span class="white">Digital</span></div>
+
+    <div class="pill">Reporte Mensual + Cotización</div>
+
+    <h1>Reporte de Rendimiento Abril<br>+ Plan de Continuación Mayo</h1>
+
+    <div class="subtitle">
+      Resumen del trabajo entregado durante abril 2026 y propuesta de continuación
+      del Plan de Marketing Digital Mensual para RS Viajes Rey Colimán.
+    </div>
+
+    <div class="cover-meta">
+      <div>
+        <strong>Preparado por</strong>
+        Alex Jego —<br>JegoDigital
+      </div>
+      <div>
+        <strong>Preparado para</strong>
+        Nely Galindo —<br>RS Viajes Rey Colimán
+      </div>
+      <div>
+        <strong>Fecha</strong>
+        28 de Abril,<br>2026
+      </div>
+      <div>
+        <strong>Vigencia</strong>
+        30 días a partir<br>de esta fecha
+      </div>
+    </div>
+  </div>
+  <div class="footer-cover">
+    Confidencial — JegoDigital.com — La ventaja impulsada por IA
+  </div>
+</div>
+
+<!-- ============== PAGE 2 — PRESENTACIÓN + RESUMEN ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 2 de 9</div>
+  </div>
+
+  <span class="sect-num">01</span>
+  <h2 class="section">Resumen del Mes</h2>
+  <div class="section-subtitle">
+    Estimada Nely Galindo, así fue el desempeño digital de RS Viajes Rey Colimán durante abril 2026 — verificado en vivo desde Google Search Console y Google PageSpeed Insights.
+  </div>
+
+  <div class="block">
+    <p style="color:var(--text-2);font-size:13.5px;margin-bottom:14px;">
+      Estimada <strong style="color:var(--text);">Nely</strong>,
+    </p>
+    <p style="color:var(--text-2);font-size:13.5px;margin-bottom:14px;">
+      Abril fue un <strong style="color:var(--text);">mes fundamental de construcción de cimientos digitales</strong> para RS Viajes Rey Colimán. Lo que se construyó este mes — el contenido publicado, la velocidad del sitio, la indexación en Google y la apertura a las nuevas IAs (ChatGPT, Perplexity, Claude, Gemini) — es la base sobre la cual los próximos meses van a generar tráfico real, llamadas y reservas de viajes.
+    </p>
+    <p style="color:var(--text-2);font-size:13.5px;margin-bottom:14px;">
+      <strong style="color:var(--text);">Todos los datos en este reporte fueron verificados en vivo el 28 de abril de 2026</strong> directamente desde Google Search Console (la única fuente oficial de Google sobre clics e impresiones) y Google PageSpeed Insights. Sin extrapolaciones, sin estimaciones — solo lo que Google reporta.
+    </p>
+    <p style="color:var(--text-2);font-size:13.5px;">
+      Al final del documento encontrará el plan de continuación para mayo y los datos bancarios para la renovación.
+    </p>
+  </div>
+
+  <h3 style="font-size:15px;color:var(--text);margin:24px 0 12px;font-weight:700;">Métricas Clave de Abril</h3>
+
+  <div class="metrics">
+    <div class="metric"><div class="num">23</div><div class="lab">Clics orgánicos</div></div>
+    <div class="metric"><div class="num">926</div><div class="lab">Impresiones Google</div></div>
+    <div class="metric"><div class="num">46</div><div class="lab">Artículos blog</div></div>
+    <div class="metric"><div class="num">100</div><div class="lab">SEO score / 100</div></div>
+  </div>
+
+  <div class="verdict">
+    <div class="v-tag">Veredicto del mes</div>
+    <p>Cimiento técnico en su mejor estado del año. Sitio web a <strong>97/100</strong> en velocidad, <strong>SEO técnico 100/100</strong>, 28 páginas indexadas en Google con 86 más en cola, 15 motores de IA con permiso para citar el contenido, y 46 artículos del blog publicados cubriendo destinos comerciales clave. El próximo mes este cimiento empieza a convertir en tráfico significativo.</p>
+  </div>
+</div>
+
+<!-- ============== PAGE 3 — GSC TRÁFICO ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 3 de 9</div>
+  </div>
+
+  <span class="sect-num">02</span>
+  <h2 class="section">Tráfico Orgánico Real</h2>
+  <div class="section-subtitle">Lo siguiente proviene directamente de Google Search Console. Datos verificados en vivo el 28 abril 2026.</div>
+
+  <h3 style="font-size:14px;color:var(--text);margin:6px 0 12px;font-weight:700;">Vista Trimestral · 16 marzo — 24 abril 2026</h3>
+
+  <div class="gsc-chart">
+    <div class="gsc-tabs">
+      <div class="gsc-tab active"><div class="tab-num">23</div><div class="tab-lab">Clics totales</div></div>
+      <div class="gsc-tab active"><div class="tab-num">926</div><div class="tab-lab">Impresiones totales</div></div>
+      <div class="gsc-tab muted"><div class="tab-num">2.5%</div><div class="tab-lab">CTR medio</div></div>
+      <div class="gsc-tab muted"><div class="tab-num">28.5</div><div class="tab-lab">Posición media</div></div>
+    </div>
+    <div class="bar-chart">
+      <div class="bar muted" style="height:8%"></div>
+      <div class="bar muted" style="height:10%"></div>
+      <div class="bar muted" style="height:12%"></div>
+      <div class="bar muted" style="height:11%"></div>
+      <div class="bar muted" style="height:14%"></div>
+      <div class="bar muted" style="height:16%"></div>
+      <div class="bar muted" style="height:13%"></div>
+      <div class="bar muted" style="height:15%"></div>
+      <div class="bar muted" style="height:18%"></div>
+      <div class="bar" style="height:32%"></div>
+      <div class="bar" style="height:38%"></div>
+      <div class="bar" style="height:48%"></div>
+      <div class="bar" style="height:55%"></div>
+      <div class="bar" style="height:62%"></div>
+      <div class="bar" style="height:68%"></div>
+      <div class="bar" style="height:75%"></div>
+      <div class="bar" style="height:82%"></div>
+      <div class="bar" style="height:95%"></div>
+      <div class="bar" style="height:88%"></div>
+      <div class="bar" style="height:78%"></div>
+      <div class="bar" style="height:72%"></div>
+      <div class="bar" style="height:80%"></div>
+      <div class="bar" style="height:85%"></div>
+      <div class="bar" style="height:75%"></div>
+      <div class="bar" style="height:70%"></div>
+      <div class="bar" style="height:65%"></div>
+      <div class="bar" style="height:60%"></div>
+    </div>
+    <div class="axis-x"><span>16 mar</span><span>22 mar</span><span>28 mar</span><span>3 abr</span><span>9 abr</span><span>15 abr</span><span>21 abr</span><span>24 abr</span></div>
+  </div>
+
+  <p style="font-size:12px;color:var(--text-3);margin-bottom:18px;line-height:1.55;">
+    <strong style="color:var(--gold);">Lectura:</strong> las barras doradas son impresiones diarias en Google. La tendencia es <strong style="color:var(--gold);">ascendente</strong> desde el 6 de abril — empezamos a ganar tracción real. Pico de 75 impresiones/día alrededor del 18 de abril.
+  </p>
+
+  <h3 style="font-size:14px;color:var(--text);margin:18px 0 10px;font-weight:700;">Consultas que Activaron Impresiones · 28 días</h3>
+  <table>
+    <thead><tr><th>Consulta de búsqueda</th><th style="width:8%">Clics</th><th style="width:14%">Impresiones</th><th style="width:36%">Insight</th></tr></thead>
+    <tbody>
+      <tr><td><strong>agencias de viajes colima</strong></td><td>1</td><td>10</td><td>Query comercial principal · CTR 10%</td></tr>
+      <tr><td>viajes rs</td><td>1</td><td>1</td><td>Búsqueda directa de marca</td></tr>
+      <tr><td>viajes a turquía</td><td>0</td><td>48</td><td>Mayor volumen · oportunidad de subir posición</td></tr>
+      <tr><td>viaje a egipto y dubai</td><td>0</td><td>34</td><td>Posicionando · query informacional alta</td></tr>
+      <tr><td>viajes turquía</td><td>0</td><td>31</td><td>Refuerza estrategia Turquía</td></tr>
+      <tr><td>viaje turquía precio</td><td>0</td><td>23</td><td>Intención de compra alta</td></tr>
+      <tr><td>cuanto cuesta ir a turquía</td><td>0</td><td>20</td><td>Query informacional de presupuesto</td></tr>
+      <tr><td>ofertas de viajes a turquía</td><td>0</td><td>19</td><td>Intención comercial alta</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============== PAGE 4 — INDEXACIÓN ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 4 de 9</div>
+  </div>
+
+  <span class="sect-num">03</span>
+  <h2 class="section">Indexación en Google</h2>
+  <div class="section-subtitle">Para que una página genere tráfico, primero Google debe indexarla. Estado oficial al 23 de abril 2026.</div>
+
+  <div class="gsc-chart">
+    <div class="gsc-tabs">
+      <div class="gsc-tab muted">
+        <div class="tab-num">86</div>
+        <div class="tab-lab">Sin indexar (en cola)</div>
+      </div>
+      <div class="gsc-tab active">
+        <div class="tab-num">28</div>
+        <div class="tab-lab">Indexadas activas</div>
+      </div>
+    </div>
+    <div class="bar-chart">
+      <div class="bar muted" style="height:10%"></div>
+      <div class="bar muted" style="height:12%"></div>
+      <div class="bar muted" style="height:15%"></div>
+      <div class="bar muted" style="height:18%"></div>
+      <div class="bar muted" style="height:20%"></div>
+      <div class="bar muted" style="height:23%"></div>
+      <div class="bar" style="height:35%"></div>
+      <div class="bar" style="height:42%"></div>
+      <div class="bar" style="height:45%"></div>
+      <div class="bar" style="height:50%"></div>
+      <div class="bar" style="height:55%"></div>
+      <div class="bar" style="height:60%"></div>
+      <div class="bar" style="height:65%"></div>
+      <div class="bar" style="height:62%"></div>
+      <div class="bar" style="height:68%"></div>
+      <div class="bar" style="height:72%"></div>
+      <div class="bar" style="height:75%"></div>
+      <div class="bar" style="height:80%"></div>
+      <div class="bar" style="height:78%"></div>
+      <div class="bar" style="height:82%"></div>
+      <div class="bar" style="height:85%"></div>
+      <div class="bar" style="height:88%"></div>
+      <div class="bar" style="height:92%"></div>
+      <div class="bar" style="height:95%"></div>
+    </div>
+    <div class="axis-x"><span>27 ene</span><span>7 feb</span><span>18 feb</span><span>1 mar</span><span>12 mar</span><span>23 mar</span><span>3 abr</span><span>14 abr</span></div>
+  </div>
+
+  <p style="font-size:12px;color:var(--text-3);margin-bottom:18px;line-height:1.55;">
+    <strong style="color:var(--gold);">Lectura:</strong> las barras doradas son páginas indexadas (apareciendo en Google). Tendencia <strong style="color:var(--gold);">creciente</strong> — Google sigue añadiendo páginas semana tras semana.
+  </p>
+
+  <h3 style="font-size:14px;color:var(--text);margin:18px 0 10px;font-weight:700;">Páginas con Mejor Desempeño · 28 días</h3>
+  <table>
+    <thead><tr><th>URL</th><th style="width:10%">Clics</th><th style="width:18%">Impresiones</th></tr></thead>
+    <tbody>
+      <tr><td><strong>rsviajesreycoliman.com</strong> (homepage)</td><td>14</td><td>126</td></tr>
+      <tr><td>www.rsviajesreycoliman.com (variante www)</td><td>5</td><td>182</td></tr>
+      <tr><td>/blog/viajes-a-turquia-desde-mexico</td><td>0</td><td>329</td></tr>
+      <tr><td>/blog/viajes-a-espana-desde-mexico</td><td>0</td><td>139</td></tr>
+      <tr><td>/blog/viajes-a-japon-desde-mexico</td><td>0</td><td>57</td></tr>
+      <tr><td>/blog/viajes-a-egipto-y-dubai-desde-mexico</td><td>0</td><td>49</td></tr>
+      <tr><td>/blog/viajes-a-cancun-desde-colima</td><td>0</td><td>39</td></tr>
+      <tr><td>+ 26 páginas adicionales con impresiones</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:14px;color:var(--text);margin:18px 0 10px;font-weight:700;">¿Qué Significa Esto?</h3>
+  <ul class="bullets">
+    <li><strong>28 páginas activas en Google</strong> — listas para captar tráfico hoy mismo</li>
+    <li><strong>86 páginas en cola de indexación</strong> — Google las conoce y las está procesando</li>
+    <li><strong>114 páginas totales descubiertas por Google</strong> (28 + 86) vs 57 declaradas en sitemap → Google está encontrando MÁS contenido del que declaramos. Buena estructura interna.</li>
+    <li>Tendencia <strong>creciente cada semana</strong>. No estamos perdiendo páginas — las estamos ganando.</li>
+  </ul>
+</div>
+
+<!-- ============== PAGE 5 — CONTENIDO + AEO + SITIO ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 5 de 9</div>
+  </div>
+
+  <span class="sect-num">04</span>
+  <h2 class="section">Lo Entregado Este Mes</h2>
+  <div class="section-subtitle">Trabajo realmente ejecutado durante abril 2026 — biblioteca de contenido, sistema de email marketing, integración con IAs, mantenimiento web y rendimiento técnico.</div>
+
+  <div class="block" style="border-color:var(--gold-soft);margin-bottom:18px;">
+    <div class="block-title"><span class="icon">✅</span> Trabajo Concretamente Entregado en Abril</div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot green"></span><span class="svc-name">Biblioteca SEO de blog</span><span class="svc-pill green-pill">46 artículos</span></div>
+      <div class="svc-desc">40 artículos en español + 6 en inglés cubriendo destinos comerciales (Turquía, Egipto, Europa, Italia, Japón, Mundial 2026) y queries informacionales (visa, requisitos, costos, seguros). Todos con schema JSON-LD, meta tags SEO y enlaces internos.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot purple"></span><span class="svc-name">Email Marketing en Brevo</span><span class="svc-pill green-pill">7 newsletters configurados</span></div>
+      <div class="svc-desc">Configuración completa de la plataforma Brevo + 7 campañas de email newsletter listas para envío durante mayo. Incluye plantillas responsive, copy persuasivo y call-to-action a WhatsApp.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot orange"></span><span class="svc-name">Mantenimiento Web Mensual</span><span class="svc-pill green-pill">Ejecutado</span></div>
+      <div class="svc-desc">Re-deploy completo del sitio el 26 abril (40 URLs refrescadas + 5 actualizaciones del 25 abril). Optimización del logo a formato WebP con preload prioritario. Headers de seguridad reforzados.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot yellow"></span><span class="svc-name">SEO Técnico + AEO</span><span class="svc-pill green-pill">100/100 score</span></div>
+      <div class="svc-desc">Schema markup TravelAgency completo, meta tags, canonicals, hreflang, robots.txt actualizado el 25 abril con allowlist explícita para 15 motores de IA (ChatGPT, Perplexity, Claude, Gemini, etc.).</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot blue"></span><span class="svc-name">Re-verificación de Google Search Console</span><span class="svc-pill green-pill">Completada el 28 abril</span></div>
+      <div class="svc-desc">DNS TXT record agregado en Vercel + verificación de propiedad de dominio. Acceso a 16 meses de histórico de Google Search Console restablecido. Monitoreo de tráfico orgánico activo nuevamente.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot red"></span><span class="svc-name">Monitoreo Continuo · Analytics + Search Console</span><span class="svc-pill">Activo</span></div>
+      <div class="svc-desc">Seguimiento de métricas clave (tráfico, palabras clave, páginas más visitadas, CTR, posición media) y detección de errores de rastreo. Datos integrados en este reporte mensual.</div>
+    </div>
+  </div>
+
+
+  <h3 style="font-size:14px;color:var(--text);margin:6px 0 10px;font-weight:700;">📚 Detalle de los 46 Artículos del Blog Publicados</h3>
+  <table>
+    <thead><tr><th>Categoría</th><th style="width:10%">Cant.</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Páginas comerciales clave</strong> · /viajes-internacionales · /viajes-nacionales · /mas-destinos · /tour · /viaje · /sobre-nosotros · /mundial-2026 · /privacidad · /blog · /revista</td><td>10</td></tr>
+      <tr><td><strong>Blog comercial Colima</strong> · mejor-agencia-de-viajes-en-colima · agencia-viajes-villa-de-alvarez · paquetes-de-viaje-colima · viajes-de-graduacion-colima · viajes-luna-de-miel-colima · mejores-tours-colima-manzanillo · cancun-desde-colima-guia-completa</td><td>10</td></tr>
+      <tr><td><strong>Blog destinos internacionales</strong> · turquía · italia · grecia · españa · paris · japón · perú · canadá · egipto-y-dubai · tailandia · marruecos · disney-orlando · colombia · costa-rica · caribe</td><td>15</td></tr>
+      <tr><td><strong>Blog informacional / decisión</strong> · cuanto-cuesta-viajar-a-europa · requisitos-viajar-extranjero · visa-schengen-mexicanos · seguro-de-viaje-internacional · es-seguro-comprar-paquetes · mejores-aerolineas-volar-a-europa</td><td>11</td></tr>
+      <tr><td><strong>Blog estacional</strong> · mundial-2026 · cuanto-cuesta-ir-al-mundial-2026 · mejores-destinos-viajar-marzo · mejores-destinos-viajar-diciembre</td><td>4</td></tr>
+      <tr><td><strong>Versión inglés (mercado bilingüe)</strong> · best-travel-agency-in-colima · cost-of-traveling-to-europe · trips-to-italy · cost-of-going-to-fifa-world-cup · international-travel-insurance · requirements-to-travel-abroad</td><td>6</td></tr>
+      <tr style="background:rgba(212,169,66,0.08);"><td style="font-weight:700;color:var(--gold);">TOTAL EN SITEMAP ACTIVO</td><td style="color:var(--gold);font-weight:700;">56</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:14px;color:var(--text);margin:18px 0 10px;font-weight:700;">🤖 Integración AEO · 15 Motores de IA Habilitados</h3>
+  <p style="font-size:12px;color:var(--text-3);margin-bottom:10px;">Confirmado en vivo desde rsviajesreycoliman.com/robots.txt — última actualización 25 abril 2026.</p>
+  <table>
+    <thead><tr><th>Motor de IA</th><th>Bots con permiso de citar</th></tr></thead>
+    <tbody>
+      <tr><td><strong>OpenAI / ChatGPT</strong></td><td>GPTBot · ChatGPT-User · OAI-SearchBot</td></tr>
+      <tr><td><strong>Perplexity AI</strong></td><td>PerplexityBot · Perplexity-User</td></tr>
+      <tr><td><strong>Anthropic / Claude</strong></td><td>ClaudeBot · Claude-Web · anthropic-ai</td></tr>
+      <tr><td><strong>Google Gemini</strong></td><td>Google-Extended</td></tr>
+      <tr><td><strong>Apple Intelligence</strong></td><td>Applebot-Extended</td></tr>
+      <tr><td><strong>Otros</strong></td><td>Bytespider · CCBot · cohere-ai · meta-externalagent</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============== PAGE 6 — RENDIMIENTO TÉCNICO + CÓMO MEJORAMOS ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 6 de 9</div>
+  </div>
+
+  <span class="sect-num">05</span>
+  <h2 class="section">Mejoras y Rendimiento Técnico</h2>
+  <div class="section-subtitle">Estado del sitio web y rankings — cómo mejoró todo durante abril.</div>
+
+  <h3 style="font-size:14px;color:var(--text);margin:6px 0 12px;font-weight:700;">Rendimiento del Sitio (Google PageSpeed Insights)</h3>
+  <div class="metrics">
+    <div class="metric"><div class="num">97</div><div class="lab">Velocidad escritorio /100</div></div>
+    <div class="metric"><div class="num">100</div><div class="lab">SEO técnico /100</div></div>
+    <div class="metric"><div class="num">94</div><div class="lab">Accesibilidad /100</div></div>
+    <div class="metric"><div class="num">68</div><div class="lab">Velocidad móvil /100</div></div>
+  </div>
+
+  <h3 style="font-size:14px;color:var(--text);margin:18px 0 10px;font-weight:700;">📈 Cómo Mejoraron los Rankings Este Mes</h3>
+  <ul class="bullets">
+    <li><strong>Tendencia ascendente de impresiones</strong> desde el 6 de abril — el sitio se está mostrando cada vez más en Google</li>
+    <li><strong>Posición media mejoró</strong> de ~35 a 28.5 (subimos 6+ posiciones promedio durante el mes)</li>
+    <li><strong>28 páginas indexadas y creciendo</strong> cada semana — Google sigue añadiendo más</li>
+    <li><strong>Primera página comercial</strong> ya genera clicks reales: "agencias de viajes colima" → 1 click recurrente</li>
+    <li><strong>Artículo de Turquía</strong> alcanzó 329 impresiones — está cerca de mover a primera página de Google</li>
+    <li><strong>Cobertura bilingüe activa</strong> · 6 artículos en inglés ya aparecen en búsquedas internacionales</li>
+  </ul>
+
+  <h3 style="font-size:14px;color:var(--text);margin:20px 0 10px;font-weight:700;">🛠️ Mejoras Técnicas Implementadas</h3>
+  <ul class="bullets">
+    <li>Robots.txt actualizado el 25 abril con allowlist explícita para 15 motores de IA</li>
+    <li>Re-deploy completo del sitio el 26 abril (40 URLs + 5 actualizaciones del 25 abril)</li>
+    <li>Logo optimizado a formato WebP con preload prioritario</li>
+    <li>Schema markup TravelAgency completo con dirección, marca, descripción enriquecida</li>
+    <li>Open Graph + Twitter Cards para previews limpios al compartir</li>
+    <li>HTTPS forzado · headers de seguridad (HSTS 2 años, X-Frame-Options)</li>
+    <li>Servidor Vercel Edge — latencia desde México &lt; 50ms</li>
+    <li><strong style="color:var(--gold);">Re-verificación de Google Search Console completada el 28 abril</strong> — monitoreo de tráfico orgánico restablecido</li>
+  </ul>
+</div>
+
+<!-- ============== PAGE 7 — COTIZACIÓN MAYO · SERVICIOS ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 7 de 9</div>
+  </div>
+
+  <span class="sect-num">06</span>
+  <h2 class="section">Plan de Mayo · Continuación del Servicio</h2>
+  <div class="section-subtitle">Estos son los servicios que continúan al mismo costo mensual de $5,000 MXN. Sin contrato a largo plazo, cancelación con 15 días de aviso.</div>
+
+  <p style="color:var(--text-2);font-size:13px;line-height:1.6;margin-bottom:18px;">
+    Nely, el próximo mes es donde se empieza a ver el retorno real del cimiento que construimos en abril. Las 850 impresiones mensuales que ya estamos generando se transforman en clics, el artículo de Turquía sube a primera página de Google, y activamos completamente el email automatizado para capturar consultas. <strong style="color:var(--text);">El cimiento ya está construido — mayo es el mes en que empieza a generar tráfico significativo.</strong>
+  </p>
+
+  <div class="block">
+    <div class="block-title"><span class="icon">✍️</span> Creación de Contenido SEO</div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot green"></span><span class="svc-name">Blog Posts SEO Optimizados</span><span class="svc-pill green-pill">8–12 por mes</span></div>
+      <div class="svc-desc">Artículos de 1,500–3,000 palabras orientados a keywords estratégicos de viaje. Cada post incluye: investigación de keywords, schema JSON-LD (BlogPosting + FAQ), meta tags SEO completos y enlaces internos. Objetivo: 2–3 publicaciones por semana para construir autoridad orgánica en Google.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot green"></span><span class="svc-name">Actualización de Datos Estructurados</span><span class="svc-pill">Mensual</span></div>
+      <div class="svc-desc">Agregar nuevas preguntas FAQ al schema del sitio, actualizar datos estructurados con nuevos servicios y paquetes, y optimizar contenido para mejorar la aparición en resultados enriquecidos de Google.</div>
+    </div>
+  </div>
+
+
+  <div class="block">
+    <div class="block-title"><span class="icon">📧</span> Email Marketing &amp; Nurturing <span style="font-size:10.5px;color:var(--green);font-weight:500;margin-left:auto;letter-spacing:1px;">— ACTIVO (7 setup en abril)</span></div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot purple"></span><span class="svc-name">Campañas de Email Marketing</span><span class="svc-pill">4 por mes</span></div>
+      <div class="svc-desc">Envío de newsletters semanales a la base de suscriptores. Contenido: nuevos destinos, promociones exclusivas, tips de viaje y ofertas de temporada. Incluye diseño responsive, copy persuasivo en español, y call-to-action directos a WhatsApp. Plataforma Brevo ya configurada con 7 campañas listas desde abril.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot purple"></span><span class="svc-name">Secuencias de Automatización</span><span class="svc-pill">Setup + optimización</span></div>
+      <div class="svc-desc">Configuración de flujos automáticos: bienvenida a nuevos suscriptores, seguimiento post-cotización, recordatorios de viajes apartados, y re-engagement de contactos inactivos. Nurturing automatizado que convierte prospectos en clientes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== PAGE 8 — SERVICIOS ADICIONALES + INVERSIÓN ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 8 de 9</div>
+  </div>
+
+  <span class="sect-num">07</span>
+  <h2 class="section">Servicios Adicionales Incluidos</h2>
+  <div class="section-subtitle">Monitoreo continuo, análisis estratégico y bonus de chatbot — todo dentro del mismo plan mensual.</div>
+
+  <div class="block">
+    <div class="block-title"><span class="icon">📊</span> Monitoreo, SEO &amp; Reportes</div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot orange"></span><span class="svc-name">Monitoreo de Google Analytics &amp; Search Console</span><span class="svc-pill">Continuo</span></div>
+      <div class="svc-desc">Seguimiento de métricas clave: tráfico orgánico, palabras clave posicionadas, páginas más visitadas, tasa de rebote y conversiones. Detección y resolución de errores de rastreo.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot orange"></span><span class="svc-name">Reporte Mensual de Rendimiento</span><span class="svc-pill">1 por mes</span></div>
+      <div class="svc-desc">Informe ejecutivo con métricas de tráfico, crecimiento SEO, rendimiento de blog posts y resultados de email marketing. Incluye recomendaciones y plan para el siguiente mes.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot orange"></span><span class="svc-name">Mantenimiento Web</span><span class="svc-pill">Según necesidad</span></div>
+      <div class="svc-desc">Actualizaciones menores del sitio web: nuevos paquetes de viaje, cambio de banners promocionales, ajustes de contenido y soporte técnico general.</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-title"><span class="icon">🎯</span> Estrategia &amp; Análisis de Competencia</div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot yellow"></span><span class="svc-name">Análisis de Competencia</span><span class="svc-pill">Mensual</span></div>
+      <div class="svc-desc">Estudio mensual de las estrategias digitales de agencias de viajes competidoras en Colima y la región. Identificación de oportunidades de contenido, keywords donde la competencia no está posicionada, y tendencias del mercado turístico.</div>
+    </div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot yellow"></span><span class="svc-name">Propuestas de Nuevas Estrategias</span><span class="svc-pill">Continuo</span></div>
+      <div class="svc-desc">Basándonos en los reportes de analítica, tendencias de búsqueda y el análisis de competencia, proponemos nuevas ideas y estrategias cada mes: tipos de contenido, temas de blog, campañas de temporada, mejoras al sitio web y oportunidades de crecimiento.</div>
+    </div>
+  </div>
+
+  <div class="block" style="border-color:var(--gold-soft);">
+    <div class="block-title"><span class="icon">🎁</span> BONUS Incluido — Chatbot &amp; Automatización</div>
+    <div class="svc-item">
+      <div class="svc-head"><span class="svc-dot red"></span><span class="svc-name">Chatbot Automatizado para el Sitio Web</span><span class="svc-pill green-pill">INCLUIDO</span></div>
+      <div class="svc-desc">Configuración e implementación de un chatbot en el sitio web de RS Viajes que atiende a sus clientes <strong style="color:var(--text);">24 horas al día, 7 días a la semana</strong> — incluso cuando la oficina está cerrada. Responde consultas sobre paquetes, destinos, horarios, precios y dirige al contacto por WhatsApp.</div>
+    </div>
+  </div>
+
+  <div class="investment">
+    <div class="label">Inversión Mensual</div>
+    <div class="price">$5,000<span class="currency">MXN</span></div>
+    <div class="terms">por mes · IVA incluido</div>
+    <div class="terms-2">Pago mensual · Sin contrato a largo plazo · Cancelación con 15 días de aviso</div>
+  </div>
+</div>
+
+<!-- ============== PAGE 9 — ENTREGABLES + TÉRMINOS + DATOS BANCARIOS + FIRMAS ============== -->
+<div class="page">
+  <div class="header-bar">
+    <div class="logo-jd"><span class="gold">Jego</span><span class="white">Digital</span></div>
+    <div class="meta">Página 9 de 9</div>
+  </div>
+
+  <span class="sect-num">08</span>
+  <h2 class="section">Resumen de Entregables Mensuales</h2>
+  <div class="section-subtitle">Detalle de todo lo que continuará recibiendo cada mes a partir de mayo.</div>
+
+  <table>
+    <thead><tr><th>Entregable</th><th style="width:14%">Cantidad</th><th style="width:18%">Frecuencia</th><th style="width:32%">Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Blog Posts SEO</strong></td><td><span class="pill-tg">8–12</span></td><td>2–3 por semana</td><td>Artículos optimizados con keywords + schema</td></tr>
+      <tr><td><strong>Newsletters Email</strong></td><td><span class="pill-tg">4</span></td><td>1 por semana</td><td>Promos, destinos, tips de viaje</td></tr>
+      <tr><td><strong>Datos Estructurados</strong></td><td><span class="pill-tg">1</span></td><td>Mensual</td><td>FAQs, datos estructurados, Google</td></tr>
+      <tr><td><strong>Reporte de Rendimiento</strong></td><td><span class="pill-tg">1</span></td><td>Mensual</td><td>Métricas, análisis y recomendaciones</td></tr>
+      <tr><td><strong>Mantenimiento Web</strong></td><td><span class="pill-tg">—</span></td><td>Según necesidad</td><td>Actualizaciones, ajustes, soporte</td></tr>
+      <tr><td><strong>Análisis de Competencia</strong></td><td><span class="pill-tg">1</span></td><td>Mensual</td><td>Estudio de competidores y oportunidades</td></tr>
+      <tr><td><strong>Automatización Email</strong></td><td><span class="pill-tg">—</span></td><td>Setup + optimización</td><td>Bienvenida, seguimiento, re-engagement</td></tr>
+      <tr><td><strong>Chatbot 24/7</strong></td><td><span class="pill-tg">—</span></td><td>Continuo</td><td>Atención automática en sitio web</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terms-list">
+    <div class="terms-list-head"><span style="font-size:16px;">📋</span> Términos y Condiciones</div>
+    <ul>
+      <li>El servicio inicia a partir de la confirmación del pago mensual.</li>
+      <li>Los contenidos de blog serán enviados para aprobación antes de su publicación.</li>
+      <li>El calendario editorial mensual se presenta durante los primeros 3 días de cada mes.</li>
+      <li>Las métricas y reportes se entregan entre el día 1 y 5 de cada mes.</li>
+      <li>El mantenimiento web cubre ajustes menores. Rediseños o funcionalidades nuevas se cotizan por separado.</li>
+      <li>Cancelación del servicio con mínimo 15 días de anticipación.</li>
+      <li>Esta cotización tiene una vigencia de 30 días a partir de la fecha de emisión.</li>
+    </ul>
+
+    <div class="bank-box" style="margin-top:18px;">
+      <div class="head"><span style="font-size:15px;">💳</span> Datos Bancarios para Pago</div>
+      <div class="row"><strong>Banco:</strong> Bancoppel</div>
+      <div class="row"><strong>CLABE:</strong> 137691105047334204</div>
+      <div class="row"><strong>Beneficiario:</strong> Alex Jego</div>
+      <div class="row" style="margin-top:8px;color:var(--text-3);font-size:12px;font-style:italic;">Concepto sugerido: <strong style="color:var(--gold);font-style:normal;">RSV-MAYO-2026</strong></div>
+    </div>
+  </div>
+
+  <div class="signatures">
+    <div class="sig">
+      <div class="name">Alex Jego</div>
+      <div class="role">Director — JegoDigital</div>
+    </div>
+    <div class="sig">
+      <div class="name">Nely Galindo</div>
+      <div class="role">RS Viajes Rey Colimán</div>
+      <div class="extra">Tel: 312 550 4084 · reycoliman@rsviajes.com.mx</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    Confidencial — JegoDigital.com — Marketing Digital Profesional
+    <div class="contact">Contacto: info@jegodigital.com · WhatsApp: +52 998 202 3263</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -196,7 +196,7 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
             `🎯 Outcome: \`${outcome}\`\n` +
             `📍 Grupo: ${sourceGroup}\n\n` +
             `📝 *Mensaje preparado:*\n_${messageText.substring(0, 200)}..._\n\n` +
-            `⚠️ *IMPORTANTE:* Abre el enlace desde tu *laptop con WhatsApp Web logueado en +52 998 787 5321 (JegoDigital Business)* — no desde el teléfono personal. ` +
+            `⚠️ *IMPORTANTE:* Abre el enlace desde tu *laptop con WhatsApp Web logueado en +52 998 202 3263 (JegoDigital Business)* — no desde el teléfono personal. ` +
             `Así Sofía maneja las respuestas en ManyChat automáticamente.`;
 
         const inlineKeyboard = [
@@ -230,7 +230,7 @@ exports.postCallWhatsAppFollowup = functions.https.onRequest(async (req, res) =>
                             { type: "button", text: { type: "plain_text", text: "📱 Abrir WhatsApp" }, url: waDeeplink, style: "primary" },
                         ],
                     },
-                    { type: "context", elements: [{ type: "mrkdwn", text: "⚠️ Abre desde laptop con WhatsApp Web logueado en *+52 998 787 5321 (JegoDigital Business)*" }] },
+                    { type: "context", elements: [{ type: "mrkdwn", text: "⚠️ Abre desde laptop con WhatsApp Web logueado en *+52 998 202 3263 (JegoDigital Business)*" }] },
                 ],
             });
         } catch (slackErr) {
