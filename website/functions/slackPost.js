@@ -32,6 +32,10 @@ const axios = require('axios');
 const CHANNEL_ENV = {
     'alerts': 'SLACK_CHANNEL_ALERTS',
     'leads-hot': 'SLACK_CHANNEL_LEADS_HOT',
+    // Phase 1 Slack command center 2026-04-29: aliases + new channels
+    'hot-leads': 'SLACK_CHANNEL_LEADS_HOT',     // alias of leads-hot
+    'errors': 'SLACK_CHANNEL_ERRORS',           // new — onDisasterLogged target
+    'deploys': 'SLACK_CHANNEL_DEPLOYS',         // new — GitHub Actions notify
     'revenue': 'SLACK_CHANNEL_REVENUE',
     'daily-ops': 'SLACK_CHANNEL_DAILY_OPS',
     'content': 'SLACK_CHANNEL_CONTENT',

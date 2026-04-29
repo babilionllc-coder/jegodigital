@@ -1,0 +1,72 @@
+# JegoDigital Command Center — Slack App Manifest (Phase 1, 2026-04-29)
+#
+# Paste this into https://api.slack.com/apps?new_app=1 → "From a manifest"
+# to one-click install the app into the JegoDigital workspace.
+#
+# Wires:
+#   - 3 slash commands (/daily, /lead, /status) → slackSlashCommand Cloud Function
+#   - bot scopes for chat.postMessage to all logical channels (slackPost.js)
+#   - bot user "JegoBot"
+#
+# After install (see /slack/INSTALL.md):
+#   1. Add 5 secrets to GH Secrets (SLACK_SIGNING_SECRET + 4 channel IDs)
+#   2. Push main → deploy.yml fires → all functions go live
+#   3. Tomorrow 8am Cancun the morning brief lands in #daily-ops
+
+display_information:
+  name: JegoDigital Command Center
+  description: Daily briefing, hot-lead alerts, and slash commands for JegoDigital ops.
+  background_color: "#0f1115"
+  long_description: |
+    Phase 1 of Alex Jego's "run the agency from Slack" stack. Powers the 8am Cancun
+    daily brief, three slash commands (/daily, /lead, /status), and event-driven
+    posts to #deploys, #hot-leads, and #errors. Every metric is pulled live from
+    Instantly, Calendly, Brevo, ElevenLabs, IG Graph, Firestore, GitHub and
+    Cloud Billing — no fabricated numbers (HR-0).
+
+features:
+  bot_user:
+    display_name: JegoBot
+    always_online: true
+
+  slash_commands:
+    - command: /daily
+      url: https://us-central1-jegodigital-e02fb.cloudfunctions.net/slackSlashCommand
+      description: Re-run the morning brief in this channel
+      should_escape: false
+
+    - command: /lead
+      url: https://us-central1-jegodigital-e02fb.cloudfunctions.net/slackSlashCommand
+      usage_hint: "<name> <url-or-email> [notes]"
+      description: Capture a hot lead → Notion CRM (tagged 🔥 Hot)
+      should_escape: false
+
+    - command: /status
+      url: https://us-central1-jegodigital-e02fb.cloudfunctions.net/slackSlashCommand
+      description: One-liner pipeline health check
+      should_escape: false
+
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - chat:write.public          # post to channels without inviting bot first
+      - commands
+      - channels:read
+      - groups:read
+      - im:read
+      - mpim:read
+      - users:read
+      - reactions:write
+      - links:write
+
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
+  event_subscriptions:
+    request_url: https://us-central1-jegodigital-e02fb.cloudfunctions.net/slackSlashCommand
+    bot_events: []
+  interactivity:
+    is_enabled: true
+    request_url: https://us-central1-jegodigital-e02fb.cloudfunctions.net/slackSlashCommand

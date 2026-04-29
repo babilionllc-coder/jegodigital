@@ -2431,6 +2431,19 @@ exports.seedPhoneLeadsOnce = require("./seedPhoneLeadsOnce").seedPhoneLeadsOnce;
 // ============================================================
 exports.dailyRollupSlack = require("./dailyRollupSlack").dailyRollupSlack;
 
+// ============================================================
+// Phase 1 Slack command center (2026-04-29) — see /SLACK_PHASE1.md
+//   dailyBriefing       — 08:00 America/Cancun (cron 0 13 * * *) → #daily-ops
+//   dailyBriefingNow    — HTTPS trigger for /daily slash command + smoke test
+//   slackSlashCommand   — single endpoint for /daily, /lead, /status
+//                         (verified via SLACK_SIGNING_SECRET, HMAC v0)
+//   onDisasterLogged    — Firestore trigger on disaster_log/{id} → #errors
+// ============================================================
+exports.dailyBriefing = require("./dailyBriefing").dailyBriefing;
+exports.dailyBriefingNow = require("./dailyBriefing").dailyBriefingNow;
+exports.slackSlashCommand = require("./slackSlashCommand").slackSlashCommand;
+exports.onDisasterLogged = require("./onDisasterLogged").onDisasterLogged;
+
 // envAudit — 06:00 UTC daily key-integrity check. Runs 1 hour
 // before dailyDigest. Reads REQUIRED_KEYS list from envAudit.js
 // envAuditNow HTTPS endpoint for manual verify.

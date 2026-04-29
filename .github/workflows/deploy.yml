@@ -66,6 +66,9 @@ jobs:
           SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_WORKFLOW_TOKEN=${{ secrets.SLACK_WORKFLOW_TOKEN }}
+          SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}
+          SLACK_CHANNEL_DEPLOYS=${{ secrets.SLACK_CHANNEL_DEPLOYS }}
+          SLACK_CHANNEL_ERRORS=${{ secrets.SLACK_CHANNEL_ERRORS }}
           INSTANTLY_API_KEY=${{ secrets.INSTANTLY_API_KEY }}
           IG_BATCH_SEED_TOKEN=${{ secrets.IG_BATCH_SEED_TOKEN }}
           IG_GRAPH_TOKEN=${{ secrets.IG_GRAPH_TOKEN }}

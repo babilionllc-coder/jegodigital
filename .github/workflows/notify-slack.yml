@@ -1,0 +1,123 @@
+name: Notify Slack on workflow_run
+
+# Phase 1 Slack command center 2026-04-29: every successful or failed
+# workflow on `main` posts a Block Kit card to #deploys so Alex sees
+# every ship from his phone. Hooks workflow_run for ALL workflows.
+#
+# Channel: SLACK_CHANNEL_DEPLOYS (channel ID, e.g. C09XXXXXXX)
+# Token:   SLACK_BOT_TOKEN (xoxb- bot token, scope chat:write)
+#
+# HR-13: Alex never opens GH Actions UI to check ship status.
+
+on:
+  workflow_run:
+    workflows:
+      - "Deploy to Firebase"
+      - "Deploy Cloud Run mockup-renderer"
+      - "Auto Index"
+      - "Daily Lead Topup"
+      - "Daily Smoke Test"
+      - "Enrich Leads"
+      - "Validate Videos"
+      - "Notion Session Log"
+      - "Telegram Send Viral"
+      - "JegoRoom"
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    if: ${{ github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch' || github.event.workflow_run.event == 'schedule' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post deploy result to #deploys
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_DEPLOYS: ${{ secrets.SLACK_CHANNEL_DEPLOYS }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          NAME: ${{ github.event.workflow_run.name }}
+          STATUS: ${{ github.event.workflow_run.conclusion }}
+          ACTOR: ${{ github.event.workflow_run.actor.login }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          MSG: ${{ github.event.workflow_run.display_title }}
+          URL: ${{ github.event.workflow_run.html_url }}
+          EVENT: ${{ github.event.workflow_run.event }}
+        run: |
+          set -euo pipefail
+          # Choose emoji + colour based on conclusion
+          case "$STATUS" in
+            success)   EMOJI="✅"; COLOR="good";;
+            failure)   EMOJI="❌"; COLOR="danger";;
+            cancelled) EMOJI="⚪"; COLOR="warning";;
+            *)         EMOJI="⚠️"; COLOR="warning";;
+          esac
+          SHORT_SHA="${SHA:0:7}"
+
+          # Build Block Kit JSON
+          PAYLOAD=$(jq -n \
+            --arg emoji "$EMOJI" \
+            --arg name  "$NAME" \
+            --arg status "$STATUS" \
+            --arg actor "$ACTOR" \
+            --arg branch "$BRANCH" \
+            --arg sha "$SHORT_SHA" \
+            --arg msg "$MSG" \
+            --arg url "$URL" \
+            --arg event "$EVENT" \
+            '{
+              text: ($emoji + " " + $name + " — " + $status),
+              blocks: [
+                {
+                  type: "header",
+                  text: { type: "plain_text", text: ($emoji + " " + $name + " — " + $status), emoji: true }
+                },
+                {
+                  type: "section",
+                  fields: [
+                    { type: "mrkdwn", text: ("*Branch:*\n`" + $branch + "`") },
+                    { type: "mrkdwn", text: ("*Commit:*\n`" + $sha + "`") },
+                    { type: "mrkdwn", text: ("*Actor:*\n" + $actor) },
+                    { type: "mrkdwn", text: ("*Event:*\n" + $event) }
+                  ]
+                },
+                {
+                  type: "section",
+                  text: { type: "mrkdwn", text: ("*Message:*\n" + $msg) }
+                },
+                {
+                  type: "actions",
+                  elements: [
+                    {
+                      type: "button",
+                      text: { type: "plain_text", text: "View logs ↗", emoji: true },
+                      url: $url
+                    }
+                  ]
+                }
+              ]
+            }')
+
+          # Prefer chat.postMessage to a specific channel; fall back to webhook
+          if [ -n "$SLACK_BOT_TOKEN" ] && [ -n "$SLACK_CHANNEL_DEPLOYS" ]; then
+            BODY=$(echo "$PAYLOAD" | jq --arg ch "$SLACK_CHANNEL_DEPLOYS" '. + {channel: $ch}')
+            curl -sS -X POST https://slack.com/api/chat.postMessage \
+              -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+              -H "Content-Type: application/json; charset=utf-8" \
+              -d "$BODY" | tee /tmp/slack-resp.json
+            OK=$(jq -r '.ok' /tmp/slack-resp.json 2>/dev/null || echo "false")
+            if [ "$OK" != "true" ]; then
+              echo "chat.postMessage failed → falling back to webhook"
+              curl -sS -X POST "$SLACK_WEBHOOK_URL" \
+                -H "Content-Type: application/json" \
+                -d "$PAYLOAD"
+            fi
+          elif [ -n "$SLACK_WEBHOOK_URL" ]; then
+            curl -sS -X POST "$SLACK_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD"
+          else
+            echo "No Slack credentials wired — skipping post"
+          fi

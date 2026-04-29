@@ -38,6 +38,10 @@ const axios = require("axios");
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 
+// Phase 1 Slack command center 2026-04-29: cross-post every routed positive
+// reply to #hot-leads so Alex sees fresh fires instantly without polling.
+const { slackPost } = require("./slackPost");
+
 const INSTANTLY_API = "https://api.instantly.ai/api/v2";
 const INSTANTLY_KEY = process.env.INSTANTLY_API_KEY;
 
@@ -320,6 +324,62 @@ async function routeReply(params) {
         });
     } catch (logErr) {
         functions.logger.warn("reply_routing_log write failed:", logErr.message);
+    }
+
+    // Phase 1 Slack command center 2026-04-29: cross-post every successful
+    // routed reply to #hot-leads. Detect "interested" intent on the way in;
+    // if the inbound reply text contains hot keywords ("interested",
+    // "información", "cuánto", "sí me interesa") OR if Instantly already
+    // labelled it positive (which is implied by the watcher calling us at
+    // all), we cross-post. Failure is non-fatal — slackPost has its own
+    // webhook fallback chain.
+    if (sendRes.ok) {
+        try {
+            const hotKeywords = /\b(interested|interesa|información|informacion|cuánto|cuanto|sí|si me|tell me more|let'?s talk|hablemos|m[aá]s info)\b/i;
+            const isHot = !replyBody || hotKeywords.test(replyBody);
+            const intentEmoji = isHot ? "🔥" : "✅";
+            const blocks = [
+                {
+                    type: "header",
+                    text: {
+                        type: "plain_text",
+                        text: `${intentEmoji} Hot reply — ${route.name}`,
+                        emoji: true,
+                    },
+                },
+                {
+                    type: "section",
+                    text: {
+                        type: "mrkdwn",
+                        text:
+                            `*Lead:* ${leadFirstName ? leadFirstName + " · " : ""}\`${leadEmail || "?"}\`` +
+                            (leadCompanyName ? ` · *${leadCompanyName}*` : "") +
+                            `\n*Campaign:* ${route.name}\n*Lang:* ${lang}\n*Routed CTA:* ${route.primary_link || "—"}`,
+                    },
+                },
+                {
+                    type: "context",
+                    elements: [
+                        { type: "mrkdwn", text: `_Auto-replied via mailbox \`${eaccount}\` · sent_id \`${sendRes.sentId || "?"}\`. Open Instantly Unibox to nurture._` },
+                    ],
+                },
+            ];
+            if (replyBody) {
+                blocks.splice(2, 0, {
+                    type: "section",
+                    text: {
+                        type: "mrkdwn",
+                        text: `*Inbound reply:*\n>${replyBody.slice(0, 500).replace(/\n/g, "\n>")}`,
+                    },
+                });
+            }
+            await slackPost("hot-leads", {
+                text: `${intentEmoji} Hot reply from ${leadEmail || "?"} on ${route.name}`,
+                blocks,
+            });
+        } catch (slackErr) {
+            functions.logger.warn("hot-leads cross-post failed:", slackErr.message);
+        }
     }
 
     return {
