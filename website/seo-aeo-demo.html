@@ -619,31 +619,45 @@ footer a { color: var(--gold); text-decoration: none; }
   </div>
 </section>
 
-<!-- VIDEO DEMO -->
+<!-- LIVE WALKTHROUGH (replaces 15-sec teaser per 2026-04-29 fix) -->
 <section id="video" class="anim-section" style="padding-top:40px; padding-bottom:80px;">
   <div style="text-align:center;">
-    <div class="section-label anim-up">Video Demo · 90 segundos</div>
-    <div class="section-title anim-up anim-d1" style="margin-bottom:32px;">Mira cómo funciona <span class="gold">Smart Search Presence</span></div>
-    <div style="max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;aspect-ratio:16/9;">
-      <video id="demo-video" src="/cf-videos/aeo-showcase.mp4" style="width:100%;height:100%;display:block;" playsinline loop></video>
-      <div id="video-overlay" style="position:absolute;inset:0;background:rgba(15,17,21,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 0.3s;z-index:10" onclick="startVideo()">
-        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(197,160,89,0.4)">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="#0f1115"><polygon points="8,5 20,12 8,19"/></svg>
-        </div>
+    <div class="section-label anim-up">Demo en vivo · 15 min con Alex</div>
+    <div class="section-title anim-up anim-d1" style="margin-bottom:14px;">Mira cómo <span class="gold">ChatGPT recomienda</span> a nuestros clientes</div>
+    <p class="anim-up anim-d2" style="color:var(--gray);max-width:680px;margin:0 auto 32px;font-size:16px;line-height:1.6;">
+      No es teoría. <strong style="color:#fff">Living Riviera Maya</strong> aparece en el Top-3 cuando los compradores le preguntan a ChatGPT "best real estate agencies in Playa del Carmen" — y <strong style="color:#fff">Sur Selecto</strong> (AMPI Presidente Ejecutivo) ya domina 4 regiones del Caribe Mexicano. Te mostramos exactamente cómo replicarlo para tu agencia.
+    </p>
+
+    <!-- Proof cards row (real verified clients per HR#9 — 2026-04 verification) -->
+    <div style="max-width:960px;margin:0 auto 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+      <div class="anim-up anim-d2" style="background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:14px;padding:24px;text-align:left;">
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;">🤖 Living Riviera Maya · ACTIVO</div>
+        <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.3;">Top-3 en respuestas de ChatGPT</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.55;">"Best real estate agencies in Playa del Carmen" — ChatGPT cita a nuestro cliente. 4.9★ Google Maps, 100+ reseñas verificadas.</div>
+      </div>
+      <div class="anim-up anim-d3" style="background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:14px;padding:24px;text-align:left;">
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;">🏛️ Sur Selecto · AMPI Presidente Ejecutivo</div>
+        <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.3;">10+ páginas indexadas · 4 regiones</div>
+        <div style="font-size:13px;color:var(--gray);line-height:1.55;">Playa del Carmen, Tulum, Bacalar, Cancún. 5.0★ Google. Autoridad institucional + presencia AEO completa.</div>
       </div>
     </div>
-    <p style="color:var(--gray);margin-top:16px;font-size:13px;">Google SERP · Buscadores con IA · Keywords · Contenido · Resultados</p>
+
+    <!-- Background teaser loop (15-sec ambient — no longer the "demo") -->
+    <div style="max-width:960px;margin:0 auto 32px;border-radius:16px;overflow:hidden;border:1px solid var(--gold-border);box-shadow:0 24px 80px rgba(197,160,89,0.1);position:relative;background:var(--dark);width:100%;aspect-ratio:16/9;">
+      <video src="/cf-videos/aeo-showcase.mp4" style="width:100%;height:100%;display:block;object-fit:cover;opacity:0.55;" autoplay loop muted playsinline aria-hidden="true"></video>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,17,21,0.4) 0%,rgba(15,17,21,0.85) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;">
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:14px;">El demo completo (30 min)</div>
+        <div style="font-size:clamp(20px,3vw,30px);font-weight:800;color:#fff;line-height:1.25;margin-bottom:20px;max-width:640px;">Te enseño en pantalla compartida cómo posicionamos a Living Riviera Maya y Sur Selecto en Google + ChatGPT</div>
+        <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0f1115;font-weight:800;font-size:15px;padding:14px 28px;border-radius:9999px;box-shadow:0 8px 24px rgba(197,160,89,0.35);transition:transform 0.2s;">
+          📞 Agenda los 15 min en vivo
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <p style="color:var(--gray);margin-top:8px;font-size:13px;">Google SERP · ChatGPT · Perplexity · Gemini · Schema.org · Resultados reales</p>
   </div>
 </section>
-<script>
-function startVideo(){
-  const overlay=document.getElementById('video-overlay');
-  const video=document.getElementById('demo-video');
-  overlay.style.opacity='0';
-  setTimeout(()=>{overlay.style.display='none'},300);
-  video.play();
-}
-</script>
 
 <!-- PAIN POINTS -->
 <section id="problem" class="anim-section" style="padding-top:40px;">
