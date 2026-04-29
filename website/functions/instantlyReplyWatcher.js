@@ -206,7 +206,13 @@ function extractLeadContext(email) {
         leadObj.custom_variables?.firstName || "";
     const company = leadObj.company_name || leadObj.company ||
         leadObj.custom_variables?.companyName || "";
-    return { email: leadEmail, website, firstName, company, leadObj };
+    // Phone — v2.3 WhatsApp-first: if we already have a phone from
+    // lead-finder/Apify enrichment, the router uses it to trigger Alex's
+    // personal WhatsApp ping (no Calendly fallback needed).
+    const phone = leadObj.phone || leadObj.phone_number || leadObj.mobile ||
+        leadObj.whatsapp || leadObj.custom_variables?.phone ||
+        leadObj.custom_variables?.whatsapp || null;
+    return { email: leadEmail, website, firstName, company, phone, leadObj };
 }
 
 // =====================================================================
@@ -261,10 +267,29 @@ exports.instantlyReplyWatcher = functions
             const replyId = em.id || em.email_id || em.uuid;
             if (!replyId) continue;
 
-            // Dedup
+            // Dedup — atomic claim BEFORE any expensive ops to prevent the
+            // "every-cron-tick re-routes the same reply" spam loop discovered
+            // 2026-04-29 (ceo@fastoffice.mx got 6 identical replies in 27 min
+            // because activityRef.set() at end of loop was failing/timing out
+            // before write, leaving collection empty + dedup permanently broken).
+            //
+            // Fix: claim the slot immediately. If the function dies later, the
+            // claim record blocks reprocessing on the next cron tick. The full
+            // ledger payload is merged in at the end (see activityRef.set below).
             const activityRef = db.collection("instantly_reply_activity").doc(String(replyId));
             const existing = await activityRef.get();
             if (existing.exists) continue;
+
+            try {
+                await activityRef.set({
+                    reply_id: replyId,
+                    claimed_at: admin.firestore.FieldValue.serverTimestamp(),
+                    status: "processing",
+                }, { merge: true });
+            } catch (err) {
+                functions.logger.error(`dedup claim failed for ${replyId}:`, err.message);
+                continue; // Don't process if we can't claim — would risk duplicate-send
+            }
 
             newReplies++;
             const body = em.body || em.body_text || em.content || "";
@@ -361,6 +386,7 @@ exports.instantlyReplyWatcher = functions
                         leadFirstName: ctx.firstName,
                         leadCompanyName: ctx.company,
                         leadWebsite: ctx.website || "",
+                        leadPhone: ctx.phone || null,
                         lead: ctx.leadObj,
                     });
                     routedIntent = routeRes.intent || null;
@@ -401,7 +427,7 @@ exports.instantlyReplyWatcher = functions
                 hotAlerts++;
             }
 
-            // Ledger write
+            // Ledger write — merge into the claim record from earlier
             await activityRef.set({
                 reply_id: replyId,
                 received_at: em.timestamp || em.created_at ||
@@ -420,8 +446,9 @@ exports.instantlyReplyWatcher = functions
                 routed_reply_error: routedReplyError,
                 routed_intent: routedIntent,
                 routed_geo: routedGeo,
+                status: "processed",
                 processed_at: admin.firestore.FieldValue.serverTimestamp(),
-            });
+            }, { merge: true });
 
             // ---- Notion 🎯 Leads CRM upsert ----
             // Every reply = at minimum "warm" per Alex (2026-04-23). Positive

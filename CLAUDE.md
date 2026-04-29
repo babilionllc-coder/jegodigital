@@ -1,5 +1,5 @@
 # JegoDigital — Master Project Instructions (Slim Index)
-**Last updated:** 2026-04-24 PM | **Maintained by:** Claude AI + Alex Jego
+**Last updated:** 2026-04-27 (Living Riviera Maya + Sur Selecto promoted to verified hero proof; Flamingo demoted) | **Maintained by:** Claude AI + Alex Jego
 **Read time:** ~4 min | **Target size:** <40,000 chars for Claude Code perf
 
 > This is the **rulebook index**. Full rule bodies live in `docs/hard-rules/` and `docs/gates/`.
@@ -19,7 +19,7 @@
 | 1 | Never Run Blind on Cold Email | Run `bash tools/verify_access.sh` first. Must get HTTP 200 from Instantly v2 before writing any cold-email report. | [`docs/hard-rules/HR-1.md`](docs/hard-rules/HR-1.md) |
 | 2 | Universal Verify-Live | Same as HR-1 but across ALL 8 platforms: ElevenLabs, Instantly, Brevo, Calendly, Firestore, Meta Graph, GSC, GA4. No metric from memory/docs. | [`docs/hard-rules/HR-2.md`](docs/hard-rules/HR-2.md) |
 | 3 | Revenue-First Prioritization | Every task must trace to "this gets us closer to a paying client this month" — 5-bucket filter (A close / B leads / C convert / D infra / E cleanup). | inline §HR-3 below |
-| 4 | Read NEXT_STEP.md First | Every session starts by reading `/NEXT_STEP.md`. Position #1 is today's work. | inline §HR-4 below |
+| 4 | Read NEXT_STEP.md First (and CONFIRM with Alex) | Every session reads `/NEXT_STEP.md`. **HR#4 amended 2026-04-29:** treat the file as DRAFT. Before citing any lead by name or recommending a priority, confirm-or-update with Alex in the same response. NEVER cite a lead from the file without a same-session validation pulse. Adrián disaster 2026-04-29: stale entry quoted 4× before Alex flagged it. | inline §HR-4 below |
 | 5 | Lead Quality Gate | 5 gates before any lead list enters Instantly/ElevenLabs/ManyChat: role-reject / real-name / decision-maker / live-domain / ICP-match. | inline §HR-5 below |
 | 6 | Never Mark Complete Without Proof | Every "done" claim needs live verification in the same tool-call sequence (workflow green + curl 200 + diff + etc.). | inline §HR-6 below |
 | 7 | Weekly Revenue Review Every Monday | Autonomous weekly pull from all 8 platforms → scored → posted to Telegram/Slack. | inline §HR-7 below |
@@ -36,7 +36,7 @@
 
 | Gate | One-line | Full gate |
 |---|---|---|
-| Client Domain | Never invent a client's domain. Canonical source = `website/showcase.html`. Flamingo/RS Viajes/TT&More verified; Goza/GoodLife/Solik have NO verified domain. | [`docs/gates/client-domain.md`](docs/gates/client-domain.md) |
+| Client Domain | Never invent a client's domain. Canonical source = `website/showcase.html`. **Verified domains:** Flamingo (`realestateflamingo.com.mx`), Living Riviera Maya (`playadelcarmenrealestatemexico.com`), Sur Selecto (`surselecto.com`), RS Viajes (`rsviajesreycoliman.com`), TT&More. **NO verified domain:** Goza, GoodLife, Solik. | [`docs/gates/client-domain.md`](docs/gates/client-domain.md) |
 | SEO Skills Routing | Blog posts → `seo-content-engine` ONLY. Full-domain SEO → `seo-engine`. `seo-aeo-audit` DEPRECATED. | [`docs/gates/seo-skills-routing.md`](docs/gates/seo-skills-routing.md) |
 | Blog Quality Gate | Mandatory 5-step pipeline: Research → Brief → Write → Optimize (≥80/100) → Publish. NO AI images. Real screenshots only. ≥4 contextual in-body internal links. Mandatory @JegoDigitalchannel YouTube embed + VideoObject schema. | [`docs/gates/blog-quality-gate.md`](docs/gates/blog-quality-gate.md) |
 | Lean Skill Stack (2026-04-26 audit) | NEVER invoke skills in `DEPRECATED.md` §audit kill list. Killed plugin namespaces: `product-management:*`, `finance:*`, `data:*`, `design:*`, `marketing:*`, `cowork-plugin-management:*`. Selective from `engineering:*` (only debug/code-review/deploy-checklist) and `sales:*` (only account-research/call-prep). Killed orphans: algorithmic-art, canvas-design, web-artifacts-builder, mcp-builder, setup-cowork, doc-coauthoring, theme-factory, pptx. | [`DEPRECATED.md`](DEPRECATED.md) §audit |
@@ -141,14 +141,21 @@ If Alex's prompt conflicts with today's rock: "Working on X now pushes the big r
 
 | Claim | Source of truth | Cadence | Status |
 |---|---|---|---|
+| **Living Riviera Maya** Top-3 in ChatGPT for "best real estate agencies in Playa del Carmen" | Live ChatGPT query + screenshot in `/website/img/showcase/playadelcarmen/chatgpt-rank.png` | monthly | ✅ verified 2026-04 (showcase) |
+| **Living Riviera Maya** 4.9★ Google Maps · 100+ reviews | DataForSEO Maps API · `playadelcarmenrealestatemexico.com` | monthly | ✅ verified 2026-04 (showcase) |
+| **Sur Selecto** 5.0★ Google rating · AMPI Presidente Ejecutivo (Playa del Carmen) | DataForSEO Maps API · `surselecto.com` · AMPI roster | monthly | ✅ verified 2026-04 (showcase) |
+| **Sur Selecto** 10+ pages indexed across 4 regions (Playa, Tulum, Bacalar, Cancún) | GSC `surselecto.com` | monthly | ✅ verified 2026-04 (showcase) |
 | Flamingo 4.4x visibility | Ahrefs + GSC realestateflamingo.com.mx | monthly | needs verify |
 | Flamingo #1 Google Maps | DataForSEO local SERP | monthly | needs verify |
 | Flamingo +320% organic | GA4 | monthly | needs verify |
+| Flamingo 88% AI automation rate | Sofia Firestore (`agent_*` conversation logs) | monthly | needs verify |
 | GoodLife +300% organic | needs source | monthly | **NO DOMAIN** |
 | Goza 3x leads | Client → ask quarterly | quarterly | **NO DOMAIN** |
 | Solik 95% qualify | Sofia Firestore | monthly | **NO DOMAIN** |
 
-**Monthly Cloud Function** `verifyClientProofMonthly` (1st of month): pulls all 6, writes `/knowledge_base/client_proof_<YYYY-MM>.md`, posts Slack digest. If metric drops >20%, alert + remove from cold-email copy until reverified.
+**Monthly Cloud Function** `verifyClientProofMonthly` (1st of month): pulls all 11, writes `/knowledge_base/client_proof_<YYYY-MM>.md`, posts Slack digest. If metric drops >20%, alert + remove from cold-email copy until reverified.
+
+**Hero proof for hero placements:** Living Riviera Maya's ChatGPT citation is the single strongest visual proof in the portfolio (literal screenshot of ChatGPT recommending the client). Use it FIRST on any homepage, landing page, or pitch deck where AEO is the value prop. Sur Selecto's AMPI Presidente Ejecutivo is the strongest institutional credibility lever — use SECOND. Flamingo demoted to support role per Alex 2026-04-27 ("probably our weakest showcase").
 
 ---
 
@@ -249,8 +256,13 @@ Full ICP → [`BUSINESS.md §Target Client`](BUSINESS.md#target-client).
 
 ## VERIFIED RESULTS (summary)
 
-- **Flamingo** (Cancún, ACTIVE, domain verified): 4.4x visibility, #1 Google Maps, +320% organic, 88% leads automated
-- **GoodLife Tulum** (NO verified domain): +300% organic — primary cold-email hook
+**Lead with these for AEO/SEO pitches (in this order):**
+- **Living Riviera Maya** (Playa del Carmen, ACTIVE, domain verified `playadelcarmenrealestatemexico.com`): Top-3 in ChatGPT's answer for "best real estate agencies in Playa del Carmen" · 4.9★ Google Maps · 100+ reviews · 5 marketing videos/mo. **THE hero AEO proof — literal ChatGPT screenshot in showcase.** Founded 2002 by Judi Shaw.
+- **Sur Selecto** (Playa del Carmen / Tulum / Bacalar / Cancún, ACTIVE, domain verified `surselecto.com`): AMPI Presidente Ejecutivo Playa del Carmen · 5.0★ Google rating · 10+ pages indexed · 4 regions covered · 5 videos/mo. **Institutional credibility play — AMPI authority closes hesitant CMOs.**
+
+**Supporting proof (use after the lead):**
+- **Flamingo** (Cancún, ACTIVE, domain verified `realestateflamingo.com.mx`): 4.4x visibility, #1 Google Maps, +320% organic, 88% leads automated. *Per Alex 2026-04-27: weakest showcase — demote in hero placements; the 88% automation number is its strongest single stat.*
+- **GoodLife Tulum** (NO verified domain): +300% organic — secondary cold-email hook
 - **Goza** (NO verified domain): 3x leads, 98 PageSpeed
 - **Solik** (NO verified domain): 95% qualify rate, #1 Maps
 
@@ -262,7 +274,7 @@ Full table → [`BUSINESS.md §Verified Results`](BUSINESS.md#verified-results).
 
 ## SALES STRATEGY — TROJAN HORSE
 
-Lead → Sofia qualifies → offer free Service 1 setup → instant ROI → follow-up 2 weeks with lead count → upsell SEO Local or Pack Crecimiento. **Never quote price on WhatsApp** — push to Calendly. Anchor with Flamingo 4.4x / GoodLife 300% before any price talk.
+Lead → Sofia qualifies → offer free Service 1 setup → instant ROI → follow-up 2 weeks with lead count → upsell SEO Local or Pack Crecimiento. **Never quote price on WhatsApp** — push to Calendly. **Anchor proof order (updated 2026-04-27):** AEO/SEO conversations → Living Riviera Maya (ChatGPT cites them) + Sur Selecto (AMPI Presidente Ejecutivo). AI Automation conversations → Flamingo 88% automation rate. Avoid leading with the older Flamingo 4.4x / GoodLife 300% claims unless reverified that month.
 
 Full playbook + objection scripts → [`BUSINESS.md §Sales Strategy`](BUSINESS.md#sales-strategy--the-trojan-horse).
 
@@ -272,7 +284,7 @@ Full playbook + objection scripts → [`BUSINESS.md §Sales Strategy`](BUSINESS.
 
 **Sending domains (live, verified 2026-04-24 via Instantly `/api/v2/accounts`):** `zennoenigmawire.com` (5 mailboxes: ariana, emily, russell, william, peter) + `zeniaaqua.org` (5 mailboxes: kevin, michael, roger, ryan, henry). All Google Workspace (provider_code:2), warmup ON with `stat_warmup_score: 100/100`, 30 sends/day each = **300/day total capacity**. CTD: `inst.zennoenigmawire.com` (Vercel proxy). **NEVER re-add** `@aichatsy.com`, `@jegoaeo.com`, `@jegoleads.*`, or any `@gmail.com` senders — all deprecated pre-April 2026 for poor Gmail deliverability.
 
-AI reply agent = **audit-first** funnel since 2026-04-19: positive reply → free 45-min audit via personalized link `jegodigital.com/auditoria-gratis?url={{website}}&email={{email}}&firstName={{firstName}}&source=instantly_reply` → social proof one-liner → Calendly AFTER audit lands → WhatsApp backup.
+AI reply agent = **WhatsApp-first** funnel since 2026-04-29 PM (v2.3, replaces v2.2 Calendly-first). Every non-noise reply is composed by `website/functions/instantlyReplyRouter.js` and pushed to Alex's personal `+52 998 202 3263`. Matrix: (a) phone known → reply says "I'll WhatsApp you in 30 min at [masked phone]" + Telegram-pings Alex with click-to-WA deeplink so he initiates inside the promised window; (b) MX no-phone EXPLORE/TECH_Q → single CTA = WA-add-me line (no Calendly); (c) MX no-phone BUY → WA + Calendly fallback; (d) Miami/Caribbean/Fallback no-phone → Calendly + WA fallback; (e) OOO/UNSUB/BOUNCE → no reply, logged, suppressed (UNSUB also marks lead Unsubscribed in Instantly + Brevo). Full matrix + research → [`docs/playbooks/cold_email_reply_playbook_2026.md`](docs/playbooks/cold_email_reply_playbook_2026.md). Audit-first link (`/auditoria-gratis`) still works but is no longer the auto-reply default — Alex sends it personally from WhatsApp when the conversation calls for it.
 
 **Live campaigns 2026-04-27 (verified via Instantly API):** 20 total, **10 ACTIVE (status=1)** — sprawl alert, target 4-6 active to concentrate the 300/day warmup pool. Active: USA Hispanic RE Hiring (Apr 25) · US-Hispanic-Bilingual-Audit · Free Demo Website MX RE · Trojan Horse · USA Miami RE Hiring (Apr 26) · Trojan Horse V2 (personalized 2026-04-24) · Auditoría Gratis · Audit_Trojan_MX_Supersearch_v1 · signal_outbound_mx · MX Real Estate Decision-Makers (Apr 27). Plus paused: World Cup 2026 (kill July 1), ChatGPT Angle, Speed-to-Lead, SEO + Visibilidad, plus 5 misc. **Redes Sociales is DELETED — do NOT recreate.** Re-verify campaign list every Monday before HR#7 review (live truth in `MASTER_PROMPT.md §4a`).
 

@@ -1,25 +1,39 @@
 /**
- * instantlyReplyRouter v2.2 — fully autonomous, geo-aware, intent-classifying,
- * always-close-to-Calendly reply composer. Single-CTA, plain-feel, ≤90 words.
+ * instantlyReplyRouter v2.3 — WhatsApp-first reply composer + Alex-ping engine.
  *
- * v2.2 (2026-04-29) — research-backed simplification per Alex playbook:
- *   - REMOVED demo video link entirely (research: dilutes Calendly CTA by 371%)
- *   - REMOVED CAMPAIGN_DEMO_URLS routing + DEMO_LEAD_CAPTURE / DEMO_SEO_AEO
- *   - Simpler 5-element close: ack + 1-line geo proof + 2 anchor times + Calendly + sig
- *   - WhatsApp ONLY for MX prospects (Caribbean omitted per Alex reference output
- *     for Andrea/DR; matches the EN Caribbean sample in cold_email_reply_playbook_2026.md)
- *   - Word-count guard: warns if final reply > 90 words (target 60-80 from Instantly 2026)
- *   - Sign-off "Alex / JegoDigital" on a single line (was 2 div lines in v2.1)
- *   - Composer copy tightened to match Alex's reference outputs verbatim
+ * v2.3 (2026-04-29 PM) — WhatsApp-first per Alex strategic pivot:
+ *   - PRIMARY CTA = WhatsApp (Alex's personal +52 998 202 3263), NOT Calendly.
+ *     Rationale: MX/LatAm prospects respond to WA 5-10x more than calendar
+ *     links. Alex closes higher rate when he builds rapport on WA first
+ *     and then offers Calendly mid-conversation, vs. cold Calendly link.
+ *   - PHONE-KNOWN PATH: if Instantly has a `phone` field on the lead,
+ *     the reply tells the prospect "Alex will WhatsApp you in the next 30
+ *     min — confirm this number is best?" + we fire a Telegram alert to
+ *     Alex with a click-to-WA deeplink (`wa.me/{phone}?text=...`) so he
+ *     can initiate inside 30 min. NO Calendly link sent — Alex offers it
+ *     mid-WA conversation after rapport.
+ *   - PHONE-UNKNOWN MX (EXPLORE/TECH_Q): single CTA = "Add me on WhatsApp
+ *     +52 998 202 3263, I'll personally reply within 30 min". No Calendly.
+ *   - PHONE-UNKNOWN MX (BUY): WhatsApp + Calendly fallback (warm leads
+ *     get options — they often want to book NOW).
+ *   - PHONE-UNKNOWN Miami/Caribbean/Fallback: Calendly first + WhatsApp
+ *     as fallback (US prospects don't WA-first the same way).
+ *   - Telegram ping on EVERY non-noise reply with phone known — Alex sees
+ *     name, company, reply preview, click-to-WA link. He decides whether
+ *     to ping personally or let the auto-reply do its job.
+ *
+ * v2.2 (2026-04-29 AM) — DEPRECATED (Calendly-first, single-CTA-Calendly).
+ *   The +371% single-CTA research still holds — v2.3 keeps single CTA,
+ *   but the CTA is now WhatsApp instead of Calendly for MX non-BUY paths.
  *
  * Source: docs/playbooks/cold_email_reply_playbook_2026.md
  *   - Single-CTA wins (+371% clicks vs multi)
  *   - Reply length 50-125 words wins 2.4x over 200+
- *   - 2 anchor times + Calendly fallback stacks well in replies
- *   - WA helps MX/LatAm; hurts US/Miami
- *   - Demo library link in reply: SKIP (Sendspark research)
+ *   - WhatsApp-first for MX (Alex strategic pivot 2026-04-29 PM)
+ *   - Reply NEVER sent to UNSUB / OOO / BOUNCE
  *
- * v2.1 (2026-04-29) — DEPRECATED (had demo link + 6-element close)
+ * v2.2 (2026-04-29 AM) — Calendly-first single-CTA — DEPRECATED
+ * v2.1 (2026-04-29 AM) — Demo link + multi-CTA — DEPRECATED
  * v2  (2026-04-28) — original autonomous router
  *
  * Hard rules satisfied:
@@ -266,19 +280,40 @@ function signature() {
 
 function calendlyFallbackLine(lang) {
     return lang === "es"
-        ? `Si no, agarra slot: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`
-        : `If neither works, grab any slot: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`;
+        ? `O agenda directo: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`
+        : `Or grab a slot: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`;
 }
 
-function whatsappLine(lang) {
-    // Same line both langs — number is universal, "WhatsApp:" reads in either.
-    return `WhatsApp: ${WHATSAPP_MX}`;
+/**
+ * v2.3 — WhatsApp-first CTA when prospect's phone is unknown.
+ * Asks them to message Alex on his personal +52 number.
+ * The whole point: Alex builds rapport on WA, then offers Calendly mid-chat.
+ */
+function whatsappAddMeLine(lang) {
+    return lang === "es"
+        ? `Mejor por WhatsApp — escríbeme: <a href="https://wa.me/529982023263">+52 998 202 3263</a> y te respondo personalmente en menos de 30 min.`
+        : `Easier by WhatsApp — message me: <a href="https://wa.me/529982023263">+52 998 202 3263</a> and I'll personally reply in under 30 min.`;
+}
+
+/**
+ * v2.3 — Phone-known path: Alex will initiate the WA ping himself.
+ * The reply confirms intent and asks if the scraped number is the right one.
+ */
+function alexWillPingLine({ lang, phoneMasked }) {
+    if (lang === "es") {
+        return phoneMasked
+            ? `Te mando WhatsApp en los próximos 30 min al ${phoneMasked} — ¿es tu mejor número, o prefieres otro?`
+            : `Te mando WhatsApp en los próximos 30 min — confirma tu mejor número y te escribo.`;
+    }
+    return phoneMasked
+        ? `I'll WhatsApp you in the next 30 min at ${phoneMasked} — is that still your best number, or prefer a different one?`
+        : `I'll WhatsApp you in the next 30 min — confirm your best number and I'll reach out.`;
 }
 
 function slotBlock(lang, slots) {
     const intro = lang === "es"
-        ? `15 min esta semana:`
-        : `Fastest path is 15 min this week:`;
+        ? `O 15 min en agenda:`
+        : `Or 15 min this week:`;
     const sep = lang === "es" ? ", o" : ", or";
     return [
         `<div>${intro}</div>`,
@@ -288,19 +323,56 @@ function slotBlock(lang, slots) {
 }
 
 /**
- * Build the standard close stack (slots → Calendly → optional WA).
- * MX prospects get the WhatsApp line; everyone else does not.
+ * Mask a phone for display in the reply: keep country code + last 4 digits.
+ * +52 999 555 1234 → +52 ··· ··· 1234. Defensive — if input is short,
+ * just returns the raw phone (we'd rather show the number than fail).
  */
-function closeStack({ lang, slots, includeWhatsApp }) {
-    const lines = [
+function maskPhone(phone) {
+    if (!phone) return null;
+    const digits = String(phone).replace(/\D/g, "");
+    if (digits.length < 6) return phone;
+    const last4 = digits.slice(-4);
+    return `+${digits.slice(0, digits.length - 10)} ··· ··· ${last4}`;
+}
+
+/**
+ * v2.3 close stack — WhatsApp-first matrix.
+ *
+ * Behavior matrix:
+ *   1. phoneKnown=true               → "Alex will WA you" (no Calendly, no WA-add-me)
+ *   2. phoneKnown=false, MX, BUY     → WhatsApp-add-me + Calendly fallback (warm)
+ *   3. phoneKnown=false, MX, EXPLORE → WhatsApp-add-me only (no Calendly)
+ *   4. phoneKnown=false, MX, TECH_Q  → WhatsApp-add-me only (no Calendly)
+ *   5. phoneKnown=false, MIAMI/CARIB/FALLBACK → Calendly + WhatsApp-add-me fallback
+ *      (US prospects don't WA-first the same way — Calendly is primary CTA)
+ */
+function closeStack({ lang, slots, geo, intent, phoneKnown, phoneMasked }) {
+    // Path 1: phone known → Alex pings personally, no other CTAs in the reply
+    if (phoneKnown) {
+        return `<div>${alexWillPingLine({ lang, phoneMasked })}</div>`;
+    }
+
+    // Path 2-4: MX prospect → WhatsApp-first
+    if (geo === "MX") {
+        const lines = [`<div>${whatsappAddMeLine(lang)}</div>`];
+        // BUY = warm, give them Calendly as a backup option
+        if (intent === "BUY") {
+            lines.push(`<div><br></div>`);
+            lines.push(slotBlock(lang, slots));
+            lines.push(`<div><br></div>`);
+            lines.push(`<div>${calendlyFallbackLine(lang)}</div>`);
+        }
+        return lines.join("\n");
+    }
+
+    // Path 5: Miami / Caribbean / Fallback → Calendly first, WA fallback
+    return [
         slotBlock(lang, slots),
         `<div><br></div>`,
         `<div>${calendlyFallbackLine(lang)}</div>`,
-    ];
-    if (includeWhatsApp) {
-        lines.push(`<div>${whatsappLine(lang)}</div>`);
-    }
-    return lines.join("\n");
+        `<div><br></div>`,
+        `<div>${whatsappAddMeLine(lang)}</div>`,
+    ].join("\n");
 }
 
 /**
@@ -319,9 +391,9 @@ function countWords(html) {
 
 /**
  * Compose body for intent=BUY.
- * v2.2 close: greeting + ack + proof + 2 slots + Calendly + WA(MX) + sig.
+ * v2.3 close: greeting + ack + proof + WA-first close (or Alex-will-ping) + sig.
  */
-function composeBUY({ lang, bank, leadFirstName, slots, includeWhatsApp }) {
+function composeBUY({ lang, bank, leadFirstName, slots, geo, phoneKnown, phoneMasked }) {
     const fname = (leadFirstName || "").trim();
     const greeting = lang === "es"
         ? (fname ? `Hola ${fname},` : `Hola,`)
@@ -335,7 +407,7 @@ function composeBUY({ lang, bank, leadFirstName, slots, includeWhatsApp }) {
         `<div><br></div>`,
         `<div>${ackProof}</div>`,
         `<div><br></div>`,
-        closeStack({ lang, slots, includeWhatsApp }),
+        closeStack({ lang, slots, geo, intent: "BUY", phoneKnown, phoneMasked }),
         `<div><br></div>`,
         signature(),
     ].join("\n");
@@ -343,9 +415,9 @@ function composeBUY({ lang, bank, leadFirstName, slots, includeWhatsApp }) {
 
 /**
  * Compose body for intent=TECH_Q.
- * v2.2: honest 1-line tech answer + 2 slots + Calendly + WA(MX) + sig.
+ * v2.3: honest 1-line tech answer + WA-first close + sig.
  */
-function composeTECH_Q({ lang, leadFirstName, slots, includeWhatsApp }) {
+function composeTECH_Q({ lang, leadFirstName, slots, geo, phoneKnown, phoneMasked }) {
     const fname = (leadFirstName || "").trim();
     const greeting = lang === "es"
         ? (fname ? `Hola ${fname},` : `Hola,`)
@@ -359,7 +431,7 @@ function composeTECH_Q({ lang, leadFirstName, slots, includeWhatsApp }) {
         `<div><br></div>`,
         `<div>${tech}</div>`,
         `<div><br></div>`,
-        closeStack({ lang, slots, includeWhatsApp }),
+        closeStack({ lang, slots, geo, intent: "TECH_Q", phoneKnown, phoneMasked }),
         `<div><br></div>`,
         signature(),
     ].join("\n");
@@ -367,9 +439,9 @@ function composeTECH_Q({ lang, leadFirstName, slots, includeWhatsApp }) {
 
 /**
  * Compose body for intent=EXPLORE.
- * v2.2: ack + 1 geo proof + 2 slots + Calendly + WA(MX) + sig.
+ * v2.3: ack + 1 geo proof + WA-first close + sig.
  */
-function composeEXPLORE({ lang, bank, leadFirstName, slots, includeWhatsApp }) {
+function composeEXPLORE({ lang, bank, leadFirstName, slots, geo, phoneKnown, phoneMasked }) {
     const fname = (leadFirstName || "").trim();
     const greeting = lang === "es"
         ? (fname ? `Hola ${fname},` : `Hola,`)
@@ -383,7 +455,7 @@ function composeEXPLORE({ lang, bank, leadFirstName, slots, includeWhatsApp }) {
         `<div><br></div>`,
         `<div>${ackProof}</div>`,
         `<div><br></div>`,
-        closeStack({ lang, slots, includeWhatsApp }),
+        closeStack({ lang, slots, geo, intent: "EXPLORE", phoneKnown, phoneMasked }),
         `<div><br></div>`,
         signature(),
     ].join("\n");
@@ -407,15 +479,18 @@ function composeReply(params) {
 
     const bank = pickProofBank(geo);
     const slots = params.slots || nextTwoSlots(geo, lang, params.now);
-    // v2.2 playbook rule: WhatsApp ONLY for MX. Caribbean/Miami/Fallback omit.
-    const includeWhatsApp = (geo === "MX");
+    // v2.3: phone-known triggers Alex-will-ping copy + suppresses other CTAs.
+    const phoneKnown = !!(params.leadPhone && String(params.leadPhone).replace(/\D/g, "").length >= 8);
+    const phoneMasked = phoneKnown ? maskPhone(params.leadPhone) : null;
 
     const args = {
         lang,
         bank,
         leadFirstName: params.leadFirstName,
         slots,
-        includeWhatsApp,
+        geo,
+        phoneKnown,
+        phoneMasked,
     };
 
     let html;
@@ -424,10 +499,9 @@ function composeReply(params) {
     else html = composeEXPLORE(args); // EXPLORE + fallback
 
     // Soft word-count guard — log a warning if we drift past the 90-word ceiling.
-    // Never throws — safer to send a slightly long reply than to drop a hot lead.
     const wc = countWords(html);
     if (wc > WORD_LIMIT && functions && functions.logger) {
-        functions.logger.warn(`replyRouter v2.2: reply exceeded word limit (${wc} > ${WORD_LIMIT}) for intent=${intent} geo=${geo} lang=${lang}`);
+        functions.logger.warn(`replyRouter v2.3: reply exceeded word limit (${wc} > ${WORD_LIMIT}) for intent=${intent} geo=${geo} lang=${lang}`);
     }
 
     return html;
@@ -461,7 +535,7 @@ async function sendInstantlyReply({ replyToUuid, eaccount, subject, html }) {
                 headers: {
                     "Authorization": `Bearer ${INSTANTLY_KEY}`,
                     "Content-Type": "application/json",
-                    "User-Agent": "JegoDigital-ReplyRouter/2.2",
+                    "User-Agent": "JegoDigital-ReplyRouter/2.3",
                 },
                 timeout: 25000,
                 validateStatus: () => true,
@@ -515,18 +589,27 @@ async function routeReply(params) {
     // Step 1 — classify intent (filters noise upstream)
     const intent = classifyIntent(replyBody, originalSubject);
 
-    // Step 2 — geo lookup (works on partial lead — even just email)
-    const leadForGeo = lead || {
-        email: leadEmail || "",
-        website: params.leadWebsite || "",
-        city: params.leadCity || "",
+    // Step 2 — geo lookup. Always merge lead object with the email/website
+    // explicitly passed in — fixes 2026-04-29 bug where ceo@fastoffice.mx
+    // detected as FALLBACK because lead.email was missing from leadObj
+    // even though leadEmail was present in the watcher's call.
+    const leadForGeo = {
+        ...(lead || {}),
+        email: ((lead && lead.email) || leadEmail || "").toLowerCase(),
+        website: ((lead && lead.website) || params.leadWebsite || "").toLowerCase(),
+        city: (lead && lead.city) || params.leadCity || "",
     };
     const geo = geoFromLead(leadForGeo);
 
-    // Step 3 — language: prospect's reply > geo default
-    const detected = detectLang(replyBody);
+    // Step 3 — language: prospect's reply > geo default. v2.3 also factors in
+    // the original cold-email subject (in case prospect's reply is too short
+    // to disambiguate). MX leads default to es regardless.
+    const detected = detectLang(replyBody) || detectLang(originalSubject);
     const geoDefault = { MX: "es", CARIBBEAN: "en", MIAMI: "en", FALLBACK: "en" }[geo] || "en";
     const lang = detected || geoDefault;
+
+    // v2.3 — phone for Alex-will-ping path. May be null.
+    const leadPhone = params.leadPhone || (lead && (lead.phone || lead.phone_number || lead.mobile)) || null;
 
     // Step 4 — handle UNSUB: mark + Slack ping, NO reply
     if (intent === "UNSUB") {
@@ -557,6 +640,7 @@ async function routeReply(params) {
         geo,
         leadFirstName,
         slots,
+        leadPhone,
     });
     if (!html) {
         return { ok: false, intent, geo, lang, reason: "compose_returned_null" };
@@ -566,11 +650,12 @@ async function routeReply(params) {
     // Step 7 — send via Instantly
     const sendRes = await sendInstantlyReply({ replyToUuid, eaccount, subject, html });
 
-    // Step 8 — log + Slack mirror (informational, NEVER ask Alex to compose)
+    // Step 8 — log + Slack mirror + Telegram-Alex-ping (v2.3)
     await logRouting({
         campaign_id: campaignId, lead_email: leadEmail, reply_to_uuid: replyToUuid,
         eaccount, intent, geo, lang, subject,
         replied: sendRes.ok, sent_email_id: sendRes.sentId || null,
+        phone_known: !!leadPhone,
         ok: sendRes.ok, error: sendRes.ok ? null : (sendRes.error || "unknown"),
     });
 
@@ -580,7 +665,18 @@ async function routeReply(params) {
             inboundPreview: String(replyBody || "").slice(0, 400),
             outboundHtml: html,
             sentId: sendRes.sentId,
+            leadPhone,
         });
+
+        // v2.3 — if we have the prospect's phone, ping Alex on Telegram with a
+        // click-to-WhatsApp deeplink so he can initiate the personal WA chat
+        // inside 30 min (the window we promised in the email reply).
+        if (leadPhone) {
+            await postTelegramAlexPing({
+                intent, geo, lang, leadEmail, leadFirstName, leadCompanyName,
+                leadPhone, replyBody, originalSubject,
+            });
+        }
     }
 
     return {
@@ -590,8 +686,52 @@ async function routeReply(params) {
         lang,
         sentId: sendRes.sentId,
         replied: sendRes.ok,
+        phoneKnown: !!leadPhone,
         reason: sendRes.ok ? null : sendRes.error,
     };
+}
+
+/**
+ * v2.3 — Telegram alert when a phone-known reply lands. Includes click-to-WA
+ * deeplink with a pre-filled greeting Alex can edit before sending.
+ *
+ * NEVER throws. NEVER blocks the main reply path.
+ */
+async function postTelegramAlexPing(p) {
+    try {
+        const TG_BOT = process.env.TELEGRAM_BOT_TOKEN || "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
+        const TG_CHAT = process.env.TELEGRAM_CHAT_ID || "6637626501";
+        const fname = p.leadFirstName || "";
+        const company = p.leadCompanyName || "";
+        const cleanPhone = String(p.leadPhone).replace(/\D/g, "");
+        const greeting = p.lang === "es"
+            ? `Hola ${fname || ""}, soy Alex de JegoDigital — vi tu respuesta al correo. ¿Tienes 5 min para platicar por aquí?`
+            : `Hi ${fname || ""}, this is Alex from JegoDigital — saw your email reply. Got 5 min to chat here?`;
+        const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(greeting.trim())}`;
+        const text = [
+            `📲 *Phone-known reply — ping within 30 min*`,
+            ``,
+            `*Lead:* ${fname || "(no name)"} — ${company || "(no company)"}`,
+            `*Email:* \`${p.leadEmail}\``,
+            `*Phone:* \`+${cleanPhone}\``,
+            `*Intent:* ${p.intent} · *Geo:* ${p.geo} · *Lang:* ${p.lang}`,
+            `*Original subject:* ${(p.originalSubject || "").slice(0, 80)}`,
+            ``,
+            `*Their reply:*`,
+            `${String(p.replyBody || "").slice(0, 300)}`,
+            ``,
+            `👉 [Open WhatsApp](${waLink})`,
+        ].join("\n");
+        await axios.post(
+            `https://api.telegram.org/bot${TG_BOT}/sendMessage`,
+            { chat_id: TG_CHAT, text, parse_mode: "Markdown", disable_web_page_preview: false },
+            { timeout: 8000, validateStatus: () => true },
+        );
+    } catch (err) {
+        if (functions && functions.logger) {
+            functions.logger.warn("postTelegramAlexPing failed:", err.message);
+        }
+    }
 }
 
 // =====================================================================
@@ -603,7 +743,7 @@ async function logRouting(row) {
         const db = admin.firestore();
         await db.collection("reply_routing_log").add({
             ...row,
-            router_version: "2.2",
+            router_version: "2.3",
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
     } catch (err) {
