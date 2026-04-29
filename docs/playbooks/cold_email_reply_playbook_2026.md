@@ -1,6 +1,8 @@
 # Cold Email Reply Playbook 2026 — Research + Paste-Ready Templates
 
-**Mission (UPDATED 2026-04-29 PM):** Every reply pushes the prospect onto Alex's personal WhatsApp (`+52 998 202 3263`). Calendly is now a **fallback**, not the primary CTA. Alex builds rapport on WA first, then offers Calendly mid-conversation — closes higher. Fully autonomous AI agent. Markets: MX (ES), Miami (EN/ES), Caribbean (EN), US Hispanic. NO Instantly tracking pixel.
+**Mission (UPDATED 2026-04-29 PM):** Every reply pushes the prospect onto Alex's personal WhatsApp (`+52 998 202 3263`). Calendly is a **fallback only** (Miami/Caribbean or BUY-intent). Alex builds rapport on WhatsApp, then offers Calendly mid-conversation — closes higher. Markets: MX (ES), Miami (EN/ES), Caribbean (EN), US Hispanic. NO Instantly tracking pixel.
+
+**ARCHITECTURE (since 2026-04-29 PM):** Instantly's built-in AI Reply Agent ("JegoDigital Agent" — autopilot, ID `019d368d-c8ad-7208-8c42-438f4cb16258`) composes every reply. Custom Cloud Function router was killed permanently after the dedup-bug spam disaster (`ceo@fastoffice.mx` got 6 identical replies in 27 min on 2026-04-29). Single source of truth for the Guidance prompt: [`/INSTANTLY_AGENT_PROMPT.md`](../../INSTANTLY_AGENT_PROMPT.md) — paste into Instantly UI when updating.
 
 ---
 

@@ -347,70 +347,35 @@ exports.instantlyReplyWatcher = functions
             }
 
             // ====================================================================
-            // v2 RE-ENABLED 2026-04-29 — fully autonomous, geo-aware, always-Calendly
+            // CUSTOM ROUTER PERMANENTLY DISABLED 2026-04-29 PM (Alex directive)
             //
-            // Per Alex 2026-04-29: kill the Slack-handoff path, kill the global
-            // Instantly AI Reply Agent (which sent Andrea Cancún Spanish proof
-            // when she's a DR-based agent who wrote in English). The router now
-            // classifies intent, picks geo proof, mirrors language, closes on
-            // Calendly — every time. No human in the loop.
+            // History:
+            //   2026-04-28 ecea9c3 — first disable (in favor of Instantly's built-in
+            //                        AI Reply Agent with per-campaign Guidance prompt)
+            //   2026-04-29 a4ad1c2 — re-enabled as v2.2 (Calendly-first single-CTA)
+            //   2026-04-29 PM      — re-enabled briefly as v2.3 (WhatsApp-first)
+            //   2026-04-29 PM      — KILLED FOREVER. Reason: a v2 dedup bug shipped
+            //                        6 identical replies to ceo@fastoffice.mx in 27 min
+            //                        because activityRef.set() never wrote (timeout).
+            //                        Even the v2.3 fix carried risk — too many code
+            //                        paths, too many bugs (geo, lang, dedup, slots).
             //
-            // BEFORE the router fires, we already filtered OOO/auto-reply via
-            // `isAutoResponse` below. The router does its own UNSUB/BOUNCE/OOO
-            // classification too (defense in depth) and skips reply for those.
+            // GO-FORWARD: Instantly's native AI Reply Agent ("JegoDigital Agent",
+            // configuration_type=2, autopilot, ID 019d368d-c8ad-7208-8c42-438f4cb16258)
+            // handles ALL replies. Its Guidance prompt is the WhatsApp-first playbook.
+            // The watcher still does (a) audit autofire on positives, (b) Brevo nurture
+            // Track A start, (c) Notion CRM upsert, (d) Telegram hot-lead alerts —
+            // but NEVER composes outbound replies. That's Instantly's job now.
             //
-            // Fires for ALL non-noise replies — not just classifyReply()=positive,
-            // because BUY/TECH_Q/EXPLORE all need replies and the legacy
-            // classifier under-fires on "send me the offer" + "are you human?".
+            // The instantlyReplyRouter.js module stays on disk as a backup we can
+            // re-wire in seconds if Instantly's AI agent breaks — but it does not
+            // run in production. No double-reply risk because this code path is
+            // dead. activity log records "router_disabled" so Slack/Notion know.
             // ====================================================================
-            let routedReplySentId = null;
-            let routedReplyError = null;
-            let routedIntent = null;
-            let routedGeo = null;
-
-            // Upstream noise filter (HR-cited 47% noise reduction): skip router if
-            // the watcher's autoresponse heuristic already flagged this as OOO/dead.
-            const bodyLowerForFilter = String(body).toLowerCase();
-            const isUpstreamNoise = /out of office|fuera de la? oficina|auto.?reply|respuesta autom|no longer with|ya no (forma parte|labora|trabaja)|desactivac|automatic reply|mail delivery (failed|subsystem)|undeliverable|user unknown/i.test(bodyLowerForFilter);
-
-            if (!isUpstreamNoise) {
-                try {
-                    const router = require("./instantlyReplyRouter");
-                    const routeRes = await router.routeReply({
-                        replyToUuid: replyId,
-                        campaignId: em.campaign || em.campaign_id || null,
-                        eaccount: em.eaccount || em.from_address_email || null,
-                        originalSubject: em.subject || subject || "",
-                        replyBody: body,
-                        leadEmail: ctx.email,
-                        leadFirstName: ctx.firstName,
-                        leadCompanyName: ctx.company,
-                        leadWebsite: ctx.website || "",
-                        leadPhone: ctx.phone || null,
-                        lead: ctx.leadObj,
-                    });
-                    routedIntent = routeRes.intent || null;
-                    routedGeo = routeRes.geo || null;
-                    if (routeRes.ok && routeRes.replied) {
-                        routedReplySentId = routeRes.sentId;
-                        functions.logger.info(
-                            `v2 router replied to ${ctx.email}: intent=${routeRes.intent} geo=${routeRes.geo} lang=${routeRes.lang} sentId=${routeRes.sentId}`
-                        );
-                    } else if (routeRes.ok && !routeRes.replied) {
-                        // OOO/UNSUB/BOUNCE intentional skip — log reason
-                        routedReplyError = routeRes.reason || "skipped_noise";
-                        functions.logger.info(`v2 router skipped ${ctx.email}: ${routeRes.reason}`);
-                    } else {
-                        routedReplyError = routeRes.reason || "send_failed";
-                        functions.logger.warn(`v2 router send failed for ${ctx.email}: ${routeRes.reason}`);
-                    }
-                } catch (err) {
-                    routedReplyError = err.message;
-                    functions.logger.warn(`v2 router threw for ${replyId}:`, err.message);
-                }
-            } else {
-                routedReplyError = "upstream_noise_filtered";
-            }
+            const routedReplySentId = null;
+            const routedReplyError = "custom_router_disabled_2026-04-29";
+            const routedIntent = null;
+            const routedGeo = null;
 
             // Hot-alert criteria: positive OR positive_with_objection OR question with
             // decision-maker signals. These all go to Telegram so Alex can respond fast.
