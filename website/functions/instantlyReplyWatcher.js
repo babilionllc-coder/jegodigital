@@ -321,22 +321,34 @@ exports.instantlyReplyWatcher = functions
                 }
             }
 
-            // Per-campaign autonomous reply DISABLED 2026-04-28 PM — Instantly's
-            // global JegoDigital AI Reply Agent now handles per-campaign routing
-            // via its updated Guidance prompt (sees campaign name in conversation
-            // context and branches to the correct primary link per campaign).
+            // ====================================================================
+            // v2 RE-ENABLED 2026-04-29 — fully autonomous, geo-aware, always-Calendly
             //
-            // Decision: simpler than maintaining a parallel reply system, native
-            // Instantly Unibox visibility, agent handles edge cases (questions,
-            // pricing objections, ambiguous replies) better than templated routing.
+            // Per Alex 2026-04-29: kill the Slack-handoff path, kill the global
+            // Instantly AI Reply Agent (which sent Andrea Cancún Spanish proof
+            // when she's a DR-based agent who wrote in English). The router now
+            // classifies intent, picks geo proof, mirrors language, closes on
+            // Calendly — every time. No human in the loop.
             //
-            // The instantlyReplyRouter module + CAMPAIGN_ROUTES table are kept on
-            // disk as backup. To re-enable: uncomment the block below + ensure the
-            // global AI Reply Agent is paused first to prevent double-replies.
-            const routedReplySentId = null;
-            const routedReplyError = "ai_agent_handles_routing"; // by design, not a failure
-            /* DISABLED — see comment above
-            if (outcome === "positive" || outcome === "positive_with_objection") {
+            // BEFORE the router fires, we already filtered OOO/auto-reply via
+            // `isAutoResponse` below. The router does its own UNSUB/BOUNCE/OOO
+            // classification too (defense in depth) and skips reply for those.
+            //
+            // Fires for ALL non-noise replies — not just classifyReply()=positive,
+            // because BUY/TECH_Q/EXPLORE all need replies and the legacy
+            // classifier under-fires on "send me the offer" + "are you human?".
+            // ====================================================================
+            let routedReplySentId = null;
+            let routedReplyError = null;
+            let routedIntent = null;
+            let routedGeo = null;
+
+            // Upstream noise filter (HR-cited 47% noise reduction): skip router if
+            // the watcher's autoresponse heuristic already flagged this as OOO/dead.
+            const bodyLowerForFilter = String(body).toLowerCase();
+            const isUpstreamNoise = /out of office|fuera de la? oficina|auto.?reply|respuesta autom|no longer with|ya no (forma parte|labora|trabaja)|desactivac|automatic reply|mail delivery (failed|subsystem)|undeliverable|user unknown/i.test(bodyLowerForFilter);
+
+            if (!isUpstreamNoise) {
                 try {
                     const router = require("./instantlyReplyRouter");
                     const routeRes = await router.routeReply({
@@ -348,19 +360,31 @@ exports.instantlyReplyWatcher = functions
                         leadEmail: ctx.email,
                         leadFirstName: ctx.firstName,
                         leadCompanyName: ctx.company,
+                        leadWebsite: ctx.website || "",
+                        lead: ctx.leadObj,
                     });
-                    if (routeRes.ok) {
+                    routedIntent = routeRes.intent || null;
+                    routedGeo = routeRes.geo || null;
+                    if (routeRes.ok && routeRes.replied) {
                         routedReplySentId = routeRes.sentId;
-                        functions.logger.info(`routed reply sent for ${ctx.email}`);
+                        functions.logger.info(
+                            `v2 router replied to ${ctx.email}: intent=${routeRes.intent} geo=${routeRes.geo} lang=${routeRes.lang} sentId=${routeRes.sentId}`
+                        );
+                    } else if (routeRes.ok && !routeRes.replied) {
+                        // OOO/UNSUB/BOUNCE intentional skip — log reason
+                        routedReplyError = routeRes.reason || "skipped_noise";
+                        functions.logger.info(`v2 router skipped ${ctx.email}: ${routeRes.reason}`);
                     } else {
-                        routedReplyError = routeRes.reason || "unknown";
+                        routedReplyError = routeRes.reason || "send_failed";
+                        functions.logger.warn(`v2 router send failed for ${ctx.email}: ${routeRes.reason}`);
                     }
                 } catch (err) {
                     routedReplyError = err.message;
-                    functions.logger.warn(`reply routing failed for ${replyId}:`, err.message);
+                    functions.logger.warn(`v2 router threw for ${replyId}:`, err.message);
                 }
+            } else {
+                routedReplyError = "upstream_noise_filtered";
             }
-            */
 
             // Hot-alert criteria: positive OR positive_with_objection OR question with
             // decision-maker signals. These all go to Telegram so Alex can respond fast.
@@ -394,6 +418,8 @@ exports.instantlyReplyWatcher = functions
                 brevo_nurture_started: nurtureStarted,
                 routed_reply_sent_id: routedReplySentId,
                 routed_reply_error: routedReplyError,
+                routed_intent: routedIntent,
+                routed_geo: routedGeo,
                 processed_at: admin.firestore.FieldValue.serverTimestamp(),
             });
 
