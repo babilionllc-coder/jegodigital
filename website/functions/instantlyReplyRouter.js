@@ -1,34 +1,26 @@
 /**
- * instantlyReplyRouter v2.1 — fully autonomous, geo-aware, intent-classifying,
- * always-close-to-Calendly reply composer with the FULL JegoDigital close
- * package (acknowledgment + geo proof + demo link + 2 time slots + Calendly
- * + WhatsApp for MX + signed Alex / JegoDigital).
+ * instantlyReplyRouter v2.2 — fully autonomous, geo-aware, intent-classifying,
+ * always-close-to-Calendly reply composer. Single-CTA, plain-feel, ≤90 words.
  *
- * v2.1 (2026-04-29) — close mechanics upgrade per Alex:
- *   - BUY / TECH_Q / EXPLORE replies now include all 5 close elements
- *   - Demo URL routes by Instantly campaign (Trojan Horse → /lead-capture-demo,
- *     SEO/AEO → /seo-aeo-demo, World Cup / Speed-to-Lead → /lead-capture-demo)
- *   - 2 specific time proposals (next 2 business days, 3pm + 11am, geo TZ)
- *   - WhatsApp +52 998 202 3263 added ONLY for MX prospects (per playbook)
- *   - Sign-off normalized to "Alex / JegoDigital" (Iron Rule #5 — never full name)
- *   - Replaces the v2 single-Calendly-line close that was incomplete
+ * v2.2 (2026-04-29) — research-backed simplification per Alex playbook:
+ *   - REMOVED demo video link entirely (research: dilutes Calendly CTA by 371%)
+ *   - REMOVED CAMPAIGN_DEMO_URLS routing + DEMO_LEAD_CAPTURE / DEMO_SEO_AEO
+ *   - Simpler 5-element close: ack + 1-line geo proof + 2 anchor times + Calendly + sig
+ *   - WhatsApp ONLY for MX prospects (Caribbean omitted per Alex reference output
+ *     for Andrea/DR; matches the EN Caribbean sample in cold_email_reply_playbook_2026.md)
+ *   - Word-count guard: warns if final reply > 90 words (target 60-80 from Instantly 2026)
+ *   - Sign-off "Alex / JegoDigital" on a single line (was 2 div lines in v2.1)
+ *   - Composer copy tightened to match Alex's reference outputs verbatim
  *
- * v2 (2026-04-28) — original autonomous router:
- *   1. Classify intent: BUY / TECH_Q / EXPLORE / OOO / UNSUB / BOUNCE
- *   2. Filter noise (OOO / UNSUB / BOUNCE) — NO reply, just mark + log
- *   3. Geo-route to MX / CARIBBEAN / MIAMI / FALLBACK proof banks
- *   4. Mirror prospect language (ES / EN); ignore Polish/PT iPhone signatures
- *   5. POST to Instantly v2 /api/v2/emails/reply
- *   6. Log to Firestore reply_routing_log
- *   7. Cross-post to Slack #hot-leads (informational only)
+ * Source: docs/playbooks/cold_email_reply_playbook_2026.md
+ *   - Single-CTA wins (+371% clicks vs multi)
+ *   - Reply length 50-125 words wins 2.4x over 200+
+ *   - 2 anchor times + Calendly fallback stacks well in replies
+ *   - WA helps MX/LatAm; hurts US/Miami
+ *   - Demo library link in reply: SKIP (Sendspark research)
  *
- * Disaster fix: 2026-04-28 Andrea Bieganowska
- *   - DR-based agent (bluecaribbeanproperties.com), wrote English, said
- *     "Hi, please send me the offer." (BUY), v1 sent her Cancún Flamingo
- *     proof in Spanish with MX WhatsApp number. She ghosted.
- *   - v2.1 detects: geo=CARIBBEAN (city Punta Cana), intent=BUY, lang=EN,
- *     picks CARIBBEAN proof, sends demo + 2 time slots + Calendly fallback,
- *     OMITS MX WhatsApp number, signs "Alex / JegoDigital".
+ * v2.1 (2026-04-29) — DEPRECATED (had demo link + 6-element close)
+ * v2  (2026-04-28) — original autonomous router
  *
  * Hard rules satisfied:
  *   HR-0  — every proof string is a real verified client claim, no fabrication
@@ -40,6 +32,7 @@
  *   - Instantly tracking pixel stays OFF (we don't touch tracking config here)
  *   - Zero ManyChat references (FB Lead Form is the only inbound funnel)
  *   - Sign-off is "Alex / JegoDigital" — NEVER full name, NEVER a title
+ *   - WhatsApp is "+52 998 202 3263" — NEVER the deprecated 787 5321 number
  */
 
 const axios = require("axios");
@@ -52,43 +45,10 @@ const INSTANTLY_API = "https://api.instantly.ai/api/v2";
 const INSTANTLY_KEY = process.env.INSTANTLY_API_KEY;
 
 const CALENDLY = "https://calendly.com/jegoalexdigital/30min";
-const WHATSAPP_MX = "+52 998 202 3263"; // MX prospects only — playbook rule
-
-// Canonical demo URLs — match Alex's spec table 2026-04-29
-const DEMO_LEAD_CAPTURE = "https://jegodigital.com/lead-capture-demo";
-const DEMO_SEO_AEO = "https://jegodigital.com/seo-aeo-demo";
-
-/**
- * CAMPAIGN_DEMO_URLS — resolve demo URL by exact Instantly campaign UUID.
- * Source of truth: notionLeadSync.INSTANTLY_CAMPAIGN_MAP (live pull 2026-04-23).
- * Fallback: name-keyword match below; final fallback: lead-capture-demo (Trojan Horse).
- */
-const CAMPAIGN_DEMO_URLS = {
-    "cd9f1abf-3ad5-460c-88e9-29c48bc058b3": DEMO_LEAD_CAPTURE, // Trojan Horse
-    "67fa7834-4dba-4ed9-97e2-0e9c53f8a6ed": DEMO_SEO_AEO,      // SEO + Visibilidad
-    "d486f1ab-4668-4674-ad6b-80ef12d9fd78": DEMO_LEAD_CAPTURE, // Free Demo Website MX (still Trojan Horse offer)
-};
-
-/**
- * CAMPAIGN_NAME_DEMO_URLS — fuzzy-match by campaign name keyword.
- * Used when the UUID isn't in CAMPAIGN_DEMO_URLS but the watcher passed a name.
- */
-const CAMPAIGN_NAME_DEMO_URLS = [
-    { match: /seo|aeo|chatgpt|visibilidad|antigravity/i, url: DEMO_SEO_AEO },
-    { match: /trojan|world.?cup|speed.?to.?lead|audit|auditor[ií]a|free.?demo|whatsapp|captura|lead.?capture|hispanic/i, url: DEMO_LEAD_CAPTURE },
-];
-
-const DEFAULT_DEMO_URL = DEMO_LEAD_CAPTURE; // Trojan Horse is JegoDigital's primary offer
-
-function resolveDemoUrl({ campaignId, campaignName }) {
-    if (campaignId && CAMPAIGN_DEMO_URLS[campaignId]) return CAMPAIGN_DEMO_URLS[campaignId];
-    if (campaignName) {
-        for (const row of CAMPAIGN_NAME_DEMO_URLS) {
-            if (row.match.test(String(campaignName))) return row.url;
-        }
-    }
-    return DEFAULT_DEMO_URL;
-}
+// MX prospects only — playbook rule. NEVER use the deprecated 998 787 5321.
+const WHATSAPP_MX = "+52 998 202 3263";
+// Soft target from Instantly 2026 benchmark. Warn (not throw) over this.
+const WORD_LIMIT = 90;
 
 // =====================================================================
 // 1. Intent classifier
@@ -186,31 +146,30 @@ function geoFromLead(lead) {
 
 /**
  * PROOF_BANKS — ONE concise verified stat per geo per language (HR-0).
- * Designed to read naturally after "Quick context:" / "Para contexto:" so
- * the BUY/TECH_Q/EXPLORE composers can inline them.
+ * v2.2 strings match Alex's playbook reference outputs verbatim.
  *
  * Hero proof per CLAUDE.md HR#9:
- *   - Flamingo (Cancún) 88% inbound automation + 4.4x Maps visibility — MX
- *   - Solik (Miami bilingual) 3 ready-to-buy referrals month 1 — MIAMI
- *   - Caribbean wide: 88% inbound automation 24/7 EN+ES — CARIBBEAN
- *   - FALLBACK: Flamingo 88% + 4.4x (strongest single number)
+ *   - MX: Flamingo (Cancún) 88% inbound automation + 4.4x Maps visibility
+ *   - CARIBBEAN: regional 88% inbound automation (no specific client name)
+ *   - MIAMI: Solik 24/7 EN+ES + 3 ready-to-buy referrals month 1
+ *   - FALLBACK: 88% + 4.4x flagship case (no client name)
  */
 const PROOF_BANKS = {
     MX: {
-        es: "Flamingo Real Estate (Cancún) automatizó 88% de los leads inbound y subió 4.4x su visibilidad en Maps.",
-        en: "Flamingo Real Estate (Cancún) automated 88% of inbound leads and lifted Google Maps visibility 4.4x.",
+        es: "Flamingo Real Estate (Cancún) automatizó 88% de leads inbound y subió 4.4x su visibilidad.",
+        en: "Flamingo Real Estate (Cancún) automated 88% of inbound leads and lifted visibility 4.4x.",
     },
     CARIBBEAN: {
-        es: "automatizamos el 88% del inbound 24/7 en EN + ES para agencias de la región — sin perder leads de noche.",
-        en: "we automate 88% of inbound for similar agencies in the region.",
+        es: "Automatizamos el 88% del inbound para agencias similares en la región.",
+        en: "We've automated 88% of inbound for similar agencies in the region.",
     },
     MIAMI: {
-        es: "Solik (real estate bilingüe en Miami) tiene captura EN+ES 24/7 — 3 referidos listos-para-comprar en el primer mes.",
+        es: "Solik (real estate bilingüe en Miami) tiene captura EN+ES 24/7 — 3 referidos listos-para-comprar en su primer mes.",
         en: "Solik (Miami bilingual real estate) gets 24/7 EN+ES auto-capture and pulled 3 ready-to-buy referrals their first month.",
     },
     FALLBACK: {
-        es: "automatizamos el 88% del inbound de inmobiliarias 24/7 — caso insignia Flamingo (Cancún) llegó a 4.4x visibilidad orgánica en 90 días.",
-        en: "we automate 88% of inbound for real estate agencies 24/7 — flagship case Flamingo (Cancún) hit 4.4x organic visibility in 90 days.",
+        es: "Automatizamos el 88% del inbound para inmobiliarias + 4.4x visibilidad orgánica en nuestro caso insignia.",
+        en: "We've automated 88% of inbound for real estate agencies + 4.4x search visibility for our flagship case.",
     },
 };
 
@@ -227,12 +186,11 @@ function pickProofBank(geo) {
  * ("Wysłane z iPhone'a") do NOT count as Polish content — we look at
  * the actual body words.
  *
- * Returns "es" | "en". Default "en" when ambiguous (safer for Caribbean
- * + Miami markets; MX gets ES via per-route default).
+ * Returns "es" | "en". Default null when ambiguous (caller falls back
+ * to route default — MX→es, CARIBBEAN/MIAMI/FALLBACK→en).
  */
 function detectLang(body) {
     const raw = String(body || "");
-    // Strip device sigs that look foreign but aren't body content
     const cleaned = raw
         .replace(/wys[lł]ane z .*/gi, "")
         .replace(/sent from my (i?phone|ipad|android)/gi, "")
@@ -244,7 +202,7 @@ function detectLang(body) {
 
     if (esHits > enHits) return "es";
     if (enHits > esHits) return "en";
-    return null; // caller falls back to route default or geo default
+    return null;
 }
 
 // =====================================================================
@@ -252,8 +210,8 @@ function detectLang(body) {
 // =====================================================================
 
 const TZ_LABELS = {
-    MX: "CDT",        // Cancún + central Mexico — daylight label per Alex spec
-    CARIBBEAN: "CDT", // Punta Cana / DR — Alex's reference output uses CDT
+    MX: "CDT",        // Cancún + central Mexico
+    CARIBBEAN: "CDT", // Punta Cana / DR — Alex spec
     MIAMI: "EDT",
     FALLBACK: "ET",
 };
@@ -286,11 +244,6 @@ function formatSlot(date, hour, ampm, tz, lang) {
  *   slot 1 = next business day at 3pm
  *   slot 2 = following business day at 11am
  * Skips weekends. Timezone label is geo-mapped (MX/CARIBBEAN→CDT, MIAMI→EDT).
- *
- * @param {string} geo  — MX / CARIBBEAN / MIAMI / FALLBACK
- * @param {string} lang — "es" | "en"
- * @param {Date}  [now=new Date()] — overridable for tests
- * @returns {[string, string]} two formatted slot strings
  */
 function nextTwoSlots(geo, lang, now = new Date()) {
     const tz = TZ_LABELS[geo] || TZ_LABELS.FALLBACK;
@@ -303,42 +256,29 @@ function nextTwoSlots(geo, lang, now = new Date()) {
 }
 
 // =====================================================================
-// 6. Reply composer — full close package, every reply
+// 6. Reply composer — v2.2 simplified close (single CTA = Calendly)
 // =====================================================================
 
 function signature() {
-    // Iron Rule #5 — never full name, never title. Always "Alex / JegoDigital".
-    return `<div>Alex</div>\n<div>JegoDigital</div>`;
+    // Iron Rule #5 — never full name, never title. "Alex / JegoDigital" on one line.
+    return `<div>Alex / JegoDigital</div>`;
 }
 
 function calendlyFallbackLine(lang) {
     return lang === "es"
-        ? `Si ninguna te queda, agarra slot: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`
+        ? `Si no, agarra slot: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`
         : `If neither works, grab any slot: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`;
 }
 
 function whatsappLine(lang) {
-    return lang === "es"
-        ? `WhatsApp directo: ${WHATSAPP_MX}`
-        : `WhatsApp: ${WHATSAPP_MX}`;
-}
-
-function demoLine({ lang, demoUrl, leadCompanyName }) {
-    const co = (leadCompanyName || "").trim();
-    if (lang === "es") {
-        return co
-            ? `Aquí va un demo de 1 minuto de lo que armaríamos para ${co}: <a href="${demoUrl}">${demoUrl.replace("https://", "")}</a>`
-            : `Aquí va un demo de 1 minuto: <a href="${demoUrl}">${demoUrl.replace("https://", "")}</a>`;
-    }
-    return co
-        ? `Here's a 1-min demo of what we'd build for ${co}: <a href="${demoUrl}">${demoUrl.replace("https://", "")}</a>`
-        : `Here's a 1-min demo: <a href="${demoUrl}">${demoUrl.replace("https://", "")}</a>`;
+    // Same line both langs — number is universal, "WhatsApp:" reads in either.
+    return `WhatsApp: ${WHATSAPP_MX}`;
 }
 
 function slotBlock(lang, slots) {
     const intro = lang === "es"
-        ? `Ruta más rápida — 15 min esta semana. Tengo:`
-        : `Fastest path is 15 min this week. I have:`;
+        ? `15 min esta semana:`
+        : `Fastest path is 15 min this week:`;
     const sep = lang === "es" ? ", o" : ", or";
     return [
         `<div>${intro}</div>`,
@@ -348,8 +288,8 @@ function slotBlock(lang, slots) {
 }
 
 /**
- * Build the standard close stack — slots → Calendly fallback → optional WA.
- * Used by all 3 compose functions for consistency.
+ * Build the standard close stack (slots → Calendly → optional WA).
+ * MX prospects get the WhatsApp line; everyone else does not.
  */
 function closeStack({ lang, slots, includeWhatsApp }) {
     const lines = [
@@ -364,25 +304,36 @@ function closeStack({ lang, slots, includeWhatsApp }) {
 }
 
 /**
- * Compose body for intent=BUY.
- * Full close package: ack + geo proof + demo + 2 slots + Calendly + WA(MX) + sig.
- * No price pitch — pricing is Calendly-only per JegoDigital playbook.
+ * Strip HTML to plain text + count words (for the soft 90-word guard).
  */
-function composeBUY({ lang, bank, leadFirstName, leadCompanyName, demoUrl, slots, includeWhatsApp }) {
+function countWords(html) {
+    const text = String(html || "")
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/?div>/gi, "\n")
+        .replace(/<[^>]+>/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    if (!text) return 0;
+    return text.split(" ").filter(Boolean).length;
+}
+
+/**
+ * Compose body for intent=BUY.
+ * v2.2 close: greeting + ack + proof + 2 slots + Calendly + WA(MX) + sig.
+ */
+function composeBUY({ lang, bank, leadFirstName, slots, includeWhatsApp }) {
     const fname = (leadFirstName || "").trim();
     const greeting = lang === "es"
         ? (fname ? `Hola ${fname},` : `Hola,`)
         : (fname ? `Hi ${fname},` : `Hi,`);
     const ackProof = lang === "es"
-        ? `Gracias por la respuesta — te mando el offer ahora. Para contexto: ${bank.es}`
-        : `Thanks for the reply — happy to send the offer. Quick context: ${bank.en}`;
+        ? `Gracias por la respuesta. ${bank.es}`
+        : `Thanks for the reply. ${bank.en}`;
 
     return [
         `<div>${greeting}</div>`,
         `<div><br></div>`,
         `<div>${ackProof}</div>`,
-        `<div><br></div>`,
-        `<div>${demoLine({ lang, demoUrl, leadCompanyName })}</div>`,
         `<div><br></div>`,
         closeStack({ lang, slots, includeWhatsApp }),
         `<div><br></div>`,
@@ -392,23 +343,21 @@ function composeBUY({ lang, bank, leadFirstName, leadCompanyName, demoUrl, slots
 
 /**
  * Compose body for intent=TECH_Q.
- * Honest tech answer + demo + slots + Calendly + WA(MX) + sig.
+ * v2.2: honest 1-line tech answer + 2 slots + Calendly + WA(MX) + sig.
  */
-function composeTECH_Q({ lang, bank, leadFirstName, leadCompanyName, demoUrl, slots, includeWhatsApp }) {
+function composeTECH_Q({ lang, leadFirstName, slots, includeWhatsApp }) {
     const fname = (leadFirstName || "").trim();
     const greeting = lang === "es"
         ? (fname ? `Hola ${fname},` : `Hola,`)
         : (fname ? `Hi ${fname},` : `Hi,`);
     const tech = lang === "es"
-        ? `Buena pregunta — por debajo es un agente entrenado con tu inventario (listings parseados de tu sitio o CRM) corriendo sobre Claude. Responde en menos de 60s, califica al lead, y lo enruta a tu CRM / IG / web según donde llegue. Todo bajo tu marca, configurado por agencia — no es un chatbot genérico.`
-        : `Fair question — under the hood it's an agent trained on your listings (parsed from your site or CRM) running on Claude. Replies in under 60s, qualifies the lead, then routes it to your CRM / IG / website depending on where they came in. All under your brand, configured per agency — not a generic chatbot.`;
+        ? `Buena pregunta — es un agente entrenado con tu inventario, responde en menos de 60s, califica al lead y lo enruta a tu CRM.`
+        : `Fair question — it's an agent trained on your listings, replies in under 60s, qualifies the lead, and routes it to your CRM.`;
 
     return [
         `<div>${greeting}</div>`,
         `<div><br></div>`,
         `<div>${tech}</div>`,
-        `<div><br></div>`,
-        `<div>${demoLine({ lang, demoUrl, leadCompanyName })}</div>`,
         `<div><br></div>`,
         closeStack({ lang, slots, includeWhatsApp }),
         `<div><br></div>`,
@@ -418,23 +367,21 @@ function composeTECH_Q({ lang, bank, leadFirstName, leadCompanyName, demoUrl, sl
 
 /**
  * Compose body for intent=EXPLORE.
- * 1 geo proof + demo + soft CTA + slots + Calendly + WA(MX) + sig.
+ * v2.2: ack + 1 geo proof + 2 slots + Calendly + WA(MX) + sig.
  */
-function composeEXPLORE({ lang, bank, leadFirstName, leadCompanyName, demoUrl, slots, includeWhatsApp }) {
+function composeEXPLORE({ lang, bank, leadFirstName, slots, includeWhatsApp }) {
     const fname = (leadFirstName || "").trim();
     const greeting = lang === "es"
         ? (fname ? `Hola ${fname},` : `Hola,`)
         : (fname ? `Hi ${fname},` : `Hi,`);
     const ackProof = lang === "es"
-        ? `Gracias por responder. Para contexto: ${bank.es}`
-        : `Thanks for the reply. Quick context: ${bank.en}`;
+        ? `Gracias por la respuesta. ${bank.es}`
+        : `Thanks for the reply. ${bank.en}`;
 
     return [
         `<div>${greeting}</div>`,
         `<div><br></div>`,
         `<div>${ackProof}</div>`,
-        `<div><br></div>`,
-        `<div>${demoLine({ lang, demoUrl, leadCompanyName })}</div>`,
         `<div><br></div>`,
         closeStack({ lang, slots, includeWhatsApp }),
         `<div><br></div>`,
@@ -451,33 +398,39 @@ function composeEXPLORE({ lang, bank, leadFirstName, leadCompanyName, demoUrl, s
  * @param {string} params.lang             — "es" | "en"
  * @param {string} params.geo              — MX | CARIBBEAN | MIAMI | FALLBACK
  * @param {string} [params.leadFirstName]
- * @param {string} [params.leadCompanyName]
- * @param {string} [params.demoUrl]        — pre-resolved demo URL (defaults to lead-capture-demo)
- * @param {Array<string>} [params.slots]   — 2 formatted time slots (defaults to nextTwoSlots)
- * @param {Date}   [params.now]            — overridable "now" for slot generation in tests
+ * @param {Array<string>} [params.slots]   — 2 formatted time slots
+ * @param {Date}   [params.now]            — overridable for tests
  */
 function composeReply(params) {
     const { intent, lang, geo } = params;
     if (intent === "OOO" || intent === "UNSUB" || intent === "BOUNCE") return null;
 
     const bank = pickProofBank(geo);
-    const demoUrl = params.demoUrl || DEFAULT_DEMO_URL;
     const slots = params.slots || nextTwoSlots(geo, lang, params.now);
-    const includeWhatsApp = (geo === "MX"); // playbook: WA only for MX prospects
+    // v2.2 playbook rule: WhatsApp ONLY for MX. Caribbean/Miami/Fallback omit.
+    const includeWhatsApp = (geo === "MX");
 
     const args = {
         lang,
         bank,
         leadFirstName: params.leadFirstName,
-        leadCompanyName: params.leadCompanyName,
-        demoUrl,
         slots,
         includeWhatsApp,
     };
 
-    if (intent === "BUY") return composeBUY(args);
-    if (intent === "TECH_Q") return composeTECH_Q(args);
-    return composeEXPLORE(args); // EXPLORE + fallback
+    let html;
+    if (intent === "BUY") html = composeBUY(args);
+    else if (intent === "TECH_Q") html = composeTECH_Q(args);
+    else html = composeEXPLORE(args); // EXPLORE + fallback
+
+    // Soft word-count guard — log a warning if we drift past the 90-word ceiling.
+    // Never throws — safer to send a slightly long reply than to drop a hot lead.
+    const wc = countWords(html);
+    if (wc > WORD_LIMIT && functions && functions.logger) {
+        functions.logger.warn(`replyRouter v2.2: reply exceeded word limit (${wc} > ${WORD_LIMIT}) for intent=${intent} geo=${geo} lang=${lang}`);
+    }
+
+    return html;
 }
 
 function buildSubject(originalSubject) {
@@ -488,7 +441,7 @@ function buildSubject(originalSubject) {
 }
 
 // =====================================================================
-// 6. Instantly v2 sender — POST /api/v2/emails/reply
+// 7. Instantly v2 sender — POST /api/v2/emails/reply
 // =====================================================================
 
 async function sendInstantlyReply({ replyToUuid, eaccount, subject, html }) {
@@ -508,7 +461,7 @@ async function sendInstantlyReply({ replyToUuid, eaccount, subject, html }) {
                 headers: {
                     "Authorization": `Bearer ${INSTANTLY_KEY}`,
                     "Content-Type": "application/json",
-                    "User-Agent": "JegoDigital-ReplyRouter/2.0",
+                    "User-Agent": "JegoDigital-ReplyRouter/2.2",
                 },
                 timeout: 25000,
                 validateStatus: () => true,
@@ -524,7 +477,7 @@ async function sendInstantlyReply({ replyToUuid, eaccount, subject, html }) {
 }
 
 // =====================================================================
-// 7. Main entry — routeReply()
+// 8. Main entry — routeReply()
 // =====================================================================
 
 /**
@@ -546,7 +499,6 @@ async function routeReply(params) {
     const {
         replyToUuid,
         campaignId,
-        campaignName, // optional human-readable name from upstream (notion map)
         eaccount,
         originalSubject,
         replyBody,
@@ -573,7 +525,6 @@ async function routeReply(params) {
 
     // Step 3 — language: prospect's reply > geo default
     const detected = detectLang(replyBody);
-    // Geo default: MX → es, MIAMI → en (bilingual but English first), CARIBBEAN → en (most agents bilingual), FALLBACK → en
     const geoDefault = { MX: "es", CARIBBEAN: "en", MIAMI: "en", FALLBACK: "en" }[geo] || "en";
     const lang = detected || geoDefault;
 
@@ -599,17 +550,12 @@ async function routeReply(params) {
     }
 
     // Step 6 — compose autonomous reply for BUY / TECH_Q / EXPLORE
-    // Resolve demo URL by campaign (Trojan/SEO/etc), generate 2 fresh time
-    // slots in the prospect's geo timezone, MX gets WhatsApp inline.
-    const demoUrl = resolveDemoUrl({ campaignId, campaignName });
     const slots = nextTwoSlots(geo, lang);
     const html = composeReply({
         intent,
         lang,
         geo,
         leadFirstName,
-        leadCompanyName,
-        demoUrl,
         slots,
     });
     if (!html) {
@@ -649,7 +595,7 @@ async function routeReply(params) {
 }
 
 // =====================================================================
-// 8. Side effects — Firestore log, Slack mirror, unsub mark
+// 9. Side effects — Firestore log, Slack mirror, unsub mark
 // =====================================================================
 
 async function logRouting(row) {
@@ -657,7 +603,7 @@ async function logRouting(row) {
         const db = admin.firestore();
         await db.collection("reply_routing_log").add({
             ...row,
-            router_version: 2,
+            router_version: "2.2",
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
     } catch (err) {
@@ -671,9 +617,6 @@ async function logRouting(row) {
  */
 async function markUnsubscribed({ leadEmail, replyToUuid, campaignId }) {
     if (!leadEmail) return;
-    // Instantly v2 — POST /api/v2/leads/list with status=Unsubscribed isn't a single
-    // call; we mark on the lead via PATCH. Fall back to logger if the endpoint
-    // shape isn't supported (Instantly API surface changes occasionally).
     try {
         if (INSTANTLY_KEY) {
             await axios.post(
@@ -689,7 +632,6 @@ async function markUnsubscribed({ leadEmail, replyToUuid, campaignId }) {
     } catch (err) {
         functions.logger.warn(`Instantly unsub mark failed for ${leadEmail}:`, err.message);
     }
-    // Brevo blocklist
     try {
         const BREVO_KEY = process.env.BREVO_API_KEY;
         if (BREVO_KEY) {
@@ -767,14 +709,11 @@ module.exports = {
     detectLang,
     composeReply,
     nextTwoSlots,
-    resolveDemoUrl,
+    countWords,
     PROOF_BANKS,
-    CAMPAIGN_DEMO_URLS,
-    DEFAULT_DEMO_URL,
-    DEMO_LEAD_CAPTURE,
-    DEMO_SEO_AEO,
     WHATSAPP_MX,
     CALENDLY,
+    WORD_LIMIT,
     BUY_RX,
     TECH_Q_RX,
     EXPLORE_RX,
