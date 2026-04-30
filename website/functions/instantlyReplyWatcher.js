@@ -81,6 +81,8 @@ function buildSlackReplyCard(ctx, outcome, body, subject, auditQueued, nurtureSt
         positive: "🟢 POSITIVE",
         positive_with_objection: "💰 POSITIVE + OBJECTION (pricing)",
         question: "❓ QUESTION",
+        tech_question: "🤖 TECH-CURIOUS QUESTION (qualified prospect)",
+        referral: "↪️ REFERRAL (handed to colleague)",
         negative: "🔴 NEGATIVE",
         neutral: "⚪ NEUTRAL",
     }[outcome] || "⚪ UNKNOWN";
@@ -89,13 +91,17 @@ function buildSlackReplyCard(ctx, outcome, body, subject, auditQueued, nurtureSt
         ? "✅ Free audit auto-fired → will deliver in ~45 min"
         : outcome === "positive_with_objection"
             ? "⚠️ Pricing objection — Alex handles personally (NO auto-audit)"
-            : outcome === "question"
-                ? "👀 AI-agent answered their question — verify in Instantly Unibox"
-                : outcome === "positive"
-                    ? "⚠️ Positive but no audit fired (missing email or website) — handle manually"
-                    : outcome === "negative"
-                        ? "🛑 Negative — unsubscribe handled, no further action"
-                        : "— no automated action —";
+            : outcome === "tech_question"
+                ? "🤖 Tech-curious prospect — Alex respond personally on WhatsApp (high-intent)"
+                : outcome === "referral"
+                    ? "↪️ Referral — Alex spawn fresh outreach to forwarded contact (mention referrer name)"
+                    : outcome === "question"
+                        ? "👀 AI-agent answered their question — verify in Instantly Unibox"
+                        : outcome === "positive"
+                            ? "⚠️ Positive but no audit fired (missing email or website) — handle manually"
+                            : outcome === "negative"
+                                ? "🛑 Negative — unsubscribe handled, no further action"
+                                : "— no automated action —";
 
     const preview = (body || "").slice(0, 400).replace(/\n{3,}/g, "\n\n");
     const firstLine = (body || "").split("\n").find((l) => l.trim())?.slice(0, 100) || "(no body)";
@@ -159,6 +165,21 @@ function classifyReply(bodyRaw) {
     ];
     if (negativeMarkers.some((m) => body.includes(m))) return "negative";
 
+    // Referral detector — runs BEFORE objection so referral wins even if
+    // body mentions price downstream. We want Alex to see these immediately.
+    const referralMarkers = [
+        "te paso el contacto", "te comparto el contacto", "te paso al",
+        "habla con", "habla directamente con",
+        "i'm not in charge", "im not in charge", "not the right person",
+        "you should talk to", "talk to my", "please contact", "please reach out to",
+        "directora comercial", "director comercial", "directora general",
+        "director general", "no soy quien decide", "no soy la persona",
+        "envíaselo a", "envialo a", "redirige a", "redirígelo a",
+        "forward this to", "forward to my", "the right person is",
+        "she handles", "he handles", "ella maneja", "él maneja",
+    ];
+    if (referralMarkers.some((m) => body.includes(m))) return "referral";
+
     // Explicit pricing/objection flags — route to Alex even if tone is positive
     const objectionMarkers = [
         "cuánto cuesta", "cuanto cuesta", "precio", "costo", "cost",
@@ -174,18 +195,46 @@ function classifyReply(bodyRaw) {
         "llámame", "llamame", "call me",
         "dale", "adelante", "hazlo", "vamos", "perfecto",
         "i'm interested", "im interested", "interested",
-        "send me", "tell me more", "sounds good", "let's talk", "lets talk",
-        "book a call", "yes please", "sí por favor",
+        "send me", "send the", "please send", "tell me more",
+        "sounds good", "let's talk", "lets talk",
+        "book a call", "yes please", "yes, please",
+        "sí por favor", "sí, por favor",
+        "please explain", "explícame", "explicame",
         "suena bien", "me encant",
     ];
     const strong = strongPositive.some((m) => body.includes(m));
 
-    if (strong && hasObjection) return "positive_with_objection";
-    if (strong) return "positive";
+    // Short-positive detector — one or two-word affirmatives. Audit 2026-04-30
+    // found "si" (Jorge mihome) + "Adelante" (Álvaro trustreal) buried as
+    // neutral because previous classifier needed longer phrases. \b doesn't
+    // reliably anchor before non-ASCII (í) so we use explicit end-anchor.
+    const shortBody = body.replace(/^[>\s]+/, "").trim();
+    const END = "(?:[\\s.,!?]|$)";
+    const shortAffirmatives = [
+        new RegExp("^s[íi]" + END),
+        new RegExp("^yes" + END),
+        new RegExp("^ok" + END),
+        new RegExp("^okay" + END),
+        new RegExp("^dale" + END),
+        new RegExp("^adelante" + END),
+        new RegExp("^vamos" + END),
+        new RegExp("^perfecto" + END),
+        new RegExp("^claro" + END),
+        new RegExp("^correcto" + END),
+        new RegExp("^sure" + END),
+    ];
+    const isShortAffirmative = shortBody.length <= 25 &&
+        shortAffirmatives.some((re) => re.test(shortBody));
 
-    // Soft-positive (ask but not commit) — neutral by default
+    if ((strong || isShortAffirmative) && hasObjection) return "positive_with_objection";
+    if (strong || isShortAffirmative) return "positive";
+
+    // Soft-positive (ask but not commit) — neutral by default. tech_question
+    // is a separate high-intent signal (chatbot/AI/cómo funciona) so the
+    // hot-alert path can ping Alex directly.
     if (/\?/.test(body) && /(info|qué|que|cómo|como|cuánto|cuanto|dónde|donde)/.test(body)) {
-        return "question";
+        const techCurious = /(chatbot|ai|inteligencia artificial|tecnologia|tecnología|how does it work|cómo funciona|como funciona|capacidad de respuesta|how deep|qué tan profunda)/.test(body);
+        return techCurious ? "tech_question" : "question";
     }
     return "neutral";
 }
@@ -300,6 +349,8 @@ exports.instantlyReplyWatcher = functions
             if (outcome === "positive") positives++;
             else if (outcome === "negative") negatives++;
             else if (outcome === "question") questions++;
+            else if (outcome === "tech_question") questions++;
+            else if (outcome === "referral") positives++;  // referrals count as wins (lead handed off to right person)
             else if (outcome === "positive_with_objection") { positives++; objectionLeads.push(ctx); }
             else neutrals++;
 
@@ -377,9 +428,15 @@ exports.instantlyReplyWatcher = functions
             const routedIntent = null;
             const routedGeo = null;
 
-            // Hot-alert criteria: positive OR positive_with_objection OR question with
-            // decision-maker signals. These all go to Telegram so Alex can respond fast.
-            if (outcome === "positive" || outcome === "positive_with_objection") {
+            // Hot-alert criteria — 2026-04-30 expanded after audit found Felix
+            // (Mudafy, asking tech depth) + Eric (Evoke referral) buried as
+            // neutrals. Now alerts on positive + positive_with_objection +
+            // referral (Alex spawns fresh outreach to forwarded contact) +
+            // tech_question (qualified prospect evaluating us).
+            const HOT_OUTCOMES = new Set([
+                "positive", "positive_with_objection", "referral", "tech_question",
+            ]);
+            if (HOT_OUTCOMES.has(outcome)) {
                 hotLeads.push({
                     outcome,
                     email: ctx.email,
