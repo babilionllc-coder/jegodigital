@@ -71,7 +71,47 @@ print(f"Loading: {src}")
 all_leads = json.load(open(src))
 print(f"Total enriched: {len(all_leads)}")
 
+# ---------- HR-5 Quality Gate (added 2026-04-30 after 53%-role-based audit) ----
+# Block uploads if too many role-based addresses or missing decision-maker roles.
+# Set ALLOW_QUALITY_GATE_BYPASS=1 to override (only for emergency / debugging).
+ROLE_LOCALS = {
+    'info','contact','contacto','admin','administrator','sales','ventas','venta',
+    'marketing','support','soporte','help','hello','hola','team','office','oficina',
+    'reception','recepcion','reservations','reservas','enquiry','noreply','no-reply',
+    'webmaster','postmaster','billing','accounts','newsletter','press','prensa',
+    'careers','jobs','rh','hr','clientes','customerservice','servicioalcliente',
+}
+import re
+def is_role_based(email):
+    if not email or '@' not in email: return False
+    local = email.split('@', 1)[0].lower()
+    base = re.split(r'[+.\-_]', local, 1)[0]
+    return base in ROLE_LOCALS or local in ROLE_LOCALS
+
+leads_with_email = [e for e in all_leads if e.get('email')]
+role_based = [e for e in leads_with_email if is_role_based(e['email'])]
+role_pct = (len(role_based) / len(leads_with_email) * 100) if leads_with_email else 0
+
+if role_pct > 1.0:
+    print(f'\n❌ HR-5 QUALITY GATE FAILED — {role_pct:.1f}% role-based addresses (threshold: ≤1%)')
+    print(f'   {len(role_based)} of {len(leads_with_email)} emails are role-based:')
+    for r in role_based[:10]:
+        print(f'     · {r["email"]}')
+    if len(role_based) > 10:
+        print(f'     · ... and {len(role_based)-10} more')
+    if os.environ.get('ALLOW_QUALITY_GATE_BYPASS') != '1':
+        print(f'\n   To bypass (NOT RECOMMENDED): export ALLOW_QUALITY_GATE_BYPASS=1')
+        print(f'   To clean: filter the JSON to remove role-based addresses, then re-run.')
+        sys.exit(1)
+    else:
+        print(f'   ⚠️ ALLOW_QUALITY_GATE_BYPASS=1 — proceeding despite gate failure')
+else:
+    print(f'✅ HR-5 quality gate: {role_pct:.1f}% role-based ({len(role_based)}/{len(leads_with_email)}) — under threshold, proceeding')
+
 # ---------- Filter + segment ----------
+# Strip role-based even if gate passed (belt + suspenders)
+all_leads = [e for e in all_leads if not (e.get('email') and is_role_based(e['email']))]
+print(f'After role-based strip: {len(all_leads)} leads remain')
 passed = [e for e in all_leads if e.get("icp_pass")]
 with_email = [e for e in passed if e.get("email")]
 print(f"ICP passed: {len(passed)} | With email: {len(with_email)}")
