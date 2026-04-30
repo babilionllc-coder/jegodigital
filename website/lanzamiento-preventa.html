@@ -386,15 +386,14 @@
                     <i class="fas fa-play"></i>
                 </div>
             </div>
-            <video id="hero-video" preload="metadata" playsinline muted loop
+            <video id="hero-video" preload="metadata" playsinline controls controlsList="nodownload"
                    poster="/cf-videos/preventa-promo-es.jpg"
                    data-i18n-src-es="/cf-videos/preventa-promo-es.mp4"
                    data-i18n-src-en="/cf-videos/preventa-promo-en.mp4">
                 <source src="/cf-videos/preventa-promo-es.mp4" type="video/mp4">
             </video>
-            <button class="mute-toggle" id="mute-toggle" aria-label="Toggle sound" type="button">
-                <i class="fas fa-volume-mute" id="mute-icon"></i>
-            </button>
+            <!-- Native HTML5 controls now handle play/pause/scrub/volume/fullscreen -->
+            <!-- Custom mute-toggle removed (replaced by browser native controls) -->
         </div>
         <p class="video-caption" data-i18n-es="6 minutos · El sistema completo, fase por fase" data-i18n-en="6 minutes · The full system, phase by phase">6 minutos · El sistema completo, fase por fase</p>
 
