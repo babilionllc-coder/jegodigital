@@ -126,6 +126,18 @@ jobs:
         run: npm install -g firebase-tools
 
       # --------------------------------------------------------------
+      # 2026-04-30: Deploy Firestore indexes BEFORE functions so the
+      # ig_batch_queue (status, fireAt) and content_ideas (formatHint,
+      # used, score) indexes start building in parallel with the function
+      # deploys. Without these, processIgBatchQueue + generateDailyStories
+      # fail with FAILED_PRECONDITION on every cron tick.
+      # --------------------------------------------------------------
+      - name: Deploy Firestore indexes
+        run: firebase deploy --only firestore:indexes --force --token "$FIREBASE_TOKEN" --project jegodigital-e02fb
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      # --------------------------------------------------------------
       # BATCH SPLIT — avoid GCF "60 function updates per 100s" quota
       # --------------------------------------------------------------
       # Disaster 2026-04-22: 6 functions (dailyDigest, coldCallRun,

@@ -1,0 +1,22 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "ig_batch_queue",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",  "order": "ASCENDING" },
+        { "fieldPath": "fireAt",  "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "content_ideas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "formatHint", "order": "ASCENDING"  },
+        { "fieldPath": "used",       "order": "ASCENDING"  },
+        { "fieldPath": "score",      "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
