@@ -33,8 +33,9 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script id="vtag-ai-js" async src="https://r2.leadsy.ai/tag.js" data-pid="TiRDgG0xql30Gjml" data-version="062024"></script>
@@ -132,6 +133,113 @@
             50% { opacity: 0.4; }
         }
         .gold-pulse { animation: gold-pulse 2s ease-in-out infinite; }
+
+        /* ==================== PREMIUM UPGRADE 2026-04 ==================== */
+        /* Editorial heading font for hero — adds gravitas */
+        .font-editorial { font-family: 'Playfair Display', Georgia, serif; letter-spacing: -0.02em; }
+
+        /* Animated gold mesh-gradient hero background — slow drift, no GPU strain */
+        .mesh-bg {
+            position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
+        }
+        .mesh-bg::before, .mesh-bg::after {
+            content: ""; position: absolute; border-radius: 50%; filter: blur(80px);
+            opacity: 0.55; will-change: transform;
+        }
+        .mesh-bg::before {
+            width: 620px; height: 620px;
+            background: radial-gradient(circle, rgba(197,160,89,0.30) 0%, transparent 70%);
+            top: -180px; left: 20%;
+            animation: mesh-drift-a 24s ease-in-out infinite;
+        }
+        .mesh-bg::after {
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, rgba(197,160,89,0.18) 0%, transparent 70%);
+            bottom: -160px; right: 15%;
+            animation: mesh-drift-b 28s ease-in-out infinite;
+        }
+        @keyframes mesh-drift-a {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50%      { transform: translate(40px, 60px) scale(1.08); }
+        }
+        @keyframes mesh-drift-b {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50%      { transform: translate(-50px, -40px) scale(1.12); }
+        }
+
+        /* Live data-flow line — abstract SEO/data signal animation in hero */
+        @keyframes data-flow {
+            0%   { stroke-dashoffset: 1000; opacity: 0; }
+            10%  { opacity: 0.6; }
+            90%  { opacity: 0.6; }
+            100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+        .data-flow-svg path {
+            stroke-dasharray: 1000;
+            animation: data-flow 6s linear infinite;
+        }
+        .data-flow-svg path:nth-child(2) { animation-delay: 1.5s; }
+        .data-flow-svg path:nth-child(3) { animation-delay: 3s; }
+
+        /* "Live" pulse on counter dot */
+        @keyframes live-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+            50%      { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+        }
+        .live-dot { animation: live-dot 2s ease-in-out infinite; }
+
+        /* Trust-bar marquee — clients we work with */
+        @keyframes marquee-scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .marquee-track {
+            display: flex; gap: 3rem; width: max-content;
+            animation: marquee-scroll 40s linear infinite;
+        }
+        .marquee-mask {
+            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+        }
+
+        /* Browser-frame mockup styling */
+        .browser-frame {
+            background: linear-gradient(180deg, #1a1d24 0%, #0f1115 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 30px 80px -25px rgba(0,0,0,0.7), 0 0 0 1px rgba(197,160,89,0.10);
+        }
+        .browser-chrome {
+            background: rgba(0,0,0,0.4);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .browser-dot { width: 11px; height: 11px; border-radius: 50%; }
+        .browser-dot.r { background: #ff5f57; }
+        .browser-dot.y { background: #ffbd2e; }
+        .browser-dot.g { background: #28c941; }
+
+        /* Sample report mockup card */
+        .report-card {
+            background: linear-gradient(160deg, rgba(26,29,36,0.85) 0%, rgba(15,17,21,0.95) 100%);
+            border: 1px solid rgba(197,160,89,0.18);
+            box-shadow: 0 30px 80px -25px rgba(197,160,89,0.15), 0 0 0 1px rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+        }
+        .report-score-ring {
+            background: conic-gradient(#C5A059 0% 67%, rgba(255,255,255,0.06) 67% 100%);
+            border-radius: 50%;
+        }
+
+        /* AOS-like manual fallback so animations work even if AOS lib fails */
+        [data-aos="fade-up"] { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        [data-aos="fade-up"].aos-animate { opacity: 1; transform: translateY(0); }
+        [data-aos="fade-right"] { opacity: 0; transform: translateX(-24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        [data-aos="fade-right"].aos-animate { opacity: 1; transform: translateX(0); }
+        [data-aos="fade-left"] { opacity: 0; transform: translateX(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        [data-aos="fade-left"].aos-animate { opacity: 1; transform: translateX(0); }
+        [data-aos="zoom-in"] { opacity: 0; transform: scale(0.94); transition: opacity 0.7s ease, transform 0.7s ease; }
+        [data-aos="zoom-in"].aos-animate { opacity: 1; transform: scale(1); }
     </style>
     <!-- Favicon & App Icons (v2 — 2026-04 rebrand to gold J monogram) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -247,24 +355,133 @@
       if(bar){window.addEventListener('scroll',function(){var sh=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(sh>0?(window.scrollY/sh)*100:0)+'%';});}
     })();
     </script>
-<!-- ==================== HERO ==================== -->
-    <section class="pt-28 pb-6 md:pt-36 md:pb-10 relative overflow-hidden">
-        <!-- Subtle background glow -->
-        <div class="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full pointer-events-none" style="background: radial-gradient(circle, rgba(197,160,89,0.06) 0%, transparent 70%);"></div>
+<!-- ==================== HERO (PREMIUM 2026-04) ==================== -->
+    <section class="pt-24 pb-10 md:pt-32 md:pb-14 relative overflow-hidden">
+        <!-- Animated gold mesh background -->
+        <div class="mesh-bg" aria-hidden="true"></div>
 
-        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
-            <!-- Badge -->
-            <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-6" style="background: rgba(197,160,89,0.1); border: 1px solid rgba(197,160,89,0.25); color: #C5A059;">
-                100% Gratis — Sin Compromiso
-            </span>
+        <!-- Abstract data-flow SVG (suggests audit/analysis activity) -->
+        <svg class="data-flow-svg absolute inset-0 w-full h-full pointer-events-none opacity-50" aria-hidden="true" viewBox="0 0 1440 600" fill="none" preserveAspectRatio="none">
+            <path d="M0,300 Q360,180 720,260 T1440,220" stroke="rgba(197,160,89,0.35)" stroke-width="1.2" fill="none"/>
+            <path d="M0,360 Q360,440 720,320 T1440,400" stroke="rgba(197,160,89,0.25)" stroke-width="1" fill="none"/>
+            <path d="M0,260 Q360,300 720,420 T1440,300" stroke="rgba(255,255,255,0.10)" stroke-width="1" fill="none"/>
+        </svg>
 
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-[1.1]">
-                Descubre Que Esta Frenando<br>
-                <span class="gradient-text">Tu Captacion de Leads</span>
-            </h1>
-            <p class="text-white/50 max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">
-                Nuestro equipo analiza tu sitio web y te envia un reporte profesional en menos de 1 hora con oportunidades reales de mejora.
+        <div class="max-w-6xl mx-auto px-4 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+
+                <!-- LEFT: Headline + sub + live counter -->
+                <div class="lg:col-span-7 text-center lg:text-left" data-aos="fade-right">
+                    <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-6"
+                          style="background: rgba(197,160,89,0.1); border: 1px solid rgba(197,160,89,0.25); color: #C5A059;">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] gold-pulse"></span>
+                        Auditoría Premium · 100% Gratis
+                    </span>
+
+                    <h1 class="font-editorial text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold mb-6 leading-[1.05]">
+                        Descubre qué frena<br>
+                        <span class="gradient-text">tu captación de leads</span>
+                    </h1>
+
+                    <p class="text-white/55 max-w-xl mx-auto lg:mx-0 text-lg md:text-xl font-light leading-relaxed mb-7">
+                        Auditamos tu sitio con los mismos motores que usamos con clientes que aparecen en <strong class="text-white/85">Top-3 de ChatGPT</strong> y son <strong class="text-white/85">Presidente Ejecutivo de AMPI</strong>. Reporte real en tu correo en menos de 1&nbsp;hora.
+                    </p>
+
+                    <!-- Live indicator (status, not fabricated count) -->
+                    <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full mb-2" style="background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.20);">
+                        <span class="w-2 h-2 rounded-full bg-green-400 live-dot"></span>
+                        <span class="text-white/70 text-sm">Pipeline activo · auditorías corriendo en tiempo real</span>
+                    </div>
+
+                    <!-- Trust signals row -->
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6 text-xs text-white/40 justify-center lg:justify-start">
+                        <span class="inline-flex items-center gap-1.5"><i class="fas fa-shield-halved" style="color:#C5A059;"></i> Sin spam</span>
+                        <span class="inline-flex items-center gap-1.5"><i class="fas fa-credit-card" style="color:#C5A059;"></i> Sin tarjeta</span>
+                        <span class="inline-flex items-center gap-1.5"><i class="fas fa-stopwatch" style="color:#C5A059;"></i> Reporte en &lt;1h</span>
+                        <span class="inline-flex items-center gap-1.5"><i class="fas fa-lock" style="color:#C5A059;"></i> Datos privados</span>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Hero proof — real ChatGPT screenshot of Living Riviera Maya -->
+                <div class="lg:col-span-5" data-aos="fade-left" data-aos-delay="150">
+                    <div class="browser-frame">
+                        <div class="browser-chrome">
+                            <span class="browser-dot r"></span>
+                            <span class="browser-dot y"></span>
+                            <span class="browser-dot g"></span>
+                            <span class="ml-3 text-[11px] text-white/40 font-mono">chatgpt.com · live result</span>
+                        </div>
+                        <div class="relative">
+                            <img src="img/showcase/playadelcarmen/chatgpt-rank.png"
+                                 alt="ChatGPT recomienda a Living Riviera Maya — cliente de JegoDigital — para 'best real estate agencies in Playa del Carmen'"
+                                 class="w-full h-auto block" loading="eager" decoding="async">
+                            <!-- Caption overlay -->
+                            <div class="absolute bottom-0 left-0 right-0 p-4" style="background:linear-gradient(to top, rgba(15,17,21,0.95), transparent);">
+                                <p class="text-[12px] text-white/85 leading-snug">
+                                    <strong style="color:#C5A059;">Living Riviera Maya</strong>, cliente nuestro, aparece <strong>Top-3 en ChatGPT</strong> cuando alguien busca "best real estate agencies in Playa del Carmen".
+                                </p>
+                                <p class="text-[10px] text-white/40 mt-1">↑ esto lo construimos nosotros</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TRUST BAR (verified clients only — HR#9) ==================== -->
+    <section class="py-6 relative z-10" style="background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.04);">
+        <div class="max-w-6xl mx-auto">
+            <p class="text-center text-[10px] font-bold tracking-[0.25em] uppercase text-white/30 mb-4">
+                Confían en JegoDigital
             </p>
+            <div class="marquee-mask overflow-hidden">
+                <div class="marquee-track">
+                    <!-- Set 1 -->
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap">
+                        <i data-lucide="award" class="w-4 h-4 text-[#C5A059]"></i><i class="fas fa-award" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">Living Riviera Maya</strong> · Top-3 ChatGPT</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap">
+                        <i class="fas fa-trophy" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">Sur Selecto</strong> · AMPI Presidente Ejecutivo</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap">
+                        <i class="fas fa-map-marker-alt" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">Flamingo Real Estate</strong> · #1 Google Maps Cancún</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap">
+                        <i class="fas fa-plane-departure" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">RS Viajes</strong> · Manzanillo</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap">
+                        <i class="fas fa-route" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">TT&amp;More</strong> · Travel &amp; Transfers</span>
+                    </span>
+                    <!-- Set 2 (duplicate for seamless loop) -->
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap" aria-hidden="true">
+                        <i class="fas fa-award" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">Living Riviera Maya</strong> · Top-3 ChatGPT</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap" aria-hidden="true">
+                        <i class="fas fa-trophy" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">Sur Selecto</strong> · AMPI Presidente Ejecutivo</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap" aria-hidden="true">
+                        <i class="fas fa-map-marker-alt" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">Flamingo Real Estate</strong> · #1 Google Maps Cancún</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap" aria-hidden="true">
+                        <i class="fas fa-plane-departure" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">RS Viajes</strong> · Manzanillo</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 text-white/65 text-sm whitespace-nowrap" aria-hidden="true">
+                        <i class="fas fa-route" style="color:#C5A059;"></i>
+                        <span><strong class="text-white">TT&amp;More</strong> · Travel &amp; Transfers</span>
+                    </span>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -352,112 +569,251 @@
         </div>
     </section>
 
-    <!-- ==================== WHAT YOU GET ==================== -->
+    <!-- ==================== WHAT YOU GET — split: list + sample preview mockup ==================== -->
     <section class="py-16 md:py-24 relative z-10">
-        <div class="max-w-5xl mx-auto px-4">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-3">Tu Reporte Incluye</h2>
-            <p class="text-white/40 text-center mb-12 max-w-xl mx-auto">
-                No es un reporte generico. Analizamos 5 areas clave de tu presencia digital con datos reales.
-            </p>
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-14">
+                <span class="inline-block text-[11px] font-bold tracking-[0.25em] uppercase text-[#C5A059] mb-3">El Deliverable</span>
+                <h2 class="font-editorial text-3xl md:text-5xl font-extrabold mb-3">Esto es lo que llega a tu correo</h2>
+                <p class="text-white/45 max-w-xl mx-auto">
+                    No es un reporte genérico. Analizamos 6 áreas con datos reales. Mira un ejemplo del entregable.
+                </p>
+            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Card 1: SEO -->
-                <div class="glass-panel rounded-2xl p-7">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(197,160,89,0.1);">
-                        <i class="fas fa-search text-xl" style="color:#C5A059;"></i>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+
+                <!-- LEFT: 6-area list with checks -->
+                <div class="lg:col-span-5 space-y-4" data-aos="fade-right">
+                    <div class="glass-panel rounded-2xl p-5 flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: rgba(197,160,89,0.10);">
+                            <i class="fas fa-search text-lg" style="color:#C5A059;"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[15px] font-bold mb-1">SEO + Google Maps</h3>
+                            <p class="text-white/45 text-[13px] leading-relaxed">Posición actual, autoridad de dominio, keywords posicionadas, Google Business Profile.</p>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-bold mb-2">SEO y Google Maps</h3>
-                    <p class="text-white/40 text-sm leading-relaxed">
-                        Posicion actual en Google, autoridad de dominio, keywords posicionadas y optimizacion de Google Business Profile.
-                    </p>
+
+                    <div class="glass-panel rounded-2xl p-5 flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: rgba(197,160,89,0.10);">
+                            <i class="fas fa-bolt text-lg" style="color:#C5A059;"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[15px] font-bold mb-1">Velocidad + Core Web Vitals</h3>
+                            <p class="text-white/45 text-[13px] leading-relaxed">PageSpeed móvil real, LCP, CLS, INP. Cada segundo lento cuesta el 53% de visitantes.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 flex items-start gap-4" style="border-color: rgba(197,160,89,0.25); background: linear-gradient(135deg, rgba(197,160,89,0.05) 0%, rgba(26,29,36,0.5) 100%);">
+                        <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: rgba(197,160,89,0.18);">
+                            <i class="fas fa-robot text-lg" style="color:#C5A059;"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[15px] font-bold mb-1">Visibilidad en ChatGPT, Gemini, Perplexity</h3>
+                            <p class="text-white/55 text-[13px] leading-relaxed">Lo que NADIE más mide. Probamos si los buscadores con IA te recomiendan en tu zona.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: rgba(197,160,89,0.10);">
+                            <i class="fas fa-magnet text-lg" style="color:#C5A059;"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[15px] font-bold mb-1">Captación de leads</h3>
+                            <p class="text-white/45 text-[13px] leading-relaxed">Formularios, chat, WhatsApp, CTAs. Evaluamos si tu sitio convierte visitas en prospectos.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: rgba(197,160,89,0.10);">
+                            <i class="fas fa-chart-line text-lg" style="color:#C5A059;"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[15px] font-bold mb-1">Comparativa con competencia</h3>
+                            <p class="text-white/45 text-[13px] leading-relaxed">Vs. inmobiliarias top de tu ciudad. Quién te está comiendo el mercado y por qué.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style="background: rgba(197,160,89,0.10);">
+                            <i class="fas fa-trophy text-lg" style="color:#C5A059;"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-[15px] font-bold mb-1">Score 0-100 + 3 mejoras de mayor impacto</h3>
+                            <p class="text-white/45 text-[13px] leading-relaxed">Tu calificación general con las 3 acciones priorizadas que más mueven la aguja esta semana.</p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Card 2: Speed -->
-                <div class="glass-panel rounded-2xl p-7">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(197,160,89,0.1);">
-                        <i class="fas fa-bolt text-xl" style="color:#C5A059;"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Velocidad y Rendimiento</h3>
-                    <p class="text-white/40 text-sm leading-relaxed">
-                        Core Web Vitals, PageSpeed Score, tiempo de carga movil. Cada segundo lento te cuesta el 53% de visitantes.
-                    </p>
-                </div>
+                <!-- RIGHT: Sample report mockup (illustrative — branded with your URL after submit) -->
+                <div class="lg:col-span-7 lg:sticky lg:top-24" data-aos="fade-left" data-aos-delay="150">
+                    <div class="report-card rounded-2xl p-7 md:p-8">
+                        <!-- Mockup header -->
+                        <div class="flex items-center justify-between mb-6 pb-5 border-b" style="border-color: rgba(255,255,255,0.06);">
+                            <div>
+                                <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/30 mb-1">Auditoría Digital</p>
+                                <p class="text-[13px] font-mono text-white/65">tuinmobiliaria.com</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-[11px] text-white/40">
+                                <i class="fas fa-calendar"></i> Reporte ejemplo
+                            </div>
+                        </div>
 
-                <!-- Card 3: AI Visibility -->
-                <div class="glass-panel rounded-2xl p-7">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(197,160,89,0.1);">
-                        <i class="fas fa-robot text-xl" style="color:#C5A059;"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Visibilidad en IA</h3>
-                    <p class="text-white/40 text-sm leading-relaxed">
-                        Verificamos si los buscadores con IA recomiendan tu agencia cuando alguien busca inmobiliarias en tu zona.
-                    </p>
-                </div>
+                        <!-- Score ring -->
+                        <div class="flex items-center gap-6 mb-7">
+                            <div class="relative w-24 h-24 report-score-ring flex-shrink-0 flex items-center justify-center">
+                                <div class="absolute inset-1.5 rounded-full bg-[#0f1115] flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="text-3xl font-extrabold leading-none" style="color:#C5A059;">67</div>
+                                        <div class="text-[9px] text-white/40 uppercase tracking-wider mt-0.5">/100</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[11px] font-bold uppercase tracking-wider text-yellow-400 mb-1">🟡 Mejorable</p>
+                                <p class="text-[15px] text-white/85 font-bold mb-1">Tu sitio está perdiendo leads cada día.</p>
+                                <p class="text-[12px] text-white/45 leading-relaxed">3 problemas críticos te separan del Top-10 local.</p>
+                            </div>
+                        </div>
 
-                <!-- Card 4: Lead Capture -->
-                <div class="glass-panel rounded-2xl p-7">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(197,160,89,0.1);">
-                        <i class="fas fa-magnet text-xl" style="color:#C5A059;"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Captacion de Leads</h3>
-                    <p class="text-white/40 text-sm leading-relaxed">
-                        Formularios, chat en vivo, integracion con WhatsApp, CTAs. Evaluamos si tu sitio convierte visitantes en prospectos.
-                    </p>
-                </div>
+                        <!-- Top issues -->
+                        <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/30 mb-3">Hallazgos críticos</p>
+                        <div class="space-y-2.5 mb-6">
+                            <div class="flex items-start gap-3 p-3 rounded-lg" style="background: rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.18);">
+                                <i class="fas fa-triangle-exclamation text-[14px] mt-0.5" style="color:#ef4444;"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[13px] font-bold text-white">Velocidad móvil — 4.2s LCP</p>
+                                    <p class="text-[11px] text-white/45">Google penaliza arriba de 2.5s. Pierdes 40% de móviles antes de cargar.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 rounded-lg" style="background: rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.18);">
+                                <i class="fas fa-triangle-exclamation text-[14px] mt-0.5" style="color:#ef4444;"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[13px] font-bold text-white">Sin schema RealEstateAgent</p>
+                                    <p class="text-[11px] text-white/45">ChatGPT y Perplexity no pueden citarte. Eres invisible en IA.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 rounded-lg" style="background: rgba(234,179,8,0.06); border:1px solid rgba(234,179,8,0.18);">
+                                <i class="fas fa-circle-exclamation text-[14px] mt-0.5" style="color:#eab308;"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[13px] font-bold text-white">0 backlinks de inmobiliarias locales</p>
+                                    <p class="text-[11px] text-white/45">Sin autoridad. Tu competencia tiene 47 enlaces de medios locales.</p>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Card 5: Content -->
-                <div class="glass-panel rounded-2xl p-7">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(197,160,89,0.1);">
-                        <i class="fas fa-chart-line text-xl" style="color:#C5A059;"></i>
+                        <!-- Footer of mockup -->
+                        <div class="flex items-center justify-between pt-5 border-t" style="border-color: rgba(255,255,255,0.06);">
+                            <p class="text-[11px] text-white/35"><i class="fas fa-paper-plane mr-1.5" style="color:#C5A059;"></i> Llega a tu correo en &lt;1h</p>
+                            <p class="text-[11px] font-mono text-white/35">JegoDigital · v2026.04</p>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-bold mb-2">Contenido y Autoridad</h3>
-                    <p class="text-white/40 text-sm leading-relaxed">
-                        Blog, schema markup, E-E-A-T signals, estructura de contenido. Lo que Google y la IA necesitan para recomendarte.
-                    </p>
-                </div>
 
-                <!-- Card 6: Score — slightly highlighted -->
-                <div class="glass-panel rounded-2xl p-7" style="border-color: rgba(197,160,89,0.2); background: linear-gradient(135deg, rgba(197,160,89,0.06) 0%, rgba(26,29,36,0.5) 100%);">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style="background: rgba(197,160,89,0.15);">
-                        <i class="fas fa-trophy text-xl" style="color:#C5A059;"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Score General 0-100</h3>
-                    <p class="text-white/40 text-sm leading-relaxed">
-                        Tu calificacion general con las 3 mejoras de mayor impacto para empezar a captar mas leads esta semana.
+                    <!-- Disclaimer below mockup -->
+                    <p class="text-center text-[11px] text-white/25 mt-3 italic">
+                        Ejemplo ilustrativo. Tu reporte se genera con datos reales de tu URL.
                     </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ==================== SOCIAL PROOF ==================== -->
-    <section class="py-16 md:py-20 relative z-10" style="border-top: 1px solid rgba(255,255,255,0.05);">
-        <div class="max-w-4xl mx-auto px-4 text-center">
-            <p class="text-white/30 text-sm font-medium tracking-wider uppercase mb-8">
-                Resultados verificados de nuestros clientes
-            </p>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-                <div class="glass-panel rounded-2xl p-6">
-                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">4.4x</div>
-                    <div class="text-white/40 text-xs">Visibilidad en busquedas</div>
-                    <div class="text-white/20 text-[10px] mt-1">Flamingo Real Estate</div>
+    <!-- ==================== VERIFIED CLIENT PROOFS (HR#9 — verified-only) ==================== -->
+    <section class="py-16 md:py-24 relative z-10" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-6xl mx-auto px-4">
+
+            <div class="text-center mb-14">
+                <span class="inline-block text-[11px] font-bold tracking-[0.25em] uppercase text-[#C5A059] mb-3">Casos Reales</span>
+                <h2 class="font-editorial text-3xl md:text-5xl font-extrabold mb-3">Resultados de clientes vivos</h2>
+                <p class="text-white/45 max-w-xl mx-auto">
+                    Cada métrica verificada en abril 2026. Sin claims viejos. Sin números inflados.
+                </p>
+            </div>
+
+            <!-- Featured proof 1: Living Riviera Maya — Hero AEO -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-20" data-aos="fade-up">
+                <div class="lg:col-span-5 order-2 lg:order-1">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-4" style="background:rgba(197,160,89,0.1); border:1px solid rgba(197,160,89,0.3); color:#C5A059;">
+                        <i class="fas fa-trophy"></i> Hero AEO Proof
+                    </span>
+                    <h3 class="font-editorial text-2xl md:text-3xl font-bold mb-3">Living Riviera Maya<br><span class="text-white/45 text-lg font-normal">Top-3 en ChatGPT</span></h3>
+                    <p class="text-white/55 leading-relaxed mb-5">
+                        Cuando alguien le pregunta a ChatGPT "best real estate agencies in Playa del Carmen", la primera recomendación es nuestra clienta. Esto es exactamente lo que construimos para inmobiliarias que quieren liderar la era de la búsqueda con IA.
+                    </p>
+                    <ul class="space-y-2.5 mb-6">
+                        <li class="flex items-start gap-3 text-sm text-white/70"><i class="fas fa-check mt-1" style="color:#C5A059;"></i> <span><strong>Top-3 en ChatGPT</strong> · screenshot literal verificado abril 2026</span></li>
+                        <li class="flex items-start gap-3 text-sm text-white/70"><i class="fas fa-check mt-1" style="color:#C5A059;"></i> <span><strong>4.9★ Google Maps</strong> · 100+ reseñas reales</span></li>
+                        <li class="flex items-start gap-3 text-sm text-white/70"><i class="fas fa-check mt-1" style="color:#C5A059;"></i> <span><strong>5 videos de propiedad/mes</strong> · pipeline activo</span></li>
+                    </ul>
+                    <a href="https://playadelcarmenrealestatemexico.com/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-[#C5A059] hover:text-[#d4b674] text-sm font-bold transition-colors">
+                        Ver sitio del cliente <i class="fas fa-arrow-right text-[11px]"></i>
+                    </a>
                 </div>
-                <div class="glass-panel rounded-2xl p-6">
-                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">#1</div>
-                    <div class="text-white/40 text-xs">Google Maps</div>
-                    <div class="text-white/20 text-[10px] mt-1">Flamingo Real Estate</div>
-                </div>
-                <div class="glass-panel rounded-2xl p-6">
-                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">+300%</div>
-                    <div class="text-white/40 text-xs">Trafico organico</div>
-                    <div class="text-white/20 text-[10px] mt-1">GoodLife Tulum</div>
-                </div>
-                <div class="glass-panel rounded-2xl p-6">
-                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">95%</div>
-                    <div class="text-white/40 text-xs">Leads calificados</div>
-                    <div class="text-white/20 text-[10px] mt-1">Solik Real Estate</div>
+                <div class="lg:col-span-7 order-1 lg:order-2">
+                    <div class="browser-frame">
+                        <div class="browser-chrome">
+                            <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+                            <span class="ml-3 text-[11px] text-white/40 font-mono">chatgpt.com</span>
+                        </div>
+                        <img src="img/showcase/playadelcarmen/chatgpt-rank.png" alt="ChatGPT recomienda Living Riviera Maya en Top-3 para 'best real estate agencies in Playa del Carmen'" class="w-full h-auto block" loading="lazy" decoding="async">
+                    </div>
                 </div>
             </div>
+
+            <!-- Featured proof 2: Sur Selecto — Institutional credibility (reverse layout) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-20" data-aos="fade-up">
+                <div class="lg:col-span-7">
+                    <div class="browser-frame">
+                        <div class="browser-chrome">
+                            <span class="browser-dot r"></span><span class="browser-dot y"></span><span class="browser-dot g"></span>
+                            <span class="ml-3 text-[11px] text-white/40 font-mono">chatgpt.com</span>
+                        </div>
+                        <img src="img/showcase/surselecto/chatgpt-rank.png" alt="ChatGPT recomienda Sur Selecto — AMPI Presidente Ejecutivo Playa del Carmen" class="w-full h-auto block" loading="lazy" decoding="async">
+                    </div>
+                </div>
+                <div class="lg:col-span-5">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-4" style="background:rgba(197,160,89,0.1); border:1px solid rgba(197,160,89,0.3); color:#C5A059;">
+                        <i class="fas fa-landmark"></i> Credibilidad Institucional
+                    </span>
+                    <h3 class="font-editorial text-2xl md:text-3xl font-bold mb-3">Sur Selecto<br><span class="text-white/45 text-lg font-normal">AMPI Presidente Ejecutivo · Playa del Carmen</span></h3>
+                    <p class="text-white/55 leading-relaxed mb-5">
+                        El Presidente Ejecutivo de AMPI sección Playa del Carmen confía en JegoDigital para operar el motor completo: SEO local + AEO + 5 videos de propiedad por mes + reporte mensual. Cuando la autoridad institucional del mercado te elige, sabes que el trabajo es real.
+                    </p>
+                    <ul class="space-y-2.5 mb-6">
+                        <li class="flex items-start gap-3 text-sm text-white/70"><i class="fas fa-check mt-1" style="color:#C5A059;"></i> <span><strong>5.0★ Google rating</strong> · perfil sin tacha</span></li>
+                        <li class="flex items-start gap-3 text-sm text-white/70"><i class="fas fa-check mt-1" style="color:#C5A059;"></i> <span><strong>10+ páginas indexadas</strong> · cobertura en 4 regiones</span></li>
+                        <li class="flex items-start gap-3 text-sm text-white/70"><i class="fas fa-check mt-1" style="color:#C5A059;"></i> <span><strong>Playa, Tulum, Bacalar y Cancún</strong> · todas con SEO activo</span></li>
+                    </ul>
+                    <a href="https://surselecto.com/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-[#C5A059] hover:text-[#d4b674] text-sm font-bold transition-colors">
+                        Ver sitio del cliente <i class="fas fa-arrow-right text-[11px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats grid — quick wins -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5" data-aos="fade-up">
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">Top-3</div>
+                    <div class="text-white/55 text-xs font-medium">en ChatGPT</div>
+                    <div class="text-white/25 text-[10px] mt-1">Living Riviera Maya</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">AMPI</div>
+                    <div class="text-white/55 text-xs font-medium">Presidente Ejecutivo</div>
+                    <div class="text-white/25 text-[10px] mt-1">Sur Selecto</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">#1</div>
+                    <div class="text-white/55 text-xs font-medium">Google Maps Cancún</div>
+                    <div class="text-white/25 text-[10px] mt-1">Flamingo Real Estate</div>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl md:text-4xl font-extrabold mb-1" style="color:#C5A059;">88%</div>
+                    <div class="text-white/55 text-xs font-medium">Leads automatizados</div>
+                    <div class="text-white/25 text-[10px] mt-1">Flamingo Real Estate</div>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -663,7 +1019,33 @@
                 mobileMenu.classList.toggle('hidden');
             });
         }
+
+        // ==================== SCROLL ANIMATIONS ====================
+        // IntersectionObserver fallback so animations work whether or not
+        // the AOS library loads from CDN. Adds `.aos-animate` to any element
+        // with [data-aos] when it scrolls into view.
+        (function () {
+            const els = document.querySelectorAll('[data-aos]');
+            if (!els.length) return;
+            if ('IntersectionObserver' in window) {
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach((e) => {
+                        if (e.isIntersecting) {
+                            const delay = parseInt(e.target.getAttribute('data-aos-delay') || '0', 10);
+                            setTimeout(() => e.target.classList.add('aos-animate'), delay);
+                            io.unobserve(e.target);
+                        }
+                    });
+                }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+                els.forEach((el) => io.observe(el));
+            } else {
+                els.forEach((el) => el.classList.add('aos-animate'));
+            }
+        })();
     </script>
+
+    <!-- AOS library — provides additional animations if CDN reachable; fallback above always works -->
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer onload="if(window.AOS){AOS.init({duration:700,once:true,offset:60});}"></script>
 
     <!-- GA4 loaded via GTM container GTM-KZCVVPHN (single source of truth) -->
     <!-- Premium Chat Widget (canonical) -->
