@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-04-29 PM
 **Agent:** `JegoDigital Agent` (Autopilot, configuration_type=2, ID `019d368d-c8ad-7208-8c42-438f4cb16258`)
-**Strategy:** Push every prospect onto Alex's personal WhatsApp `+52 998 202 3263`. Calendly is fallback only.
+**Strategy (2026-04-30 v2.5):** Push BOTH WhatsApp `+52 998 202 3263` AND Calendly `calendly.com/jegoalexdigital/30min` in EVERY reply. WhatsApp first line, Calendly second as "or alternative". Goal: maximize prospect conversion paths — let the prospect pick whichever channel they prefer.
 
 ---
 
