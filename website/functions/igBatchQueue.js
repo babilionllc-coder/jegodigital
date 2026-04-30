@@ -34,7 +34,12 @@ const axios = require("axios");
 if (!admin.apps.length) admin.initializeApp();
 
 const OPS_CHANNEL_FALLBACK = "C0AV2Q73PM4"; // #alerts as backup
-const IG_GRAPH_BASE = "https://graph.instagram.com/v21.0";
+// 2026-04-30: Switched from graph.instagram.com (IGAAT token, bound to
+// suspended @jegodigital_agencia) to graph.facebook.com + FB_PAGE_ACCESS_TOKEN
+// — the FB Page is permanently linked to @jegodigital, so Page-level
+// publishing keeps working as long as Alex doesn't unlink the Page.
+// IG_BUSINESS_ACCOUNT_ID for restored @jegodigital is 17841424426942739.
+const IG_GRAPH_BASE = "https://graph.facebook.com/v22.0";
 const TIKTOK_API_BASE = "https://open.tiktokapis.com/v2";
 
 // ============================================================
@@ -81,10 +86,19 @@ async function postSlack({ level, title, body, details }) {
 }
 
 // ============================================================
-// IG token loader — prefers Firestore cache (refreshed by
-// igTokenAutoRefresh every 50d), falls back to .env
+// IG token loader
+//
+// 2026-04-30 — switched preference order. Now we publish via the FB Page
+// path (graph.facebook.com), so FB_PAGE_ACCESS_TOKEN is the primary
+// credential. The Firestore ig_token_cache holds a stale IGAAT token bound
+// to @jegodigital_agencia, so we SKIP it on the FB endpoint and only fall
+// back to it (or IG_GRAPH_TOKEN env) if FB_PAGE_ACCESS_TOKEN is missing.
 // ============================================================
 async function loadIgToken() {
+    if (process.env.FB_PAGE_ACCESS_TOKEN) {
+        return process.env.FB_PAGE_ACCESS_TOKEN;
+    }
+    // Legacy IGAAT path (kept as fallback in case FB Page link breaks)
     try {
         const snap = await admin
             .firestore()
