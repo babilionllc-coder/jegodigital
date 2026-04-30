@@ -327,9 +327,362 @@
             margin-top: 18px;
             font-weight: 600;
         }
+
+        /* === PREMIUM REDESIGN STYLES === */
+
+        /* Stat card hover lift */
+        .stat-card {
+            transition: transform .35s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-6px);
+        }
+
+        /* Reveal-on-scroll */
+        .reveal-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .8s ease, transform .8s ease;
+        }
+        .reveal-section.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .8s ease, transform .8s ease;
+        }
+        .reveal-on-scroll.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === Proof cards (real screenshots) === */
+        .proof-card {
+            background: linear-gradient(135deg, rgba(26,29,36,0.6), rgba(15,17,21,0.4));
+            border: 1px solid rgba(197,160,89,0.25);
+            border-radius: 24px;
+            padding: 32px;
+            transition: all .4s ease;
+        }
+        .proof-card:hover {
+            border-color: rgba(197,160,89,0.5);
+            box-shadow: 0 24px 60px rgba(197,160,89,0.15);
+            transform: translateY(-4px);
+        }
+        .proof-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 16px;
+        }
+        .proof-badge {
+            background: linear-gradient(135deg, #C5A059, #d4b072);
+            color: #0f1115;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(197,160,89,0.4);
+        }
+
+        /* Browser frame around screenshots */
+        .browser-frame {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(197,160,89,0.4);
+            box-shadow: 0 16px 50px rgba(0,0,0,0.5), 0 0 24px rgba(197,160,89,0.15);
+        }
+        .browser-bar {
+            background: #2a2d34;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .browser-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .browser-dots span:nth-child(1) { background: #ff5f57; }
+        .browser-dots span:nth-child(2) { background: #ffbd2e; }
+        .browser-dots span:nth-child(3) { background: #28c940; }
+        .browser-url {
+            flex: 1;
+            background: #1a1d24;
+            color: rgba(255,255,255,0.6);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .proof-img {
+            width: 100%;
+            display: block;
+        }
+
+        /* === Phone mockup === */
+        .phone-mockup {
+            width: 320px;
+            height: 640px;
+            background: linear-gradient(180deg, #0f1115, #05070a);
+            border-radius: 36px;
+            padding: 16px;
+            border: 8px solid #1a1a1a;
+            box-shadow: 0 30px 80px rgba(197,160,89,0.25), 0 0 0 2px rgba(197,160,89,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .phone-notch {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 18px;
+            background: #000;
+            border-radius: 999px;
+            z-index: 2;
+        }
+        .wa-header {
+            background: #075E54;
+            padding: 12px 12px 10px;
+            margin-top: 22px;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .wa-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #C5A059, #8e6f30);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f1115;
+            font-weight: 900;
+            font-size: 14px;
+        }
+        .wa-chat {
+            padding: 14px 10px;
+            height: 460px;
+            background: #0b1418;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .wa-msg {
+            padding: 8px 12px;
+            border-radius: 10px;
+            max-width: 80%;
+            font-size: 13px;
+            line-height: 1.35;
+            color: #fff;
+        }
+        .wa-msg-sent {
+            align-self: flex-end;
+            background: #005c4b;
+        }
+        .wa-msg-received {
+            align-self: flex-start;
+            background: #1f2c33;
+        }
+        .wa-time {
+            font-size: 10px;
+            color: #abd;
+            margin-top: 3px;
+            text-align: right;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 12px 14px !important;
+            width: 50px;
+        }
+        .typing-indicator .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #abd;
+            animation: typing-pulse 1.4s infinite;
+        }
+        .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing-pulse {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.85); }
+            30% { opacity: 1; transform: scale(1.1); }
+        }
+        .phone-timer {
+            position: absolute;
+            top: 70px;
+            right: 16px;
+            background: linear-gradient(135deg, #C5A059, #d4b072);
+            color: #0f1115;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 16px rgba(197,160,89,0.4);
+        }
+        .qualified-badge {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: #25D366;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 8px 24px rgba(37,211,102,0.4);
+            transition: transform .5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .qualified-badge.show {
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* Tag pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(26,29,36,0.6);
+            border: 1px solid rgba(197,160,89,0.3);
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #C5A059;
+        }
+
+        /* === Compare table === */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 0;
+            background: rgba(26,29,36,0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .compare-header {
+            padding: 22px 18px;
+            font-size: 16px;
+            font-weight: 800;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            letter-spacing: 0.05em;
+        }
+        .compare-header-bad {
+            background: rgba(220,53,69,0.08);
+            color: rgba(255,255,255,0.7);
+        }
+        .compare-header-good {
+            background: linear-gradient(135deg, rgba(197,160,89,0.15), rgba(197,160,89,0.05));
+            color: #C5A059;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+        }
+        .compare-row {
+            padding: 20px 18px;
+            font-size: 16px;
+            color: #fff;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .compare-cell-bad,
+        .compare-cell-good {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background .25s ease;
+        }
+        .compare-cell-bad {
+            background: rgba(220,53,69,0.04);
+        }
+        .compare-cell-good {
+            background: linear-gradient(135deg, rgba(197,160,89,0.08), rgba(197,160,89,0.02));
+        }
+        .compare-grid > div:nth-last-child(-n+3) {
+            border-bottom: none;
+        }
+        @media (max-width: 768px) {
+            .compare-grid {
+                grid-template-columns: 1.4fr 1fr 1fr;
+            }
+            .compare-row { font-size: 13px; padding: 14px 10px; }
+            .compare-header { font-size: 13px; padding: 14px 8px; }
+        }
+
+        /* Floating WhatsApp CTA */
+        .floating-wa {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #25D366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 30px;
+            box-shadow: 0 12px 40px rgba(37,211,102,0.4);
+            cursor: pointer;
+            z-index: 100;
+            transition: transform .25s ease;
+            animation: float-wa-pulse 2s ease-in-out infinite;
+        }
+        .floating-wa:hover {
+            transform: scale(1.1);
+        }
+        @keyframes float-wa-pulse {
+            0%, 100% { box-shadow: 0 12px 40px rgba(37,211,102,0.4); }
+            50% { box-shadow: 0 12px 60px rgba(37,211,102,0.7); }
+        }
+
+        /* Scroll progress bar */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #C5A059, #d4b072);
+            box-shadow: 0 0 8px rgba(197,160,89,0.5);
+            z-index: 1000;
+            transition: width .1s ease;
+        }
     </style>
 </head>
 <body class="min-h-screen">
+
+<!-- Scroll progress bar -->
+<div class="scroll-progress" id="scroll-progress" style="width: 0%"></div>
+
+<!-- Floating WhatsApp button -->
+<a href="https://wa.me/529982023263?text=Hola%20Alex,%20vengo%20del%20landing%20de%20Lanzamiento%20Preventa"
+   target="_blank" rel="noopener" class="floating-wa" aria-label="WhatsApp Alex">
+    <i class="fab fa-whatsapp"></i>
+</a>
 
 <!-- NAV -->
 <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0f1115]/80 border-b border-white/5">
@@ -413,27 +766,224 @@
     </div>
 </section>
 
-<!-- TRUST STRIP -->
-<section class="py-12 px-6 border-y border-white/5 bg-[#0a0c10]">
+<!-- TRUST STRIP — animated counters with real client attribution -->
+<section class="py-16 px-6 border-y border-white/5 bg-[#0a0c10] reveal-section">
     <div class="max-w-6xl mx-auto">
-        <p class="text-center text-sm text-white/50 uppercase tracking-widest mb-8" data-i18n-es="Lanzamientos operados" data-i18n-en="Launches we’ve operated">Lanzamientos operados</p>
+        <p class="text-center text-sm text-white/50 uppercase tracking-widest mb-10" data-i18n-es="Resultados verificados · Casos reales" data-i18n-en="Verified results · Real cases">Resultados verificados · Casos reales</p>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-                <div class="text-4xl font-extrabold gradient-gold stat-glow mb-2">4.4x</div>
-                <div class="text-sm text-white/60" data-i18n-es="Visibilidad orgánica<br>Flamingo Real Estate (Cancún)" data-i18n-en="Organic visibility<br>Flamingo Real Estate (Cancún)">Visibilidad orgánica<br>Flamingo Real Estate (Cancún)</div>
+            <div class="stat-card">
+                <div class="text-5xl font-extrabold gradient-gold stat-glow mb-2 stat-counter" data-target="3" data-suffix="">0</div>
+                <div class="text-xs gold tracking-widest uppercase mb-1">TOP-3</div>
+                <div class="text-sm text-white/60" data-i18n-es="Living Riviera Maya<br>citado en ChatGPT" data-i18n-en="Living Riviera Maya<br>cited in ChatGPT">Living Riviera Maya<br>citado en ChatGPT</div>
             </div>
-            <div>
-                <div class="text-4xl font-extrabold gradient-gold stat-glow mb-2">#1</div>
-                <div class="text-sm text-white/60" data-i18n-es="Google Maps Cancún<br>en 90 días" data-i18n-en="Google Maps Cancún<br>in 90 days">Google Maps Cancún<br>en 90 días</div>
+            <div class="stat-card">
+                <div class="text-5xl font-extrabold gradient-gold stat-glow mb-2">AMPI</div>
+                <div class="text-xs gold tracking-widest uppercase mb-1">AUTHORITY</div>
+                <div class="text-sm text-white/60" data-i18n-es="Sur Selecto<br>4 regiones · 10+ páginas" data-i18n-en="Sur Selecto<br>4 regions · 10+ pages">Sur Selecto<br>4 regiones · 10+ páginas</div>
             </div>
-            <div>
-                <div class="text-4xl font-extrabold gradient-gold stat-glow mb-2">+320%</div>
-                <div class="text-sm text-white/60" data-i18n-es="Tráfico orgánico<br>Flamingo · 90 días" data-i18n-en="Organic traffic<br>Flamingo · 90 days">Tráfico orgánico<br>Flamingo · 90 días</div>
+            <div class="stat-card">
+                <div class="text-5xl font-extrabold gradient-gold stat-glow mb-2">+<span class="stat-counter" data-target="300" data-suffix="">0</span>%</div>
+                <div class="text-xs gold tracking-widest uppercase mb-1">ORGANIC</div>
+                <div class="text-sm text-white/60" data-i18n-es="GoodLife Tulum<br>tráfico orgánico" data-i18n-en="GoodLife Tulum<br>organic traffic">GoodLife Tulum<br>tráfico orgánico</div>
             </div>
-            <div>
-                <div class="text-4xl font-extrabold gradient-gold stat-glow mb-2">88%</div>
-                <div class="text-sm text-white/60" data-i18n-es="Leads atendidos por IA<br>en menos de 30s" data-i18n-en="Leads handled by AI<br>in under 30s">Leads atendidos por IA<br>en menos de 30s</div>
+            <div class="stat-card">
+                <div class="text-5xl font-extrabold gradient-gold stat-glow mb-2"><span class="stat-counter" data-target="88" data-suffix="">0</span>%</div>
+                <div class="text-xs gold tracking-widest uppercase mb-1">AI · &lt;30s</div>
+                <div class="text-sm text-white/60" data-i18n-es="Leads calificados<br>por IA automáticamente" data-i18n-en="Leads qualified<br>by AI automatically">Leads calificados<br>por IA automáticamente</div>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- NEW SECTION: REAL PROOF — actual client screenshots -->
+<!-- ============================================================ -->
+<section class="py-24 px-6 reveal-section relative overflow-hidden">
+    <div class="absolute inset-0 opacity-30 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, rgba(197,160,89,0.12) 0%, transparent 60%);"></div>
+    <div class="max-w-6xl mx-auto relative">
+        <div class="text-center mb-16">
+            <div class="inline-block guarantee-badge px-4 py-2 rounded-full text-sm gold mb-6">
+                <i class="fas fa-trophy mr-2"></i><span data-i18n-es="Prueba real · No teoría" data-i18n-en="Real proof · Not theory">Prueba real · No teoría</span>
+            </div>
+            <h2 class="text-4xl md:text-6xl font-extrabold mb-6"
+                data-i18n-es='ChatGPT <span class="gradient-gold">cita</span> a nuestros clientes'
+                data-i18n-en='ChatGPT <span class="gradient-gold">cites</span> our clients'>
+                ChatGPT <span class="gradient-gold">cita</span> a nuestros clientes
+            </h2>
+            <p class="text-xl text-white/60 max-w-3xl mx-auto"
+               data-i18n-es="No te mostramos lo que prometemos. Te mostramos lo que ya hicimos."
+               data-i18n-en="We don't show you what we promise. We show you what we've already done.">
+                No te mostramos lo que prometemos. Te mostramos lo que ya hicimos.
+            </p>
+        </div>
+
+        <!-- Living Riviera Maya hero proof -->
+        <div class="proof-card mb-10 reveal-on-scroll">
+            <div class="proof-header">
+                <div>
+                    <div class="text-xs gold tracking-widest uppercase mb-1">CLIENTE · LIVING RIVIERA MAYA</div>
+                    <div class="text-2xl font-bold mb-1" data-i18n-es="Top-3 en ChatGPT · Playa del Carmen" data-i18n-en="Top-3 in ChatGPT · Playa del Carmen">Top-3 en ChatGPT · Playa del Carmen</div>
+                    <div class="text-sm text-white/60" data-i18n-es="Captura real · Búsqueda: &quot;mejor agencia inmobiliaria en Playa del Carmen&quot;" data-i18n-en="Real screenshot · Search: &quot;best real estate agency in Playa del Carmen&quot;">Captura real · Búsqueda: "mejor agencia inmobiliaria en Playa del Carmen"</div>
+                </div>
+                <div class="proof-badge">📷 LIVE</div>
+            </div>
+            <div class="browser-frame">
+                <div class="browser-bar">
+                    <div class="browser-dots"><span></span><span></span><span></span></div>
+                    <div class="browser-url">chatgpt.com — best real estate agency Playa del Carmen 2026</div>
+                </div>
+                <img src="/img/lanzamiento/playadelcarmen_chatgpt-rank.jpg" alt="ChatGPT cites Living Riviera Maya in Top-3 results" loading="lazy" class="proof-img">
+            </div>
+        </div>
+
+        <!-- Two-column: Sur Selecto + Living RM Maps -->
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="proof-card reveal-on-scroll" style="animation-delay: 0.15s;">
+                <div class="proof-header">
+                    <div>
+                        <div class="text-xs gold tracking-widest uppercase mb-1">CLIENTE · SUR SELECTO</div>
+                        <div class="text-xl font-bold mb-1" data-i18n-es="Citado por ChatGPT · 4 regiones" data-i18n-en="Cited by ChatGPT · 4 regions">Citado por ChatGPT · 4 regiones</div>
+                        <div class="text-sm text-white/60" data-i18n-es="Playa, Tulum, Bacalar, Cancún" data-i18n-en="Playa, Tulum, Bacalar, Cancún">Playa, Tulum, Bacalar, Cancún</div>
+                    </div>
+                </div>
+                <div class="browser-frame">
+                    <div class="browser-bar">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <div class="browser-url">chatgpt.com — sur selecto authority</div>
+                    </div>
+                    <img src="/img/lanzamiento/surselecto_chatgpt-rank.jpg" alt="Sur Selecto cited by ChatGPT" loading="lazy" class="proof-img">
+                </div>
+            </div>
+            <div class="proof-card reveal-on-scroll" style="animation-delay: 0.3s;">
+                <div class="proof-header">
+                    <div>
+                        <div class="text-xs gold tracking-widest uppercase mb-1">CLIENTE · LIVING RIVIERA MAYA</div>
+                        <div class="text-xl font-bold mb-1" data-i18n-es="#1 Google Maps" data-i18n-en="#1 Google Maps">#1 Google Maps</div>
+                        <div class="text-sm text-white/60" data-i18n-es="Riviera Maya · 4.9★ · 100+ reseñas" data-i18n-en="Riviera Maya · 4.9★ · 100+ reviews">Riviera Maya · 4.9★ · 100+ reseñas</div>
+                    </div>
+                </div>
+                <div class="browser-frame">
+                    <div class="browser-bar">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <div class="browser-url">google.com/maps — top real estate riviera maya</div>
+                    </div>
+                    <img src="/img/lanzamiento/playadelcarmen_maps-rank.jpg" alt="Living Riviera Maya #1 on Google Maps" loading="lazy" class="proof-img">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- NEW SECTION: SOFIA AI Phone Mockup — buyer at 11pm -->
+<!-- ============================================================ -->
+<section class="py-24 px-6 bg-[#0a0c10] reveal-section">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div>
+            <div class="inline-block guarantee-badge px-4 py-2 rounded-full text-sm gold mb-6">
+                <i class="fas fa-bolt mr-2"></i><span data-i18n-es="IA en tiempo real" data-i18n-en="Real-time AI">IA en tiempo real</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-6"
+                data-i18n-es='El comprador llega a las <span class="gradient-gold">11pm</span><br>desde Instagram'
+                data-i18n-en='The buyer lands at <span class="gradient-gold">11pm</span><br>from Instagram'>
+                El comprador llega a las <span class="gradient-gold">11pm</span><br>desde Instagram
+            </h2>
+            <p class="text-xl text-white/70 mb-6 leading-relaxed"
+               data-i18n-es="Sofia responde en menos de <strong class='gold'>60 segundos</strong>. Pregunta presupuesto, tiempo, fideicomiso. Califica el lead antes de que tu equipo abra el laptop al día siguiente."
+               data-i18n-en="Sofia replies in under <strong class='gold'>60 seconds</strong>. Asks budget, timeline, fideicomiso. Qualifies the lead before your team opens their laptop the next morning.">
+                Sofia responde en menos de <strong class="gold">60 segundos</strong>. Pregunta presupuesto, tiempo, fideicomiso. Califica el lead antes de que tu equipo abra el laptop al día siguiente.
+            </p>
+            <div class="flex flex-wrap gap-3 mb-6">
+                <span class="tag-pill">🌐 EN · ES · FR</span>
+                <span class="tag-pill">📱 WhatsApp · Web · SMS</span>
+                <span class="tag-pill">⏱ &lt;60s reply</span>
+                <span class="tag-pill">🤖 24/7</span>
+            </div>
+            <div class="text-sm text-white/50" data-i18n-es="93% de México prefiere WhatsApp para preguntar precio" data-i18n-en="93% of Mexico prefers WhatsApp to ask price">93% de México prefiere WhatsApp para preguntar precio</div>
+        </div>
+        <div class="flex justify-center">
+            <div class="phone-mockup">
+                <div class="phone-notch"></div>
+                <div class="wa-header">
+                    <div class="wa-avatar">S</div>
+                    <div>
+                        <div class="text-sm font-bold">Sofia · JegoDigital</div>
+                        <div class="text-xs" style="color: #abd;">online</div>
+                    </div>
+                </div>
+                <div class="wa-chat">
+                    <div class="wa-msg wa-msg-sent">
+                        Hola, ¿tienen unidades en Tulum disponibles?
+                        <div class="wa-time">11:47 PM ✓✓</div>
+                    </div>
+                    <div class="wa-msg wa-msg-received typing-indicator" id="sofia-typing">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                    </div>
+                    <div class="wa-msg wa-msg-received" id="sofia-reply" style="display:none;">
+                        Sí! Tenemos 3 unidades a $385K USD. ¿Cuál es tu timeline + eres comprador extranjero? Reviso fideicomiso al instante.
+                        <div class="wa-time">11:47 PM ✓✓</div>
+                    </div>
+                </div>
+                <div class="phone-timer" id="phone-timer">⏱ 0s</div>
+                <div class="qualified-badge" id="qualified-badge">✓ Lead calificado · 43s</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- NEW SECTION: COMPARE — typical agency vs JegoDigital -->
+<!-- ============================================================ -->
+<section class="py-24 px-6 reveal-section">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-4"
+                data-i18n-es='Por qué <span class="gradient-gold">no somos</span> la agencia típica'
+                data-i18n-en='Why we are <span class="gradient-gold">not</span> a typical agency'>
+                Por qué <span class="gradient-gold">no somos</span> la agencia típica
+            </h2>
+            <p class="text-lg text-white/60" data-i18n-es="Compara antes de firmar con cualquiera" data-i18n-en="Compare before signing with anyone">Compara antes de firmar con cualquiera</p>
+        </div>
+        <div class="compare-grid">
+            <div class="compare-header"></div>
+            <div class="compare-header compare-header-bad">
+                <span data-i18n-es="Agencia típica" data-i18n-en="Typical agency">Agencia típica</span>
+            </div>
+            <div class="compare-header compare-header-good">
+                <span class="gold">JegoDigital</span>
+            </div>
+
+            <div class="compare-row" data-i18n-es="Aparición en ChatGPT/Perplexity" data-i18n-en="Visibility in ChatGPT/Perplexity">Aparición en ChatGPT/Perplexity</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
+
+            <div class="compare-row" data-i18n-es="IA respondiendo en &lt;60 segundos" data-i18n-en="AI replying in under 60 seconds">IA respondiendo en &lt;60 segundos</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
+
+            <div class="compare-row" data-i18n-es="Multilingüe nativo (EN · ES · FR)" data-i18n-en="Native multilingual (EN · ES · FR)">Multilingüe nativo (EN · ES · FR)</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
+
+            <div class="compare-row" data-i18n-es="Schema RealEstateAgent + FAQ" data-i18n-en="RealEstateAgent + FAQ schema">Schema RealEstateAgent + FAQ</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
+
+            <div class="compare-row" data-i18n-es="Garantía de devolución 14 días" data-i18n-en="14-day refund guarantee">Garantía de devolución 14 días</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
+
+            <div class="compare-row" data-i18n-es="Tarifa fija (no % de tu ad spend)" data-i18n-en="Flat fee (not % of your ad spend)">Tarifa fija (no % de tu ad spend)</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
+
+            <div class="compare-row" data-i18n-es="Reportes semanales sin jerga" data-i18n-en="Weekly reports · no jargon">Reportes semanales sin jerga</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
+
+            <div class="compare-row" data-i18n-es="Sistema queda instalado para siempre" data-i18n-en="System stays installed forever">Sistema queda instalado para siempre</div>
+            <div class="compare-cell-bad">❌</div>
+            <div class="compare-cell-good">✅</div>
         </div>
     </div>
 </section>
@@ -831,6 +1381,113 @@
 
     // Apply initial language
     applyLang(detectLang());
+  });
+})();
+</script>
+
+<!-- ============================================================ -->
+<!-- PREMIUM REDESIGN: animation engine + scroll progress + counters -->
+<!-- ============================================================ -->
+<script>
+(function() {
+  'use strict';
+
+  // === Scroll progress bar ===
+  function updateScrollProgress() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    var bar = document.getElementById('scroll-progress');
+    if (bar) bar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateScrollProgress, { passive: true });
+  updateScrollProgress();
+
+  // === Reveal-on-scroll using IntersectionObserver ===
+  var revealObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        revealObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  document.querySelectorAll('.reveal-section, .reveal-on-scroll').forEach(function(el) {
+    revealObs.observe(el);
+  });
+
+  // === Animated number counters ===
+  var counterObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var el = entry.target;
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      var suffix = el.getAttribute('data-suffix') || '';
+      var duration = 1500;
+      var startTime = performance.now();
+      function tick(now) {
+        var t = Math.min(1, (now - startTime) / duration);
+        var eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+        else el.textContent = target + suffix;
+      }
+      requestAnimationFrame(tick);
+      counterObs.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('.stat-counter').forEach(function(el) {
+    counterObs.observe(el);
+  });
+
+  // === Sofia phone mockup animation (when scrolled into view) ===
+  var phoneAnimated = false;
+  var phoneObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting || phoneAnimated) return;
+      phoneAnimated = true;
+      // Animate timer 0→43s
+      var timer = document.getElementById('phone-timer');
+      var typing = document.getElementById('sofia-typing');
+      var reply = document.getElementById('sofia-reply');
+      var badge = document.getElementById('qualified-badge');
+      if (!timer) return;
+      var startT = performance.now();
+      function tickTimer(now) {
+        var elapsed = (now - startT) / 1000;
+        if (elapsed >= 43) {
+          timer.textContent = '⏱ 43s';
+          if (typing) typing.style.display = 'none';
+          if (reply) reply.style.display = 'block';
+          if (badge) badge.classList.add('show');
+          return;
+        }
+        timer.textContent = '⏱ ' + Math.floor(elapsed) + 's';
+        // Show Sofia's reply at ~12s (animated faster than real-time for impact)
+        if (elapsed > 4 && reply && reply.style.display === 'none') {
+          if (typing) typing.style.display = 'none';
+          reply.style.display = 'block';
+        }
+        requestAnimationFrame(tickTimer);
+      }
+      requestAnimationFrame(tickTimer);
+    });
+  }, { threshold: 0.3 });
+  var phoneEl = document.querySelector('.phone-mockup');
+  if (phoneEl) phoneObs.observe(phoneEl);
+
+  // === Smooth scroll for any in-page anchors ===
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var href = a.getAttribute('href');
+      if (href && href.length > 1) {
+        var target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
   });
 })();
 </script>
