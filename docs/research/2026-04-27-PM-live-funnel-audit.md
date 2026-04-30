@@ -169,7 +169,7 @@ The 28.25% open rate is mainly because the SUBJECT lines are personalized, short
 - Sofia conversation count (same)
 - Brevo nurture engagement on existing leads
 - Google Ads / Meta Ads spend (per Alex docs, currently nothing running but not verified live)
-- IG/TikTok/YouTube engagement on @jegodigital_agencia (organic channel hypothesis)
+- IG/TikTok/YouTube engagement on @jegodigital (organic channel hypothesis)
 
 These all require either (a) firebase-admin SDK in sandbox, or (b) credentials Alex hasn't put in `.env` yet. Will request via single batched ask next session.
 

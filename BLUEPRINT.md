@@ -343,7 +343,7 @@ If lead books Calendly:
 
 ### 4.7 Social Media — ⚠️ MIXED
 
-**Instagram (@jegodigital_agencia):** ✅ Daily carousels + stories pipeline live
+**Instagram (@jegodigital):** ✅ Daily carousels + stories pipeline live
 - Skill: `jegodigital-carousels` + `jegodigital-instagram-stories` + `instagram-publisher`
 
 **TikTok (@jegodigital):** ✅ Founder video pipeline live
@@ -552,7 +552,7 @@ When budget grows to MX$15K/mo, add Display retargeting ($50/day) + scale Demand
 - Customer Match: `JegoDigital_Engaged_Leads_2026-04` (1,767 hashed, 90% match rate)
 - Brevo Lists 35 + 36 (cold-call A + C capture)
 - Notion Leads CRM (1,997 enriched leads)
-- Instagram followers @jegodigital_agencia (organic)
+- Instagram followers @jegodigital (organic)
 - TikTok followers @jegodigital (organic)
 - YouTube subs @JegoDigitalchannel (organic)
 

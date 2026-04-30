@@ -288,6 +288,6 @@ Reports: weekly Sunday post to `#content` summarizing the week + recommending ne
 
 - `alex-founder-video` — DIFFERENT format (45-60s educational with sales CTA). Don't confuse.
 - `youtube-thumbnail` — for YouTube Shorts thumbnails (1280×720)
-- `instagram-publisher` — auto-publish to @jegodigital_agencia IG Reels
+- `instagram-publisher` — auto-publish to @jegodigital IG Reels
 - `notebooklm` — deeper research when one news item needs more context
 - `tiktok-viral` — strategy/algorithm rules (when it exists)

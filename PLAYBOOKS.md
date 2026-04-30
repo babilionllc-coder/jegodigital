@@ -18,9 +18,9 @@
 
 ## 📸 INSTAGRAM PUBLISHING
 
-**Trigger:** any request to post / publish / schedule / upload anything to @jegodigital_agencia Instagram (single image, carousel, Reel, Story).
+**Trigger:** any request to post / publish / schedule / upload anything to @jegodigital Instagram (single image, carousel, Reel, Story).
 
-**Account:** @jegodigital_agencia (renamed from @jegodigital5 on 2026-04-24 — handle change transparent to API).
+**Account:** @jegodigital (renamed from @jegodigital5 on 2026-04-24 — handle change transparent to API).
 **IG User ID:** `17841425126865530` (Instagram Login API user_id — use this for graph.instagram.com calls)
 **Business Account ID:** `27504937085774839`
 **Graph API:** `graph.instagram.com/v21.0` (NOT graph.facebook.com — IGAAT token requires IG Login API base)

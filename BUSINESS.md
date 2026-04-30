@@ -82,7 +82,7 @@
 
 🛑 **Single source of truth:** [`docs/case-studies/INDEX.md`](docs/case-studies/INDEX.md) — read this BEFORE citing ANY client number anywhere. Per-client deep files at `docs/case-studies/{slug}.md`. Per-channel cite playbook included.
 
-All results displayed publicly: jegodigital.com/showcase · instagram.com/jegodigital_agencia
+All results displayed publicly: jegodigital.com/showcase · instagram.com/jegodigital
 
 ⚠️ **Per HARD RULE #9 (CLAUDE.md):** these numbers must be re-verified on the 1st of every month. If any moved down >20%, pull it from cold-email copy until reverified. Per CLIENT DOMAIN RULE: **Goza, GoodLife, Solik have NO verified domain on file** — use NAME and STATS in copy but never link to a URL. Alex action: confirm public domain status for each (or document why none exists).
 

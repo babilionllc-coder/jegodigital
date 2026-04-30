@@ -1,5 +1,5 @@
 /**
- * contentAutopilot — Autonomous daily content engine for @jegodigital_agencia
+ * contentAutopilot — Autonomous daily content engine for @jegodigital
  *
  * Three exports:
  *   1. generateContentIdeas (cron 6am CDMX) — Perplexity Sonar research
@@ -242,7 +242,7 @@ const TPL_DARK_STAT = `<!doctype html><html><head><meta charset="utf-8"><style>$
   <div class="hook">{{HOOK}}</div>
   <div class="body">{{BODY}}</div>
   <div class="cta">{{CTA}}</div>
-  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
+  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital</span></div>
 </body></html>`;
 
 // Variant 2: GOLD_CTA — full gold bg, dark text, conversion-focused
@@ -262,7 +262,7 @@ const TPL_GOLD_CTA = `<!doctype html><html><head><meta charset="utf-8"><style>${
   <div class="emoji-row">{{EMOJIS}}</div>
   <div class="body">{{BODY}}</div>
   <div class="cta">{{CTA}}</div>
-  <div class="footer-handle"><span>📅 link en bio</span><span>@jegodigital_agencia</span></div>
+  <div class="footer-handle"><span>📅 link en bio</span><span>@jegodigital</span></div>
 </body></html>`;
 
 // Variant 3: WHITE_PATTERN — pattern interrupt, white bg, big number
@@ -282,7 +282,7 @@ const TPL_WHITE_PATTERN = `<!doctype html><html><head><meta charset="utf-8"><sty
   <div class="hook">{{HOOK}}</div>
   <div class="body">{{BODY}}</div>
   <div class="cta">{{CTA}}</div>
-  <div class="footer-handle"><span>📅 link en bio</span><span>@jegodigital_agencia</span></div>
+  <div class="footer-handle"><span>📅 link en bio</span><span>@jegodigital</span></div>
 </body></html>`;
 
 // Variant 4: FAKE_POLL — visual mockup of a poll, drives DMs (highest engagement variant)
@@ -311,7 +311,7 @@ const TPL_FAKE_POLL = `<!doctype html><html><head><meta charset="utf-8"><style>$
     </div>
   </div>
   <div class="cta">👉 {{CTA}}</div>
-  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
+  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital</span></div>
 </body></html>`;
 
 // Variant 5: EMOJI_HEAVY — approachable, 5+ emojis distributed, high profile-tap rate
@@ -335,7 +335,7 @@ const TPL_EMOJI_HEAVY = `<!doctype html><html><head><meta charset="utf-8"><style
   <div class="body">{{BODY}}</div>
   <div class="emoji-bottom">{{EMOJIS}}</div>
   <div class="cta">{{CTA}}</div>
-  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
+  <div class="footer-handle"><span class="gold">📅 link en bio</span><span>@jegodigital</span></div>
 </body></html>`;
 
 const STORY_VARIANTS = [
@@ -401,7 +401,7 @@ async function callGeminiForStoryFields(idea, variantName) {
 - "cta": "Cuéntanos en DM 💬" / "Comenta '+1' si aplica" — light social CTA`,
     };
 
-    const prompt = `You are filling fields for an Instagram Story (1080x1920) for @jegodigital_agencia, a Mexican real estate AI agency.
+    const prompt = `You are filling fields for an Instagram Story (1080x1920) for @jegodigital, a Mexican real estate AI agency.
 
 Variant: ${variantName}
 Idea: ${JSON.stringify({ hook: idea.hook, angle: idea.angle, topic: idea.topic })}
@@ -648,7 +648,7 @@ const TPL_SINGLE_DARK = `<!doctype html><html><head><meta charset="utf-8"><style
   <div class="hook">{{HOOK}}</div>
   <div class="body">{{BODY}}</div>
   <div class="cta">{{CTA}}</div>
-  <div class="footer"><span class="gold">📅 link en bio</span><span>@jegodigital_agencia</span></div>
+  <div class="footer"><span class="gold">📅 link en bio</span><span>@jegodigital</span></div>
 </body></html>`;
 
 const TPL_SINGLE_GOLD = `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -668,7 +668,7 @@ const TPL_SINGLE_GOLD = `<!doctype html><html><head><meta charset="utf-8"><style
   <div class="emojis">{{EMOJIS}}</div>
   <div class="body">{{BODY}}</div>
   <div class="cta">{{CTA}}</div>
-  <div class="footer"><span>📅 link en bio</span><span>@jegodigital_agencia</span></div>
+  <div class="footer"><span>📅 link en bio</span><span>@jegodigital</span></div>
 </body></html>`;
 
 const SINGLE_VARIANTS = [
@@ -789,7 +789,7 @@ async function callGeminiForSingleFields(idea, variantName) {
         variantName === "DARK"
             ? `Required keys: label (uppercase 4-14 chars + emoji), hook (5-10 words, 1-2 emojis), body (2 sentences max 200 chars + 1 emoji), cta (hard action like "DM 'AUDIT'" + emoji)`
             : `Required keys: label (uppercase 4-14 chars + emoji), hook (5-10 words on gold bg), emojis (5 emojis spaced), body (1 sentence value prop max 160 chars), cta (booking CTA + emoji)`;
-    const prompt = `Fill an Instagram feed post (1080x1350) for @jegodigital_agencia, Mexican real estate AI agency. Variant: ${variantName}.
+    const prompt = `Fill an Instagram feed post (1080x1350) for @jegodigital, Mexican real estate AI agency. Variant: ${variantName}.
 Idea: ${JSON.stringify({ hook: idea.hook, angle: idea.angle, topic: idea.topic })}
 ${fieldSpec}
 Spanish only. Return STRICT JSON. No markdown.`;
@@ -904,14 +904,14 @@ const SLIDE_TEMPLATES = {
 </style></head><body>
   <div class="logo">JEGODIGITAL</div><div class="label">{{LABEL}}</div>
   <div class="hook">{{HOOK}}</div><div class="body">{{BODY}}</div>
-  <div class="cta">{{CTA}}</div><div class="handle">@jegodigital_agencia · 📅 link en bio</div>
+  <div class="cta">{{CTA}}</div><div class="handle">@jegodigital · 📅 link en bio</div>
 </body></html>`,
 };
 
 async function callGeminiForCarouselSlides(idea) {
     const key = process.env.GEMINI_API_KEY;
     if (!key) throw new Error("no GEMINI_API_KEY");
-    const prompt = `Generate a 5-slide Instagram carousel for @jegodigital_agencia (Mexican real estate AI agency).
+    const prompt = `Generate a 5-slide Instagram carousel for @jegodigital (Mexican real estate AI agency).
 Idea: ${JSON.stringify({ hook: idea.hook, angle: idea.angle, topic: idea.topic })}
 
 Return JSON with this exact structure (Spanish only, all text MUST include emojis where indicated):

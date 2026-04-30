@@ -8,7 +8,7 @@
 
 ## TL;DR
 
-JegoDigital's Instagram + TikTok publishing for @jegodigital_agencia + @jegodigital runs entirely on Google Cloud Platform — **no laptop required at fire time**. A Cloud Function reads a Firestore queue every 15 minutes, finds posts whose `fireAt <= now AND status == 'ready'`, fetches the asset from `raw.githubusercontent.com`, and publishes via the IG Graph API. Reels with `tiktokDraft: true` also push the same MP4 to the @jegodigital TikTok drafts inbox.
+JegoDigital's Instagram + TikTok publishing for @jegodigital + @jegodigital runs entirely on Google Cloud Platform — **no laptop required at fire time**. A Cloud Function reads a Firestore queue every 15 minutes, finds posts whose `fireAt <= now AND status == 'ready'`, fetches the asset from `raw.githubusercontent.com`, and publishes via the IG Graph API. Reels with `tiktokDraft: true` also push the same MP4 to the @jegodigital TikTok drafts inbox.
 
 This replaced the prior Cowork-side `scheduled-tasks` MCP plumbing, which required Alex's Mac to be awake at fire time.
 

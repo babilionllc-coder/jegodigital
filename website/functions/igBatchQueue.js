@@ -217,6 +217,7 @@ async function publishStory(doc, igUserId, token) {
     const imageUrl = doc.assetUrls?.image;
     if (!imageUrl) throw new Error("missing assetUrls.image (story)");
 
+    // 1. Create STORIES container
     const createResp = await axios.post(
         `${IG_GRAPH_BASE}/${igUserId}/media`,
         null,
@@ -231,6 +232,7 @@ async function publishStory(doc, igUserId, token) {
     );
     const creationId = createResp.data.id;
 
+    // 2. Publish
     const pubResp = await axios.post(
         `${IG_GRAPH_BASE}/${igUserId}/media_publish`,
         null,
@@ -241,9 +243,10 @@ async function publishStory(doc, igUserId, token) {
     );
     const mediaId = pubResp.data.id;
 
+    // 3. Stories don't have public permalinks — verify via media id existence
     return {
         mediaId,
-        permalink: `https://www.instagram.com/stories/jegodigital_agencia/${mediaId}/`,
+        permalink: `https://www.instagram.com/stories/jegodigital/${mediaId}/`,
     };
 }
 

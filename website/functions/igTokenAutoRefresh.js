@@ -2,7 +2,7 @@
  * igTokenAutoRefresh — Instagram Graph API token auto-refresh
  *
  * Instagram long-lived tokens expire every 60 days. If we let it expire,
- * every Graph API call returns 400 and all @jegodigital_agencia
+ * every Graph API call returns 400 and all @jegodigital
  * automations silently fail (social digest, carousel publishing, etc.).
  *
  * This function refreshes the token every 50 days (10-day safety buffer)
@@ -164,7 +164,7 @@ exports.igTokenAutoRefresh = functions
                 level: "info",
                 title: "Instagram token refreshed",
                 body:
-                    `Refreshed *IG_GRAPH_TOKEN* for *@jegodigital_agencia*.\n` +
+                    `Refreshed *IG_GRAPH_TOKEN* for *@jegodigital*.\n` +
                     `New token valid ${r.daysValid} days (until ${r.expiresAt.slice(0, 10)}).\n` +
                     `GH Secret update: ${r.ghStatus}`,
                 details: `Next auto-refresh: ${new Date(Date.now() + 50 * 86400 * 1000).toISOString().slice(0, 10)}`,

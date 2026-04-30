@@ -331,7 +331,7 @@ Full list → [`BUSINESS.md §Key Constraints`](BUSINESS.md#key-constraints).
 | Platform | URL | Handle |
 |---|---|---|
 | YouTube | `https://www.youtube.com/@JegoDigitalchannel` | @JegoDigitalchannel |
-| Instagram | `https://www.instagram.com/jegodigital_agencia/` | @jegodigital_agencia |
+| Instagram | `https://www.instagram.com/jegodigital/` | @jegodigital |
 | TikTok | `https://www.tiktok.com/@jegodigital` | @jegodigital |
 | WhatsApp | `https://wa.me/529982023263` | +52 998 202 3263 |
 | Facebook | `https://www.facebook.com/profile.php?id=61581425401975` | (page ID) |
@@ -343,7 +343,7 @@ Full list → [`BUSINESS.md §Key Constraints`](BUSINESS.md#key-constraints).
 
 - `youtube.com/@AlexJego` (old personal channel)
 - `tiktok.com/@alex.jego` (old personal)
-- `instagram.com/jegodigital` (old handle, no `_agencia` suffix)
+- `instagram.com/jegodigital_agencia` (interim handle 2026-04-24 → 2026-04-30 while @jegodigital was suspended; account RESTORED 2026-04-30, _agencia retired)
 - `instagram.com/jegodigital5` (banned)
 
 ### Every page MUST have all 4 primary socials in the footer
@@ -367,9 +367,9 @@ Master asset library at `/brand-assets/` — see `/brand-assets/README.md` for s
 
 ## 📸 INSTAGRAM PUBLISHING (summary)
 
-**Trigger:** any post/publish/schedule/upload to @jegodigital_agencia (current handle, renamed from @jegodigital5 on 2026-04-24; old @jegodigital banned).
+**Trigger:** any post/publish/schedule/upload to @jegodigital (RESTORED 2026-04-30 — interim handle @jegodigital_agencia retired; @jegodigital5 still banned).
 
-**Only working path (updated 2026-04-24):** finished PNG → **tmpfiles.org** HTTPS URL → `graph.instagram.com/v21.0` → published. ⚠️ **catbox.moe is NOW BLOCKED by Meta** (OAuthException code 1) — do NOT use. Token = `IG_GRAPH_TOKEN` in GH Secrets + `website/functions/.env`. Token is IGAAT-prefix (Instagram Login API, 60-day long-lived). IG User ID: `17841425126865530` | Business Account ID: `27504937085774839`.
+**Only working path (updated 2026-04-24):** finished PNG → **tmpfiles.org** HTTPS URL → `graph.instagram.com/v21.0` → published. ⚠️ **catbox.moe is NOW BLOCKED by Meta** (OAuthException code 1) — do NOT use. Token = `IG_GRAPH_TOKEN` in GH Secrets + `website/functions/.env`. Token is IGAAT-prefix (Instagram Login API, 60-day long-lived). ⚠️ **IG User ID + Business Account ID will change after 2026-04-30 token rotation to @jegodigital — values below are stale until Alex reconnects token in Meta Business Manager.** ~~IG User ID: `17841425126865530` | Business Account ID: `27504937085774839`.~~
 
 **Dead ends** (per [`DEPRECATED.md`](DEPRECATED.md)): n8n public API, Meta Business Suite via Chrome, instagram.com web login, Firebase Storage.
 

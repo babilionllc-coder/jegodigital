@@ -4,7 +4,7 @@
 **Total posts:** 20 (10 carousels + 6 Reels + 4 single-image cards)
 **Cadence:** 4/day at 9:00 / 12:00 / 15:00 / 18:00 ET
 **Duration:** Tue Apr 29 → Sat May 3 (5 days)
-**IG handle:** @jegodigital_agencia (canonical, post-2026-04-24)
+**IG handle:** @jegodigital (canonical, post-2026-04-24)
 **TikTok handle:** @jegodigital (Reels also pushed to TikTok drafts; carousels + singles = IG only)
 
 ## Hard rules in effect
