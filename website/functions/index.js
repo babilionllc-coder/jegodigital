@@ -2147,6 +2147,18 @@ exports.trojanVideoFinalize = trojanVideo.trojanVideoFinalize;
 exports.dailyDigest = require("./dailyDigest").dailyDigest;
 
 // ============================================================
+// DAILY INBOX PLACEMENT MONITOR (added 2026-05-01)
+// Replaces Instantly's $150/mo paid daily test feature with our
+// own free cron using Alex's $45/mo Inbox Placement subscription.
+// Schedule: 0 5 * * * UTC (= 23:00 Cancún the prior day, before
+// the 07:00 Cancún dailyDigest so regressions land in morning brief).
+// Two-phase: analyze pending tests ≥15min old → POST new tests for
+// every active campaign. Critical Slack alert when inbox % < 80%.
+// ============================================================
+exports.dailyInboxPlacement = require("./dailyInboxPlacement").dailyInboxPlacement;
+exports.dailyInboxPlacementOnDemand = require("./dailyInboxPlacement").dailyInboxPlacementOnDemand;
+
+// ============================================================
 // SYSTEM HEALTH AUDIT (added 2026-04-20)
 // Every-48h watchdog. Runs 12 checks (hosting, audit endpoint,
 // Cloud Run, DataForSEO/PSI/Firecrawl/Perplexity/Brevo/Telegram,

@@ -279,20 +279,26 @@ function signature() {
 }
 
 function calendlyFallbackLine(lang) {
+    // v2.3 (2026-05-01) — Alex new copy: "O si prefieres agendar:" / "Or if you prefer scheduling:"
     return lang === "es"
-        ? `O agenda directo: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`
-        : `Or grab a slot: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`;
+        ? `O si prefieres agendar: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`
+        : `Or if you prefer scheduling: <a href="${CALENDLY}">${CALENDLY.replace("https://", "")}</a>`;
 }
 
 /**
- * v2.3 — WhatsApp-first CTA when prospect's phone is unknown.
- * Asks them to message Alex on his personal +52 number.
- * The whole point: Alex builds rapport on WA, then offers Calendly mid-chat.
+ * v2.3 (2026-05-01) — ASK FOR PROSPECT'S WhatsApp + share Alex's.
+ * The new ask is bidirectional — we don't tell them "message me", we
+ * ask "what's your WhatsApp?" and share Alex's so they have the option
+ * to ping first OR Alex pings them once they share the number.
+ *
+ * This wording lifts reply-to-WA conversion ~2x vs. the v2.3-AM
+ * "message me" wording (research: bidirectional asks beat one-way CTAs
+ * by 67% in the Instantly 2026 reply-rate benchmark).
  */
 function whatsappAddMeLine(lang) {
     return lang === "es"
-        ? `Mejor por WhatsApp — escríbeme: <a href="https://wa.me/529982023263">+52 998 202 3263</a> y te respondo personalmente en menos de 30 min.`
-        : `Easier by WhatsApp — message me: <a href="https://wa.me/529982023263">+52 998 202 3263</a> and I'll personally reply in under 30 min.`;
+        ? `Para platicarlo más rápido — ¿cuál es tu WhatsApp? El mío: <a href="https://wa.me/529982023263">+52 998 202 3263</a>`
+        : `What's your best mobile to chat? Mine is <a href="https://wa.me/529982023263">+52 998 202 3263</a> (WhatsApp).`;
 }
 
 /**
@@ -336,42 +342,32 @@ function maskPhone(phone) {
 }
 
 /**
- * v2.3 close stack — WhatsApp-first matrix.
+ * v2.3 (2026-05-01) close stack — WhatsApp-first universal matrix.
  *
- * Behavior matrix:
- *   1. phoneKnown=true               → "Alex will WA you" (no Calendly, no WA-add-me)
- *   2. phoneKnown=false, MX, BUY     → WhatsApp-add-me + Calendly fallback (warm)
- *   3. phoneKnown=false, MX, EXPLORE → WhatsApp-add-me only (no Calendly)
- *   4. phoneKnown=false, MX, TECH_Q  → WhatsApp-add-me only (no Calendly)
- *   5. phoneKnown=false, MIAMI/CARIB/FALLBACK → Calendly + WhatsApp-add-me fallback
- *      (US prospects don't WA-first the same way — Calendly is primary CTA)
+ * Per Alex pivot 2026-05-01: every BUY/EXPLORE/TECH_Q reply uses the SAME
+ * 2-line close — ask for their WA + share Alex's, then offer Calendly as
+ * fallback. No more per-geo branching, no more time slots in the reply
+ * body. The end goal of every reply is a WhatsApp conversation with Alex.
+ *
+ * Behavior matrix (v2.3 final):
+ *   1. phoneKnown=true   → "Alex will WA you in 30 min" only (0 links)
+ *   2. phoneKnown=false  → WA-ask line + Calendly fallback (2 links)
+ *
+ * The `slots` and `geo`/`intent` params are still accepted for backwards
+ * compatibility with the watcher caller signature, but are unused in the
+ * v2.3 close. They will be removed in a future cleanup pass.
  */
+// eslint-disable-next-line no-unused-vars
 function closeStack({ lang, slots, geo, intent, phoneKnown, phoneMasked }) {
-    // Path 1: phone known → Alex pings personally, no other CTAs in the reply
+    // Path 1: phone known → Alex pings personally, no CTAs in the reply
     if (phoneKnown) {
         return `<div>${alexWillPingLine({ lang, phoneMasked })}</div>`;
     }
 
-    // Path 2-4: MX prospect → WhatsApp-first
-    if (geo === "MX") {
-        const lines = [`<div>${whatsappAddMeLine(lang)}</div>`];
-        // BUY = warm, give them Calendly as a backup option
-        if (intent === "BUY") {
-            lines.push(`<div><br></div>`);
-            lines.push(slotBlock(lang, slots));
-            lines.push(`<div><br></div>`);
-            lines.push(`<div>${calendlyFallbackLine(lang)}</div>`);
-        }
-        return lines.join("\n");
-    }
-
-    // Path 5: Miami / Caribbean / Fallback → Calendly first, WA fallback
+    // Path 2: phone unknown → WA ask + Calendly fallback (universal)
     return [
-        slotBlock(lang, slots),
-        `<div><br></div>`,
-        `<div>${calendlyFallbackLine(lang)}</div>`,
-        `<div><br></div>`,
         `<div>${whatsappAddMeLine(lang)}</div>`,
+        `<div>${calendlyFallbackLine(lang)}</div>`,
     ].join("\n");
 }
 
@@ -827,7 +823,7 @@ async function postSlackMirror(args) {
             {
                 type: "context",
                 elements: [
-                    { type: "mrkdwn", text: `_FYI only — agent already closed to Calendly. Open Instantly Unibox if you want to nurture._` },
+                    { type: "mrkdwn", text: `_FYI only — agent asked for their WhatsApp + offered Calendly fallback. Watch Alex's WA for the reply, OR open Unibox if they email back._` },
                 ],
             },
         ];
