@@ -2169,6 +2169,10 @@ exports.systemHealthAudit = require("./systemHealthAudit").systemHealthAudit;
 const coldCall = require("./coldCallAutopilot");
 exports.coldCallPrep = coldCall.coldCallPrep;
 exports.coldCallRun = coldCall.coldCallRun;
+// HTTPS shims (added 2026-05-01) — manual fire path for when the 09:55 / 10:00
+// CDMX pubsub crons mis-fire silently. Auth via X-Seed-Secret header.
+exports.coldCallPrepOnDemand = coldCall.coldCallPrepOnDemand;
+exports.coldCallRunOnDemand = coldCall.coldCallRunOnDemand;
 exports.coldCallReport = coldCall.coldCallReport;
 exports.coldCallMidBatchCheck = coldCall.coldCallMidBatchCheck;
 exports.coldCallRunAfternoon = coldCall.coldCallRunAfternoon;

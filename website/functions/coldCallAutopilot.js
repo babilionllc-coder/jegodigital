@@ -116,15 +116,17 @@ function cdmxTodayMidnightUtc() {
 // =====================================================================
 // 1) coldCallPrep — 09:55 Mon-Fri CDMX
 // =====================================================================
-exports.coldCallPrep = functions
-    .runWith({ timeoutSeconds: 120, memory: "512MB" })
-    .pubsub.schedule("55 9 * * 1-5")
-    .timeZone("America/Mexico_City")
-    .onRun(async () => {
+//
+// 2026-05-01 refactor: extracted the body into runColdCallPrepCore() so
+// it can be re-used by the on-demand HTTPS shim (coldCallPrepOnDemand)
+// when the pubsub-scheduled cron mis-fires (root-cause TBD — see
+// outputs/cold_call_pipeline_fix.md). Behavior of the scheduled job is
+// unchanged.
+async function runColdCallPrepCore({ trigger = "cron" } = {}) {
         const db = admin.firestore();
         const dateKey = cdmxTodayKey();
 
-        functions.logger.info(`coldCallPrep ${dateKey}: starting`);
+        functions.logger.info(`coldCallPrep ${dateKey}: starting (trigger=${trigger})`);
 
         // Source: phone_leads where phone_verified=true AND (never_called OR last_called_at > 14d ago)
         const fourteenDaysAgo = admin.firestore.Timestamp.fromDate(
@@ -396,22 +398,69 @@ exports.coldCallPrep = functions
         ].join("\n");
         await sendTelegram(msg);
         functions.logger.info(`coldCallPrep ${dateKey}: queued ${batch.length}`);
+        return {
+            dateKey,
+            queued: batch.length,
+            offer_counts: offerCounts,
+            routing_counts: routingCounts,
+            source_pool: candidates.length,
+            blocked: false,
+        };
+}
+
+// Scheduled wrapper — preserves the original 09:55 CDMX cron unchanged.
+exports.coldCallPrep = functions
+    .runWith({ timeoutSeconds: 120, memory: "512MB" })
+    .pubsub.schedule("55 9 * * 1-5")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        await runColdCallPrepCore({ trigger: "cron" });
         return null;
+    });
+
+// HTTPS shim — same logic, callable via curl with X-Seed-Secret header.
+// Built 2026-05-01 as a safety-net after the 09:55 cron mis-fired
+// silently on 2026-04-30 + 2026-05-01 (queue=0 despite 199 eligible
+// leads). Auth pattern mirrors seedLinkedInLeads.js.
+const SEED_SECRET_FALLBACK_AUTOPILOT = "jego-seed-2026-04-20-dial-ready";
+function authOkAutopilot(req) {
+    const expected = process.env.SEED_SECRET || SEED_SECRET_FALLBACK_AUTOPILOT;
+    return (req.get("X-Seed-Secret") || "") === expected;
+}
+exports.coldCallPrepOnDemand = functions
+    .runWith({ timeoutSeconds: 120, memory: "512MB" })
+    .https.onRequest(async (req, res) => {
+        res.set("Access-Control-Allow-Origin", "*");
+        if (req.method !== "POST" && req.method !== "GET") {
+            return res.status(405).json({ error: "POST or GET only" });
+        }
+        if (!authOkAutopilot(req)) return res.status(401).json({ error: "bad secret" });
+        try {
+            const result = await runColdCallPrepCore({ trigger: "https" });
+            return res.status(200).json({
+                ok: true,
+                result: result || { status: "no-op (queue empty / coverage-blocked — see Telegram)" },
+            });
+        } catch (err) {
+            functions.logger.error("coldCallPrepOnDemand:", err.message, err.stack);
+            await sendTelegram(`⚠️ *coldCallPrepOnDemand* — uncaught error: ${err.message}`);
+            return res.status(500).json({ ok: false, error: err.message });
+        }
     });
 
 // =====================================================================
 // 2) coldCallRun — 10:00 Mon-Fri CDMX
 // =====================================================================
-exports.coldCallRun = functions
-    .runWith({ timeoutSeconds: 540, memory: "1GB" }) // max 9min — we throttle calls within
-    .pubsub.schedule("0 10 * * 1-5")
-    .timeZone("America/Mexico_City")
-    .onRun(async () => {
+//
+// 2026-05-01 refactor: extracted into runColdCallRunCore() so the
+// on-demand HTTPS shim (coldCallRunOnDemand) can re-use it. Behavior of
+// the 10:00 CDMX scheduled cron is unchanged.
+async function runColdCallRunCore({ trigger = "cron" } = {}) {
         const db = admin.firestore();
         const dateKey = cdmxTodayKey();
         const EL_KEY = process.env.ELEVENLABS_API_KEY || EL_API_KEY_FALLBACK;
 
-        functions.logger.info(`coldCallRun ${dateKey}: starting`);
+        functions.logger.info(`coldCallRun ${dateKey}: starting (trigger=${trigger})`);
 
         const queueSnap = await db.collection("call_queue").doc(dateKey).collection("leads")
             .where("status", "==", "queued")
@@ -558,7 +607,40 @@ exports.coldCallRun = functions
         }
         await sendTelegram(lines.join("\n"));
         functions.logger.info(`coldCallRun ${dateKey}: fired=${fired} failed=${failed}`);
+        return { dateKey, fired, failed, failures };
+}
+
+// Scheduled wrapper — preserves the original 10:00 CDMX cron unchanged.
+exports.coldCallRun = functions
+    .runWith({ timeoutSeconds: 540, memory: "1GB" }) // max 9min — we throttle calls within
+    .pubsub.schedule("0 10 * * 1-5")
+    .timeZone("America/Mexico_City")
+    .onRun(async () => {
+        await runColdCallRunCore({ trigger: "cron" });
         return null;
+    });
+
+// HTTPS shim — same logic, callable via curl with X-Seed-Secret header.
+// Built 2026-05-01 alongside coldCallPrepOnDemand. Auth via authOkAutopilot.
+exports.coldCallRunOnDemand = functions
+    .runWith({ timeoutSeconds: 540, memory: "1GB" })
+    .https.onRequest(async (req, res) => {
+        res.set("Access-Control-Allow-Origin", "*");
+        if (req.method !== "POST" && req.method !== "GET") {
+            return res.status(405).json({ error: "POST or GET only" });
+        }
+        if (!authOkAutopilot(req)) return res.status(401).json({ error: "bad secret" });
+        try {
+            const result = await runColdCallRunCore({ trigger: "https" });
+            return res.status(200).json({
+                ok: true,
+                result: result || { status: "no-op (queue empty — see Telegram)" },
+            });
+        } catch (err) {
+            functions.logger.error("coldCallRunOnDemand:", err.message, err.stack);
+            await sendTelegram(`⚠️ *coldCallRunOnDemand* — uncaught error: ${err.message}`);
+            return res.status(500).json({ ok: false, error: err.message });
+        }
     });
 
 // =====================================================================
