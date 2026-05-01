@@ -2420,6 +2420,10 @@ exports.sofiaConversationAudit = require("./sofiaConversationAudit").sofiaConver
 // ============================================================
 exports.seedPhoneLeadsOnce = require("./seedPhoneLeadsOnce").seedPhoneLeadsOnce;
 
+// 2026-04-30: 79 LinkedIn-sourced MX RE decision-maker leads + diagnose endpoint
+exports.seedLinkedInLeads = require("./seedLinkedInLeads").seedLinkedInLeads;
+exports.coldCallDiagnose = require("./seedLinkedInLeads").coldCallDiagnose;
+
 // ============================================================
 // DAILY ROLLUP SLACK (added 2026-04-20)
 // 18:00 CDMX — close-of-business Slack brief covering cold
