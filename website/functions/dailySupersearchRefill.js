@@ -81,17 +81,47 @@ async function previewLeads(searchFilters, limit = 5) {
   return r.data.leads || r.data.items || [];
 }
 
-async function runEnrichment(searchFilters, limit, listId) {
-  // Triggers the actual enrichment job (consumes credits).
-  // Returns enrichment job id; leads land in the specified list.
+async function createLeadList(name) {
+  // FIX 2026-05-02: enrichment requires a destination list (resource_type: 1)
   const r = await axios.post(
-    `${INSTANTLY_BASE}/supersearch-enrichment`,
+    `${INSTANTLY_BASE}/lead-lists`,
+    { name },
+    { headers: instantlyHeaders(), timeout: 30000 }
+  );
+  return r.data.id;
+}
+
+async function moveLeadsToCampaign(listId, campaignId) {
+  // After enrichment completes, move leads from the list to the campaign so
+  // the email sequence fires.
+  try {
+    const r = await axios.post(
+      `${INSTANTLY_BASE}/leads/move`,
+      { ids: [], from_list_id: listId, to_campaign_id: campaignId, all: true },
+      { headers: instantlyHeaders(), timeout: 30000 }
+    );
+    return r.data;
+  } catch (e) {
+    return { error: e.response?.data?.message || e.message };
+  }
+}
+
+async function runEnrichment(searchFilters, limit, listId) {
+  // FIX 2026-05-02: correct endpoint is /supersearch-enrichment/enrich-leads-from-supersearch
+  // with resource_type=1 (list) — bare /supersearch-enrichment doesn't exist.
+  const r = await axios.post(
+    `${INSTANTLY_BASE}/supersearch-enrichment/enrich-leads-from-supersearch`,
     {
       search_filters: searchFilters,
       limit,
-      list_id: listId,
-      // optional enrichments — kept minimal to control credit burn
-      enrich_with_signal_context: true,
+      resource_id: listId,
+      resource_type: 1, // 1 = lead list, 2 = campaign (campaigns don't accept direct enrichment)
+      skip_owned_leads: true,
+      show_one_lead_per_company: true,
+      work_email_enrichment: true,
+      fully_enriched_profile: true,
+      email_verification: true,
+      autofill: false,
     },
     { headers: instantlyHeaders(), timeout: 60000 }
   );
@@ -164,14 +194,25 @@ async function processCohort(cohortKey, cohort) {
     const sample = await previewLeads(cohort.search_filters, 3);
     log.sample_first_names = sample.map((l) => l.first_name || l.firstName).slice(0, 3);
 
-    // Stage 4: real enrichment
+    // Stage 4: create destination list (per cohort + date) — Instantly requires a list as resource
+    const today = new Date().toISOString().slice(0, 10);
+    const listName = `Supersearch ${cohortKey} ${today}`;
+    const listId = await createLeadList(listName);
+    log.list_id = listId;
+    log.list_name = listName;
+
+    // Stage 5: real enrichment INTO the list
     const limit = cohort.daily_pull_limit || 30;
-    const enrich = await runEnrichment(cohort.search_filters, limit, null);
+    const enrich = await runEnrichment(cohort.search_filters, limit, listId);
     log.enrichment_id = enrich.id || enrich.resource_id;
     log.requested = limit;
     log.status = "ENRICHMENT_TRIGGERED";
 
-    // Stage 5: leads will be auto-uploaded to the campaign by Instantly
+    // Stage 6: schedule a follow-up move-to-campaign once enrichment lands
+    // (Instantly enrichment is async — we'll move leads from list → campaign in the next cron tick)
+    log.target_campaign_for_move = cohort.target_campaign_id;
+
+    // Stage 7: leads will be auto-uploaded to the campaign by Instantly
     // when the enrichment job completes. The job is async; the next cron tick
     // will GET /supersearch-enrichment/{id} for completion status.
     log.note = "enrichment async; results will land in campaign within ~30 min";
