@@ -73,12 +73,13 @@
       "personalization_template": "Estaba revisando inmobiliarias mexicanas con base digital sólida en mi pipeline de mayo, y {{companyName}} salió en mi radar — quería preguntarte algo concreto."
     },
     "usa_decision_makers": {
-      "label": "USA Real Estate Decision-Makers (Owner/Founder/CEO/President/Director/Broker)",
+      "label": "USA Real Estate Decision-Makers (Owner/Founder/CEO/President/Director/Broker) — covers California/Texas/Florida/NY/ALL states",
       "target_campaign_id": "d81333f4-19ee-444f-8fbd-b1e863100cbb",
       "target_campaign_name": "USA Real Estate Devs 2026-05",
-      "daily_pull_limit": 30,
+      "daily_pull_limit": 100,
       "live_pool_size": 273581,
-      "days_of_supply_at_30_per_day": 9119,
+      "days_of_supply_at_100_per_day": 2735,
+      "_bumped_2026_05_02": "Bumped from 30→100/day per Alex directive — grow USA retargeting CA faster. New leads auto-flow to FB CA via syncInstantlyToFbCustomAudiences cron 9am CDMX. Google Ads CM upload blocked on Data Manager API allowlist (separate apply).",
       "search_filters": {
         "locations": [{"place_id": "ChIJCzYy5IS16lQRQrfeQ5K5Oxw"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
