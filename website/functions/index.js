@@ -2826,3 +2826,14 @@ exports.brevoEventWebhookSmokeTest = brevoEventWebhookMod.brevoEventWebhookSmoke
 // ============================================================
 const metaLeadFormWebhookMod = require("./metaLeadFormWebhook");
 exports.metaLeadFormWebhook = metaLeadFormWebhookMod.metaLeadFormWebhook;
+
+// ============================================================
+// Instantly → FB Custom Audience daily sync
+// (added 2026-05-02 — auto-grows MX + USA retargeting CAs from Instantly)
+// Cron: 9 AM CDMX daily. Initial seed: 4,206 MX + 7 USA emails uploaded
+// 2026-05-02 via tools/instantly_to_fb_ca.cjs.
+// CA IDs: MX=120241357699890662  USA=120241357703100662
+// ============================================================
+const syncInstantlyToFbCAMod = require("./syncInstantlyToFbCustomAudiences");
+exports.syncInstantlyToFbCustomAudiences = syncInstantlyToFbCAMod.syncInstantlyToFbCustomAudiences;
+exports.syncInstantlyToFbCustomAudiencesOnDemand = syncInstantlyToFbCAMod.syncInstantlyToFbCustomAudiencesOnDemand;
