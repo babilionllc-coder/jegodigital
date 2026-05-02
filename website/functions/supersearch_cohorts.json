@@ -91,6 +91,25 @@
       "personalization_pattern": "english_pipeline_radar",
       "personalization_template": "Was reviewing US real estate firms with solid digital fundamentals for my May pipeline, and {{companyName}} caught my eye — wanted to ask you something specific."
     },
+    "mx_developers": {
+      "label": "MX Real Estate DEVELOPERS — Property/Project/Development titles ONLY (preconstruction sellers, NOT brokers)",
+      "target_campaign_id": "2a810fd5-f236-4bb7-aec2-c1043f681561",
+      "target_campaign_name": "Lanzamiento Preventa 90 Días — 2026-04-27",
+      "daily_pull_limit": 25,
+      "live_pool_size": 711,
+      "days_of_supply_at_25_per_day": 28,
+      "search_filters": {
+        "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
+        "industry": {"include": ["Real Estate & Construction"], "exclude": []},
+        "title": {"include": ["Developer", "Real Estate Developer", "Property Developer", "VP Development", "Director of Development", "Head of Development", "Project Director", "Construction Director", "Development Director", "Promotor Inmobiliario", "Director de Desarrollo", "Desarrollador", "Director General"]},
+        "employeeCount": [{"op": "between", "min": 5, "max": 500}],
+        "skip_in_workspace": true,
+        "one_lead_per_company": true
+      },
+      "personalization_pattern": "spanish_preventa_developer",
+      "personalization_template": "Estaba viendo desarrolladoras mexicanas con preventas activas en mi pipeline, y {{companyName}} salió en mi radar — quería preguntarte algo concreto sobre cómo están vendiendo unidades en los primeros 90 días.",
+      "_added_2026_05_02": "Per Alex directive — feed his strongest campaign (Lanzamiento Preventa 90 Días) with fresh dev leads daily. Dev-specific titles only (no CEO/Founder/Owner — those go to mx_decision_makers cohort). 28 days of supply at 25/day."
+    },
     "miami_brokers": {
       "label": "Miami Real Estate Decision-Makers (5-500 employees)",
       "target_campaign_id": "acffe5c9-9a74-4b3f-8a95-37882a11f96b",
