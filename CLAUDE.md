@@ -31,6 +31,7 @@
 | 13 | Never Ask Alex to Do Work | Alex leads, Claude executes. No "run this command" / "drag this file" / "click this button". Ever. | [`docs/hard-rules/HR-13.md`](docs/hard-rules/HR-13.md) |
 | 14 | Crystal-Clear Next Steps | Every next-step recommendation = Name + What + Why + ONE yes/no question. No jargon-soup confusion. | [`docs/hard-rules/HR-14.md`](docs/hard-rules/HR-14.md) |
 | 15 | Session Bootstrap Before Anything | Cowork boots with NO folder mounted. Step 0 = `request_cowork_directory(/Users/mac/Desktop/Websites/jegodigital)`, Step 1 = `source website/functions/.env`, then the normal 5-step ritual. Never say "key isn't in my session". | [`CLAUDE_SESSION_BOOTSTRAP.md`](CLAUDE_SESSION_BOOTSTRAP.md) |
+| 16 | Never Enable Email Tracking on Cold Campaigns | Every Instantly cold campaign MUST ship with `link_tracking: false` AND `open_tracking: false`. NEVER recommend "fixing the tracking domain" — that IS the deliverability problem. Reply rate is the only honest metric. Validator: `bash tools/verify_no_tracking.sh`. Disaster 2026-05-01: 8 of 22 campaigns silently shipped link_tracking=true, rewriting every URL through Vercel CTD `inst.zennoenigmawire.com` → Gmail spam folder. | [`docs/hard-rules/HR-16.md`](docs/hard-rules/HR-16.md) |
 
 **Hard gates** (3 more — full bodies in `docs/gates/`):
 
