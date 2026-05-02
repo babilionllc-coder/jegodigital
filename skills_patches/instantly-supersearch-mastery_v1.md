@@ -37,7 +37,89 @@ Source: [https://developer.instantly.ai/api/v2/supersearchenrichment](https://de
 | Miami city | `{locations:[{city:"Miami",country:"United States"}]}` | **573,446** (real number — confirms city filter works when `city` value is recognized) |
 | Mexico City | `{locations:[{city:"Mexico City",country:"Mexico"}]}` | 1,000,000 (filter ignored — likely needs autocomplete-resolved place_id) |
 
-**Operational truth:** the API filter index is keyed off Instantly's internal autocomplete service. Free-text values that aren't in the index pass validation but match all leads (1M). To get real filtering, either (a) use values from the UI autocomplete, or (b) run the search in the UI and clone its `search_filters` payload.
+### 1.2b — Place ID discovery (verified 2026-05-02 via UI Recent Searches)
+
+The hidden API for resolving free-text geo to place_id:
+
+```
+GET https://api.instantly.ai/api/v2/places-autocomplete?q={query}
+GET https://app.instantly.ai/backend/api/v2/places-autocomplete?q={query}  (alternate prefix, same response)
+Authorization: Bearer $INSTANTLY_API_KEY
+```
+
+Returns array of `[{place_id, label}]`. Use these EXACT place_ids in subsequent count/preview calls.
+
+**Verified place_ids for JegoDigital ICPs:**
+
+| Geo | Place ID | Label |
+|---|---|---|
+| Mexico (country) | `ChIJU1NoiDs6BIQREZgJa760ZO0` | Mexico |
+| Mexico City CDMX | `ChIJB3UJ2yYAzoURQeheJnYQBlQ` | Mexico City, CDMX, Mexico |
+| Mexico City | `ChIJJyk1sTYAzoURW4rR6E6e_d4` | Mexico City, Mexico |
+| Miami FL USA | `ChIJEcHIDqKw2YgRZU-t3XHylv8` | Miami, FL, USA |
+| Miami Beach FL | `ChIJud3-Kxem2YgR62OUJUEXvjc` | Miami Beach, FL, USA |
+
+### 1.2c — UI URL schema (verified 2026-05-02 via Recent Search click)
+
+When the Instantly UI loads a Recent Search, the URL contains the EXACT filter shape:
+
+```
+selectedLocations = {"include": [{"placeId": "ChIJU1NoiDs6BIQREZgJa760ZO0", "label": "Mexico"}]}
+industry = {"industries": {"include": {"Real Estate & Construction": true}, "exclude": {}}}
+employeeCount = [{"op": "between", "min": 11, "max": 50}]
+title = {"include": {"Owner": true, "Founder": true, "CEO": true, "President": true, "Director": true, "Managing Broker": true, "Principal Broker": true, "Team Leader": true}}
+```
+
+**Key learnings:**
+- Field name is `selectedLocations` (camelCase), not `locations`. UI ↔ API may translate.
+- Field name is `placeId` (camelCase), not `place_id`.
+- Industry name `"Real Estate & Construction"` is the EXACT string the autocomplete returns. Other variations rejected.
+- Title field uses object `{name: true}` shape in URL. **API rejects this — wants array `["name1", "name2"]`** (status 400, message "title/include must be array"). The URL shape ≠ POST body shape — schema translation happens client-side.
+
+### 1.2d — SCHEMA CRACKED ✅ (verified live 2026-05-02)
+
+After systematic field-name probing, the working POST body for `count-leads-from-supersearch` is:
+
+```json
+{
+  "search_filters": {
+    "locations": [{"place_id": "ChIJEcHIDqKw2YgRZU-t3XHylv8"}],
+    "industry": {"include": ["Real Estate & Construction"], "exclude": []},
+    "title": {"include": ["Owner", "Founder", "CEO", "President", "Director", "Managing Broker", "Principal Broker", "Team Leader"]},
+    "employeeCount": [{"op": "between", "min": 5, "max": 500}],
+    "skip_in_workspace": true,
+    "one_lead_per_company": true
+  }
+}
+```
+
+**Critical translations from UI URL → API body:**
+- UI `selectedLocations` → API `locations`
+- UI `placeId` (camelCase) → API `place_id` (snake_case)
+- UI `title.include {name: true}` → API `title.include ["name"]` (object → array)
+- UI `industry.industries.include {name: true}` → API `industry.include ["name"]` (flat object → array, no inner `.industries` wrapper)
+- UI `employeeCount` stays the same (already camelCase)
+
+**Verified live cohort counts (2026-05-02):**
+
+| Cohort | Filter | Count |
+|---|---|---|
+| Miami baseline | `locations` only | 679,675 |
+| Miami + RE & Construction industry | + industry filter | 19,582 |
+| Miami + decision-maker titles | + title filter | 56,554 |
+| **Miami FULL** (RE&C + DM titles + 5-500 emp) | full filter | **1,330** ✅ |
+| MX country baseline | `locations` only | 1,000,000 (cap) |
+| MX country + RE&C + DM titles | full filter | **29,666** ✅ |
+| MX + RE&C + DM + 5-500 emp | full filter | **16,381** ✅ |
+| USA country + RE&C + DM | full filter | **273,581** ✅ |
+
+**City-level MX limitations:** Cancún, Playa del Carmen, Mexico City place_ids return 1M (filter ignored). Instantly's index does not have city-level tagging for Mexican cities. Use country=Mexico place_id `ChIJU1NoiDs6BIQREZgJa760ZO0` instead.
+
+**Verified industry enum values (REJECTED for any other value):**
+- ✅ `"Real Estate & Construction"` (the only working value tested)
+- ❌ "Real Estate", "Realty", "real-estate", "real_estate", "Construction" — all rejected
+
+This is now wired into `website/functions/supersearch_cohorts.json` and the `dailySupersearchRefill` cron (07:00 UTC daily).
 
 ---
 

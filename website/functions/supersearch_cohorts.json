@@ -1,47 +1,112 @@
 {
-  "_doc": "Cohort definitions for dailySupersearchRefill. search_filters JSON must be captured from a working Instantly UI Supersearch (open DevTools → Network → run search → copy the count-leads-from-supersearch request body). Update target_campaign_id as needed.",
-  "_updated": "2026-05-01",
-  "_status": "PLACEHOLDER — search_filters need UI capture before activation",
+  "_doc": "Cohort definitions for dailySupersearchRefill. Schema CRACKED 2026-05-02 via systematic API probes. Live verified against count-leads-from-supersearch.",
+  "_updated": "2026-05-02",
+  "_status": "ACTIVE — schema verified, cron will pull real leads on next 07:00 UTC tick",
+  "_verified_2026_05_02": {
+    "places_autocomplete_endpoint": "GET https://api.instantly.ai/api/v2/places-autocomplete?q={query}",
+    "place_ids": {
+      "Mexico_country": "ChIJU1NoiDs6BIQREZgJa760ZO0",
+      "Mexico_City_CDMX": "ChIJB3UJ2yYAzoURQeheJnYQBlQ",
+      "Cancun": "ChIJ21P2rgUrTI8Ris1fYjy3Ms4",
+      "Playa_del_Carmen": "ChIJYU4t0iNDTo8R3EqrO3gLweg",
+      "Miami_FL_USA": "ChIJEcHIDqKw2YgRZU-t3XHylv8",
+      "Miami_Beach_FL": "ChIJud3-Kxem2YgR62OUJUEXvjc",
+      "USA_country": "ChIJCzYy5IS16lQRQrfeQ5K5Oxw"
+    },
+    "verified_filter_shape": {
+      "_note": "POST /api/v2/supersearch-enrichment/count-leads-from-supersearch with { search_filters: {...} }. ALL field names verified live.",
+      "locations": "[{place_id: '<google_place_id>'}] — array of objects, snake_case place_id",
+      "industry": "{include: ['<exact_industry_label>'], exclude: []} — include MUST be array (not object), values from Instantly enum",
+      "title": "{include: ['<title>', ...]} — include MUST be array (not object)",
+      "employeeCount": "[{op: 'between', min: N, max: N}] — camelCase (NOT employee_count), array of operator objects",
+      "skip_in_workspace": "boolean, true = exclude leads already in workspace",
+      "one_lead_per_company": "boolean, true = dedupe to one lead per company"
+    },
+    "verified_industry_enum_values": [
+      "Real Estate & Construction"
+    ],
+    "verified_industry_rejected": [
+      "Real Estate",
+      "real-estate",
+      "Realty",
+      "real_estate",
+      "Construction"
+    ],
+    "live_count_baselines_2026_05_02": {
+      "Miami_RE_decision_makers_5to500": 1330,
+      "MX_country_RE_decision_makers_5to500": 16381,
+      "MX_country_RE_all_decision_makers": 29666,
+      "USA_country_RE_decision_makers": 273581,
+      "Miami_RE_industry_only": 19582,
+      "Miami_decision_makers_only": 56554,
+      "Miami_total_baseline": 679675
+    },
+    "city_level_MX_limitations": "Cancún, Playa del Carmen, Mexico City place_ids return 1M (filter ignored) — Instantly's index does not have city-level tagging for Mexican cities. Use country=Mexico place_id ChIJU1NoiDs6BIQREZgJa760ZO0 instead."
+  },
+  "_decision_maker_titles": [
+    "Owner",
+    "Founder",
+    "CEO",
+    "President",
+    "Director",
+    "Managing Broker",
+    "Principal Broker",
+    "Team Leader"
+  ],
   "cohorts": {
-    "mx_funding": {
-      "label": "MX Real Estate Devs + Funding Round (last 30d)",
-      "target_campaign_id": "a1139971-CHANGE-ME",
-      "target_campaign_name_hint": "Trojan Horse V2 — Personalized 2026-04-24",
+    "mx_decision_makers": {
+      "label": "MX Real Estate Decision-Makers (Owner/Founder/CEO/President/Director/Broker — 5-500 employees)",
+      "target_campaign_id": "a1139971-4c50-44f1-ac79-3a726a70c8b5",
+      "target_campaign_name": "Trojan Horse V2 — Personalized 2026-04-24",
       "daily_pull_limit": 30,
+      "live_pool_size": 16381,
+      "days_of_supply_at_30_per_day": 546,
       "search_filters": {
-        "_pending_capture_from_ui": true,
+        "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
+        "industry": {"include": ["Real Estate & Construction"], "exclude": []},
+        "title": {"include": ["Owner", "Founder", "CEO", "President", "Director", "Managing Broker", "Principal Broker", "Team Leader"]},
+        "employeeCount": [{"op": "between", "min": 5, "max": 500}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
-      "personalization_pattern": "funding_mention",
-      "personalization_template": "Felicidades por la ronda de {{funding_amount}} con {{funding_lead_investor}} la semana pasada — vi el anuncio."
+      "personalization_pattern": "spanish_company_radar",
+      "personalization_template": "Estaba revisando inmobiliarias mexicanas con base digital sólida en mi pipeline de mayo, y {{companyName}} salió en mi radar — quería preguntarte algo concreto."
     },
-    "usa_hiring": {
-      "label": "USA RE Devs + Hiring Surge marketing/sales (last 14d)",
+    "usa_decision_makers": {
+      "label": "USA Real Estate Decision-Makers (Owner/Founder/CEO/President/Director/Broker)",
       "target_campaign_id": "d81333f4-19ee-444f-8fbd-b1e863100cbb",
-      "target_campaign_name_hint": "USA Real Estate Devs 2026-05",
+      "target_campaign_name": "USA Real Estate Devs 2026-05",
       "daily_pull_limit": 30,
+      "live_pool_size": 273581,
+      "days_of_supply_at_30_per_day": 9119,
       "search_filters": {
-        "_pending_capture_from_ui": true,
+        "locations": [{"place_id": "ChIJCzYy5IS16lQRQrfeQ5K5Oxw"}],
+        "industry": {"include": ["Real Estate & Construction"], "exclude": []},
+        "title": {"include": ["Owner", "Founder", "CEO", "President", "Director", "Managing Broker", "Principal Broker", "Team Leader"]},
+        "employeeCount": [{"op": "between", "min": 5, "max": 500}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
-      "personalization_pattern": "hiring_mention",
-      "personalization_template": "Saw {{companyName}} is hiring a {{hiring_role}} — usually that means the lead pipeline is the bottleneck, not the closing."
+      "personalization_pattern": "english_pipeline_radar",
+      "personalization_template": "Was reviewing US real estate firms with solid digital fundamentals for my May pipeline, and {{companyName}} caught my eye — wanted to ask you something specific."
     },
-    "miami_posts": {
-      "label": "Miami Brokers + LinkedIn Post (last 7d)",
+    "miami_brokers": {
+      "label": "Miami Real Estate Decision-Makers (5-500 employees)",
       "target_campaign_id": "acffe5c9-9a74-4b3f-8a95-37882a11f96b",
-      "target_campaign_name_hint": "USA Miami RE — Hiring + Audit",
-      "daily_pull_limit": 30,
+      "target_campaign_name": "USA Miami RE — Hiring + Audit",
+      "daily_pull_limit": 25,
+      "live_pool_size": 1330,
+      "days_of_supply_at_25_per_day": 53,
       "search_filters": {
-        "_pending_capture_from_ui": true,
-        "locations": [{"city": "Miami", "country": "United States"}],
+        "locations": [{"place_id": "ChIJEcHIDqKw2YgRZU-t3XHylv8"}],
+        "industry": {"include": ["Real Estate & Construction"], "exclude": []},
+        "title": {"include": ["Owner", "Founder", "CEO", "President", "Director", "Managing Broker", "Principal Broker", "Team Leader"]},
+        "employeeCount": [{"op": "between", "min": 5, "max": 500}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
-      "personalization_pattern": "post_quote",
-      "personalization_template": "Your LinkedIn post about {{post_topic}} hit on something — most {{industry}} CMOs miss it."
+      "personalization_pattern": "english_pipeline_radar_miami",
+      "personalization_template": "Was reviewing Miami real estate firms with solid digital fundamentals for my May pipeline, and {{companyName}} caught my eye — wanted to ask you something specific about bilingual buyer flow."
     }
   }
 }
