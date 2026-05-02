@@ -1,3 +1,4 @@
+// META_LEAD_VERIFY_TOKEN rotated 2026-05-02 — fixes leadgen webhook
 /**
  * metaLeadFormWebhook.js
  * Receives Meta Instant Lead Form fills, fires audit pipeline + Brevo.
