@@ -1,0 +1,47 @@
+{
+  "_doc": "Cohort definitions for dailySupersearchRefill. search_filters JSON must be captured from a working Instantly UI Supersearch (open DevTools → Network → run search → copy the count-leads-from-supersearch request body). Update target_campaign_id as needed.",
+  "_updated": "2026-05-01",
+  "_status": "PLACEHOLDER — search_filters need UI capture before activation",
+  "cohorts": {
+    "mx_funding": {
+      "label": "MX Real Estate Devs + Funding Round (last 30d)",
+      "target_campaign_id": "a1139971-CHANGE-ME",
+      "target_campaign_name_hint": "Trojan Horse V2 — Personalized 2026-04-24",
+      "daily_pull_limit": 30,
+      "search_filters": {
+        "_pending_capture_from_ui": true,
+        "skip_in_workspace": true,
+        "one_lead_per_company": true
+      },
+      "personalization_pattern": "funding_mention",
+      "personalization_template": "Felicidades por la ronda de {{funding_amount}} con {{funding_lead_investor}} la semana pasada — vi el anuncio."
+    },
+    "usa_hiring": {
+      "label": "USA RE Devs + Hiring Surge marketing/sales (last 14d)",
+      "target_campaign_id": "d81333f4-19ee-444f-8fbd-b1e863100cbb",
+      "target_campaign_name_hint": "USA Real Estate Devs 2026-05",
+      "daily_pull_limit": 30,
+      "search_filters": {
+        "_pending_capture_from_ui": true,
+        "skip_in_workspace": true,
+        "one_lead_per_company": true
+      },
+      "personalization_pattern": "hiring_mention",
+      "personalization_template": "Saw {{companyName}} is hiring a {{hiring_role}} — usually that means the lead pipeline is the bottleneck, not the closing."
+    },
+    "miami_posts": {
+      "label": "Miami Brokers + LinkedIn Post (last 7d)",
+      "target_campaign_id": "acffe5c9-9a74-4b3f-8a95-37882a11f96b",
+      "target_campaign_name_hint": "USA Miami RE — Hiring + Audit",
+      "daily_pull_limit": 30,
+      "search_filters": {
+        "_pending_capture_from_ui": true,
+        "locations": [{"city": "Miami", "country": "United States"}],
+        "skip_in_workspace": true,
+        "one_lead_per_company": true
+      },
+      "personalization_pattern": "post_quote",
+      "personalization_template": "Your LinkedIn post about {{post_topic}} hit on something — most {{industry}} CMOs miss it."
+    }
+  }
+}

@@ -217,6 +217,14 @@ exports.fbBrokerKickoff         = require('./runFbBrokerBatch').fbBrokerKickoff;
 exports.dialSupervisor          = require('./dialSupervisor').dialSupervisor;
 exports.dialSupervisorManual    = require('./dialSupervisor').dialSupervisorManual;
 
+// dailySupersearchRefill — autonomous lead refill (added 2026-05-01).
+// 07:00 UTC daily cron pulls 30 leads/cohort × 3 cohorts (MX funding /
+// USA hiring / Miami posts) via Instantly Supersearch. Runs in PLACEHOLDER
+// mode until search_filters JSON is captured from UI per
+// skills_patches/instantly-supersearch-mastery_v1.md §Section 2.
+exports.dailySupersearchRefill       = require('./dailySupersearchRefill').dailySupersearchRefill;
+exports.dailySupersearchRefillManual = require('./dailySupersearchRefill').dailySupersearchRefillManual;
+
 // Sync Function (Replaces Python Script)
 exports.uploadCampaignLogs = functions.https.onRequest(async (req, res) => {
     try {
