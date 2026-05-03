@@ -393,6 +393,55 @@ async function pushLeadToNotion(client, leadData, convoId, msgCount) {
   }
 }
 
+// ---------- Client admin panel push (Flamingo's existing /admin CRM) ----------
+// Sends lead data to the client's own admin panel webhook so leads appear
+// in their existing CRM dashboard (alongside Sofía's Notion sync).
+// Per-client config in Firestore: wa_clients.{phone}.flamingo_admin = {
+//   webhook_url, webhook_secret, sync_enabled
+// }
+async function pushLeadToClientAdmin(client, leadData, leadId, recentMessages) {
+  const cfg = client?.flamingo_admin;
+  if (!cfg?.sync_enabled || !cfg?.webhook_url) return;
+
+  // Convert internal messages to plain text for transcript
+  const transcript = (recentMessages || []).map((m) => ({
+    role: m.role,
+    text: (m.parts?.[0]?.text || "").slice(0, 400),
+    at: m.at || null,
+  }));
+
+  const payload = {
+    ...leadData,
+    conversation_id: leadId,
+    transcript: transcript,
+    captured_at: new Date().toISOString(),
+  };
+
+  try {
+    const r = await fetch(cfg.webhook_url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-sofia-secret": cfg.webhook_secret || "",
+      },
+      body: JSON.stringify(payload),
+    });
+    const j = await r.json();
+    if (j.success) {
+      functions.logger.info("Client admin push OK", {
+        leadId,
+        action: j.action,
+        flamingoLeadId: j.leadId,
+        stage: j.pipelineStage,
+      });
+    } else {
+      functions.logger.warn("Client admin push failed", j);
+    }
+  } catch (e) {
+    functions.logger.error("Client admin push error", e.message);
+  }
+}
+
 // ---------- HTTP webhook ----------
 exports.whatsappAIResponder = functions
   .runWith({ memory: "512MB", timeoutSeconds: 60 })
@@ -545,7 +594,7 @@ exports.whatsappAIResponder = functions
         { merge: true }
       );
 
-      // 7. If lead has captured info → write to wa_leads + push to Notion CRM
+      // 7. If lead has captured info → write to wa_leads + push to Notion CRM + push to client admin panel
       if (meta.name || meta.intent || meta.qualified || meta.country_of_interest) {
         const leadId = `${to.replace(/\+/g,"")}_${from.replace(/\+/g,"")}`;
         const fullLead = {
@@ -570,9 +619,14 @@ exports.whatsappAIResponder = functions
         const leadRef = db.collection("wa_leads").doc(leadId);
         await leadRef.set(fullLead, { merge: true });
 
-        // Push to client's Notion CRM (non-blocking — don't fail the webhook if Notion is down)
+        // Push to client's Notion CRM (non-blocking)
         pushLeadToNotion(client, fullLead, leadId, history.length).catch((e) => {
           functions.logger.warn("Notion push non-blocking failure", e.message);
+        });
+
+        // Push to client's admin panel (Flamingo /admin etc) — non-blocking
+        pushLeadToClientAdmin(client, fullLead, leadId, history.slice(-10)).catch((e) => {
+          functions.logger.warn("Client admin push non-blocking failure", e.message);
         });
       }
 
