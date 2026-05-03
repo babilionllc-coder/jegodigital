@@ -139,6 +139,122 @@ async function tgAlert(msg) {
   }
 }
 
+// ---------- Notion CRM push (per-client database) ----------
+const NOTION_KEY = process.env.NOTION_API_KEY;
+const COUNTRY_MAP = {
+  mexico: "México", usa: "USA", dubai: "Dubái", dominicana: "Dominicana",
+  panama: "Panamá", spain: "España", bali: "Bali", colombia: "Colombia",
+};
+const STAGE_MAP = {
+  diagnostico: "Diagnóstico", match: "Match", demo: "Demo", cierre: "Cierre",
+};
+const INTENT_MAP = {
+  airbnb: "Airbnb", residencia: "Segunda residencia", mudanza: "Mudarse", otro: "Otro",
+};
+const PROPERTY_MAP = {
+  depto: "Departamento", casa: "Casa", villa: "Villa", lote: "Lote",
+};
+const TIMELINE_MAP = {
+  semanas: "Esta semana", meses: "3 meses", año: "Año",
+};
+
+async function pushLeadToNotion(client, leadData, convoId, msgCount) {
+  if (!NOTION_KEY) return;
+  const dbId = client?.notion?.leads_database_id;
+  if (!dbId) return; // client not configured for Notion
+
+  // Check if a page already exists for this Lead ID
+  const queryUrl = `https://api.notion.com/v1/databases/${dbId}/query`;
+  let existingPageId = null;
+  try {
+    const queryRes = await fetch(queryUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${NOTION_KEY}`,
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28",
+      },
+      body: JSON.stringify({
+        filter: { property: "Lead ID", rich_text: { equals: convoId } },
+        page_size: 1,
+      }),
+    });
+    const qj = await queryRes.json();
+    existingPageId = qj.results?.[0]?.id || null;
+  } catch (e) {
+    functions.logger.warn("Notion query failed", e.message);
+  }
+
+  // Build properties payload
+  const props = {
+    "Nombre": { title: [{ text: { content: (leadData.name || "Sin nombre").slice(0, 100) } }] },
+    "WhatsApp": { phone_number: leadData.phone || null },
+    "Lead ID": { rich_text: [{ text: { content: convoId } }] },
+    "Score": { number: leadData.lead_score ?? null },
+    "Hot 🔥": { checkbox: !!leadData.escalate || (leadData.lead_score >= 8) },
+    "Calificado": { checkbox: !!leadData.qualified },
+    "Mensajes": { number: msgCount || 0 },
+    "Última Conversación": { date: { start: new Date().toISOString() } },
+  };
+  if (leadData.zone) props["Zona"] = { rich_text: [{ text: { content: String(leadData.zone).slice(0, 200) } }] };
+  if (leadData.project_interest) props["Proyecto"] = { rich_text: [{ text: { content: String(leadData.project_interest).slice(0, 200) } }] };
+  if (leadData.budget_hint) props["Presupuesto"] = { rich_text: [{ text: { content: String(leadData.budget_hint).slice(0, 200) } }] };
+  if (leadData.country_of_origin) props["País Origen"] = { rich_text: [{ text: { content: String(leadData.country_of_origin).slice(0, 100) } }] };
+  if (leadData.country_of_interest && COUNTRY_MAP[leadData.country_of_interest]) {
+    props["País Interés"] = { select: { name: COUNTRY_MAP[leadData.country_of_interest] } };
+  }
+  if (leadData.stage && STAGE_MAP[leadData.stage]) {
+    props["Etapa"] = { select: { name: STAGE_MAP[leadData.stage] } };
+  }
+  if (leadData.intent && INTENT_MAP[leadData.intent]) {
+    props["Intención"] = { select: { name: INTENT_MAP[leadData.intent] } };
+  }
+  if (leadData.property_type && PROPERTY_MAP[leadData.property_type]) {
+    props["Tipo Propiedad"] = { select: { name: PROPERTY_MAP[leadData.property_type] } };
+  }
+  if (leadData.timeline && TIMELINE_MAP[leadData.timeline]) {
+    props["Timeline"] = { select: { name: TIMELINE_MAP[leadData.timeline] } };
+  }
+
+  try {
+    if (existingPageId) {
+      // UPDATE existing page
+      await fetch(`https://api.notion.com/v1/pages/${existingPageId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${NOTION_KEY}`,
+          "Content-Type": "application/json",
+          "Notion-Version": "2022-06-28",
+        },
+        body: JSON.stringify({ properties: props }),
+      });
+      functions.logger.info("Notion lead UPDATED", { convoId, pageId: existingPageId });
+    } else {
+      // CREATE new page
+      const createRes = await fetch("https://api.notion.com/v1/pages", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${NOTION_KEY}`,
+          "Content-Type": "application/json",
+          "Notion-Version": "2022-06-28",
+        },
+        body: JSON.stringify({
+          parent: { database_id: dbId },
+          properties: props,
+        }),
+      });
+      const cj = await createRes.json();
+      if (cj.id) {
+        functions.logger.info("Notion lead CREATED", { convoId, pageId: cj.id });
+      } else {
+        functions.logger.warn("Notion create failed", cj);
+      }
+    }
+  } catch (e) {
+    functions.logger.error("Notion push error", e.message);
+  }
+}
+
 // ---------- HTTP webhook ----------
 exports.whatsappAIResponder = functions
   .runWith({ memory: "512MB", timeoutSeconds: 60 })
@@ -241,24 +357,35 @@ exports.whatsappAIResponder = functions
         { merge: true }
       );
 
-      // 7. If lead has captured info → write to wa_leads
-      if (meta.name || meta.intent || meta.qualified) {
-        const leadRef = db.collection("wa_leads").doc(`${to.replace(/\+/g,"")}_${from.replace(/\+/g,"")}`);
-        await leadRef.set(
-          {
-            client: to,
-            phone: from,
-            name: meta.name || profileName || null,
-            intent: meta.intent || null,
-            budget_hint: meta.budget_hint || null,
-            timeline: meta.timeline || null,
-            qualified: !!meta.qualified,
-            escalate: !!meta.escalate,
-            captured_at: admin.firestore.FieldValue.serverTimestamp(),
-            last_message_text: text.slice(0, 500),
-          },
-          { merge: true }
-        );
+      // 7. If lead has captured info → write to wa_leads + push to Notion CRM
+      if (meta.name || meta.intent || meta.qualified || meta.country_of_interest) {
+        const leadId = `${to.replace(/\+/g,"")}_${from.replace(/\+/g,"")}`;
+        const fullLead = {
+          client: to,
+          phone: from,
+          name: meta.name || profileName || null,
+          intent: meta.intent || null,
+          country_of_interest: meta.country_of_interest || null,
+          country_of_origin: meta.country_of_origin || null,
+          zone: meta.zone || null,
+          property_type: meta.property_type || null,
+          budget_hint: meta.budget_hint || null,
+          timeline: meta.timeline || null,
+          project_interest: meta.project_interest || null,
+          stage: meta.stage || null,
+          lead_score: meta.lead_score || null,
+          qualified: !!meta.qualified,
+          escalate: !!meta.escalate,
+          captured_at: admin.firestore.FieldValue.serverTimestamp(),
+          last_message_text: text.slice(0, 500),
+        };
+        const leadRef = db.collection("wa_leads").doc(leadId);
+        await leadRef.set(fullLead, { merge: true });
+
+        // Push to client's Notion CRM (non-blocking — don't fail the webhook if Notion is down)
+        pushLeadToNotion(client, fullLead, leadId, history.length).catch((e) => {
+          functions.logger.warn("Notion push non-blocking failure", e.message);
+        });
       }
 
       // 8. Telegram alert if hot (escalate or qualified or first message)
