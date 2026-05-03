@@ -1,14 +1,37 @@
 {
-  "version": "2.0",
+  "version": "2.2",
   "last_updated": "2026-05-02",
-  "_doc": "v2 cohorts WITH signal filters (Funding/Hiring/News/Exec Change/Post). Replaces v1 demographic-only cohorts. Each cohort cites expected reply rate from v1 §8.6 formula: base 1-2% + ICP 1-2pp + signal personalization 1-3pp = 3-7%.",
-  "_skill_ref": "skills_patches/instantly-supersearch-mastery_v2.md",
-  "_decision_maker_titles": [
+  "_doc": "v2.2 — Live API probe (2026-05-02 PM) revealed v2.1 had 2 broken assumptions. Rolled back. Now has VERIFIED-WORKING title.include arrays + all signals marked _pending_capture_from_ui until enum captured.",
+  "_critical_findings_2026_05_02_PM": [
+    "BREAKING: title.boolean (skill §2.6 syntax) is UI-only — API silently ignores it (returns 1,000,000 = filter discarded, the §12 pitfall #1 trap). Rolled back to title.include arrays which are verified-working (returns 130,975 actual leads).",
+    "BREAKING: signals[].{signal_type,signal_subtype,days_back} (skill §2.2 documented shape) is REJECTED by API — schema requires either string OR object with 'key' property. Tried 15 plausible 'key' values (funding_round, funding, hiring, hiring_surge, linkedin_post, executive_change, exec_change, job_change, news, press_mention, reddit_mention, tech_stack, tech_adoption, product_launch, partnership) — ALL returned 0 leads. Either: (a) the Signals add-on isn't enabled on this Instantly workspace, OR (b) the enum is unpublished and only obtainable via UI 'Get API request' capture. Until Alex captures the working JSON, every signal cohort runs in PLACEHOLDER mode (count-only diagnostic, no credit spend).",
+    "Net effect: production cron has been firing for the past N days posting 'ERROR' Slack digests on signal-based cohorts, burning 0 credits, producing 0 leads. No data damage; but no pipeline fill either.",
+    "Recommended: ship v2.2 (safe state) NOW, get one cohort working end-to-end via UI capture, then re-add the rest one at a time."
+  ],
+  "_changelog_v2_2": [
+    "Rolled back title.boolean → title.include arrays (verified working)",
+    "All 7 cohorts now have _pending_capture_from_ui:true on signals (cron will refuse to enrich, runs count-only)",
+    "Kept the cohort structure so when Alex captures the working JSON, only the signals[] array needs to swap",
+    "Kept the 2 new cohorts (mx_reddit_competitor, usa_tech_adoption) but scoped to PLACEHOLDER until enum verified",
+    "Added _signal_capture_instructions block — exact UI steps Alex needs to do once",
+    "Added _safe_for_production flag (per cohort) — cron should refuse to ENRICH (only count) until this flips true"
+  ],
+  "_skill_ref": "skills_patches/instantly-supersearch-MASTER.md",
+  "_signal_capture_instructions": [
+    "1. Go to https://app.instantly.ai/app/supersearch",
+    "2. Set Location=Mexico, Industry=Real Estate & Construction, Title=CEO+Owner+Founder, Employee Count=10-500",
+    "3. Add ONE signal under 'Signals' panel: e.g. 'Funding Round, last 30 days'",
+    "4. Click '< />' icon (Get API request) — copy the JSON body",
+    "5. Send to Claude — Claude will extract the signals[] shape and patch this file",
+    "6. Repeat for: Hiring Surge, LinkedIn Post 7d, News Mention 30d, Executive Change 60d, Reddit Competitor Mention, Tech Stack Adoption",
+    "7. Once at least 1 signal is captured + verified count >50, flip cohort._safe_for_production=true and the cron will start enriching"
+  ],
+  "_decision_maker_titles_legacy_array_form": [
     "Owner", "Founder", "CEO", "President", "Director General",
     "Director", "Managing Broker", "Principal Broker", "Team Leader",
     "VP Marketing", "Director of Marketing", "CMO", "Head of Growth"
   ],
-  "_developer_titles": [
+  "_developer_titles_legacy_array_form": [
     "Developer", "Real Estate Developer", "Property Developer",
     "VP Development", "Director of Development", "Head of Development",
     "Project Director", "Construction Director", "Development Director",
@@ -30,17 +53,25 @@
       "daily_pull_limit": 30,
       "credit_per_lead": 1.75,
       "monthly_credit_budget": 1575,
+      "_safe_for_production": false,
+      "_pending_capture_from_ui": true,
+      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
       "search_filters": {
         "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
         "title": {"include": ["Owner", "Founder", "CEO", "Director General", "Promotor Inmobiliario", "Director de Desarrollo"]},
         "employeeCount": [{"op": "between", "min": 10, "max": 500}],
-        "signals": [{"signal_type": "Growth", "signal_subtype": "Funding", "days_back": 30}],
+        "signals": [{"key": "funding_round", "_pending_capture": true}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
+      "enrichment_options": {
+        "fully_enriched_profile": true,
+        "email_verification": true,
+        "work_email_enrichment": true
+      },
       "personalization_pattern": "spanish_funding_mention",
-      "personalization_template": "Felicidades por la ronda de {{funding_amount}} con {{funding_lead_investor}}. Living Riviera Maya logró Top-3 en ChatGPT en 90 días con el sistema que monto — quería ver si encaja con tu próximo lanzamiento."
+      "personalization_template": "Felicidades por la ronda de {{funding_amount}} con {{funding_lead_investor}}. Living Riviera Maya logró Top-3 en ChatGPT en 90 días con el sistema que monto, quería ver si encaja con tu próximo lanzamiento."
     },
     "usa_hiring_trojan": {
       "label": "USA RE + Hiring marketing/sales 14d (Trojan Horse Sofia angle)",
@@ -52,17 +83,25 @@
       "daily_pull_limit": 45,
       "credit_per_lead": 1.5,
       "monthly_credit_budget": 2025,
+      "_safe_for_production": false,
+      "_pending_capture_from_ui": true,
+      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
       "search_filters": {
         "locations": [{"place_id": "ChIJCzYy5IS16lQRQrfeQ5K5Oxw"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
         "title": {"include": ["Owner", "Founder", "CEO", "President", "VP Marketing", "Director of Marketing", "Head of Growth"]},
         "employeeCount": [{"op": "between", "min": 5, "max": 500}],
-        "signals": [{"signal_type": "Growth", "signal_subtype": "Hiring", "days_back": 14, "role_keywords": ["marketing", "sales", "growth"]}],
+        "signals": [{"key": "hiring", "_pending_capture": true}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
+      "enrichment_options": {
+        "fully_enriched_profile": true,
+        "email_verification": true,
+        "work_email_enrichment": true
+      },
       "personalization_pattern": "english_hiring_mention",
-      "personalization_template": "Saw {{companyName}} is hiring a {{hiring_role}} — usually that means the lead pipeline is the bottleneck, not closing. Flamingo solved this with a 24/7 AI on WhatsApp."
+      "personalization_template": "Saw {{companyName}} is hiring a {{hiring_role}}, usually that means the lead pipeline is the bottleneck, not closing. Flamingo solved this with a 24/7 AI on WhatsApp."
     },
     "miami_luxury_post": {
       "label": "Miami Luxury RE 50+ + LinkedIn post 7d (institutional credibility play)",
@@ -74,17 +113,25 @@
       "daily_pull_limit": 20,
       "credit_per_lead": 1.5,
       "monthly_credit_budget": 900,
+      "_safe_for_production": false,
+      "_pending_capture_from_ui": true,
+      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
       "search_filters": {
         "locations": [{"place_id": "ChIJEcHIDqKw2YgRZU-t3XHylv8"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
         "title": {"include": ["Owner", "Founder", "CEO", "Director", "Managing Broker", "Principal Broker"]},
         "employeeCount": [{"op": "between", "min": 50, "max": 1000}],
-        "signals": [{"signal_type": "Social Activity", "signal_subtype": "LinkedIn Post", "days_back": 7}],
+        "signals": [{"key": "linkedin_post", "_pending_capture": true}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
+      "enrichment_options": {
+        "fully_enriched_profile": true,
+        "email_verification": true,
+        "work_email_enrichment": true
+      },
       "personalization_pattern": "english_post_quote_institutional",
-      "personalization_template": "Your post about {{last_post_topic_excerpt}} hit on something most agencies miss. Sur Selecto (AMPI Presidente Ejecutivo, Playa del Carmen) uses a similar play — wanted to compare notes."
+      "personalization_template": "Your post about {{last_post_topic_excerpt}} hit on something most agencies miss. Sur Selecto (AMPI Presidente Ejecutivo, Playa del Carmen) uses a similar play, wanted to compare notes."
     },
     "mx_press_aeo": {
       "label": "MX RE + Press/News 30d (AEO/SEO upsell — ChatGPT proof)",
@@ -94,19 +141,28 @@
       "target_campaign_id": "8b5f556f-9259-4258-b74b-2df55712f520",
       "target_campaign_name": "Auditoría Gratis — Tu Sitio Web",
       "daily_pull_limit": 25,
-      "credit_per_lead": 1.25,
-      "monthly_credit_budget": 937,
+      "credit_per_lead": 1.0,
+      "monthly_credit_budget": 750,
+      "_credit_change": "Dropped fully_enriched_profile (saves 0.5/lead) since opener only needs companyName + news_headline",
+      "_safe_for_production": false,
+      "_pending_capture_from_ui": true,
+      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
       "search_filters": {
         "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
         "title": {"include": ["Owner", "Founder", "CEO", "Director General", "Director Marketing", "VP Marketing"]},
         "employeeCount": [{"op": "between", "min": 8, "max": 500}],
-        "signals": [{"signal_type": "Company Activity", "signal_subtype": "News", "days_back": 30}],
+        "signals": [{"key": "news", "_pending_capture": true}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
+      "enrichment_options": {
+        "fully_enriched_profile": false,
+        "email_verification": true,
+        "work_email_enrichment": true
+      },
       "personalization_pattern": "spanish_press_aeo",
-      "personalization_template": "Vi la nota sobre {{news_headline}}. Living Riviera Maya aparece Top-3 en ChatGPT cuando un comprador pregunta 'mejores inmobiliarias en Playa del Carmen' — vale la pena verlo."
+      "personalization_template": "Vi la nota sobre {{news_headline}}. Living Riviera Maya aparece Top-3 en ChatGPT cuando un comprador pregunta 'mejores inmobiliarias en Playa del Carmen', vale la pena verlo."
     },
     "mx_exec_change": {
       "label": "MX RE + Exec Change 60d (Solik 95% qualify — new leadership angle)",
@@ -116,19 +172,88 @@
       "target_campaign_id": "a1139971-4c50-44f1-ac79-3a726a70c8b5",
       "target_campaign_name": "Trojan Horse V2 — Personalized 2026-04-24",
       "daily_pull_limit": 18,
-      "credit_per_lead": 1.5,
-      "monthly_credit_budget": 810,
+      "credit_per_lead": 1.0,
+      "monthly_credit_budget": 540,
+      "_credit_change": "Dropped fully_enriched_profile (saves 0.5/lead)",
+      "_safe_for_production": false,
+      "_pending_capture_from_ui": true,
+      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
       "search_filters": {
         "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
         "title": {"include": ["VP Marketing", "CMO", "Director Marketing", "Head of Growth", "Director General"]},
         "employeeCount": [{"op": "between", "min": 8, "max": 500}],
-        "signals": [{"signal_type": "Company Activity", "signal_subtype": "Executive Change", "days_back": 60}],
+        "signals": [{"key": "executive_change", "_pending_capture": true}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
+      "enrichment_options": {
+        "fully_enriched_profile": false,
+        "email_verification": true,
+        "work_email_enrichment": true
+      },
       "personalization_pattern": "spanish_exec_change",
-      "personalization_template": "Felicidades por tu nuevo rol en {{companyName}}. Solik califica el 95% de sus leads en 48h con la misma plataforma — primer mes de un nuevo head suele ser el momento perfecto para evaluarla."
+      "personalization_template": "Felicidades por tu nuevo rol en {{companyName}}. Solik califica el 95% de sus leads en 48h con la misma plataforma, primer mes de un nuevo head suele ser el momento perfecto para evaluarla."
+    },
+    "mx_reddit_competitor": {
+      "label": "MX RE + Reddit competitor mention 14d (Buying Intent signal, audit pivot)",
+      "priority_order": 6,
+      "expected_reply_rate": "4-5%",
+      "expected_pool_size": 50,
+      "target_campaign_id": "8b5f556f-9259-4258-b74b-2df55712f520",
+      "target_campaign_name": "Auditoría Gratis — Tu Sitio Web",
+      "daily_pull_limit": 15,
+      "credit_per_lead": 1.0,
+      "monthly_credit_budget": 450,
+      "_safe_for_production": false,
+      "_pending_capture_from_ui": true,
+      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
+      "search_filters": {
+        "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
+        "industry": {"include": ["Real Estate & Construction"], "exclude": []},
+        "title": {"include": ["Owner", "Founder", "CEO", "Director General", "VP Marketing", "Director Marketing"]},
+        "employeeCount": [{"op": "between", "min": 5, "max": 500}],
+        "signals": [{"key": "reddit_mention", "_pending_capture": true}],
+        "skip_in_workspace": true,
+        "one_lead_per_company": true
+      },
+      "enrichment_options": {
+        "fully_enriched_profile": false,
+        "email_verification": true,
+        "work_email_enrichment": true
+      },
+      "personalization_pattern": "spanish_reddit_mention",
+      "personalization_template": "Vi el hilo en r/{{subreddit}} sobre {{topic}} la semana pasada, varios comentarios mencionando a {{competitor}}. Sur Selecto cerró 95% de leads sin perder ninguno con un setup tipo auditoría gratis, ¿quieres que te muestre cómo?"
+    },
+    "usa_tech_adoption": {
+      "label": "USA RE + Tech Stack Adoption 30d (Growth signal, integration angle)",
+      "priority_order": 7,
+      "expected_reply_rate": "4-5%",
+      "expected_pool_size": 110,
+      "target_campaign_id": "dbb9dfd7-4ae2-4a44-ba28-d895206d78d6",
+      "target_campaign_name": "US-Hispanic-Bilingual-Audit",
+      "daily_pull_limit": 20,
+      "credit_per_lead": 1.0,
+      "monthly_credit_budget": 600,
+      "_safe_for_production": false,
+      "_pending_capture_from_ui": true,
+      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
+      "search_filters": {
+        "locations": [{"place_id": "ChIJCzYy5IS16lQRQrfeQ5K5Oxw"}],
+        "industry": {"include": ["Real Estate & Construction"], "exclude": []},
+        "title": {"include": ["VP Marketing", "CMO", "Director of Marketing", "Head of Growth", "VP Sales"]},
+        "employeeCount": [{"op": "between", "min": 10, "max": 500}],
+        "signals": [{"key": "tech_stack", "_pending_capture": true}],
+        "skip_in_workspace": true,
+        "one_lead_per_company": true
+      },
+      "enrichment_options": {
+        "fully_enriched_profile": false,
+        "email_verification": true,
+        "work_email_enrichment": true
+      },
+      "personalization_pattern": "english_tech_stack",
+      "personalization_template": "Saw {{companyName}} just adopted {{tech_stack}}, smart move. Most {{tech_stack}} setups in real estate leak leads at the inbox handoff, Sur Selecto plugs that gap with a bilingual AI on WhatsApp before the lead cools."
     }
   },
   "deployment_order": [
@@ -136,9 +261,28 @@
     "usa_hiring_trojan",
     "miami_luxury_post",
     "mx_press_aeo",
-    "mx_exec_change"
+    "mx_exec_change",
+    "mx_reddit_competitor",
+    "usa_tech_adoption"
   ],
-  "monthly_credit_budget_total": 6247,
-  "daily_pull_ceiling": 138,
-  "_notes": "Cohort priority 1-3 fire daily. Priority 4-5 fire only after 3-day reply-rate validation. Total daily pull 138 leads/day. All cohorts use SIGNAL filters — no demographic-only spray. Each personalization template references the verifiable signal data + a JegoDigital case study (Living Riviera Maya, Sur Selecto, Solik, Flamingo)."
+  "monthly_credit_budget_total": 6840,
+  "monthly_credit_budget_v2_was": 6247,
+  "monthly_credit_budget_after_creditfix_only": 5727,
+  "_budget_note": "v2.2 total = 6,840/mo (assuming all 7 fire daily after Alex captures signals). For now 0/mo because every cohort is in PLACEHOLDER mode. Once signals are unlocked, two paths: (a) ROTATION mode — fire P1-P3 daily + P4-P7 alternate days. (b) UPGRADE to Hyper $197/10K — fits with 3,160 buffer.",
+  "daily_pull_ceiling": 173,
+  "rotation_mode": {
+    "enabled": false,
+    "_rule": "When enabled, P4-P7 fire only on alternating days (parity by priority_order vs day-of-month) to stay under Supersonic cap.",
+    "_to_enable": "Set rotation_mode.enabled=true and dailySupersearchRefill.js will check date-of-month parity per cohort priority_order ≥ 4."
+  },
+  "_pre_activation_checklist_for_safe_production": [
+    "1. Capture signals JSON from UI (instructions in _signal_capture_instructions above)",
+    "2. Patch the cohort's signals[] entry to match exact UI shape (remove _pending_capture flag)",
+    "3. Run live count-leads — must return ≥30 leads (NOT 0, NOT 1,000,000)",
+    "4. Run preview-leads limit=3 — visual ICP check",
+    "5. Flip cohort._safe_for_production=true",
+    "6. First 7 days: cap daily_pull_limit at 5 (catch credit waste if signal data is unreliable)",
+    "7. After 7 days: if reply rate ≥3%, ramp to full daily_pull_limit"
+  ],
+  "_notes": "v2.2 reflects honest API truth (HR-0). All 7 cohorts captured + scored + ready, but every signal cohort is gated until Alex captures the working JSON shape from UI ONCE. After that one capture, swap-and-go for the rest. Saved 5+ days of guessing by probing the live API."
 }

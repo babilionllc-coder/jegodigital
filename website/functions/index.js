@@ -224,6 +224,15 @@ exports.dialSupervisorManual    = require('./dialSupervisor').dialSupervisorManu
 // skills_patches/instantly-supersearch-mastery_v1.md §Section 2.
 exports.dailySupersearchRefill       = require('./dailySupersearchRefill').dailySupersearchRefill;
 exports.dailySupersearchRefillManual = require('./dailySupersearchRefill').dailySupersearchRefillManual;
+exports.reVerifyEmailManual          = require('./dailySupersearchRefill').reVerifyEmailManual;
+exports.reverseLookupManual          = require('./dailySupersearchRefill').reverseLookupManual;
+
+// processSupersearchLists — second half of Supersearch pipeline (added 2026-05-02).
+// 08:30 UTC daily (90 min after refill) walks each new "Supersearch <cohort> <date>"
+// list, builds {{personalization}} from cohort template + lead enrichment, scores
+// 0-10 (drops <7), updates lead, moves passing leads to target campaign.
+exports.processSupersearchLists       = require('./processSupersearchLists').processSupersearchLists;
+exports.processSupersearchListsManual = require('./processSupersearchLists').processSupersearchListsManual;
 
 // Sync Function (Replaces Python Script)
 exports.uploadCampaignLogs = functions.https.onRequest(async (req, res) => {
