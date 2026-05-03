@@ -483,11 +483,8 @@ async function pushLeadToNotion(client, leadData, convoId, msgCount) {
 
 // ---------- Email project info via Brevo (real delivery, not a fake promise) ----------
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-// TEMP: Using JegoDigital verified sender until realestateflamingo.com.mx domain is fully authenticated in Brevo
-// (DKIM record needs to be added — Brevo dashboard → Senders → Add domain → grab DKIM TXT)
-const FLAMINGO_SENDER_EMAIL = "info@jegodigital.com";
-const FLAMINGO_SENDER_NAME = "Flamingo Real Estate (vía JegoDigital)";
-const FLAMINGO_REPLY_TO_EMAIL = "info@realestateflamingo.com.mx"; // Replies route to Flamingo even though sender is JD
+const FLAMINGO_SENDER_EMAIL = "info@realestateflamingo.com.mx";
+const FLAMINGO_SENDER_NAME = "Flamingo Real Estate";
 
 function detectEmailIntent(text, history) {
   const t = (text || "").toLowerCase();
@@ -568,8 +565,7 @@ async function sendProjectInfoEmail({ to, leadName, project, photos, brochure_ur
         to: [{ email: to, name: safeName }],
         subject: `Información de ${projectTitle} — Flamingo Real Estate`,
         htmlContent: html,
-        // Replies route to Flamingo's real inbox so Rodrigo handles them
-        replyTo: { email: FLAMINGO_REPLY_TO_EMAIL, name: "Flamingo Real Estate" },
+        replyTo: { email: FLAMINGO_SENDER_EMAIL, name: FLAMINGO_SENDER_NAME },
       }),
     });
     const j = await r.json();
