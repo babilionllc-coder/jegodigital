@@ -1,0 +1,237 @@
+/**
+ * whatsappAIResponder.js
+ *
+ * Cloud Function that handles WhatsApp messages for JegoDigital + clients.
+ *
+ * Flow:
+ *   1. Twilio receives WhatsApp message → POSTs to this webhook
+ *   2. Loads client-specific Sofia prompt from Firestore (by `to` number)
+ *   3. Calls Gemini 2.5 Flash with system prompt + conversation history
+ *   4. Sends response via Twilio WhatsApp API
+ *   5. Stores conversation + extracts lead data → Firestore + Telegram alert
+ *
+ * Webhook URL (set in Twilio Console):
+ *   https://us-central1-jegodigital-e02fb.cloudfunctions.net/whatsappAIResponder
+ *
+ * Env required:
+ *   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, GEMINI_API_KEY
+ *   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (for hot-lead alerts)
+ *
+ * Firestore schema:
+ *   wa_clients/{toNumber} — { name, systemPrompt, destinationEmail, brandVoice, faqs }
+ *   wa_conversations/{toNumber}_{leadPhone} — { messages: [...], updated_at }
+ *   wa_leads/{leadId} — { phone, name, intent, budget_hint, timeline, status, captured_at }
+ */
+
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+
+if (!admin.apps.length) admin.initializeApp();
+const db = admin.firestore();
+
+const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
+const TG_BOT = process.env.TELEGRAM_BOT_TOKEN || "";
+const TG_CHAT = process.env.TELEGRAM_CHAT_ID || "";
+
+const GEMINI_MODEL = "gemini-2.5-flash";
+
+// ---------- Sofia DEFAULT prompt (used when client config doesn't override) ----------
+const SOFIA_DEFAULT_PROMPT = `Eres Sofia, asistente IA de bienes raíces. Hablas español neutro mexicano, registro "tú", peer-to-peer, NUNCA "usted". Tono: directo, breve, cálido, profesional.
+
+REGLAS DURAS:
+1. NUNCA cotices precios — si preguntan precio, di: "Te conecto con Alex que maneja la inversión personalizada — me das tu nombre + teléfono + zona que te interesa?"
+2. NUNCA menciones que eres IA o que eres parte de JegoDigital. Eres Sofia del equipo del cliente.
+3. Captura SIEMPRE: nombre, número de WhatsApp (ya lo tienes del mensaje), zona/proyecto que les interesa, presupuesto aproximado, timeline (cuándo planean comprar).
+4. Si dicen que es URGENTE o quieren ver una propiedad HOY → escala inmediatamente: "Alex te contacta en los próximos 5 minutos."
+5. Respuestas máximo 2-3 oraciones. Conversacional, no corporativo.
+6. Si preguntan algo que no sabes (financiamiento específico, fechas exactas, descuentos), di: "Déjame validar con el equipo y te confirmo en máximo 1 hora."
+7. Cierre cada respuesta con UNA pregunta para avanzar la conversación.
+
+OUTPUT EXTRA — al final de tu respuesta agrega INVISIBLE para el usuario un bloque JSON entre etiquetas <META> y </META> con los datos extraídos hasta el momento:
+<META>{"name":"...","intent":"...","budget_hint":"...","timeline":"...","escalate":true|false,"qualified":true|false}</META>
+
+Esto NO se muestra al usuario — es para nuestro CRM.`;
+
+// ---------- Gemini call ----------
+async function callGemini(systemPrompt, history) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
+  const body = {
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    contents: history,
+    generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+  };
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json();
+  if (j.error) {
+    functions.logger.error("Gemini error", j.error);
+    return { reply: "Disculpa, problema técnico. Te llamamos en 5 min.", meta: {} };
+  }
+  const text = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  // Extract <META>{}</META> JSON, strip from user-visible reply
+  const metaMatch = text.match(/<META>([\s\S]*?)<\/META>/);
+  let meta = {};
+  if (metaMatch) {
+    try {
+      meta = JSON.parse(metaMatch[1]);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+  const reply = text.replace(/<META>[\s\S]*?<\/META>/g, "").trim();
+  return { reply, meta };
+}
+
+// ---------- Twilio send ----------
+async function sendWhatsApp(toNumber, fromNumber, body) {
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`;
+  const payload = new URLSearchParams({
+    From: `whatsapp:${fromNumber}`,
+    To: `whatsapp:${toNumber}`,
+    Body: body,
+  });
+  const auth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString("base64");
+  const r = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: payload,
+  });
+  return await r.json();
+}
+
+// ---------- Telegram alert (only on hot lead = escalate or qualified) ----------
+async function tgAlert(msg) {
+  if (!TG_BOT || !TG_CHAT) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_BOT}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: TG_CHAT, text: msg, parse_mode: "Markdown" }),
+    });
+  } catch (e) {
+    functions.logger.error("Telegram alert failed", e.message);
+  }
+}
+
+// ---------- HTTP webhook ----------
+exports.whatsappAIResponder = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 60 })
+  .https.onRequest(async (req, res) => {
+    try {
+      const from = (req.body.From || "").replace("whatsapp:", "");
+      const to = (req.body.To || "").replace("whatsapp:", "");
+      const text = (req.body.Body || "").trim();
+      const profileName = req.body.ProfileName || "";
+
+      if (!from || !text) {
+        return res.status(200).send("OK");
+      }
+
+      functions.logger.info("WA inbound", { from, to, text: text.slice(0, 100), profileName });
+
+      // 1. Load client config (by `to` number)
+      const clientRef = db.collection("wa_clients").doc(to);
+      const clientDoc = await clientRef.get();
+      const client = clientDoc.exists
+        ? clientDoc.data()
+        : {
+            name: "JegoDigital",
+            systemPrompt: SOFIA_DEFAULT_PROMPT,
+            destinationEmail: "jegoalexdigital@gmail.com",
+          };
+
+      // 2. Load conversation history
+      const convoId = `${to.replace(/\+/g, "")}_${from.replace(/\+/g, "")}`;
+      const convoRef = db.collection("wa_conversations").doc(convoId);
+      const convoDoc = await convoRef.get();
+      const history = convoDoc.exists ? convoDoc.data().messages || [] : [];
+
+      // 3. Append user message
+      history.push({ role: "user", parts: [{ text }] });
+
+      // 4. Call Gemini with system prompt + last 10 messages
+      const recentHistory = history.slice(-10);
+      const { reply, meta } = await callGemini(client.systemPrompt, recentHistory);
+
+      // 5. Append AI response
+      history.push({ role: "model", parts: [{ text: reply }] });
+
+      // 6. Save conversation (keep last 50 messages)
+      await convoRef.set(
+        {
+          client_to: to,
+          lead_phone: from,
+          lead_name: profileName || meta.name || null,
+          messages: history.slice(-50),
+          last_meta: meta,
+          updated_at: admin.firestore.FieldValue.serverTimestamp(),
+          message_count: (history.length || 0),
+        },
+        { merge: true }
+      );
+
+      // 7. If lead has captured info → write to wa_leads
+      if (meta.name || meta.intent || meta.qualified) {
+        const leadRef = db.collection("wa_leads").doc(`${to.replace(/\+/g,"")}_${from.replace(/\+/g,"")}`);
+        await leadRef.set(
+          {
+            client: to,
+            phone: from,
+            name: meta.name || profileName || null,
+            intent: meta.intent || null,
+            budget_hint: meta.budget_hint || null,
+            timeline: meta.timeline || null,
+            qualified: !!meta.qualified,
+            escalate: !!meta.escalate,
+            captured_at: admin.firestore.FieldValue.serverTimestamp(),
+            last_message_text: text.slice(0, 500),
+          },
+          { merge: true }
+        );
+      }
+
+      // 8. Telegram alert if hot (escalate or qualified or first message)
+      if (meta.escalate || meta.qualified || history.length <= 2) {
+        const alertMsg =
+          `🔥 *WhatsApp Lead* (${client.name})\n` +
+          `📱 ${from}${profileName ? " — " + profileName : ""}\n` +
+          (meta.intent ? `🎯 ${meta.intent}\n` : "") +
+          (meta.budget_hint ? `💰 ${meta.budget_hint}\n` : "") +
+          (meta.timeline ? `⏰ ${meta.timeline}\n` : "") +
+          (meta.escalate ? `\n⚠️ *URGENT — escalate now*` : "") +
+          `\n\n_Last msg:_ "${text.slice(0, 200)}"`;
+        await tgAlert(alertMsg);
+      }
+
+      // 9. Send AI reply via Twilio
+      const sent = await sendWhatsApp(from, to, reply);
+      if (sent.error_code || sent.error_message) {
+        functions.logger.error("Twilio send error", sent);
+      }
+
+      // Twilio expects 200 OK with empty body OR TwiML
+      res.status(200).set("Content-Type", "text/xml").send("<Response></Response>");
+    } catch (e) {
+      functions.logger.error("whatsappAIResponder fatal", e);
+      res.status(500).send(e.message);
+    }
+  });
+
+// ---------- Health check ----------
+exports.whatsappAIHealth = functions.https.onRequest(async (req, res) => {
+  const checks = {
+    gemini: !!GEMINI_KEY,
+    twilio: !!(TWILIO_SID && TWILIO_AUTH),
+    telegram: !!(TG_BOT && TG_CHAT),
+    timestamp: new Date().toISOString(),
+  };
+  res.status(200).json(checks);
+});

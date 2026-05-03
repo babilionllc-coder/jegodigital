@@ -2846,3 +2846,13 @@ exports.metaLeadFormWebhook = metaLeadFormWebhookMod.metaLeadFormWebhook;
 const syncInstantlyToFbCAMod = require("./syncInstantlyToFbCustomAudiences");
 exports.syncInstantlyToFbCustomAudiences = syncInstantlyToFbCAMod.syncInstantlyToFbCustomAudiences;
 exports.syncInstantlyToFbCustomAudiencesOnDemand = syncInstantlyToFbCAMod.syncInstantlyToFbCustomAudiencesOnDemand;
+
+// ============================================================
+// WhatsApp AI Responder (Twilio + Gemini 2.5 Flash)
+// (added 2026-05-03 — Sofia AI brain on client WhatsApp numbers)
+// Webhook: https://us-central1-jegodigital-e02fb.cloudfunctions.net/whatsappAIResponder
+// Configure in Twilio Console → WhatsApp Sandbox/Sender → Inbound webhook
+// ============================================================
+const whatsappAIResponderMod = require('./whatsappAIResponder');
+exports.whatsappAIResponder = whatsappAIResponderMod.whatsappAIResponder;
+exports.whatsappAIHealth     = whatsappAIResponderMod.whatsappAIHealth;
