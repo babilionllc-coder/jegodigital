@@ -404,6 +404,106 @@ async function pushLeadToNotion(client, leadData, convoId, msgCount) {
   }
 }
 
+// ---------- Email project info via Brevo (real delivery, not a fake promise) ----------
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const FLAMINGO_SENDER_EMAIL = "info@realestateflamingo.com.mx";
+const FLAMINGO_SENDER_NAME = "Flamingo Real Estate";
+
+function detectEmailIntent(text, history) {
+  const t = (text || "").toLowerCase();
+  // 1. Did the user share an email in this message?
+  const emailMatch = t.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+  if (!emailMatch) return null;
+  // 2. Look at last 4 messages — was there a brochure/info request?
+  const recentMessages = (history || []).slice(-4).map(m => (m.parts?.[0]?.text || "").toLowerCase()).join(" ");
+  const askedForInfo = /\b(brochure|ficha|info|información|email|correo|mándame|enviame|envíame|detalles)\b/i.test(recentMessages);
+  if (!askedForInfo) return null;
+  return { email: emailMatch[0], askedForInfo: true };
+}
+
+async function sendProjectInfoEmail({ to, leadName, project, photos, brochure_url, video_url, owner_whatsapp }) {
+  if (!BREVO_API_KEY || !to || !project) return { ok: false, reason: "missing_inputs" };
+
+  const safeName = (leadName && leadName !== "Sofía") ? leadName : "estimado/a";
+  const projectTitle = project.name || project.slug || "el proyecto";
+
+  // Build HTML body
+  const photoBlock = (photos || []).slice(0, 3).map(p =>
+    `<img src="${p}" alt="${projectTitle}" style="width:100%;max-width:520px;border-radius:8px;margin:8px 0;" />`
+  ).join("");
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto;padding:20px;">
+  <div style="background:#0a4d3c;color:#d4af37;padding:20px;text-align:center;border-radius:8px 8px 0 0;">
+    <h1 style="margin:0;">Flamingo Real Estate</h1>
+    <p style="margin:5px 0 0;font-style:italic;">Inmobiliaria especializada en Cancún + Riviera Maya</p>
+  </div>
+
+  <div style="padding:20px;background:#fff;">
+    <p>Hola ${safeName},</p>
+    <p>Como solicitaste, aquí tienes la información de <strong>${projectTitle}</strong>:</p>
+
+    ${photoBlock || ""}
+
+    <h3 style="color:#0a4d3c;margin-top:20px;">📍 ${projectTitle}</h3>
+    ${project.location ? `<p><strong>Ubicación:</strong> ${project.location}</p>` : ""}
+    ${project.desde ? `<p><strong>Desde:</strong> ${project.desde}</p>` : ""}
+    ${project.roi ? `<p><strong>ROI estimado:</strong> ${project.roi}</p>` : ""}
+    ${project.entrega ? `<p><strong>Entrega:</strong> ${project.entrega}</p>` : ""}
+
+    <div style="margin:25px 0;text-align:center;">
+      ${brochure_url ? `<a href="${brochure_url}" style="display:inline-block;background:#d4af37;color:#0a4d3c;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;margin:5px;">📄 Ver Brochure Completo</a>` : ""}
+      ${video_url ? `<a href="${video_url}" style="display:inline-block;background:#0a4d3c;color:#d4af37;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;margin:5px;">🎬 Ver Video</a>` : ""}
+    </div>
+
+    ${!brochure_url ? `<p style="color:#666;font-size:14px;"><em>El brochure detallado de este proyecto te lo envía nuestro equipo en las próximas horas.</em></p>` : ""}
+
+    <hr style="border:none;border-top:1px solid #eee;margin:25px 0;" />
+
+    <p><strong>¿Listo para ver el proyecto en persona?</strong></p>
+    <p>Agenda tu tour gratuito: <a href="https://calendly.com/jegoalexdigital/flamingo-real-estate-property-tour-scheduling" style="color:#0a4d3c;font-weight:bold;">Reservar Tour</a></p>
+    <p>O escríbele directamente a Rodrigo (CEO): <a href="https://wa.me/${(owner_whatsapp || "+529981922793").replace(/[^\d]/g, "")}">WhatsApp ${owner_whatsapp || "+52 998 192 2793"}</a></p>
+
+    <p style="margin-top:30px;">Un saludo,<br/><strong>Sofía</strong> · Asistente Virtual<br/>Flamingo Real Estate</p>
+  </div>
+
+  <div style="background:#f4f4f4;padding:15px;text-align:center;font-size:12px;color:#999;border-radius:0 0 8px 8px;">
+    <a href="https://realestateflamingo.com.mx" style="color:#0a4d3c;">realestateflamingo.com.mx</a>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": BREVO_API_KEY,
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: FLAMINGO_SENDER_NAME, email: FLAMINGO_SENDER_EMAIL },
+        to: [{ email: to, name: safeName }],
+        subject: `Información de ${projectTitle} — Flamingo Real Estate`,
+        htmlContent: html,
+        replyTo: { email: FLAMINGO_SENDER_EMAIL, name: FLAMINGO_SENDER_NAME },
+      }),
+    });
+    const j = await r.json();
+    if (j.messageId) {
+      functions.logger.info("Project info email sent", { to, project: projectTitle, messageId: j.messageId });
+      return { ok: true, messageId: j.messageId };
+    }
+    functions.logger.warn("Brevo email failed", j);
+    return { ok: false, error: j };
+  } catch (e) {
+    functions.logger.error("Email send error", e.message);
+    return { ok: false, error: e.message };
+  }
+}
+
 // ---------- Client admin panel push (cross-project Firestore write) ----------
 // Writes lead directly to client's Firestore `leads` collection so they appear
 // in their existing /admin CRM dashboard. Lazy-initializes a per-client
@@ -716,6 +816,42 @@ exports.whatsappAIResponder = functions
           (meta.escalate ? `\n⚠️ *URGENT — escalate now*` : "") +
           `\n\n_Last msg:_ "${text.slice(0, 200)}"`;
         await tgAlert(alertMsg);
+      }
+
+      // 8b. Detect EMAIL INTENT — if user gave email + asked for info recently → SEND IT
+      const emailIntent = detectEmailIntent(text, history);
+      if (emailIntent && emailIntent.email) {
+        const projectSlug = meta.project_interest;
+        if (projectSlug && client.media_library) {
+          // Fuzzy lookup
+          let proj = client.media_library[projectSlug];
+          if (!proj) {
+            const slugNorm = String(projectSlug).toLowerCase().replace(/[^a-z0-9]/g, "");
+            const matchKey = Object.keys(client.media_library).find(k => {
+              const kn = k.toLowerCase().replace(/[^a-z0-9]/g, "");
+              return kn === slugNorm || kn.includes(slugNorm) || slugNorm.includes(kn);
+            });
+            if (matchKey) proj = { ...client.media_library[matchKey], slug: matchKey };
+          }
+          if (proj) {
+            sendProjectInfoEmail({
+              to: emailIntent.email,
+              leadName: meta.name && meta.name !== "Sofía" ? meta.name : profileName,
+              project: { name: proj.name || projectSlug, slug: proj.slug || projectSlug, ...proj },
+              photos: proj.photos,
+              brochure_url: proj.brochure_url,
+              video_url: proj.video_url,
+              owner_whatsapp: client.notification_targets?.owner_whatsapp,
+            }).then((res) => {
+              if (res.ok) {
+                functions.logger.info("Brochure email sent", { to: emailIntent.email, slug: projectSlug });
+              } else {
+                // Email failed → alert Rodrigo via Telegram so he sends manually
+                tgAlert(`📧 *Email manual needed*\n\nLead pidió info de *${projectSlug}* a ${emailIntent.email}\nBrochure no disponible o email falló.\n\nMándale manualmente desde info@realestateflamingo.com.mx`);
+              }
+            }).catch((e) => functions.logger.warn("Email non-blocking fail", e.message));
+          }
+        }
       }
 
       // 9. Detect MEDIA INTENT — if user asked for photos/brochure/video, attach
