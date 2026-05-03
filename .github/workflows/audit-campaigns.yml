@@ -1,0 +1,38 @@
+name: Daily Campaign Audit (HR-5 Gate 7)
+
+# Runs every day at 13:00 UTC (07:00 CDMX) — audits every active Instantly
+# campaign for variable coverage, posts result to Telegram.
+#
+# Built 2026-05-02 PM after the Supersearch disaster (CLAUDE.md HR-5 Gate 7).
+# If any active lead is missing any {{variable}} referenced in its campaign's
+# email body, the workflow fails red and Telegram pings Alex within 24h.
+#
+# Computer can be OFF — runs on GitHub's servers.
+#
+# Manual trigger: workflow_dispatch from Actions tab or `gh workflow run audit-campaigns.yml`.
+
+on:
+  schedule:
+    - cron: "0 13 * * *"   # 13:00 UTC = 07:00 CDMX (CST, UTC-6 — MX no DST since 2022)
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Audit all active campaigns
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run audit
+        env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          chmod +x tools/audit_all_campaigns.sh
+          bash tools/audit_all_campaigns.sh
