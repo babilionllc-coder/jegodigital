@@ -71,7 +71,7 @@ async function callGemini(systemPrompt, history) {
   const j = await r.json();
   if (j.error) {
     functions.logger.error("Gemini error", j.error);
-    return { replies: ["Disculpa, hubo un detalle técnico. Te respondo en 1 minuto."], meta: {} };
+    return { replies: ["Disculpa, hubo un detalle técnico. Te respondo en 1 minuto."], meta: {}, booking: null };
   }
   const text = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
@@ -132,7 +132,84 @@ async function callGemini(systemPrompt, history) {
   // Final safety: each reply max 1400 chars (Twilio WA hard limit ~1600)
   const safe = replies.map((r) => (r.length > 1400 ? r.substring(0, 1400).trim() : r));
 
-  return { replies: safe, meta };
+  return { replies: safe, meta, booking };
+}
+
+
+// ---------- Booking creation via client.booking_endpoint (TT&More + future) ----------
+// When Gemini emits a <BOOKING>{...}</BOOKING> tag and the client has booking_endpoint
+// configured in Firestore, we POST the booking to that endpoint and forward the
+// returned payment link to the user as an additional WhatsApp message.
+async function createBookingViaClientEndpoint(client, booking, leadPhone) {
+  if (!client.booking_endpoint || !booking) return null;
+
+  const fullName = String(booking.name || "").trim();
+  const [firstName, ...lastParts] = fullName.split(/\s+/);
+  const lastName = lastParts.join(" ");
+
+  const pax = parseInt(booking.pax, 10) || 1;
+  const paxRange = pax <= 3 ? "1-3" : (pax <= 7 ? "4-7" : "8-10");
+
+  const isRoundTrip = !!booking.isRoundTrip || booking.is_round_trip === true;
+  const serviceMapped = isRoundTrip ? "Round Trip" : "One Way";
+
+  const arrivalDateTime = booking.date || "";
+  const returnDateTime = booking.returnDate || booking.return_date || "";
+
+  const fields = {
+    "Titular Name": firstName || "",
+    "Titular Last Name": lastName || "",
+    "Telefono Titular": leadPhone || "",
+    "Destino - Tarifa": booking.destination || "",
+    "Tipo de Traslado": serviceMapped,
+    "Hotel": booking.hotel || "",
+    "Passengers - Selector": paxRange,
+    "Flight #": booking.flight || booking.flight_number || "",
+    "Arrival Date Time": arrivalDateTime,
+    "Return Date Time": returnDateTime,
+    "Notas Adicionales": "[Origen: WhatsApp Sofía] Reservado por chat WA con asistente IA.",
+    "Estado del Servicio": "Pendiente",
+  };
+
+  const payload = {
+    fields,
+    email: booking.email || "",
+    clientName: fullName,
+    destination: booking.destination || "",
+    date: booking.date || "",
+    phone: leadPhone || "",
+    returnDate: returnDateTime,
+    returnFlight: booking.returnFlight || booking.return_flight || "",
+    isRoundTrip,
+    payMethod: booking.payMethod || booking.pay_method || "stripe",
+    adults: pax,
+    children: 0,
+  };
+
+  try {
+    const r = await fetch(client.booking_endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const j = await r.json();
+    if (!r.ok) {
+      functions.logger.error("Booking endpoint error", { status: r.status, body: j });
+      return { error: j.error || `HTTP ${r.status}`, paymentUrl: null };
+    }
+    const links = j.paymentLinks || {};
+    const method = payload.payMethod;
+    const paymentUrl = links[method] || links.stripe || links.mercadopago || links.paypal || null;
+    functions.logger.info("Booking created via client endpoint", {
+      bookingId: j.bookingId || j.id || "?",
+      method,
+      hasUrl: !!paymentUrl,
+    });
+    return { paymentUrl, method, bookingId: j.bookingId || j.id, totalUsd: j.totalUsd };
+  } catch (e) {
+    functions.logger.error("Booking endpoint fetch failed", { err: e.message });
+    return { error: e.message, paymentUrl: null };
+  }
 }
 
 // ---------- Twilio send (multi-tenant — supports MMS with media attachments) ----------
@@ -406,8 +483,11 @@ async function pushLeadToNotion(client, leadData, convoId, msgCount) {
 
 // ---------- Email project info via Brevo (real delivery, not a fake promise) ----------
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const FLAMINGO_SENDER_EMAIL = "info@realestateflamingo.com.mx";
-const FLAMINGO_SENDER_NAME = "Flamingo Real Estate";
+// TEMP: Using JegoDigital verified sender until realestateflamingo.com.mx domain is fully authenticated in Brevo
+// (DKIM record needs to be added — Brevo dashboard → Senders → Add domain → grab DKIM TXT)
+const FLAMINGO_SENDER_EMAIL = "info@jegodigital.com";
+const FLAMINGO_SENDER_NAME = "Flamingo Real Estate (vía JegoDigital)";
+const FLAMINGO_REPLY_TO_EMAIL = "info@realestateflamingo.com.mx"; // Replies route to Flamingo even though sender is JD
 
 function detectEmailIntent(text, history) {
   const t = (text || "").toLowerCase();
@@ -488,7 +568,8 @@ async function sendProjectInfoEmail({ to, leadName, project, photos, brochure_ur
         to: [{ email: to, name: safeName }],
         subject: `Información de ${projectTitle} — Flamingo Real Estate`,
         htmlContent: html,
-        replyTo: { email: FLAMINGO_SENDER_EMAIL, name: FLAMINGO_SENDER_NAME },
+        // Replies route to Flamingo's real inbox so Rodrigo handles them
+        replyTo: { email: FLAMINGO_REPLY_TO_EMAIL, name: "Flamingo Real Estate" },
       }),
     });
     const j = await r.json();
@@ -734,7 +815,7 @@ exports.whatsappAIResponder = functions
 
       // 4. Call Gemini — returns array of replies (1-2 messages, auto-split if needed)
       const recentHistory = history.slice(-10);
-      let { replies, meta } = await callGemini(systemPromptWithContext, recentHistory);
+      let { replies, meta, booking } = await callGemini(systemPromptWithContext, recentHistory);
       // Retry once if empty
       if (!replies || replies.length === 0 || replies[0].length < 5) {
         functions.logger.warn("Gemini empty, retrying once");
@@ -743,6 +824,7 @@ exports.whatsappAIResponder = functions
         if (retry.replies && retry.replies.length > 0 && retry.replies[0].length > 5) {
           replies = retry.replies;
           meta = retry.meta;
+          booking = retry.booking;
         }
       }
       // Last-resort safety net
@@ -866,6 +948,31 @@ exports.whatsappAIResponder = functions
             slug: intent.projectSlug,
             count: mediaToSend.length,
           });
+        }
+      }
+
+      // 9b. If Gemini emitted <BOOKING> AND client has booking_endpoint, create the
+      //     booking + fetch payment link, then push it as an additional reply chunk.
+      if (client.booking_endpoint && booking && booking.destination && booking.email && booking.name) {
+        try {
+          const bookResult = await createBookingViaClientEndpoint(client, booking, from);
+          if (bookResult && bookResult.paymentUrl) {
+            const lang = (meta && meta.language) || (booking.language) || "en";
+            const msg = lang === "es"
+              ? `💳 Tu link de pago seguro (${bookResult.method}): ${bookResult.paymentUrl}\n\nReserva queda confirmada al pagar. Te llega email de confirmación + recordatorios automáticos.`
+              : `💳 Your secure payment link (${bookResult.method}): ${bookResult.paymentUrl}\n\nBooking confirms instantly upon payment. You'll receive email confirmation + automatic reminders.`;
+            replies.push(msg);
+            functions.logger.info("Payment link appended to replies", { method: bookResult.method, lang });
+          } else if (bookResult && bookResult.error) {
+            const lang = (meta && meta.language) || "en";
+            const errMsg = lang === "es"
+              ? "Hubo un detalle técnico generando tu link de pago. Te conecto con coordinador: +52 998 300 0307"
+              : "We hit a technical issue generating your payment link. Let me connect you: +52 998 300 0307";
+            replies.push(errMsg);
+            functions.logger.error("Booking failed, told user to call", { error: bookResult.error });
+          }
+        } catch (e) {
+          functions.logger.error("createBookingViaClientEndpoint threw", { err: e.message });
         }
       }
 
