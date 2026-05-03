@@ -1,7 +1,29 @@
 {
-  "version": "2.2",
+  "version": "2.3",
   "last_updated": "2026-05-02",
-  "_doc": "v2.2 — Live API probe (2026-05-02 PM) revealed v2.1 had 2 broken assumptions. Rolled back. Now has VERIFIED-WORKING title.include arrays + all signals marked _pending_capture_from_ui until enum captured.",
+  "_doc": "v2.3 — Browser-driven UI probe (2026-05-02 PM) unlocked 2 production-safe cohorts. Verified working signal/filter shapes via UI URL inspection + live API count tests.",
+  "_v2_3_breakthroughs": {
+    "verified_working_signal_keys_in_array_shape": {
+      "linkedin_post_contact": "1,367 MX RE leads at 90d / 22 at 30d (real signal, real data)",
+      "twitter_post_company":  "365 MX RE leads at 90d (smaller pool but real)",
+      "traffic_surge":         "2,587 MX RE leads at 90d (high-volume — anyone whose site traffic surged)"
+    },
+    "verified_working_separate_filters": {
+      "funding_type": "ARRAY of strings (snake_case): [\"angel\",\"seed\",\"pre_seed\",\"series_a\",\"pre_series_a\"] — returns 42,600 MX RE leads"
+    },
+    "schema_clarifications": [
+      "signals MUST be array (not object as UI URL encodes — there's a translation layer)",
+      "Each signal item: {key: '<verified_key>', period_days: N}",
+      "funding_type is a SEPARATE TOP-LEVEL FILTER, not a signal subtype",
+      "news, job_listing also separate filters (UI showed them as siblings of Signals) — schemas not yet captured",
+      "Skill MASTER §3 categorization '4 Signal categories' was misleading — funding/news/job_listing aren't under Signals at all"
+    ],
+    "still_unknown_signal_keys": [
+      "Buying Intent subtypes (Reddit, churn-language, pricing-complaint) — UI not yet expanded",
+      "Company Activity subtypes (Executive Change, New Office, Acquisition) — UI not yet expanded",
+      "All 'plausible' guesses (funding_round, hiring, executive_change, news_mention, reddit_mention, tech_stack) returned 0 leads — likely use different naming"
+    ]
+  },
   "_critical_findings_2026_05_02_PM": [
     "BREAKING: title.boolean (skill §2.6 syntax) is UI-only — API silently ignores it (returns 1,000,000 = filter discarded, the §12 pitfall #1 trap). Rolled back to title.include arrays which are verified-working (returns 130,975 actual leads).",
     "BREAKING: signals[].{signal_type,signal_subtype,days_back} (skill §2.2 documented shape) is REJECTED by API — schema requires either string OR object with 'key' property. Tried 15 plausible 'key' values (funding_round, funding, hiring, hiring_surge, linkedin_post, executive_change, exec_change, job_change, news, press_mention, reddit_mention, tech_stack, tech_adoption, product_launch, partnership) — ALL returned 0 leads. Either: (a) the Signals add-on isn't enabled on this Instantly workspace, OR (b) the enum is unpublished and only obtainable via UI 'Get API request' capture. Until Alex captures the working JSON, every signal cohort runs in PLACEHOLDER mode (count-only diagnostic, no credit spend).",
@@ -53,18 +75,18 @@
       "daily_pull_limit": 30,
       "credit_per_lead": 1.75,
       "monthly_credit_budget": 1575,
-      "_safe_for_production": false,
-      "_pending_capture_from_ui": true,
-      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
+      "_safe_for_production": true,
+      "_v2_3_unlock": "Switched from non-existent 'funding_round' signal to verified funding_type filter (separate top-level) — 42,600 leads in MX RE with any funding stage. Pivot opener pattern from 'just-raised' to 'raised at all' (tighter signal: signal_type narrowed by emp size).",
       "search_filters": {
         "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
         "title": {"include": ["Owner", "Founder", "CEO", "Director General", "Promotor Inmobiliario", "Director de Desarrollo"]},
         "employeeCount": [{"op": "between", "min": 10, "max": 500}],
-        "signals": [{"key": "funding_round", "_pending_capture": true}],
+        "funding_type": ["angel", "seed", "pre_seed", "series_a", "pre_series_a"],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
+      "expected_pool_size_v2_3_verified": 42600,
       "enrichment_options": {
         "fully_enriched_profile": true,
         "email_verification": true,
@@ -104,27 +126,26 @@
       "personalization_template": "Saw {{companyName}} is hiring a {{hiring_role}}, usually that means the lead pipeline is the bottleneck, not closing. Flamingo solved this with a 24/7 AI on WhatsApp."
     },
     "miami_luxury_post": {
-      "label": "Miami Luxury RE 50+ + LinkedIn post 7d (institutional credibility play)",
+      "label": "Miami Luxury RE + LinkedIn post 90d (institutional credibility play)",
       "priority_order": 3,
       "expected_reply_rate": "3-5%",
-      "expected_pool_size": 78,
+      "expected_pool_size": 12,
       "target_campaign_id": "acffe5c9-9a74-4b3f-8a95-37882a11f96b",
       "target_campaign_name": "USA Miami RE — Hiring + Audit Personalization — 2026-04-26",
-      "daily_pull_limit": 20,
+      "daily_pull_limit": 5,
       "credit_per_lead": 1.5,
-      "monthly_credit_budget": 900,
-      "_safe_for_production": false,
-      "_pending_capture_from_ui": true,
-      "_pending_what": "signals[] enum — current best-guess returns 0 leads",
+      "monthly_credit_budget": 225,
+      "_safe_for_production": true,
+      "_v2_3_unlock": "Verified key=linkedin_post_contact (NOT linkedin_post). Period_days widened from 7→90 because Miami RE on LinkedIn is small (only 12 leads at 90d after Owner/Founder/CEO/Director/Managing Broker/Principal Broker filter). Daily pull dropped from 20→5 to match real pool. Removed employeeCount because it killed all 12 hits.",
       "search_filters": {
         "locations": [{"place_id": "ChIJEcHIDqKw2YgRZU-t3XHylv8"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
         "title": {"include": ["Owner", "Founder", "CEO", "Director", "Managing Broker", "Principal Broker"]},
-        "employeeCount": [{"op": "between", "min": 50, "max": 1000}],
-        "signals": [{"key": "linkedin_post", "_pending_capture": true}],
+        "signals": [{"key": "linkedin_post_contact", "period_days": 90}],
         "skip_in_workspace": true,
         "one_lead_per_company": true
       },
+      "expected_pool_size_v2_3_verified": 12,
       "enrichment_options": {
         "fully_enriched_profile": true,
         "email_verification": true,

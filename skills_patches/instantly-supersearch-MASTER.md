@@ -5,6 +5,18 @@
 **Owner:** Alex Jego · **Author:** Claude (autonomous consolidation, HR-0/HR-1/HR-2 compliant).
 **Read time:** ~25 min · **Char budget:** ~52 KB.
 
+**v2.3 changes (2026-05-02 PM browser-driven discovery):**
+- ✅ **2 cohorts now PRODUCTION-SAFE** (`_safe_for_production:true`): `mx_funding_preventa` (225 leads, uses `funding_type` filter) + `miami_luxury_post` (12 leads, uses `linkedin_post_contact` signal)
+- 🎯 Verified working signal keys (array shape `signals: [{key, period_days}]`):
+  - `linkedin_post_contact` — 1,367 MX RE leads at 90d / 22 at 30d
+  - `twitter_post_company` — 365 MX RE leads at 90d
+  - `traffic_surge` — 2,587 MX RE leads at 90d
+- 🎯 Verified separate top-level filters (NOT under signals):
+  - `funding_type: ["angel","seed","pre_seed","series_a","pre_series_a"]` (snake_case array of strings) → 42,600 MX RE leads
+  - `news`, `job_listing` are also separate filters (schemas not yet captured)
+- ⚠️ **Skill §3 categorization was wrong** — funding/news/job_listing are NOT signal subtypes; they're sibling top-level filters. Section 3 needs full rewrite next session.
+- 5 cohorts still PLACEHOLDER: usa_hiring_trojan (need hiring/job_listing schema), mx_press_aeo (need news schema), mx_exec_change (need exec_change schema), mx_reddit_competitor (need Buying Intent schema), usa_tech_adoption (need Technologies filter — separate top-level)
+
 **v2.1 changes (2026-05-02 PM audit):**
 - ✅ Production bug fixed: `buildPersonalization` switch keys now match cohort `personalization_pattern` keys (was returning `""` on every cohort → score 0 → drop everything)
 - ✅ Boolean title syntax on all 5 original cohorts (kills HR-5 gate-3 gatekeepers)
