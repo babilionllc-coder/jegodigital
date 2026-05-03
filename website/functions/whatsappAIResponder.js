@@ -393,52 +393,115 @@ async function pushLeadToNotion(client, leadData, convoId, msgCount) {
   }
 }
 
-// ---------- Client admin panel push (Flamingo's existing /admin CRM) ----------
-// Sends lead data to the client's own admin panel webhook so leads appear
-// in their existing CRM dashboard (alongside Sofía's Notion sync).
-// Per-client config in Firestore: wa_clients.{phone}.flamingo_admin = {
-//   webhook_url, webhook_secret, sync_enabled
-// }
+// ---------- Client admin panel push (cross-project Firestore write) ----------
+// Writes lead directly to client's Firestore `leads` collection so they appear
+// in their existing /admin CRM dashboard. Lazy-initializes a per-client
+// admin app the first time we need to write to that project.
+const SOFIA_TO_FLAMINGO_STAGE = {
+  diagnostico: "new", match: "contacted", demo: "viewing",
+  cierre: "negotiation", ganado: "closed", perdido: "lost",
+};
+const _clientAdminApps = {}; // cache per project
+
+function getClientAdminApp(client) {
+  const cfg = client?.flamingo_admin;
+  if (!cfg?.firebase_sa_b64 && !process.env.FLAMINGO_FIREBASE_SA_B64) return null;
+  const projectId = cfg?.project_id || "realestateflamingo-e9d4b";
+  if (_clientAdminApps[projectId]) return _clientAdminApps[projectId];
+  try {
+    const saB64 = cfg?.firebase_sa_b64 || process.env.FLAMINGO_FIREBASE_SA_B64;
+    const saJson = JSON.parse(Buffer.from(saB64, "base64").toString("utf-8"));
+    const app = admin.initializeApp({ credential: admin.credential.cert(saJson) }, `client_${projectId}`);
+    _clientAdminApps[projectId] = app;
+    functions.logger.info("Client admin app initialized", { projectId });
+    return app;
+  } catch (e) {
+    functions.logger.error("Client admin app init failed", e.message);
+    return null;
+  }
+}
+
 async function pushLeadToClientAdmin(client, leadData, leadId, recentMessages) {
   const cfg = client?.flamingo_admin;
-  if (!cfg?.sync_enabled || !cfg?.webhook_url) return;
+  if (!cfg?.sync_enabled) return;
+  const app = getClientAdminApp(client);
+  if (!app) return;
 
-  // Convert internal messages to plain text for transcript
-  const transcript = (recentMessages || []).map((m) => ({
-    role: m.role,
+  const clientDb = app.firestore();
+  const phone = leadData.phone;
+  if (!phone) return;
+
+  // Find existing lead by phone
+  const existingSnap = await clientDb.collection("leads").where("phone", "==", phone).limit(1).get();
+
+  // Map Sofía stage → Flamingo pipelineStage
+  const stageMapped = SOFIA_TO_FLAMINGO_STAGE[leadData.stage] || "new";
+  const isHot = !!leadData.escalate || !!leadData.qualified || (leadData.lead_score || 0) >= 8;
+
+  // Conversation summary for "notes"
+  const summary = [];
+  if (leadData.country_of_interest) summary.push(`País: ${leadData.country_of_interest}`);
+  if (leadData.zone) summary.push(`Zona: ${leadData.zone}`);
+  if (leadData.project_interest) summary.push(`Proyecto: ${leadData.project_interest}`);
+  if (leadData.budget_hint) summary.push(`Presupuesto: ${leadData.budget_hint}`);
+  if (leadData.timeline) summary.push(`Timeline: ${leadData.timeline}`);
+  if (leadData.country_of_origin) summary.push(`De: ${leadData.country_of_origin}`);
+  if (leadData.intent) summary.push(`Intención: ${leadData.intent}`);
+  const notes = `[Sofía AI · WhatsApp]\n${summary.join(" · ")}` +
+    (leadData.last_message_text ? `\n\nÚltimo: "${leadData.last_message_text.slice(0, 250)}"` : "");
+
+  const transcript = (recentMessages || []).slice(-8).map((m) => ({
+    role: m.role || "user",
     text: (m.parts?.[0]?.text || "").slice(0, 400),
-    at: m.at || null,
   }));
 
-  const payload = {
-    ...leadData,
-    conversation_id: leadId,
-    transcript: transcript,
-    captured_at: new Date().toISOString(),
+  const doc = {
+    name: leadData.name || "Sin nombre",
+    phone: phone,
+    email: leadData.email || null,
+    source: "Sofía AI WhatsApp",
+    pipelineStage: stageMapped,
+    dealValue: leadData.budget_hint || null,
+    lastActivity: admin.firestore.FieldValue.serverTimestamp(),
+    notes: notes,
+    isHot: isHot,
+    sofia: {
+      score: leadData.lead_score || null,
+      stage: leadData.stage || null,
+      escalate: !!leadData.escalate,
+      qualified: !!leadData.qualified,
+      country_of_interest: leadData.country_of_interest || null,
+      country_of_origin: leadData.country_of_origin || null,
+      zone: leadData.zone || null,
+      project_interest: leadData.project_interest || null,
+      intent: leadData.intent || null,
+      timeline: leadData.timeline || null,
+      conversation_id: leadId,
+      transcript: transcript,
+      last_synced_at: admin.firestore.FieldValue.serverTimestamp(),
+    },
   };
 
   try {
-    const r = await fetch(cfg.webhook_url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-sofia-secret": cfg.webhook_secret || "",
-      },
-      body: JSON.stringify(payload),
-    });
-    const j = await r.json();
-    if (j.success) {
-      functions.logger.info("Client admin push OK", {
-        leadId,
-        action: j.action,
-        flamingoLeadId: j.leadId,
-        stage: j.pipelineStage,
-      });
+    if (!existingSnap.empty) {
+      const existing = existingSnap.docs[0];
+      const existingData = existing.data();
+      // Don't overwrite a manually-edited name with "Sin nombre"
+      if (existingData.name && existingData.name !== "Sin nombre" && doc.name === "Sin nombre") delete doc.name;
+      // Don't move backwards in pipeline (respect human moves)
+      const order = ["new", "contacted", "viewing", "negotiation", "closed", "lost"];
+      if (existingData.pipelineStage && order.indexOf(existingData.pipelineStage) > order.indexOf(stageMapped) && existingData.pipelineStage !== "lost") {
+        delete doc.pipelineStage;
+      }
+      await existing.ref.update(doc);
+      functions.logger.info("Client admin lead UPDATED", { leadId: existing.id, stage: stageMapped });
     } else {
-      functions.logger.warn("Client admin push failed", j);
+      doc.createdAt = admin.firestore.FieldValue.serverTimestamp();
+      const ref = await clientDb.collection("leads").add(doc);
+      functions.logger.info("Client admin lead CREATED", { leadId: ref.id, stage: stageMapped });
     }
   } catch (e) {
-    functions.logger.error("Client admin push error", e.message);
+    functions.logger.error("Client admin write error", e.message);
   }
 }
 
