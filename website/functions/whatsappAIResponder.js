@@ -135,28 +135,132 @@ async function callGemini(systemPrompt, history) {
   return { replies: safe, meta };
 }
 
-// ---------- Twilio send (multi-tenant — routes to subaccount if applicable) ----------
-async function sendWhatsApp(toNumber, fromNumber, body, accountSid) {
-  // accountSid: SID of the account that OWNS fromNumber.
-  // JegoDigital +1 978 → main account. Flamingo +1 252 → Flamingo subaccount.
-  // Parent credentials authenticate; URL scopes to the owning account.
+// ---------- Twilio send (multi-tenant — supports MMS with media attachments) ----------
+async function sendWhatsApp(toNumber, fromNumber, body, accountSid, mediaUrls) {
+  // mediaUrls: optional array of public URLs (PDF, JPG, PNG, MP4) to attach via MMS
+  // Twilio WhatsApp supports up to 1 media per message + caption (body).
+  // For multiple media: send separate messages.
   const ownerSid = accountSid || TWILIO_SID;
   const url = `https://api.twilio.com/2010-04-01/Accounts/${ownerSid}/Messages.json`;
-  const payload = new URLSearchParams({
-    From: `whatsapp:${fromNumber}`,
-    To: `whatsapp:${toNumber}`,
-    Body: body,
-  });
   const auth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString("base64");
-  const r = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: payload,
-  });
-  return await r.json();
+
+  // If multiple media, send sequentially (1 per message)
+  const mediaList = mediaUrls && mediaUrls.length ? mediaUrls : [null];
+  let lastResp = null;
+  for (let i = 0; i < mediaList.length; i++) {
+    const payload = new URLSearchParams({
+      From: `whatsapp:${fromNumber}`,
+      To: `whatsapp:${toNumber}`,
+    });
+    // Body only on first message (or if no media at all)
+    if (i === 0 && body) payload.append("Body", body);
+    if (mediaList[i]) payload.append("MediaUrl", mediaList[i]);
+    if (i > 0) await new Promise((r) => setTimeout(r, 700));
+    const r = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: payload,
+    });
+    lastResp = await r.json();
+    if (lastResp.error_code) functions.logger.warn("Twilio media send error", lastResp);
+  }
+  return lastResp;
+}
+
+// ---------- Media intent detection ----------
+// Returns { type: 'photos'|'brochure'|'video'|null, projectSlug: string }
+function detectMediaIntent(text, lastReplyMeta) {
+  const t = (text || "").toLowerCase();
+  let type = null;
+  // Match "mándame fotos / mostrame fotos / send me photos / pictures / imágenes"
+  if (/\b(foto|fotos|photo|photos|pic|pics|picture|im[aá]gen|im[aá]genes|render|renders|gallery|galer[ií]a)\b/i.test(t)) type = "photos";
+  // Brochure / ficha técnica
+  else if (/\b(brochure|brochur|ficha|ficha t[eé]cnica|catalog|cat[aá]logo|pdf)\b/i.test(t)) type = "brochure";
+  // Video / tour
+  else if (/\b(video|videos|tour|recorrido|youtube)\b/i.test(t)) type = "video";
+  if (!type) return null;
+
+  // Try to identify the project from current text or last meta
+  const projectSlug = (lastReplyMeta && lastReplyMeta.project_interest) || null;
+  return { type, projectSlug };
+}
+
+function getProjectMedia(client, projectSlug, type) {
+  if (!projectSlug || !client.media_library) return null;
+  const proj = client.media_library[projectSlug];
+  if (!proj) return null;
+  if (type === "photos") return (proj.photos || []).slice(0, 3); // max 3 photos to avoid spam
+  if (type === "brochure") return proj.brochure_url ? [proj.brochure_url] : null;
+  if (type === "video") return proj.video_url ? [proj.video_url] : null;
+  return null;
+}
+
+// ---------- Voice message transcription (Gemini multimodal) ----------
+async function transcribeAudio(audioUrl, mimeType) {
+  try {
+    // Download from Twilio (auth required)
+    const auth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString("base64");
+    const audioRes = await fetch(audioUrl, { headers: { Authorization: `Basic ${auth}` } });
+    if (!audioRes.ok) {
+      functions.logger.warn("Audio download failed", audioRes.status);
+      return null;
+    }
+    const audioBuf = await audioRes.arrayBuffer();
+    const b64 = Buffer.from(audioBuf).toString("base64");
+    // Gemini transcribe
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: "Transcribe this audio message exactly word-for-word in the original language. Return ONLY the transcription text, no commentary or quotes." },
+            { inline_data: { mime_type: mimeType || "audio/ogg", data: b64 } },
+          ],
+        }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 500 },
+      }),
+    });
+    const j = await r.json();
+    return j.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+  } catch (e) {
+    functions.logger.error("transcribeAudio error", e.message);
+    return null;
+  }
+}
+
+// ---------- Image description (Gemini Vision) ----------
+async function describeImage(imageUrl, mimeType) {
+  try {
+    const auth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString("base64");
+    const imgRes = await fetch(imageUrl, { headers: { Authorization: `Basic ${auth}` } });
+    if (!imgRes.ok) return null;
+    const buf = await imgRes.arrayBuffer();
+    const b64 = Buffer.from(buf).toString("base64");
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: "Describe what's in this image in 1-2 sentences. If it's a real estate property, note key features (style, location, amenities visible). Return ONLY the description, no preamble." },
+            { inline_data: { mime_type: mimeType || "image/jpeg", data: b64 } },
+          ],
+        }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 200 },
+      }),
+    });
+    const j = await r.json();
+    return j.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+  } catch (e) {
+    functions.logger.error("describeImage error", e.message);
+    return null;
+  }
 }
 
 // ---------- Telegram alert (only on hot lead = escalate or qualified) ----------
@@ -296,14 +400,39 @@ exports.whatsappAIResponder = functions
     try {
       const from = (req.body.From || "").replace("whatsapp:", "");
       const to = (req.body.To || "").replace("whatsapp:", "");
-      const text = (req.body.Body || "").trim();
+      let text = (req.body.Body || "").trim();
       const profileName = req.body.ProfileName || "";
+      const numMedia = parseInt(req.body.NumMedia || "0", 10);
+
+      // INBOUND MEDIA HANDLING — voice notes + images
+      if (numMedia > 0) {
+        const mediaUrl = req.body.MediaUrl0;
+        const mediaType = (req.body.MediaContentType0 || "").toLowerCase();
+        if (mediaType.startsWith("audio/")) {
+          functions.logger.info("Inbound audio detected", { from, mediaType });
+          const transcribed = await transcribeAudio(mediaUrl, mediaType);
+          if (transcribed) {
+            text = (text ? text + " " : "") + `[Audio del lead]: ${transcribed}`;
+            functions.logger.info("Audio transcribed", { len: transcribed.length });
+          } else {
+            text = text || "[el lead envió un mensaje de audio que no se pudo transcribir]";
+          }
+        } else if (mediaType.startsWith("image/")) {
+          functions.logger.info("Inbound image detected", { from, mediaType });
+          const described = await describeImage(mediaUrl, mediaType);
+          if (described) {
+            text = (text ? text + " " : "") + `[Imagen del lead]: ${described}`;
+          } else {
+            text = text || "[el lead envió una imagen]";
+          }
+        }
+      }
 
       if (!from || !text) {
         return res.status(200).send("OK");
       }
 
-      functions.logger.info("WA inbound", { from, to, text: text.slice(0, 100), profileName });
+      functions.logger.info("WA inbound", { from, to, text: text.slice(0, 100), profileName, numMedia });
 
       // 1. Load client config (by `to` number)
       const clientRef = db.collection("wa_clients").doc(to);
@@ -436,16 +565,36 @@ exports.whatsappAIResponder = functions
         await tgAlert(alertMsg);
       }
 
-      // 9. Send AI reply(s) via Twilio — supports multi-message split
-      // Send each chunk sequentially with 800ms delay so they arrive in order naturally
+      // 9. Detect MEDIA INTENT — if user asked for photos/brochure/video, attach
+      // Use most recent META (current reply has best project_interest signal)
+      const intent = detectMediaIntent(text, meta);
+      let mediaToSend = null;
+      if (intent && intent.projectSlug) {
+        mediaToSend = getProjectMedia(client, intent.projectSlug, intent.type);
+        if (mediaToSend) {
+          functions.logger.info("Media intent matched", {
+            type: intent.type,
+            slug: intent.projectSlug,
+            count: mediaToSend.length,
+          });
+        }
+      }
+
+      // 10. Send AI reply(s) via Twilio — supports multi-message split + MMS attachments
       for (let i = 0; i < replies.length; i++) {
         const chunk = replies[i];
         if (i > 0) await new Promise((r) => setTimeout(r, 800));
-        const sent = await sendWhatsApp(from, to, chunk, client.twilio_subaccount_sid);
+        // Attach media to LAST chunk only (so user reads the message THEN gets the asset)
+        const isLastChunk = i === replies.length - 1;
+        const mediaForThisChunk = isLastChunk && mediaToSend ? mediaToSend : null;
+        const sent = await sendWhatsApp(from, to, chunk, client.twilio_subaccount_sid, mediaForThisChunk);
         if (sent.error_code || sent.error_message) {
           functions.logger.error(`Twilio send error (chunk ${i})`, sent);
         } else {
-          functions.logger.info(`Reply chunk ${i + 1}/${replies.length} sent`, { len: chunk.length });
+          functions.logger.info(`Reply chunk ${i + 1}/${replies.length} sent`, {
+            len: chunk.length,
+            media: mediaForThisChunk ? mediaForThisChunk.length : 0,
+          });
         }
       }
 
