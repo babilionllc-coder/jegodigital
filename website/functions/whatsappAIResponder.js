@@ -87,9 +87,13 @@ async function callGemini(systemPrompt, history) {
   return { reply, meta };
 }
 
-// ---------- Twilio send ----------
-async function sendWhatsApp(toNumber, fromNumber, body) {
-  const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`;
+// ---------- Twilio send (multi-tenant — routes to subaccount if applicable) ----------
+async function sendWhatsApp(toNumber, fromNumber, body, accountSid) {
+  // accountSid: SID of the account that OWNS fromNumber.
+  // JegoDigital +1 978 → main account. Flamingo +1 252 → Flamingo subaccount.
+  // Parent credentials authenticate; URL scopes to the owning account.
+  const ownerSid = accountSid || TWILIO_SID;
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${ownerSid}/Messages.json`;
   const payload = new URLSearchParams({
     From: `whatsapp:${fromNumber}`,
     To: `whatsapp:${toNumber}`,
@@ -211,8 +215,8 @@ exports.whatsappAIResponder = functions
         await tgAlert(alertMsg);
       }
 
-      // 9. Send AI reply via Twilio
-      const sent = await sendWhatsApp(from, to, reply);
+      // 9. Send AI reply via Twilio (route to owning subaccount if multi-tenant client)
+      const sent = await sendWhatsApp(from, to, reply, client.twilio_subaccount_sid);
       if (sent.error_code || sent.error_message) {
         functions.logger.error("Twilio send error", sent);
       }
