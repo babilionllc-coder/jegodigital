@@ -124,14 +124,21 @@ exports.flamingoDailyDigest = functions
       }
       try {
         const { body, total, hot } = await buildDigest(doc.id, client);
-        await sendWA(
-          targets.owner_whatsapp,
-          doc.id, // FROM the client's own number (e.g. Flamingo's +1 252)
-          body,
-          client.twilio_subaccount_sid
-        );
-        sent++;
-        functions.logger.info("Daily digest sent", { client: doc.id, total, hot });
+        // Recipients: primary owner + (optional) pilot owner for QA
+        const recipients = [targets.owner_whatsapp];
+        if (targets.send_to_pilot_owner_too && targets.pilot_owner_whatsapp) {
+          recipients.push(targets.pilot_owner_whatsapp);
+        }
+        for (const recipient of recipients) {
+          await sendWA(
+            recipient,
+            doc.id, // FROM the client's own number (e.g. Flamingo's +1 252)
+            body,
+            client.twilio_subaccount_sid
+          );
+        }
+        sent += recipients.length;
+        functions.logger.info("Daily digest sent", { client: doc.id, total, hot, recipients: recipients.length });
       } catch (e) {
         functions.logger.error("Daily digest fail", { client: doc.id, err: e.message });
       }
@@ -187,18 +194,21 @@ exports.flamingoHotLeadAlert = functions
 
     const body = lines.join("\n");
     try {
-      await sendWA(
-        targets.owner_whatsapp,
-        clientPhone,
-        body,
-        client.twilio_subaccount_sid
-      );
+      // Send to primary owner + (optional) pilot owner for QA
+      const recipients = [targets.owner_whatsapp];
+      if (targets.send_to_pilot_owner_too && targets.pilot_owner_whatsapp) {
+        recipients.push(targets.pilot_owner_whatsapp);
+      }
+      for (const recipient of recipients) {
+        await sendWA(recipient, clientPhone, body, client.twilio_subaccount_sid);
+      }
       functions.logger.info("Hot lead alert sent", {
         client: clientPhone,
         lead: after.phone,
         score: after.lead_score,
+        recipients: recipients.length,
       });
-      // Also mirror to Telegram for Alex (JegoDigital agency view)
+      // Also mirror to Telegram for JegoDigital agency oversight
       await tg(`🔥 *HOT LEAD* (${client.name || clientPhone})\n\n` + body);
     } catch (e) {
       functions.logger.error("Hot lead alert fail", e.message);
