@@ -60,7 +60,8 @@ async function callGemini(systemPrompt, history) {
   const body = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: history,
-    generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+    // 250 tokens ≈ 200 words ≈ 1000 chars — fits comfortably in WhatsApp's 1600-char limit
+    generationConfig: { temperature: 0.7, maxOutputTokens: 250 },
   };
   const r = await fetch(url, {
     method: "POST",
@@ -73,17 +74,30 @@ async function callGemini(systemPrompt, history) {
     return { reply: "Disculpa, problema técnico. Te llamamos en 5 min.", meta: {} };
   }
   const text = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  // Extract <META>{}</META> JSON, strip from user-visible reply
-  const metaMatch = text.match(/<META>([\s\S]*?)<\/META>/);
+
+  // Extract META JSON (complete tag preferred)
   let meta = {};
+  const metaMatch = text.match(/<META>([\s\S]*?)<\/META>/);
   if (metaMatch) {
-    try {
-      meta = JSON.parse(metaMatch[1]);
-    } catch (e) {
-      /* ignore */
-    }
+    try { meta = JSON.parse(metaMatch[1]); } catch (e) { /* ignore */ }
   }
-  const reply = text.replace(/<META>[\s\S]*?<\/META>/g, "").trim();
+
+  // ROBUST strip: remove ANYTHING from `<META` onwards (even without closing tag, even malformed)
+  // This guards against: truncated messages, malformed META, partial tags, anything weird
+  let reply = text.replace(/<META>[\s\S]*?<\/META>/gi, "").trim();
+  // Belt-and-suspenders: cut anything from first `<META` we still see
+  const stripIdx = reply.indexOf("<META");
+  if (stripIdx >= 0) reply = reply.substring(0, stripIdx).trim();
+  // Also strip any trailing partial tags like `<MET`, `<ME`, `<M` at end
+  reply = reply.replace(/<[A-Z]{1,4}\s*$/, "").trim();
+
+  // Hard cap at 1400 chars (WhatsApp limit is 1600, leave room for safety)
+  if (reply.length > 1400) {
+    // Cut at last sentence boundary before 1400
+    const cut = reply.lastIndexOf(".", 1400);
+    reply = (cut > 800 ? reply.substring(0, cut + 1) : reply.substring(0, 1400)).trim();
+  }
+
   return { reply, meta };
 }
 
