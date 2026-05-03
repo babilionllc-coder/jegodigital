@@ -1,5 +1,7 @@
-<!DOCTYPE html><html lang="en" class="scroll-smooth"><head>
-        <!-- Microsoft Clarity -->
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <!-- Microsoft Clarity -->
     <script type="text/javascript">
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -7,30 +9,47 @@
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "wc783wmt5i");
     </script>
-    <!-- End Microsoft Clarity -->
-<!-- Google tag (gtag.js) -->
-    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-6BFHHN8BJQ"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6BFHHN8BJQ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'G-6BFHHN8BJQ');
     </script>
-    <!-- Google Ads conversion tracking consolidated to account 471-527-2770 -->
     <script src="/js/tracking.js" defer></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hire AI Agents. Autonomous Digital Employees tailored for your business. Automate lead gen, invoicing, and content creation.">
-    <title>AI Agents &amp; Automation | JegoDigital Global</title>
-    <!-- Canonical -->
+    <meta name="description" content="Sofía AI — Cierra ventas en WhatsApp 24/7 para inmobiliarias. Mismo sistema que Flamingo Real Estate (Cancún) automatiza el 88% de leads. Piloto 14 días con garantía 100% reembolso.">
+    <title>Sofía AI — Asistente WhatsApp 24/7 para Inmobiliarias | JegoDigital</title>
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <link rel="canonical" href="https://jegodigital.com/ai-agents">
+
+    <!-- hreflang -->
+    <link rel="alternate" hreflang="es" href="https://jegodigital.com/ai-agents">
+    <link rel="alternate" hreflang="en" href="https://jegodigital.com/ai-agents">
+    <link rel="alternate" hreflang="x-default" href="https://jegodigital.com/ai-agents">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Sofía AI — Asistente WhatsApp 24/7 para Inmobiliarias">
+    <meta property="og:description" content="Cierra ventas en WhatsApp 24/7. Mismo sistema que Flamingo Real Estate (Cancún) automatiza 88% de leads. Piloto 14 días, garantía 100% reembolso.">
+    <meta property="og:url" content="https://jegodigital.com/ai-agents">
+    <meta property="og:image" content="https://jegodigital.com/img/showcase/flamingo/sofia_whatsapp_demo.png">
+    <meta property="og:locale" content="es_MX">
+    <meta property="og:site_name" content="JegoDigital">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sofía AI — Asistente WhatsApp 24/7 para Inmobiliarias">
+    <meta name="twitter:description" content="Cierra ventas en WhatsApp 24/7. Piloto 14 días con garantía total.">
+    <meta name="twitter:image" content="https://jegodigital.com/img/showcase/flamingo/sofia_whatsapp_demo.png">
 
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Language Manager -->
@@ -51,10 +70,23 @@
                         primary: '#C5A059',
                         secondary: '#C5A059',
                         accent: '#b08d48',
+                        'brand-gray': '#9ca3af',
                     },
                     animation: {
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'spin-slow': 'spin 10s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 3s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        }
                     }
                 }
             }
@@ -80,380 +112,1011 @@
                 linear-gradient(90deg, rgba(197,160,89,0.03) 1px, transparent 1px);
             background-size: 40px 40px;
         }
+        .gold-border-glow {
+            box-shadow: 0 0 0 1px rgba(197,160,89,0.3), 0 0 40px rgba(197,160,89,0.15);
+        }
+        .step-line {
+            background: linear-gradient(180deg, #C5A059 0%, transparent 100%);
+        }
+        .pipeline-card {
+            background: rgba(26,28,35,0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(197,160,89,0.2);
+            transition: all 0.3s ease;
+        }
+        .pipeline-card:hover {
+            border-color: rgba(197,160,89,0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 40px rgba(197,160,89,0.15);
+        }
+        .price-card-pilot {
+            background: linear-gradient(135deg, rgba(197,160,89,0.15) 0%, rgba(26,28,35,0.9) 100%);
+            border: 2px solid #C5A059;
+        }
+        .iphone-frame {
+            border: 12px solid #1a1c23;
+            border-radius: 48px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(197,160,89,0.2);
+            background: #000;
+            overflow: hidden;
+        }
+        .browser-chrome {
+            background: #1a1c23;
+            border-radius: 12px 12px 0 0;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(26,28,35,0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(197,160,89,0.1);
+            transition: all 0.3s ease;
+        }
+        .check-item:hover {
+            background: rgba(26,28,35,0.8);
+            border-color: rgba(197,160,89,0.3);
+        }
     </style>
 
-    <script type="application/ld+json">
-    {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "AI Agents & Automation | JegoDigital Global",
-    "description": "Hire AI Agents. Autonomous Digital Employees tailored for your business. Automate lead gen, invoicing, and content creation.",
-    "url": "https://jegodigital.com/ai-agents.html",
-    "publisher": {
-        "@type": "Organization",
-        "name": "JegoDigital",
-        "logo": {
-            "@type": "ImageObject",
-            "url": "https://jegodigital.com/assets/logo.png"
-        }
-    }
-}
-    </script>
-    <!-- Favicon & App Icons (v2 — 2026-04 rebrand to gold J monogram) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#0f1115">
-    <meta name="msapplication-TileColor" content="#0f1115">
-    <meta name="msapplication-TileImage" content="/mstile-150x150.png">
-    <!-- /Favicon -->
+
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Sofía AI — Asistente WhatsApp 24/7 para Inmobiliarias",
+        "description": "Asistente de inteligencia artificial que responde y califica leads en WhatsApp las 24 horas para agencias inmobiliarias en México y Miami luxury. Setup en 90 minutos. Piloto 14 días con garantía 100% reembolso.",
+        "url": "https://jegodigital.com/ai-agents",
+        "provider": {
+            "@type": "Organization",
+            "name": "JegoDigital",
+            "url": "https://jegodigital.com",
+            "logo": "https://jegodigital.com/images/logo/jegodigitallogo.png",
+            "sameAs": [
+                "https://www.instagram.com/jegodigital/",
+                "https://www.youtube.com/@JegoDigitalchannel",
+                "https://www.tiktok.com/@jegodigital",
+                "https://www.facebook.com/profile.php?id=61581425401975"
+            ]
+        },
+        "areaServed": [
+            { "@type": "Country", "name": "Mexico" },
+            { "@type": "City", "name": "Miami" }
+        ],
+        "serviceType": "AI WhatsApp Sales Assistant for Real Estate",
+        "offers": {
+            "@type": "Offer",
+            "name": "Piloto Sofía 14 días",
+            "description": "14 días con garantía 100% reembolso si Sofía no captura mínimo 1 lead calificado",
+            "priceCurrency": "MXN",
+            "price": "8000",
+            "availability": "https://schema.org/InStock"
+        }
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "¿Qué pasa si Sofía no captura leads en los 14 días?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Te devolvemos el 100% del piloto. Sin preguntas. Sin contratos forzados. Esa es nuestra garantía."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "¿En cuánto tiempo está Sofía operando?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "90 minutos desde que tenemos toda la info. Tú pones tu marca, tu inventario y tu tono — nosotros activamos todo el sistema (Twilio + Meta WhatsApp Business + Notion CRM)."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "¿En qué idiomas habla Sofía?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Español + inglés con detección automática. Si tu lead escribe en inglés, Sofía responde en inglés. Si llega un comprador de Miami, sin problema."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Necesito un nuevo número de WhatsApp?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Sí — y nosotros te lo damos. Un número dedicado de WhatsApp Business integrado a Meta Business Manager. Tú lo usas, tú lo mantienes."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Dónde veo los leads que Sofía captura?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "En tu panel privado de Notion (funciona en celular y computadora) más una notificación instantánea por WhatsApp cada vez que llega un lead caliente. Plus un digest matutino a las 7am con el resumen del día anterior."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Cuánto cuesta después del piloto?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "$8,000 MXN al mes. Sin contrato a plazo. Cancelas cuando quieras. Y si quieres escalar: Pack Crecimiento ($18,900 MXN/mo) agrega SEO Local y sitio web optimizado."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- VideoObject Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "Sofía AI cerrando ventas en WhatsApp para Flamingo Real Estate",
+        "description": "Demostración real de Sofía respondiendo leads internacionales sobre propiedades en Miami (Brickell, Waldorf Astoria) en español, calificando intención y empujando a llamada.",
+        "thumbnailUrl": "https://jegodigital.com/img/showcase/flamingo/sofia_whatsapp_demo.png",
+        "uploadDate": "2026-05-03",
+        "publisher": {
+            "@type": "Organization",
+            "name": "JegoDigital",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://jegodigital.com/images/logo/jegodigitallogo.png"
+            }
+        }
+    }
+    </script>
 </head>
 
 <body class="bg-background text-white antialiased selection:bg-primary/30 matrix-bg">
 
-    <nav class="fixed top-0 left-0 right-0 z-50" id="navbar">
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 left-0 right-0 z-50" id="navbar" role="navigation" aria-label="Main navigation">
         <div class="bg-[#0f1115]/90 backdrop-blur-xl border-b border-white/5">
             <div class="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-16">
-                <a href="/" class="flex items-center gap-2">
+                <a href="/" aria-label="JegoDigital — Inicio" class="flex items-center gap-2">
                     <span class="text-2xl font-black tracking-tighter"><span class="text-[#C5A059]">Jego</span><span class="text-white">Digital</span></span>
                 </a>
                 <div class="hidden md:flex items-center gap-8">
-                    <a href="/how-it-works.html" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">How It Works</a>
-                    <a href="/#services" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Services</a>
-                    <a href="/showcase.html" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Case Studies</a>
-                    <a href="/blog.html" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Blog</a>
-                    <a href="/ai-agents.html" class="text-sm font-bold text-[#C5A059] border-b border-[#C5A059] pb-0.5">AI Chat Assistant</a>
+                    <a href="how-it-works.html" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">How It Works</a>
+                    <a href="index.html#services" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Services</a>
+                    <a href="showcase.html" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Case Studies</a>
+                    <a href="blog.html" class="text-sm font-medium text-white/60 hover:text-[#C5A059] transition-colors">Blog</a>
+                    <a href="ai-agents.html" class="text-sm font-bold text-[#C5A059] border-b border-[#C5A059] pb-0.5">Sofía AI</a>
                 </div>
-                <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener noreferrer"
-                   class="hidden md:inline-flex items-center gap-2 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold text-xs px-5 py-2.5 rounded-full transition-all">
-                    FREE BUSINESS AUDIT
-                </a>
+                <div class="flex items-center gap-4">
+                    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener noreferrer"
+                       class="hidden md:inline-flex items-center gap-2 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold text-xs px-5 py-2.5 rounded-full transition-all">
+                        AGENDA DEMO 15 MIN
+                    </a>
+                    <button id="mobileMenuBtn" class="md:hidden text-white/80 hover:text-[#C5A059] transition-colors p-2" aria-label="Open menu" aria-expanded="false">
+                        <svg id="hamburgerIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mobileMenu" class="md:hidden hidden border-t border-white/5">
+                <div class="px-6 py-6 space-y-4 bg-[#0f1115]/95 backdrop-blur-xl">
+                    <a href="how-it-works.html" class="block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">How It Works</a>
+                    <a href="index.html#services" class="block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Services</a>
+                    <a href="showcase.html" class="block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Case Studies</a>
+                    <a href="blog.html" class="block text-white/70 hover:text-[#C5A059] text-base font-medium transition-colors">Blog</a>
+                    <a href="ai-agents.html" class="block text-[#C5A059] text-base font-bold transition-colors">Sofía AI</a>
+                    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener noreferrer"
+                       class="w-full mt-2 inline-flex items-center justify-center gap-2 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold text-sm px-5 py-3 rounded-full transition-all">
+                        AGENDA DEMO 15 MIN
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-center pt-32 pb-20 relative overflow-hidden">
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- HERO SECTION -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="min-h-screen flex items-center pt-32 pb-20 relative overflow-hidden">
         <div class="absolute top-0 inset-x-0 h-full pointer-events-none overflow-hidden z-[-1]">
-            <!-- Cyberpunk Glow -->
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(245,158,11,0.15),transparent_60%)]">
-            </div>
-            <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2">
-            </div>
-            <!-- Paradise Background Overlay -->
-            <div class="absolute inset-0 opacity-20 bg-[url('images/hero/ai-paradise.png')] bg-cover bg-center"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,_rgba(197,160,89,0.18),transparent_60%)]"></div>
+            <div class="absolute top-1/2 left-1/3 w-[600px] h-[600px] bg-[#C5A059]/10 rounded-full blur-[140px] -translate-x-1/2 -translate-y-1/2"></div>
         </div>
 
-        <div class="container mx-auto px-4 text-center z-10">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8 backdrop-blur-md">
-                <i class="fas fa-robot text-primary"></i>
-                <span class="text-primary text-xs font-bold tracking-[0.2em] uppercase" data-i18n="aia_hero_badge">Autonomous Workforce 2026</span>
-            </div>
-
-            <h1 class="text-5xl md:text-8xl font-display font-bold mb-8 leading-tight" data-i18n="aia_hero_title">
-                The Employee That <br> <span class="hero-gradient-text">Never Sleeps.</span>
-            </h1>
-
-            <p class="text-slate-300 text-xl max-w-3xl mx-auto mb-12 font-light leading-relaxed" data-i18n="aia_hero_desc">
-                Deploy <b>Autonomous Agents</b> that work 24/7. They don't just "chat"—they <b>scrape leads, send
-                    invoices, negotiate deals, and manage your CRM</b> while you're at the beach.
-            </p>
-
-            <div class="flex flex-col sm:flex-row justify-center gap-6 mb-16">
-                <a href="contacto?service=agents" class="group relative px-8 py-4 bg-primary text-white font-bold rounded-full overflow-hidden shadow-lg shadow-primary/30 hover:scale-105 transition-all duration-300">
-                    <span class="relative flex items-center gap-3">
-                        <span data-i18n="aia_hero_cta">Hire Your First Agent</span>
-                        <i class="fas fa-bolt text-xs"></i>
+        <div class="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center z-10">
+            <!-- LEFT — copy -->
+            <div>
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8 backdrop-blur-md">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                     </span>
-                </a>
-                <a href="#demo" class="px-8 py-4 glass-panel text-white font-bold rounded-full hover:bg-white/10 transition-colors" data-i18n="aia_hero_learn">
-                    Watch Demo
-                </a>
-            </div>
-
-            <!-- Main Visual -->
-            <div class="relative max-w-5xl mx-auto group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl opacity-30 blur-xl group-hover:opacity-50 transition duration-1000">
-                </div>
-                <img src="images/hero/ai-paradise.png" alt="AI Agent in Cancun Paradise" class="relative w-full rounded-3xl shadow-2xl border border-white/10">
-            </div>
-        </div>
-    </section>
-
-    <!-- Video Demo Section -->
-    <section id="demo" class="py-24 relative bg-black/50 border-t border-white/5">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4" data-i18n="aia_video_title">See It In
-                    Action</h2>
-            
-                <p class="text-slate-400 max-w-2xl mx-auto" data-i18n="aia_video_desc">Watch how our agents execute
-                    complex workflows autonomously.</p>
-            </div>
-
-            <div class="max-w-4xl mx-auto relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 group cursor-pointer" id="video-wrapper">
-                <div class="absolute -inset-1 bg-gradient-to-r from-primary to-accent opacity-20 group-hover:opacity-40 blur transition duration-500">
+                    <span class="text-primary text-xs font-bold tracking-[0.18em] uppercase">EN PRODUCCIÓN · FLAMINGO REAL ESTATE</span>
                 </div>
 
-                <video id="main-video" class="relative w-full rounded-2xl bg-black" poster="images/hero/ai-paradise.png">
-                    <source src="cf-videos/ai_agents_jegodigital.mp4" type="video/mp4">
-                    <source src="videos/google_jegodigital.mov" type="video/quicktime">
-                    Your browser does not support the video tag.
-                </video>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-[1.05]">
+                    Sofía AI cierra<br>
+                    <span class="hero-gradient-text">ventas en WhatsApp</span><br>
+                    24 horas al día.
+                </h1>
 
-                <!-- Custom Overlay / Play Button -->
-                <div id="video-overlay" class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-300 group-hover:bg-black/30">
-                    <div class="relative flex items-center justify-center w-24 h-24 rounded-full bg-primary/20 border border-primary/50 text-primary shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-transform duration-300 group-hover:scale-110">
-                        <div class="absolute inset-0 rounded-full animate-ping bg-primary/20"></div>
-                        <i class="fas fa-play text-3xl ml-1"></i>
+                <p class="text-slate-300 text-lg md:text-xl max-w-xl mb-8 font-light leading-relaxed">
+                    El mismo sistema de IA que automatiza el <span class="text-[#C5A059] font-bold">88% de los leads</span> de Flamingo Real Estate (Cancún) — ahora disponible para tu agencia inmobiliaria. <span class="text-white font-semibold">Operando en 90 minutos.</span>
+                </p>
+
+                <!-- Hero stats strip -->
+                <div class="grid grid-cols-3 gap-3 mb-8 max-w-lg">
+                    <div class="glass-panel rounded-xl p-3 text-center">
+                        <div class="text-2xl font-bold text-[#C5A059]">24/7</div>
+                        <div class="text-[10px] uppercase tracking-wider text-white/50 mt-1">Sin pausa</div>
+                    </div>
+                    <div class="glass-panel rounded-xl p-3 text-center">
+                        <div class="text-2xl font-bold text-[#C5A059]">90min</div>
+                        <div class="text-[10px] uppercase tracking-wider text-white/50 mt-1">Setup</div>
+                    </div>
+                    <div class="glass-panel rounded-xl p-3 text-center">
+                        <div class="text-2xl font-bold text-[#C5A059]">14d</div>
+                        <div class="text-[10px] uppercase tracking-wider text-white/50 mt-1">Garantía</div>
                     </div>
                 </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener noreferrer"
+                       class="group relative px-7 py-4 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold rounded-full shadow-lg shadow-[#C5A059]/25 hover:scale-[1.02] transition-all duration-300 text-center">
+                        <span class="flex items-center justify-center gap-2">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>AGENDA DEMO 15 MIN</span>
+                        </span>
+                    </a>
+                    <a href="https://wa.me/5219982023263?text=Hola%20Alex%2C%20quiero%20conocer%20Sof%C3%ADa%20AI%20para%20mi%20inmobiliaria" target="_blank" rel="noopener"
+                       class="px-7 py-4 glass-panel text-white font-bold rounded-full hover:bg-white/5 transition-colors text-center border-2 border-[#25D366]/30 hover:border-[#25D366]">
+                        <span class="flex items-center justify-center gap-2">
+                            <i class="fab fa-whatsapp text-[#25D366]"></i>
+                            <span>WhatsApp directo</span>
+                        </span>
+                    </a>
+                </div>
+
+                <p class="text-xs text-white/40 mt-6">
+                    <i class="fas fa-shield-alt mr-1.5 text-[#C5A059]"></i>
+                    Garantía 100% reembolso si Sofía no captura mínimo 1 lead calificado en 14 días
+                </p>
             </div>
 
-            <script>
-                const videoWrapper = document.getElementById('video-wrapper');
-                const video = document.getElementById('main-video');
-                const overlay = document.getElementById('video-overlay');
-
-                videoWrapper.addEventListener('click', () => {
-                    if (video.paused) {
-                        video.play();
-                        video.controls = true;
-                        overlay.classList.add('opacity-0', 'pointer-events-none');
-                    } else {
-                        video.pause();
-                        overlay.classList.remove('opacity-0', 'pointer-events-none');
-                    }
-                });
-            </script>
-        </div>
-    </section>
-
-    <!-- Why Buy / ROI -->
-    <section id="why-buy" class="py-24 relative border-t border-white/5 bg-surface/30">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div>
-                    <span class="text-primary text-xs font-bold uppercase tracking-widest mb-2 block" data-i18n="aia_roi_badge">Immediate ROI</span>
-                    <h2 class="text-3xl md:text-5xl font-display font-bold mb-6" data-i18n="aia_roi_title">Why Buy Now?
-                    </h2>
-                    <p class="text-slate-400 text-lg leading-relaxed mb-8" data-i18n="aia_roi_desc">
-                        Every day you wait, you're paying for manual labor that AI can do instantly.
-                        Our clients see an average <b>60% reduction in operational costs</b> within the first 30 days.
-                    </p>
-
-                    <div class="space-y-6">
-                        <!-- Benefit 1 -->
-                        <div class="flex gap-4">
-                            <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-white text-lg" data-i18n="aia_ben1_title">Instant Scalability
-                                </h4>
-                                <p class="text-slate-400 text-sm" data-i18n="aia_ben1_desc">Need 10x more leads? Just
-                                    turn up the dial. No hiring,
-                                    no onboarding.</p>
-                            </div>
-                        </div>
-                        <!-- Benefit 2 -->
-                        <div class="flex gap-4">
-                            <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
-                                <i class="fas fa-brain"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-white text-lg" data-i18n="aia_ben2_title">Perfect Memory</h4>
-                                <p class="text-slate-400 text-sm" data-i18n="aia_ben2_desc">Agents remember every
-                                    customer interaction. No context
-                                    is ever lost.</p>
-                            </div>
-                        </div>
-                        <!-- Benefit 3 -->
-                        <div class="flex gap-4">
-                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                <i class="fas fa-coins"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-white text-lg" data-i18n="aia_ben3_title">Zero Overhead</h4>
-                                <p class="text-slate-400 text-sm" data-i18n="aia_ben3_desc">No insurance. No sick days.
-                                    No office space required.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+            <!-- RIGHT — Sofia screenshot in iPhone frame -->
+            <div class="relative max-w-sm mx-auto lg:max-w-md">
+                <div class="absolute -inset-4 bg-gradient-to-br from-[#C5A059]/30 via-transparent to-[#C5A059]/20 rounded-[60px] blur-2xl"></div>
+                <div class="iphone-frame relative animate-float">
+                    <img src="img/showcase/flamingo/sofia_whatsapp_demo.png"
+                         alt="Sofía AI respondiendo a un lead internacional en WhatsApp sobre propiedades en Miami Brickell para Flamingo Real Estate"
+                         class="block w-full h-auto"
+                         width="1290" height="2796">
                 </div>
-                <div class="relative group">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200">
+                <!-- Floating badge -->
+                <div class="absolute -bottom-6 -left-6 glass-panel rounded-2xl p-4 max-w-[220px] shadow-2xl border-l-2 border-[#C5A059]">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fas fa-bolt text-[#C5A059] text-xs"></i>
+                        <span class="text-[10px] uppercase tracking-widest text-white/60 font-bold">Caso real</span>
                     </div>
-                    <img src="images/visual-proof/ai-agents-workflow.png" alt="Autonomous AI Agent Workflow Diagram" class="relative rounded-3xl shadow-2xl border border-white/10 w-full transform group-hover:scale-[1.01] transition-transform duration-500">
+                    <p class="text-xs text-white leading-snug">Lead internacional preguntando por Brickell + Waldorf Astoria. Sofía calificó intención y empujó a llamada en español.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Methodology / Solution -->
-    <section class="py-24 relative overflow-hidden">
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- PROBLEM SECTION -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5 bg-black/40">
         <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="text-primary text-xs font-bold uppercase tracking-widest mb-2 block" data-i18n="aia_method_badge">The New Way</span>
-                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4" data-i18n="aia_method_title">Agentic
-                    Workflow</h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full"></div>
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block">El problema</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-6">
+                    Pierdes leads a las <span class="text-[#C5A059]">11pm</span>.<br>
+                    Tu competencia los gana.
+                </h2>
+                <p class="text-white/60 text-lg leading-relaxed">
+                    El comprador de un departamento de $5M MXN no te avisa cuando llega su mensaje. Llega a las 11pm un domingo, mira tu WhatsApp sin "visto", y a los 7 minutos ya está hablando con la inmobiliaria de enfrente.
+                </p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl font-bold text-[#C5A059] mb-2">11pm</div>
+                    <p class="text-sm text-white/70 leading-snug">Cuando llega el lead caliente</p>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl font-bold text-[#C5A059] mb-2">7 min</div>
+                    <p class="text-sm text-white/70 leading-snug">Para que se vaya con la competencia</p>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl font-bold text-[#C5A059] mb-2">$0</div>
+                    <p class="text-sm text-white/70 leading-snug">Lo que ganas si no respondes a tiempo</p>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center">
+                    <div class="text-3xl font-bold text-[#C5A059] mb-2">100%</div>
+                    <p class="text-sm text-white/70 leading-snug">De los compradores premian la velocidad</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 8-STEP PIPELINE -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Cómo funciona</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-6">
+                    El sistema completo<br>
+                    <span class="hero-gradient-text">en 8 pasos</span>
+                </h2>
+                <p class="text-white/60 text-lg">
+                    Desde que llega el primer mensaje del lead hasta que tu equipo cierra la venta — todo automatizado, todo trazable.
+                </p>
+            </div>
+
+            <!-- Pipeline grid -->
+            <div class="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Step 1 -->
-                <div class="glass-panel p-8 rounded-3xl relative">
-                    <div class="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center text-3xl text-primary mb-6">
-                        <i class="fas fa-bullseye"></i>
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">1</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fab fa-whatsapp text-3xl text-[#25D366]"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4 text-white" data-i18n="aia_step1_title">Goal Setting</h3>
-                    <p class="text-slate-400 leading-relaxed" data-i18n="aia_step1_desc">
-                        You don't write code. You just give the Agent a goal in natural language. <br><i>"Agent, find me
-                            100 gyms in Texas and email them our offer."</i>
-                    </p>
+                    <h3 class="font-bold text-lg mb-2">Lead manda WhatsApp</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">Tu nuevo número dedicado de WhatsApp Business recibe el mensaje (mediodía o 2am, da igual).</p>
                 </div>
+
                 <!-- Step 2 -->
-                <div class="glass-panel p-8 rounded-3xl relative border-accent/20">
-                    <div class="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center text-3xl text-accent mb-6">
-                        <i class="fas fa-network-wired"></i>
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">2</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fas fa-cloud text-3xl text-[#C5A059]"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4 text-white" data-i18n="aia_step2_title">Chain Execution</h3>
-                    <p class="text-slate-400 leading-relaxed" data-i18n="aia_step2_desc">
-                        The agent breaks the goal into sub-tasks. It searches Google, visits websites, extracts emails,
-                        validates them, and drafts personalized messages—all autonomously.
-                    </p>
+                    <h3 class="font-bold text-lg mb-2">Twilio + Meta lo enrutan</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">Tu número vive en una subcuenta dedicada de Twilio + WhatsApp Business Account verificada con Meta.</p>
                 </div>
+
                 <!-- Step 3 -->
-                <div class="glass-panel p-8 rounded-3xl relative">
-                    <div class="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center text-3xl text-primary mb-6">
-                        <i class="fas fa-sync-alt"></i>
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">3</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fas fa-brain text-3xl text-[#C5A059]"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4 text-white" data-i18n="aia_step3_title">Self-Correction</h3>
-                    <p class="text-slate-400 leading-relaxed" data-i18n="aia_step3_desc">
-                        If a website is down, it retries. If an email bounces, it finds another contact. The agent
-                        learns from errors and improves its own efficiency over time.
-                    </p>
+                    <h3 class="font-bold text-lg mb-2">Sofía piensa y responde</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">Conoce TU inventario completo (60+ proyectos), tu tono, tu propuesta de valor. Responde en español o inglés según el lead.</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">4</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fas fa-bullseye text-3xl text-[#C5A059]"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Califica y puntúa 1-10</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">Captura intención, presupuesto, timeline, país de origen, proyecto de interés. Score automático del 1 al 10.</p>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">5</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fas fa-table text-3xl text-[#C5A059]"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Push a tu Notion CRM</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">Cada conversación llega en tiempo real a tu workspace privado de Notion. Funciona en celular y compu.</p>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">6</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fas fa-fire text-3xl text-red-400"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Alerta hot inmediata</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">Si el lead dice "cash buyer", "esta semana" o "ya decidí" → ping inmediato a tu WhatsApp con el resumen.</p>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">7</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fas fa-coffee text-3xl text-[#C5A059]"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Digest 7am todos los días</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">A las 7am te llega un WhatsApp con el resumen del día anterior: total, hot, score promedio, link al detalle.</p>
+                </div>
+
+                <!-- Step 8 -->
+                <div class="pipeline-card rounded-2xl p-6 relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 bg-[#C5A059] text-black rounded-full flex items-center justify-center font-bold text-lg shadow-lg">8</div>
+                    <div class="mb-4 mt-2">
+                        <i class="fas fa-handshake text-3xl text-[#C5A059]"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Tu equipo cierra</h3>
+                    <p class="text-white/60 text-sm leading-relaxed">El asesor humano entra solo con leads pre-calificados. Sin perder tiempo en curiosos. Foco 100% en cerrar.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Expanded Features -->
-    <section class="py-24 bg-surface/50 border-t border-white/5">
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- LIVE DEMO SECTION -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section id="demo" class="py-20 md:py-28 relative border-t border-white/5 bg-black/40">
         <div class="container mx-auto px-4">
-            <div class="mb-12">
-                <h2 class="text-3xl md:text-5xl font-display font-bold mb-8" data-i18n="aia_feat_title">Role
-                    Capabilities</h2>
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Demo en vivo</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4">
+                    Mira a Sofía cerrando<br>
+                    <span class="hero-gradient-text">para Flamingo Real Estate</span>
+                </h2>
+                <p class="text-white/60 text-lg">Caso real: lead internacional preguntando por propiedades premium en Miami Brickell.</p>
             </div>
 
-            <div class="space-y-8">
-                <!-- Feature 1 -->
-                <div class="glass-panel p-10 rounded-3xl flex flex-col md:flex-row gap-8 items-center group cursor-default shadow-lg shadow-amber-900/10">
-                    <div class="w-full md:w-1/3">
-                        <div class="h-48 bg-gradient-to-br from-primary/20 to-orange-500/20 rounded-2xl flex items-center justify-center text-6xl text-white/50">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-2/3">
-                        <h3 class="text-2xl font-bold mb-3" data-i18n="aia_f1_title">The "Lead Qualifier" Agent</h3>
-                        <p class="text-slate-400 leading-relaxed mb-4" data-i18n="aia_f1_desc">
-                            Your sales team hates prospecting. Let the AI do it. It scrapes LinkedIn, verifies decision
-                            makers, enriches data (revenue, tech stack), and drafts the perfect cold email hook.
-                            Your team only talks to people who reply "Yes".
-                        </p>
-                        <div class="flex gap-2 flex-wrap">
-                            <span class="px-3 py-1 rounded bg-white/5 text-xs font-mono text-primary border border-primary/20">LinkedIn
-                                Scraper</span>
-                            <span class="px-3 py-1 rounded bg-white/5 text-xs font-mono text-primary border border-primary/20">Email
-                                Verifier</span>
-                        </div>
+            <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
+                <!-- Sofia conversation screenshot -->
+                <div class="relative">
+                    <div class="absolute -inset-2 bg-gradient-to-br from-[#C5A059]/20 to-transparent rounded-3xl blur-xl"></div>
+                    <div class="iphone-frame relative">
+                        <img src="img/showcase/flamingo/sofia_whatsapp_demo.png"
+                             alt="Conversación real de Sofía AI con lead pidiendo info sobre Brickell, Waldorf Astoria, Orlando Ambar Residences"
+                             class="block w-full h-auto"
+                             loading="lazy"
+                             width="1290" height="2796">
                     </div>
                 </div>
 
-                <!-- Feature 2 -->
-                <div class="glass-panel p-10 rounded-3xl flex flex-col md:flex-row gap-8 items-center group cursor-default shadow-lg shadow-amber-900/10">
-                    <div class="w-full md:w-1/3 md:order-2">
-                        <div class="h-48 bg-gradient-to-br from-accent/20 to-yellow-500/20 rounded-2xl flex items-center justify-center text-6xl text-white/50">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                <!-- Demo annotations -->
+                <div class="space-y-5">
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-comment-dots text-[#C5A059]"></i>
+                            <span class="text-[10px] uppercase tracking-widest text-[#C5A059] font-bold">Mensaje 1</span>
                         </div>
+                        <p class="text-white text-sm leading-relaxed">El lead llega con un simple <em class="text-[#C5A059] font-semibold">"Hola"</em>. Sofía abre con su personalidad cálida + ofrece 3 caminos (Airbnb, residencia, exploración).</p>
                     </div>
-                    <div class="w-full md:w-2/3 md:order-1">
-                        <h3 class="text-2xl font-bold mb-3" data-i18n="aia_f2_title">The "Ops Manager" Agent</h3>
-                        <p class="text-slate-400 leading-relaxed mb-4" data-i18n="aia_f2_desc">
-                            Admin work is low-leverage. This agent monitors your inbox for invoices, extracts PDF data,
-                            inputs it into Quickbooks/Xero, and even schedules the payment for your approval.
-                            It handles onboarding new clients and contract generation too.
-                        </p>
-                        <div class="flex gap-2 flex-wrap">
-                            <span class="px-3 py-1 rounded bg-white/5 text-xs font-mono text-accent border border-accent/20">PDF
-                                OCR</span>
-                            <span class="px-3 py-1 rounded bg-white/5 text-xs font-mono text-accent border border-accent/20">Quickbooks
-                                API</span>
+
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-bullseye text-[#C5A059]"></i>
+                            <span class="text-[10px] uppercase tracking-widest text-[#C5A059] font-bold">Califica</span>
                         </div>
+                        <p class="text-white text-sm leading-relaxed">Sofía detecta que dice <em class="text-[#C5A059] font-semibold">"USA"</em> y pivota — pregunta país de origen + tipo (renta corta vs residencia) + rango de presupuesto. <strong class="text-white">Sin sonar robótica.</strong></p>
                     </div>
+
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-building text-[#C5A059]"></i>
+                            <span class="text-[10px] uppercase tracking-widest text-[#C5A059] font-bold">Match con inventario real</span>
+                        </div>
+                        <p class="text-white text-sm leading-relaxed">Recomienda 4 proyectos específicos del inventario de Flamingo: <strong class="text-white">Waldorf Astoria, 1428 Brickell, 888 Brickell, Orlando Ambar Residences</strong>. Sin inventar nada.</p>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-clock text-[#C5A059]"></i>
+                            <span class="text-[10px] uppercase tracking-widest text-[#C5A059] font-bold">Velocidad</span>
+                        </div>
+                        <p class="text-white text-sm leading-relaxed">Cada respuesta llega <strong class="text-white">en 5-10 segundos</strong>, día y noche. Mientras tu competencia escribe con el pulgar a las 11pm, Sofía ya hizo 4 preguntas calificadoras.</p>
+                    </div>
+
+                    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener"
+                       class="group inline-flex items-center gap-2 text-[#C5A059] font-bold hover:gap-3 transition-all">
+                        <span>Ver demo personalizada en vivo</span>
+                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- FAQ -->
-    <section class="py-24 relative">
-        <div class="container mx-auto px-4 max-w-4xl">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4" data-i18n="aia_faq_title">FAQ</h2>
-                <div class="w-20 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full"></div>
-            </div>
-
-            <div class="space-y-4">
-                <!-- Q1 -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="font-bold text-lg mb-2 text-white" data-i18n="aia_q1">Is it secure?</h3>
-                    <p class="text-slate-400" data-i18n="aia_a1">
-                        Yes. Agent access is granular. You give permissions (API Keys) only for what they need. We use
-                        enterprise-grade encryption for all data handling.
-                    </p>
+            <!-- Existing Flamingo showcase video -->
+            <div class="max-w-5xl mx-auto mt-16">
+                <div class="text-center mb-6">
+                    <h3 class="text-xl md:text-2xl font-display font-bold text-white/90">Tour completo del sistema en producción</h3>
                 </div>
-                <!-- Q2 -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="font-bold text-lg mb-2 text-white" data-i18n="aia_q2">What if it makes a mistake?</h3>
-                    <p class="text-slate-400" data-i18n="aia_a2">
-                        For sensitive tasks (like sending money or publishing live content), we implement a "Human
-                        Approval" step. The agent does 99% of the work, and you just click "Approve".
-                    </p>
-                </div>
-                <!-- Q3 -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="font-bold text-lg mb-2 text-white" data-i18n="aia_q3">How much does it cost?</h3>
-                    <p class="text-slate-400" data-i18n="aia_a3">
-                        Running an agent costs pennies in server time compared to hourly wages. You pay a one-time setup
-                        fee for the architecture, and then minimal maintenance.
-                    </p>
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-[#C5A059]/20">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-[#C5A059] to-[#b08d48] opacity-20 blur"></div>
+                    <video controls preload="none" poster="img/showcase/flamingo/sofia_whatsapp_demo.png" class="relative w-full rounded-2xl bg-black">
+                        <source src="img/showcase/flamingo/out_flamingo_showcaseenglish.mp4" type="video/mp4">
+                    </video>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="border-t border-[#C5A059]/20 bg-[#0a0c10] py-12 text-center">
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- WHAT YOU GET - 12-item checklist -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5">
         <div class="container mx-auto px-4">
-            <a href="/" class="text-xl font-black tracking-tighter mb-4 inline-block">
-                <span class="text-[#C5A059]">Jego</span><span class="text-white">Digital</span>
-            </a>
-            <p class="text-white/30 text-sm mt-2">© 2026 JegoDigital · AI Growth Ecosystems · All rights reserved.</p>
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Lo que recibes</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-6">
+                    Sistema completo<br>
+                    <span class="hero-gradient-text">llave en mano</span>
+                </h2>
+                <p class="text-white/60 text-lg">Todo configurado, todo verificado, todo a tu nombre. Tú nunca tocas un setting técnico.</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-4">
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Número WhatsApp Business dedicado</h4>
+                        <p class="text-sm text-white/60">Compramos y configuramos un número nuevo en Twilio Subaccount + lo verificamos con Meta WhatsApp Business Account.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Sofía con tu marca + tono</h4>
+                        <p class="text-sm text-white/60">Personalizada con el nombre de tu agencia, tu CEO, tu propuesta de valor, tu vibe (cálida / formal / premium).</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Inventario completo escaneado</h4>
+                        <p class="text-sm text-white/60">Scrapeamos todos tus proyectos de tu sitio actual — Sofía conoce ubicación, precios, ROI, estatus, fechas de entrega.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Workspace Notion privado</h4>
+                        <p class="text-sm text-white/60">CRM de leads en tu propia cuenta de Notion. Cada conversación, score, intención y país en una tabla filtrable.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Notificaciones hot por WhatsApp</h4>
+                        <p class="text-sm text-white/60">Cada vez que llega un lead caliente (cash buyer / esta semana / decidido) recibes ping inmediato con resumen + número.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Digest matutino 7am</h4>
+                        <p class="text-sm text-white/60">Briefing diario por WhatsApp: leads totales, hot, score promedio, link al CRM. Llega antes de tu primer café.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Bilingüe español + inglés</h4>
+                        <p class="text-sm text-white/60">Detección automática de idioma. Ideal para mercados con compradores extranjeros (Cancún, Tulum, Miami, Playa).</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Score 1-10 cada lead</h4>
+                        <p class="text-sm text-white/60">Algoritmo evalúa intención, presupuesto, timeline. Tu equipo solo trabaja los 7+. Adiós a perder tiempo con curiosos.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">QA pilot 14 días</h4>
+                        <p class="text-sm text-white/60">Los primeros 14 días alertas llegan también a nuestro equipo para garantizar calidad. Después, todo a ti.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Showcase video gratis</h4>
+                        <p class="text-sm text-white/60">Después del día 7, te grabamos un video demo profesional para tu marketing — sin costo extra.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Setup en 90 minutos</h4>
+                        <p class="text-sm text-white/60">Desde "ok, vamos" hasta Sofía respondiendo tu primer lead — 90 minutos. Tú solo apruebas el tono final.</p>
+                    </div>
+                </div>
+
+                <div class="check-item">
+                    <i class="fas fa-check-circle text-[#C5A059] text-xl mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold text-white mb-1">Garantía 100% reembolso</h4>
+                        <p class="text-sm text-white/60">Si Sofía no captura mínimo 1 lead calificado en 14 días, te devolvemos los $8K MXN completos. Sin contratos, sin letras chicas.</p>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- FLAMINGO CASE STUDY -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5 bg-black/40">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Caso de estudio</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-6">
+                    Flamingo Real Estate<br>
+                    <span class="hero-gradient-text">88% de leads automatizados</span>
+                </h2>
+                <p class="text-white/60 text-lg">
+                    Inmobiliaria de Cancún con 61 proyectos en 8 países. Sofía atiende 24/7 desde mayo 2026.
+                </p>
+            </div>
+
+            <!-- Hero stat strip -->
+            <div class="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-12">
+                <div class="glass-panel rounded-2xl p-6 text-center gold-border-glow">
+                    <div class="text-4xl font-bold text-[#C5A059] mb-2">88%</div>
+                    <p class="text-white font-semibold mb-1">Tasa de automatización</p>
+                    <p class="text-xs text-white/50">Leads cerrados por Sofía sin intervención humana</p>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center gold-border-glow">
+                    <div class="text-4xl font-bold text-[#C5A059] mb-2">61</div>
+                    <p class="text-white font-semibold mb-1">Proyectos en inventario</p>
+                    <p class="text-xs text-white/50">8 países: México, USA, Dubai, Dominicana, Panama, Spain, Bali, Colombia</p>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 text-center gold-border-glow">
+                    <div class="text-4xl font-bold text-[#C5A059] mb-2">5-10s</div>
+                    <p class="text-white font-semibold mb-1">Tiempo de respuesta</p>
+                    <p class="text-xs text-white/50">Primera respuesta a CADA mensaje, 24/7</p>
+                </div>
+            </div>
+
+            <!-- Showcase grid: Notion CRM + Admin Panel -->
+            <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass-panel rounded-2xl overflow-hidden group hover:border-[#C5A059]/40 transition-all">
+                    <div class="browser-chrome">
+                        <div class="browser-dot bg-red-500/60"></div>
+                        <div class="browser-dot bg-yellow-500/60"></div>
+                        <div class="browser-dot bg-green-500/60"></div>
+                        <span class="text-xs text-white/40 ml-3">CRM Pipeline · Notion</span>
+                    </div>
+                    <img src="img/showcase/flamingo/crmpipelinetonurtureleads.png"
+                         alt="CRM pipeline en Notion para Flamingo Real Estate mostrando flujo de leads desde captura hasta cierre"
+                         class="w-full block"
+                         loading="lazy">
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden group hover:border-[#C5A059]/40 transition-all">
+                    <div class="browser-chrome">
+                        <div class="browser-dot bg-red-500/60"></div>
+                        <div class="browser-dot bg-yellow-500/60"></div>
+                        <div class="browser-dot bg-green-500/60"></div>
+                        <span class="text-xs text-white/40 ml-3">Admin Panel · Vista cliente</span>
+                    </div>
+                    <img src="img/showcase/flamingo/adminpanel.png"
+                         alt="Panel de administración para Flamingo Real Estate donde el cliente ve métricas de Sofía AI"
+                         class="w-full block"
+                         loading="lazy">
+                </div>
+            </div>
+
+            <!-- Second row: Chatbot + Direct Contact -->
+            <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div class="browser-chrome">
+                        <div class="browser-dot bg-red-500/60"></div>
+                        <div class="browser-dot bg-yellow-500/60"></div>
+                        <div class="browser-dot bg-green-500/60"></div>
+                        <span class="text-xs text-white/40 ml-3">Chatbot · Reservas automatizadas</span>
+                    </div>
+                    <img src="img/showcase/flamingo/chatbotautomatedbookings.png"
+                         alt="Chatbot Sofía AI gestionando reservas automatizadas para Flamingo Real Estate"
+                         class="w-full block"
+                         loading="lazy">
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div class="browser-chrome">
+                        <div class="browser-dot bg-red-500/60"></div>
+                        <div class="browser-dot bg-yellow-500/60"></div>
+                        <div class="browser-dot bg-green-500/60"></div>
+                        <span class="text-xs text-white/40 ml-3">Listings · Inventario organizado</span>
+                    </div>
+                    <img src="img/showcase/flamingo/organizedpropertylistings.png"
+                         alt="Inventario organizado de propiedades de Flamingo Real Estate visible para Sofía AI"
+                         class="w-full block"
+                         loading="lazy">
+                </div>
+            </div>
+
+            <!-- Testimonial pull-quote -->
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="text-6xl text-[#C5A059] opacity-40 mb-2 leading-none">"</div>
+                <p class="text-xl md:text-2xl text-white/90 italic font-light leading-relaxed mb-4">
+                    Antes perdíamos compradores cada noche. Ahora Sofía cierra al 88% antes de que yo despierte.
+                </p>
+                <p class="text-sm text-white/50 uppercase tracking-widest font-bold">
+                    Arq. Rodrigo Elizondo · CEO Flamingo Real Estate
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- PRICING SECTION -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section id="pricing" class="py-20 md:py-28 relative border-t border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Inversión</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-6">
+                    Empieza con un piloto<br>
+                    <span class="hero-gradient-text">de 14 días sin riesgo</span>
+                </h2>
+                <p class="text-white/60 text-lg">
+                    Si Sofía no captura mínimo 1 lead calificado en 14 días, te devolvemos el 100%. Punto.
+                </p>
+            </div>
+
+            <div class="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
+                <!-- Pilot card -->
+                <div class="price-card-pilot rounded-3xl p-8 relative overflow-hidden md:col-span-1">
+                    <div class="absolute top-3 right-3 bg-[#C5A059] text-black text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Empieza aquí</div>
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-2">Piloto 14 días</h3>
+                        <p class="text-white/60 text-sm">Riesgo cero. Garantía total.</p>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-4xl md:text-5xl font-bold text-[#C5A059]">$8,000</span>
+                            <span class="text-white/60">MXN</span>
+                        </div>
+                        <p class="text-xs text-white/50 mt-1">Pago único · 14 días de prueba</p>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm">
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Setup completo en 90 min</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Sofía operando 24/7 desde el día 1</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Notion CRM + WhatsApp alerts</span></li>
+                        <li class="flex gap-2"><i class="fas fa-shield-alt text-[#C5A059] mt-1"></i><span class="font-semibold text-white">Garantía 100% reembolso</span></li>
+                    </ul>
+                    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener"
+                       class="block w-full text-center bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold py-3 rounded-full transition-all">
+                        Empezar piloto
+                    </a>
+                </div>
+
+                <!-- Mensual card -->
+                <div class="glass-panel rounded-3xl p-8">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-2">Mensual recurrente</h3>
+                        <p class="text-white/60 text-sm">Después del piloto exitoso</p>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-4xl md:text-5xl font-bold text-white">$8,000</span>
+                            <span class="text-white/60">MXN/mo</span>
+                        </div>
+                        <p class="text-xs text-white/50 mt-1">Sin contrato · cancela cuando quieras</p>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm">
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Sofía 24/7 sin interrupciones</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Iteración mensual del prompt</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Soporte prioritario por WhatsApp</span></li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Reportes mensuales de performance</span></li>
+                    </ul>
+                    <p class="text-xs text-white/40 text-center">Continúa automáticamente al día 14 si funciona</p>
+                </div>
+
+                <!-- Pack Crecimiento upsell -->
+                <div class="glass-panel rounded-3xl p-8 border-2 border-white/10">
+                    <div class="absolute top-3 right-3 bg-white/10 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Pro</div>
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-2">Pack Crecimiento</h3>
+                        <p class="text-white/60 text-sm">Sofía + SEO + Sitio Web optimizado</p>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-4xl md:text-5xl font-bold text-white">$18,900</span>
+                            <span class="text-white/60">MXN/mo</span>
+                        </div>
+                        <p class="text-xs text-white/50 mt-1">Disponible al mes 3 del recurrente</p>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm">
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-1"></i><span>Todo lo del Mensual</span></li>
+                        <li class="flex gap-2"><i class="fas fa-plus text-[#C5A059] mt-1"></i><span>SEO Local Cancún/Tulum/CDMX</span></li>
+                        <li class="flex gap-2"><i class="fas fa-plus text-[#C5A059] mt-1"></i><span>Sitio web 98+ PageSpeed</span></li>
+                        <li class="flex gap-2"><i class="fas fa-plus text-[#C5A059] mt-1"></i><span>Más leads orgánicos para Sofía</span></li>
+                    </ul>
+                    <p class="text-xs text-white/40 text-center">Hablamos de esto cuando estés listo</p>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-white/40 mt-8 max-w-2xl mx-auto">
+                Pago seguro vía SPEI o transferencia bancaria.
+                Bancoppel · CLABE 137691105047334204 · Beneficiario: Alex Jego.
+                Factura disponible bajo solicitud.
+            </p>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- FAQs -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5 bg-black/40">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block">FAQs</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-6">
+                    Preguntas frecuentes
+                </h2>
+            </div>
+
+            <div class="max-w-3xl mx-auto space-y-4">
+                <details class="glass-panel rounded-2xl p-6 group cursor-pointer">
+                    <summary class="font-bold text-lg flex items-center justify-between list-none">
+                        <span>¿Qué pasa si Sofía no captura leads en los 14 días?</span>
+                        <i class="fas fa-chevron-down text-[#C5A059] transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-white/70 mt-4 leading-relaxed">Te devolvemos el 100% del piloto. Sin preguntas. Sin contratos forzados. Esa es nuestra garantía.</p>
+                </details>
+
+                <details class="glass-panel rounded-2xl p-6 group cursor-pointer">
+                    <summary class="font-bold text-lg flex items-center justify-between list-none">
+                        <span>¿En cuánto tiempo está Sofía operando?</span>
+                        <i class="fas fa-chevron-down text-[#C5A059] transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-white/70 mt-4 leading-relaxed">90 minutos desde que tenemos toda la info. Tú pones tu marca, tu inventario y tu tono — nosotros activamos todo el sistema (Twilio + Meta WhatsApp Business + Notion CRM).</p>
+                </details>
+
+                <details class="glass-panel rounded-2xl p-6 group cursor-pointer">
+                    <summary class="font-bold text-lg flex items-center justify-between list-none">
+                        <span>¿En qué idiomas habla Sofía?</span>
+                        <i class="fas fa-chevron-down text-[#C5A059] transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-white/70 mt-4 leading-relaxed">Español + inglés con detección automática. Si tu lead escribe en inglés, Sofía responde en inglés. Si llega un comprador de Miami, sin problema.</p>
+                </details>
+
+                <details class="glass-panel rounded-2xl p-6 group cursor-pointer">
+                    <summary class="font-bold text-lg flex items-center justify-between list-none">
+                        <span>¿Necesito un nuevo número de WhatsApp?</span>
+                        <i class="fas fa-chevron-down text-[#C5A059] transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-white/70 mt-4 leading-relaxed">Sí — y nosotros te lo damos. Un número dedicado de WhatsApp Business integrado a Meta Business Manager bajo nuestro Business Portfolio verificado. Tú lo usas, tú lo mantienes.</p>
+                </details>
+
+                <details class="glass-panel rounded-2xl p-6 group cursor-pointer">
+                    <summary class="font-bold text-lg flex items-center justify-between list-none">
+                        <span>¿Dónde veo los leads que Sofía captura?</span>
+                        <i class="fas fa-chevron-down text-[#C5A059] transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-white/70 mt-4 leading-relaxed">En tu panel privado de Notion (funciona en celular y computadora) más una notificación instantánea por WhatsApp cada vez que llega un lead caliente. Plus un digest matutino a las 7am con el resumen del día anterior.</p>
+                </details>
+
+                <details class="glass-panel rounded-2xl p-6 group cursor-pointer">
+                    <summary class="font-bold text-lg flex items-center justify-between list-none">
+                        <span>¿Cuánto cuesta después del piloto?</span>
+                        <i class="fas fa-chevron-down text-[#C5A059] transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-white/70 mt-4 leading-relaxed">$8,000 MXN al mes. Sin contrato a plazo. Cancelas cuando quieras. Y si quieres escalar: Pack Crecimiento ($18,900 MXN/mo) agrega SEO Local y sitio web optimizado.</p>
+                </details>
+
+                <details class="glass-panel rounded-2xl p-6 group cursor-pointer">
+                    <summary class="font-bold text-lg flex items-center justify-between list-none">
+                        <span>¿Mi competencia puede contratarlos también?</span>
+                        <i class="fas fa-chevron-down text-[#C5A059] transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-white/70 mt-4 leading-relaxed">Sí — pero la ventaja es de quien empieza primero. Cada Sofía es 100% personalizada con tu marca, tu inventario, tu tono. No es un chatbot genérico que tu competencia pueda copiar.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- FINAL CTA -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(197,160,89,0.15),transparent_60%)] pointer-events-none"></div>
+
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl md:text-6xl font-display font-bold mb-6">
+                    ¿Listo para no perder<br>
+                    <span class="hero-gradient-text">otro lead a las 11pm?</span>
+                </h2>
+                <p class="text-white/70 text-lg mb-10 max-w-2xl mx-auto">
+                    Agenda 15 minutos con Alex. Te mostramos a Sofía en vivo, vemos si encaja con tu agencia, y si tiene sentido empezamos el piloto esa misma semana.
+                </p>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                    <a href="https://calendly.com/jegoalexdigital/30min" target="_blank" rel="noopener"
+                       class="px-8 py-4 bg-[#C5A059] hover:bg-[#b08d48] text-black font-bold rounded-full shadow-lg shadow-[#C5A059]/25 hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-calendar-check mr-2"></i>
+                        AGENDA DEMO 15 MIN
+                    </a>
+                    <a href="https://wa.me/5219982023263?text=Hola%20Alex%2C%20quiero%20conocer%20Sof%C3%ADa%20AI%20para%20mi%20inmobiliaria" target="_blank" rel="noopener"
+                       class="px-8 py-4 glass-panel text-white font-bold rounded-full hover:bg-white/10 transition-colors border-2 border-[#25D366]/30 hover:border-[#25D366]">
+                        <i class="fab fa-whatsapp text-[#25D366] mr-2"></i>
+                        WhatsApp directo a Alex
+                    </a>
+                </div>
+
+                <p class="text-xs text-white/40">
+                    <i class="fas fa-shield-alt text-[#C5A059] mr-1"></i>
+                    Sin compromiso · Sin tarjeta · Garantía 100% reembolso en el piloto de 14 días
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- FOOTER -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <footer class="bg-black py-12 border-t border-white/10 text-center text-sm text-brand-gray">
+        <div class="flex justify-center gap-5 mb-6">
+            <a href="https://www.instagram.com/jegodigital/" target="_blank" rel="noopener" aria-label="Instagram"
+               class="text-brand-gray/40 hover:text-[#C5A059] transition-colors text-lg"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61581425401975" target="_blank" rel="noopener" aria-label="Facebook"
+               class="text-brand-gray/40 hover:text-[#C5A059] transition-colors text-lg"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.youtube.com/@JegoDigitalchannel" target="_blank" rel="noopener" aria-label="YouTube"
+               class="text-brand-gray/40 hover:text-[#C5A059] transition-colors text-lg"><i class="fab fa-youtube"></i></a>
+            <a href="https://www.tiktok.com/@jegodigital" target="_blank" rel="noopener" aria-label="TikTok"
+               class="text-brand-gray/40 hover:text-[#C5A059] transition-colors text-lg"><i class="fab fa-tiktok"></i></a>
+            <a href="https://wa.me/5219982023263" target="_blank" rel="noopener" aria-label="WhatsApp"
+               class="text-brand-gray/40 hover:text-[#25D366] transition-colors text-lg"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <p>&copy; 2026 JegoDigital. All rights reserved. · <a href="/privacy.html" class="hover:text-[#C5A059]">Privacy</a> · <a href="/terms.html" class="hover:text-[#C5A059]">Terms</a></p>
     </footer>
 
+    <!-- Global WhatsApp Floating Widget -->
+    <a href="https://wa.me/5219982023263?text=Hola%20Alex%2C%20quiero%20conocer%20Sof%C3%ADa%20AI%20para%20mi%20inmobiliaria"
+       target="_blank" rel="noopener"
+       class="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#1ebe5d] text-white rounded-full p-4 shadow-[0_4px_20px_rgba(37,211,102,0.4)] transition-all duration-300 hover:scale-110"
+       aria-label="WhatsApp con Alex">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.94 9.94 0 01-5.39-1.588l-.386-.236-3.646 1.222 1.222-3.646-.236-.386A9.94 9.94 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/>
+        </svg>
+    </a>
 
-    <!-- Start of HubSpot Embed Code -->
-    <script type="text/javascript" id="hs-script-loader" async="" defer="" src="//js.hs-scripts.com/50888437.js"></script>
-    <!-- End of HubSpot Embed Code -->
-
-
-</body></html>
+    <!-- Mobile menu toggle script -->
+    <script>
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            const hamburger = document.getElementById('hamburgerIcon');
+            const close = document.getElementById('closeIcon');
+            menu.classList.toggle('hidden');
+            hamburger.classList.toggle('hidden');
+            close.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

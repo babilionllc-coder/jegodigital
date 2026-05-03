@@ -4,6 +4,11 @@ automation/
 node_modules/
 .vercel
 
+# Alex working folders + local backups (do NOT ship)
+sofiashowcase/
+website/*.OLD-*.html.bak
+website/**/*.OLD-*.html.bak
+
 # Secrets — NEVER commit. Added 2026-04-18 after env/ was created with
 # plaintext GitHub PAT + GCP service account key that were NOT previously ignored.
 env/
