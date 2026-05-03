@@ -239,3 +239,5 @@ exports.whatsappAIHealth = functions.https.onRequest(async (req, res) => {
   };
   res.status(200).json(checks);
 });
+
+// Deploy trigger: 2026-05-03T06:13 — multi-tenant subaccount routing for Flamingo +1 252
