@@ -170,10 +170,10 @@ async function syncConversationToClient(client, params) {
 // When Gemini emits a <BOOKING>{...}</BOOKING> tag and the client has booking_endpoint
 // configured in Firestore, we POST the booking to that endpoint and forward the
 // returned payment link to the user as an additional WhatsApp message.
-async function createBookingViaClientEndpoint(client, booking, leadPhone) {
+async function createBookingViaClientEndpoint(client, booking, leadPhone, profileName) {
   if (!client.booking_endpoint || !booking) return null;
 
-  const fullName = String(booking.name || "").trim();
+  const fullName = String(booking.name || profileName || "client").trim();
   const [firstName, ...lastParts] = fullName.split(/\s+/);
   const lastName = lastParts.join(" ");
 
@@ -1054,9 +1054,9 @@ exports.whatsappAIResponder = functions
 
       // 9b. If Gemini emitted <BOOKING> AND client has booking_endpoint, create the
       //     booking + fetch payment link, then push it as an additional reply chunk.
-      if (client.booking_endpoint && booking && booking.destination && booking.email && booking.name) {
+      if (client.booking_endpoint && booking && booking.destination && (booking.date || booking.pax)) {
         try {
-          const bookResult = await createBookingViaClientEndpoint(client, booking, from);
+          const bookResult = await createBookingViaClientEndpoint(client, booking, from, profileName);
           if (bookResult && bookResult.paymentUrl) {
             const lang = (meta && meta.language) || (booking.language) || "en";
             const msg = lang === "es"
