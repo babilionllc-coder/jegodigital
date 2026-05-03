@@ -863,8 +863,14 @@ exports.whatsappAIResponder = functions
       }
 
       // 4. Call Gemini — returns array of replies (1-2 messages, auto-split if needed)
+      // Defensive: declare booking explicitly so it's always in scope even if the
+      // destructure path takes an unexpected branch in the deployed function.
+      let booking = null;
       const recentHistory = history.slice(-10);
-      let { replies, meta, booking } = await callGemini(systemPromptWithContext, recentHistory);
+      const _geminiResult = await callGemini(systemPromptWithContext, recentHistory);
+      let replies = _geminiResult.replies;
+      let meta = _geminiResult.meta;
+      booking = _geminiResult.booking || null;
       // Retry once if empty
       if (!replies || replies.length === 0 || replies[0].length < 5) {
         functions.logger.warn("Gemini empty, retrying once");
@@ -873,7 +879,7 @@ exports.whatsappAIResponder = functions
         if (retry.replies && retry.replies.length > 0 && retry.replies[0].length > 5) {
           replies = retry.replies;
           meta = retry.meta;
-          booking = retry.booking;
+          booking = retry.booking || null;
         }
       }
       // Last-resort safety net
