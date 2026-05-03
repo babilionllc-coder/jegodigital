@@ -136,6 +136,36 @@ async function callGemini(systemPrompt, history) {
 }
 
 
+
+// ---------- WhatsApp activity sync to client's external dashboard (TT&More + future) ----------
+// When client.wa_sync_endpoint is configured, push every conversation state update
+// (every message, every meta change) to that endpoint. The client's server then
+// upserts into their own data store (Airtable for TT&More, future others elsewhere).
+// Auth: shared secret in client.wa_sync_secret matched against server-side env var.
+async function syncConversationToClient(client, params) {
+  if (!client.wa_sync_endpoint || !client.wa_sync_secret) return null;
+  try {
+    const r = await fetch(client.wa_sync_endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-WA-Sync-Secret": client.wa_sync_secret,
+      },
+      body: JSON.stringify(params),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      functions.logger.warn("wa-sync non-2xx", { status: r.status, body: j });
+      return { ok: false, status: r.status, body: j };
+    }
+    functions.logger.info("wa-sync success", { action: j.action, id: j.id });
+    return j;
+  } catch (e) {
+    functions.logger.warn("wa-sync fetch failed", { err: e.message });
+    return { ok: false, error: e.message };
+  }
+}
+
 // ---------- Booking creation via client.booking_endpoint (TT&More + future) ----------
 // When Gemini emits a <BOOKING>{...}</BOOKING> tag and the client has booking_endpoint
 // configured in Firestore, we POST the booking to that endpoint and forward the
@@ -989,6 +1019,37 @@ exports.whatsappAIResponder = functions
         } else {
           functions.logger.warn("Media intent detected but no project slug resolved");
         }
+      }
+
+      // 9a. (NEW) Sync conversation state to client's external dashboard (Airtable etc)
+      //     Fires for every message — both user and Sofia replies — so admin sees real-time activity.
+      try {
+        const lastUserMsg = (history.filter(m => m.role === "user").slice(-1)[0]?.parts?.[0]?.text || "").slice(0, 5000);
+        const lastModelMsg = (replies && replies[0]) || "";
+        const status = (meta && meta.escalate) ? "Escalated"
+                       : (meta && meta.booking_block_emitted) ? "Booked"
+                       : "Active";
+        await syncConversationToClient(client, {
+          conversation_id: `${to.replace("+", "")}_${from.replace("+", "")}`,
+          lead_phone: from,
+          lead_name: profileName || meta?.name || null,
+          status,
+          language: meta?.language || null,
+          intent: meta?.intent || null,
+          destination: meta?.destination || null,
+          pax: typeof meta?.pax === "number" ? meta.pax : (parseInt(meta?.pax, 10) || null),
+          hotel: meta?.hotel || null,
+          date: meta?.date || null,
+          quoted_price_usd: typeof meta?.quoted_price_usd === "number" ? meta.quoted_price_usd : null,
+          lead_score: typeof meta?.lead_score === "number" ? meta.lead_score : null,
+          escalated: !!meta?.escalate,
+          last_message: lastModelMsg.slice(0, 1000) || lastUserMsg.slice(0, 1000),
+          last_message_role: "model",
+          message_count: history.length,
+          notes: JSON.stringify(meta || {}).slice(0, 3000),
+        });
+      } catch (e) {
+        functions.logger.warn("syncConversationToClient block threw", { err: e.message });
       }
 
       // 9b. If Gemini emitted <BOOKING> AND client has booking_endpoint, create the
