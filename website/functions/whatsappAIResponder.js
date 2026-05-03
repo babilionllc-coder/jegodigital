@@ -484,14 +484,38 @@ exports.whatsappAIResponder = functions
       // 3. Append user message
       history.push({ role: "user", parts: [{ text }] });
 
+      // 3a. RETURNING LEAD MEMORY — if last conversation was >24h ago, prepend context summary
+      // This makes Sofía recognize returning leads instead of starting fresh.
+      let systemPromptWithContext = client.systemPrompt;
+      const lastUpdated = convoData.updated_at?.toDate?.();
+      if (lastUpdated && history.length > 2) {
+        const hoursSinceLast = (Date.now() - lastUpdated.getTime()) / (1000 * 60 * 60);
+        if (hoursSinceLast >= 24) {
+          const lastMeta = convoData.last_meta || {};
+          const summary = [];
+          if (lastMeta.name) summary.push(`Nombre: ${lastMeta.name}`);
+          if (lastMeta.country_of_interest) summary.push(`País interés: ${lastMeta.country_of_interest}`);
+          if (lastMeta.zone) summary.push(`Zona: ${lastMeta.zone}`);
+          if (lastMeta.budget_hint) summary.push(`Presupuesto: ${lastMeta.budget_hint}`);
+          if (lastMeta.intent) summary.push(`Intención: ${lastMeta.intent}`);
+          if (lastMeta.project_interest) summary.push(`Proyecto interés: ${lastMeta.project_interest}`);
+          const summaryStr = summary.join(" · ");
+          if (summaryStr) {
+            const daysAgo = Math.round(hoursSinceLast / 24);
+            systemPromptWithContext = client.systemPrompt + `\n\n═══════════════════════════════\nLEAD QUE REGRESA — CONTEXTO PREVIO (hace ${daysAgo} día${daysAgo > 1 ? 's' : ''})\n═══════════════════════════════\nEste lead ya tuvo una conversación contigo. Datos capturados antes:\n${summaryStr}\n\nReconócelo cordialmente: "Hola${lastMeta.name ? ' ' + lastMeta.name : ''}, gusto verte de nuevo. Hace unos días me dijiste que buscabas [referenciar contexto]". NO empieces con la apertura genérica. Continúa donde quedaron.`;
+            functions.logger.info("Returning lead detected", { convoId, daysAgo, summaryFields: summary.length });
+          }
+        }
+      }
+
       // 4. Call Gemini — returns array of replies (1-2 messages, auto-split if needed)
       const recentHistory = history.slice(-10);
-      let { replies, meta } = await callGemini(client.systemPrompt, recentHistory);
+      let { replies, meta } = await callGemini(systemPromptWithContext, recentHistory);
       // Retry once if empty
       if (!replies || replies.length === 0 || replies[0].length < 5) {
         functions.logger.warn("Gemini empty, retrying once");
         await new Promise((r) => setTimeout(r, 800));
-        const retry = await callGemini(client.systemPrompt, recentHistory);
+        const retry = await callGemini(systemPromptWithContext, recentHistory);
         if (retry.replies && retry.replies.length > 0 && retry.replies[0].length > 5) {
           replies = retry.replies;
           meta = retry.meta;

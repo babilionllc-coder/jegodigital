@@ -2857,8 +2857,9 @@ const whatsappAIResponderMod = require('./whatsappAIResponder');
 exports.whatsappAIResponder = whatsappAIResponderMod.whatsappAIResponder;
 exports.whatsappAIHealth     = whatsappAIResponderMod.whatsappAIHealth;
 
-// Multi-tenant client CRM ops (daily digest + hot lead alerts + on-demand)
+// Multi-tenant client CRM ops (daily digest + hot lead alerts + follow-up + on-demand)
 const flamingoCRMOpsMod = require('./flamingoCRMOps');
 exports.flamingoDailyDigest    = flamingoCRMOpsMod.flamingoDailyDigest;
 exports.flamingoHotLeadAlert   = flamingoCRMOpsMod.flamingoHotLeadAlert;
+exports.flamingoFollowUpCron   = flamingoCRMOpsMod.flamingoFollowUpCron;
 exports.flamingoCRMOpsOnDemand = flamingoCRMOpsMod.flamingoCRMOpsOnDemand;

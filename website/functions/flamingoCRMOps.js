@@ -173,6 +173,17 @@ exports.flamingoHotLeadAlert = functions
     const targets = client.notification_targets;
     if (!targets?.hot_alerts_enabled || !targets?.owner_whatsapp) return null;
 
+    // Pull the recent conversation transcript so Rodrigo has full context
+    const convoId = `${clientPhone.replace(/\+/g, "")}_${after.phone.replace(/\+/g, "")}`;
+    let transcript = [];
+    try {
+      const convoDoc = await db.collection("wa_conversations").doc(convoId).get();
+      if (convoDoc.exists) {
+        const msgs = convoDoc.data().messages || [];
+        transcript = msgs.slice(-6); // last 6 messages (3 exchanges)
+      }
+    } catch (e) { functions.logger.warn("Could not load transcript for alert", e.message); }
+
     // Build alert
     const lines = [];
     lines.push(`🔥 *HOT LEAD AHORA*`);
@@ -183,12 +194,24 @@ exports.flamingoHotLeadAlert = functions
     if (after.budget_hint) lines.push(`💰 Presupuesto: ${after.budget_hint}`);
     if (after.timeline) lines.push(`⏰ Timeline: ${after.timeline}`);
     if (after.project_interest) lines.push(`🏠 Proyecto: ${after.project_interest}`);
+    if (after.intent) lines.push(`🎯 Intención: ${after.intent}`);
+    if (after.country_of_origin) lines.push(`🌎 De: ${after.country_of_origin}`);
     lines.push(`📊 Score: ${after.lead_score || "?"}/10`);
     lines.push("");
-    lines.push(`📱 WhatsApp del lead: ${after.phone}`);
+    lines.push(`📱 WhatsApp: ${after.phone}`);
     lines.push(`💬 wa.me/${(after.phone || "").replace(/[^\d]/g, "")}`);
-    lines.push("");
-    if (after.last_message_text) {
+
+    // Add conversation transcript so Rodrigo continues seamlessly
+    if (transcript.length > 0) {
+      lines.push("");
+      lines.push("📝 *Conversación reciente:*");
+      transcript.forEach((m) => {
+        const who = m.role === "user" ? "👤" : "🤖";
+        const txt = (m.parts?.[0]?.text || "").slice(0, 180).replace(/\n/g, " ");
+        if (txt) lines.push(`${who} ${txt}`);
+      });
+    } else if (after.last_message_text) {
+      lines.push("");
       lines.push(`_Último mensaje:_ "${after.last_message_text.slice(0, 200)}"`);
     }
 
@@ -248,9 +271,116 @@ exports.flamingoCRMOpsOnDemand = functions
         });
       }
 
+      if (action === "followup") {
+        // Manual trigger of follow-up sweep for one client
+        const result = await runFollowUpSweep(clientPhone, client);
+        return res.status(200).json(result);
+      }
+
       return res.status(400).json({ error: "Unknown action" });
     } catch (e) {
       functions.logger.error("OnDemand fail", e);
       return res.status(500).json({ error: e.message });
     }
+  });
+
+// ---------- FOLLOW-UP NURTURE (every 6 hours, sweeps inactive leads) ----------
+// 24h silent → "¿Pude resolver tu duda?"
+// 72h silent → suggests an alternate project from inventory
+// 7d silent  → soft urgency about scarcity / Mundial 2026
+
+async function callGeminiForFollowUp(systemPrompt, history, instruction) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+  const body = {
+    systemInstruction: { parts: [{ text: systemPrompt + "\n\nINSTRUCCIÓN ESPECIAL DE FOLLOW-UP: " + instruction }] },
+    contents: history,
+    generationConfig: { temperature: 0.7, maxOutputTokens: 250 },
+  };
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  const text = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  return text.replace(/<META>[\s\S]*?<\/META>/gi, "").replace(/<META.*$/s, "").trim();
+}
+
+async function runFollowUpSweep(clientPhone, client) {
+  const now = Date.now();
+  const HOUR = 60 * 60 * 1000;
+  const DAY = 24 * HOUR;
+
+  const conversationsSnap = await db
+    .collection("wa_conversations")
+    .where("client_to", "==", clientPhone)
+    .get();
+
+  let attempted = 0, sent = 0, skipped = 0;
+  const results = [];
+
+  for (const doc of conversationsSnap.docs) {
+    const c = doc.data();
+    const lastUpdated = c.updated_at?.toDate?.() || new Date(c.updated_at);
+    if (!lastUpdated || isNaN(lastUpdated)) { skipped++; continue; }
+    const hoursSilent = (now - lastUpdated.getTime()) / HOUR;
+
+    // Skip if no human takeover marker but conversation already had Sofía's last word and human took over manually
+    if (c.human_takeover_until && new Date(c.human_takeover_until) > new Date()) { skipped++; continue; }
+    // Skip if already nurtured at this stage
+    const stagesSent = c.followups_sent || {};
+
+    let stage = null, instruction = null;
+    if (hoursSilent >= 24 && hoursSilent < 72 && !stagesSent["24h"]) {
+      stage = "24h";
+      instruction = "El lead lleva 24h sin responder. Genera UN solo mensaje breve, cálido y no insistente preguntando si pudimos resolver su duda. Máximo 2 oraciones. Termina con una pregunta abierta. NO uses emoji. NO repitas info anterior. Tono: como un asesor amigo haciendo check-in casual.";
+    } else if (hoursSilent >= 72 && hoursSilent < 168 && !stagesSent["72h"]) {
+      stage = "72h";
+      instruction = "El lead lleva 3 días sin responder. Genera UN mensaje sugiriendo un proyecto alternativo del inventario que también podría interesarle (basado en su búsqueda anterior). Máximo 3 oraciones. Termina con una pregunta. Tono: 'oye, también tenemos esto que podría gustarte'.";
+    } else if (hoursSilent >= 168 && hoursSilent < 24 * 30 && !stagesSent["7d"]) {
+      stage = "7d";
+      instruction = "El lead lleva 7 días sin responder. Genera UN mensaje con soft urgency real: menciona que esta semana se apartaron unidades del proyecto que le interesaba, o que el Mundial 2026 está disparando demanda. Máximo 3 oraciones. Termina con CTA suave. NO seas agresivo.";
+    }
+
+    if (!stage) { skipped++; continue; }
+    attempted++;
+
+    try {
+      const messages = c.messages || [];
+      const reply = await callGeminiForFollowUp(client.systemPrompt || "", messages.slice(-8), instruction);
+      if (!reply || reply.length < 10) { skipped++; continue; }
+      // Send via Twilio (multi-tenant aware)
+      await sendWA(c.lead_phone, clientPhone, reply, client.twilio_subaccount_sid);
+      // Mark stage sent + append to messages
+      messages.push({ role: "model", parts: [{ text: reply }], at: new Date().toISOString(), tag: `followup_${stage}` });
+      await doc.ref.update({
+        messages: messages.slice(-50),
+        followups_sent: { ...stagesSent, [stage]: new Date().toISOString() },
+        last_followup_stage: stage,
+      });
+      sent++;
+      results.push({ lead: c.lead_phone, stage, sent: true });
+      functions.logger.info("Follow-up sent", { client: clientPhone, lead: c.lead_phone, stage });
+    } catch (e) {
+      functions.logger.error("Follow-up fail", { lead: c.lead_phone, err: e.message });
+    }
+  }
+
+  return { client: clientPhone, attempted, sent, skipped, total_convos: conversationsSnap.size, results };
+}
+
+exports.flamingoFollowUpCron = functions
+  .runWith({ memory: "512MB", timeoutSeconds: 300 })
+  .pubsub.schedule("0 */6 * * *") // every 6 hours
+  .timeZone("America/Cancun")
+  .onRun(async () => {
+    const clientsSnap = await db.collection("wa_clients").get();
+    let totalSent = 0;
+    for (const doc of clientsSnap.docs) {
+      const client = doc.data();
+      if (!client.notification_targets?.hot_alerts_enabled) continue;
+      const result = await runFollowUpSweep(doc.id, client);
+      totalSent += result.sent;
+      functions.logger.info("Follow-up sweep done", result);
+    }
+    if (totalSent > 0) {
+      await tg(`🔁 *Follow-up Cron*\n✅ Sent: ${totalSent} nurture messages across all clients`);
+    }
+    return null;
   });
