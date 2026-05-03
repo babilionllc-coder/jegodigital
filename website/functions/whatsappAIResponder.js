@@ -190,9 +190,20 @@ function detectMediaIntent(text, lastReplyMeta) {
 
 function getProjectMedia(client, projectSlug, type) {
   if (!projectSlug || !client.media_library) return null;
-  const proj = client.media_library[projectSlug];
+  // 1. Exact match first
+  let proj = client.media_library[projectSlug];
+  // 2. Fuzzy match — find any library key that contains the slug or vice-versa
+  if (!proj) {
+    const slugNorm = String(projectSlug).toLowerCase().replace(/[^a-z0-9]/g, "");
+    const keys = Object.keys(client.media_library);
+    const match = keys.find((k) => {
+      const kNorm = k.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return kNorm === slugNorm || kNorm.includes(slugNorm) || slugNorm.includes(kNorm);
+    });
+    if (match) proj = client.media_library[match];
+  }
   if (!proj) return null;
-  if (type === "photos") return (proj.photos || []).slice(0, 3); // max 3 photos to avoid spam
+  if (type === "photos") return (proj.photos || []).slice(0, 3);
   if (type === "brochure") return proj.brochure_url ? [proj.brochure_url] : null;
   if (type === "video") return proj.video_url ? [proj.video_url] : null;
   return null;
@@ -398,8 +409,9 @@ async function pushLeadToNotion(client, leadData, convoId, msgCount) {
 // in their existing /admin CRM dashboard. Lazy-initializes a per-client
 // admin app the first time we need to write to that project.
 const SOFIA_TO_FLAMINGO_STAGE = {
-  diagnostico: "new", match: "contacted", demo: "viewing",
-  cierre: "negotiation", ganado: "closed", perdido: "lost",
+  diagnostico: "new", match: "contacted", info: "contacted",
+  demo: "viewing", cierre: "negotiation",
+  ganado: "closed", perdido: "lost",
 };
 const _clientAdminApps = {}; // cache per project
 
