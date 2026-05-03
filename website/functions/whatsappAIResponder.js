@@ -170,19 +170,63 @@ exports.whatsappAIResponder = functions
       const convoId = `${to.replace(/\+/g, "")}_${from.replace(/\+/g, "")}`;
       const convoRef = db.collection("wa_conversations").doc(convoId);
       const convoDoc = await convoRef.get();
-      const history = convoDoc.exists ? convoDoc.data().messages || [] : [];
+      const convoData = convoDoc.exists ? convoDoc.data() : {};
+      const history = convoData.messages || [];
+
+      // 2a. HUMAN TAKEOVER CHECK — if a human asesor is actively replying, AI shuts up.
+      // The asesor sets `human_takeover_until` (ISO timestamp) via a separate webhook
+      // when they jump into the conversation. AI stays silent until the timestamp passes.
+      const takeoverUntil = convoData.human_takeover_until;
+      if (takeoverUntil && new Date(takeoverUntil) > new Date()) {
+        functions.logger.info("WA: human takeover active, AI silenced", { convoId, takeoverUntil });
+        // Still log the inbound so human can see it in Firestore
+        history.push({ role: "user", parts: [{ text }], at: new Date().toISOString() });
+        await convoRef.set({
+          client_to: to,
+          lead_phone: from,
+          lead_name: profileName || convoData.lead_name || null,
+          messages: history.slice(-50),
+          updated_at: admin.firestore.FieldValue.serverTimestamp(),
+          message_count: (history.length || 0),
+          last_inbound_during_takeover: text.slice(0, 500),
+        }, { merge: true });
+        return res.status(200).set("Content-Type", "text/xml").send("<Response></Response>");
+      }
+
+      // 2b. RATE LIMIT — max 30 inbound messages per phone per 60 min (DDoS / runaway-cost protection)
+      const recentInbound = (convoData.recent_inbound_timestamps || [])
+        .filter((ts) => Date.now() - new Date(ts).getTime() < 60 * 60 * 1000);
+      if (recentInbound.length >= 30) {
+        functions.logger.warn("WA rate limit hit, skipping AI reply", { from, count: recentInbound.length });
+        return res.status(200).set("Content-Type", "text/xml").send("<Response></Response>");
+      }
+      recentInbound.push(new Date().toISOString());
 
       // 3. Append user message
       history.push({ role: "user", parts: [{ text }] });
 
-      // 4. Call Gemini with system prompt + last 10 messages
+      // 4. Call Gemini with system prompt + last 10 messages (with retry on failure)
       const recentHistory = history.slice(-10);
-      const { reply, meta } = await callGemini(client.systemPrompt, recentHistory);
+      let { reply, meta } = await callGemini(client.systemPrompt, recentHistory);
+      // Retry once if reply is empty or technical-error placeholder (Gemini occasional 5xx)
+      if (!reply || reply.length < 5 || reply.includes("problema técnico")) {
+        functions.logger.warn("Gemini empty/error, retrying once", { firstReply: reply });
+        await new Promise((r) => setTimeout(r, 800));
+        const retry = await callGemini(client.systemPrompt, recentHistory);
+        if (retry.reply && retry.reply.length > 5) {
+          reply = retry.reply;
+          meta = retry.meta;
+        }
+      }
+      // Last-resort safety net: never send blank to user
+      if (!reply || reply.length < 5) {
+        reply = "¡Gracias por escribirnos! Un asesor humano te contacta en los próximos 10 minutos. 🌴";
+      }
 
       // 5. Append AI response
       history.push({ role: "model", parts: [{ text: reply }] });
 
-      // 6. Save conversation (keep last 50 messages)
+      // 6. Save conversation (keep last 50 messages + rate-limit timestamps)
       await convoRef.set(
         {
           client_to: to,
@@ -192,6 +236,7 @@ exports.whatsappAIResponder = functions
           last_meta: meta,
           updated_at: admin.firestore.FieldValue.serverTimestamp(),
           message_count: (history.length || 0),
+          recent_inbound_timestamps: recentInbound.slice(-50),
         },
         { merge: true }
       );
