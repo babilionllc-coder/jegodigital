@@ -60,8 +60,8 @@ async function callGemini(systemPrompt, history) {
   const body = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: history,
-    // 250 tokens ≈ 200 words ≈ 1000 chars — fits comfortably in WhatsApp's 1600-char limit
-    generationConfig: { temperature: 0.7, maxOutputTokens: 250 },
+    // 400 tokens ≈ 300 words ≈ 1500 chars. We split into 2 messages if needed.
+    generationConfig: { temperature: 0.65, maxOutputTokens: 400 },
   };
   const r = await fetch(url, {
     method: "POST",
@@ -71,7 +71,7 @@ async function callGemini(systemPrompt, history) {
   const j = await r.json();
   if (j.error) {
     functions.logger.error("Gemini error", j.error);
-    return { reply: "Disculpa, problema técnico. Te llamamos en 5 min.", meta: {} };
+    return { replies: ["Disculpa, hubo un detalle técnico. Te respondo en 1 minuto."], meta: {} };
   }
   const text = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
@@ -82,23 +82,57 @@ async function callGemini(systemPrompt, history) {
     try { meta = JSON.parse(metaMatch[1]); } catch (e) { /* ignore */ }
   }
 
-  // ROBUST strip: remove ANYTHING from `<META` onwards (even without closing tag, even malformed)
-  // This guards against: truncated messages, malformed META, partial tags, anything weird
+  // ROBUST strip: remove ANYTHING from `<META` onwards
   let reply = text.replace(/<META>[\s\S]*?<\/META>/gi, "").trim();
-  // Belt-and-suspenders: cut anything from first `<META` we still see
   const stripIdx = reply.indexOf("<META");
   if (stripIdx >= 0) reply = reply.substring(0, stripIdx).trim();
-  // Also strip any trailing partial tags like `<MET`, `<ME`, `<M` at end
   reply = reply.replace(/<[A-Z]{1,4}\s*$/, "").trim();
 
-  // Hard cap at 1400 chars (WhatsApp limit is 1600, leave room for safety)
-  if (reply.length > 1400) {
-    // Cut at last sentence boundary before 1400
-    const cut = reply.lastIndexOf(".", 1400);
-    reply = (cut > 800 ? reply.substring(0, cut + 1) : reply.substring(0, 1400)).trim();
+  // Strip stray markdown that WhatsApp doesn't render
+  reply = reply.replace(/\*\*([^*]+)\*\*/g, "$1"); // **bold** → bold
+  reply = reply.replace(/^\s*[-•]\s+/gm, "");      // bullets at line start
+  reply = reply.replace(/^#{1,6}\s+/gm, "");       // headers
+
+  // SPLIT into 1-2 messages if too long.
+  // Rule: split at paragraph boundary (\n\n) if total > 700 chars; max 2 messages, each ≤ 700 chars.
+  const replies = [];
+  if (reply.length <= 700) {
+    replies.push(reply);
+  } else {
+    // Try paragraph split
+    const paragraphs = reply.split(/\n{2,}/).filter((p) => p.trim().length > 0);
+    if (paragraphs.length >= 2) {
+      // First message = first paragraph(s) up to ~600 chars, second = rest
+      let acc = "";
+      let used = 0;
+      for (const p of paragraphs) {
+        if (acc.length + p.length < 650) {
+          acc += (acc ? "\n\n" : "") + p;
+          used++;
+        } else break;
+      }
+      replies.push(acc.trim());
+      const rest = paragraphs.slice(used).join("\n\n").trim();
+      if (rest && rest.length <= 700) replies.push(rest);
+      else if (rest) replies.push(rest.substring(0, rest.lastIndexOf(".", 700) + 1 || 700).trim());
+    } else {
+      // No paragraph break — split at sentence boundary near 600
+      const cut = reply.lastIndexOf(".", 650);
+      if (cut > 200) {
+        replies.push(reply.substring(0, cut + 1).trim());
+        const tail = reply.substring(cut + 1).trim();
+        if (tail.length > 0 && tail.length <= 700) replies.push(tail);
+        else if (tail.length > 700) replies.push(tail.substring(0, 700).trim());
+      } else {
+        replies.push(reply.substring(0, 700).trim());
+      }
+    }
   }
 
-  return { reply, meta };
+  // Final safety: each reply max 1400 chars (Twilio WA hard limit ~1600)
+  const safe = replies.map((r) => (r.length > 1400 ? r.substring(0, 1400).trim() : r));
+
+  return { replies: safe, meta };
 }
 
 // ---------- Twilio send (multi-tenant — routes to subaccount if applicable) ----------
@@ -321,23 +355,24 @@ exports.whatsappAIResponder = functions
       // 3. Append user message
       history.push({ role: "user", parts: [{ text }] });
 
-      // 4. Call Gemini with system prompt + last 10 messages (with retry on failure)
+      // 4. Call Gemini — returns array of replies (1-2 messages, auto-split if needed)
       const recentHistory = history.slice(-10);
-      let { reply, meta } = await callGemini(client.systemPrompt, recentHistory);
-      // Retry once if reply is empty or technical-error placeholder (Gemini occasional 5xx)
-      if (!reply || reply.length < 5 || reply.includes("problema técnico")) {
-        functions.logger.warn("Gemini empty/error, retrying once", { firstReply: reply });
+      let { replies, meta } = await callGemini(client.systemPrompt, recentHistory);
+      // Retry once if empty
+      if (!replies || replies.length === 0 || replies[0].length < 5) {
+        functions.logger.warn("Gemini empty, retrying once");
         await new Promise((r) => setTimeout(r, 800));
         const retry = await callGemini(client.systemPrompt, recentHistory);
-        if (retry.reply && retry.reply.length > 5) {
-          reply = retry.reply;
+        if (retry.replies && retry.replies.length > 0 && retry.replies[0].length > 5) {
+          replies = retry.replies;
           meta = retry.meta;
         }
       }
-      // Last-resort safety net: never send blank to user
-      if (!reply || reply.length < 5) {
-        reply = "¡Gracias por escribirnos! Un asesor humano te contacta en los próximos 10 minutos. 🌴";
+      // Last-resort safety net
+      if (!replies || replies.length === 0 || replies[0].length < 5) {
+        replies = ["Gracias por escribirnos. Un asesor humano te contacta en los próximos 10 minutos."];
       }
+      const reply = replies.join("\n\n"); // for Firestore log + meta extraction
 
       // 5. Append AI response
       history.push({ role: "model", parts: [{ text: reply }] });
@@ -401,10 +436,17 @@ exports.whatsappAIResponder = functions
         await tgAlert(alertMsg);
       }
 
-      // 9. Send AI reply via Twilio (route to owning subaccount if multi-tenant client)
-      const sent = await sendWhatsApp(from, to, reply, client.twilio_subaccount_sid);
-      if (sent.error_code || sent.error_message) {
-        functions.logger.error("Twilio send error", sent);
+      // 9. Send AI reply(s) via Twilio — supports multi-message split
+      // Send each chunk sequentially with 800ms delay so they arrive in order naturally
+      for (let i = 0; i < replies.length; i++) {
+        const chunk = replies[i];
+        if (i > 0) await new Promise((r) => setTimeout(r, 800));
+        const sent = await sendWhatsApp(from, to, chunk, client.twilio_subaccount_sid);
+        if (sent.error_code || sent.error_message) {
+          functions.logger.error(`Twilio send error (chunk ${i})`, sent);
+        } else {
+          functions.logger.info(`Reply chunk ${i + 1}/${replies.length} sent`, { len: chunk.length });
+        }
       }
 
       // Twilio expects 200 OK with empty body OR TwiML
