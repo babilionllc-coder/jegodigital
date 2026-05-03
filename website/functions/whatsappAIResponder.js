@@ -265,11 +265,30 @@ function detectMediaIntent(text, lastReplyMeta) {
   return { type, projectSlug };
 }
 
+// Extract project slug from AI reply text by scanning for known project names
+// (fallback when META.project_interest is empty/undefined — which Gemini does often)
+function extractProjectFromText(text, mediaLibrary) {
+  if (!text || !mediaLibrary) return null;
+  const lower = text.toLowerCase();
+  // Build searchable keys: slug + name variants
+  const candidates = [];
+  for (const slug of Object.keys(mediaLibrary)) {
+    candidates.push({ slug, search: slug.toLowerCase().replace(/-/g, " ") });
+    // Also add common aliases — strip "miami", "tulum", "cancun" suffixes
+    const stripped = slug.replace(/-(miami|tulum|cancun|mexico|by-.*|residences?)$/i, "").replace(/-/g, " ");
+    if (stripped !== slug) candidates.push({ slug, search: stripped });
+  }
+  // Sort by longest search string first (more specific matches win)
+  candidates.sort((a, b) => b.search.length - a.search.length);
+  for (const c of candidates) {
+    if (c.search.length >= 4 && lower.includes(c.search)) return c.slug;
+  }
+  return null;
+}
+
 function getProjectMedia(client, projectSlug, type) {
   if (!projectSlug || !client.media_library) return null;
-  // 1. Exact match first
   let proj = client.media_library[projectSlug];
-  // 2. Fuzzy match — find any library key that contains the slug or vice-versa
   if (!proj) {
     const slugNorm = String(projectSlug).toLowerCase().replace(/[^a-z0-9]/g, "");
     const keys = Object.keys(client.media_library);
@@ -483,8 +502,11 @@ async function pushLeadToNotion(client, leadData, convoId, msgCount) {
 
 // ---------- Email project info via Brevo (real delivery, not a fake promise) ----------
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const FLAMINGO_SENDER_EMAIL = "info@realestateflamingo.com.mx";
-const FLAMINGO_SENDER_NAME = "Flamingo Real Estate";
+// TEMP: Using JegoDigital verified sender until realestateflamingo.com.mx domain is fully authenticated in Brevo
+// (DKIM record needs to be added — Brevo dashboard → Senders → Add domain → grab DKIM TXT)
+const FLAMINGO_SENDER_EMAIL = "info@jegodigital.com";
+const FLAMINGO_SENDER_NAME = "Flamingo Real Estate (vía JegoDigital)";
+const FLAMINGO_REPLY_TO_EMAIL = "info@realestateflamingo.com.mx"; // Replies route to Flamingo even though sender is JD
 
 function detectEmailIntent(text, history) {
   const t = (text || "").toLowerCase();
@@ -565,7 +587,8 @@ async function sendProjectInfoEmail({ to, leadName, project, photos, brochure_ur
         to: [{ email: to, name: safeName }],
         subject: `Información de ${projectTitle} — Flamingo Real Estate`,
         htmlContent: html,
-        replyTo: { email: FLAMINGO_SENDER_EMAIL, name: FLAMINGO_SENDER_NAME },
+        // Replies route to Flamingo's real inbox so Rodrigo handles them
+        replyTo: { email: FLAMINGO_REPLY_TO_EMAIL, name: "Flamingo Real Estate" },
       }),
     });
     const j = await r.json();
@@ -932,18 +955,39 @@ exports.whatsappAIResponder = functions
         }
       }
 
-      // 9. Detect MEDIA INTENT — if user asked for photos/brochure/video, attach
-      // Use most recent META (current reply has best project_interest signal)
+      // 9. Detect MEDIA INTENT — multi-fallback for project slug detection.
+      // Order: META.project_interest → previous META → AI's own reply text → user's message
       const intent = detectMediaIntent(text, meta);
       let mediaToSend = null;
-      if (intent && intent.projectSlug) {
-        mediaToSend = getProjectMedia(client, intent.projectSlug, intent.type);
-        if (mediaToSend) {
-          functions.logger.info("Media intent matched", {
-            type: intent.type,
-            slug: intent.projectSlug,
-            count: mediaToSend.length,
-          });
+      if (intent) {
+        let slug = intent.projectSlug;
+        // Fallback 1: previous META in conversation (carries project context)
+        if (!slug && convoData.last_meta?.project_interest) {
+          slug = convoData.last_meta.project_interest;
+          functions.logger.info("Slug fallback: previous META", { slug });
+        }
+        // Fallback 2: scan AI's reply text for known project names
+        if (!slug && client.media_library) {
+          const replyText = (replies || []).join(" ");
+          slug = extractProjectFromText(replyText, client.media_library);
+          if (slug) functions.logger.info("Slug fallback: from AI reply text", { slug });
+        }
+        // Fallback 3: scan user's own message
+        if (!slug && client.media_library) {
+          slug = extractProjectFromText(text, client.media_library);
+          if (slug) functions.logger.info("Slug fallback: from user msg", { slug });
+        }
+        if (slug) {
+          mediaToSend = getProjectMedia(client, slug, intent.type);
+          if (mediaToSend) {
+            functions.logger.info("Media intent matched", {
+              type: intent.type, slug, count: mediaToSend.length,
+            });
+          } else {
+            functions.logger.warn("Project found but no media of type", { slug, type: intent.type });
+          }
+        } else {
+          functions.logger.warn("Media intent detected but no project slug resolved");
         }
       }
 
