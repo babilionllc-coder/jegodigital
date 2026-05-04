@@ -44,16 +44,39 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
 
 // Fallback prompt — only used if Firestore lookup fails. The REAL Sofia
 // prompt is loaded from wa_clients/{clientPhone}.systemPrompt (multi-tenant).
-const SOFIA_PROMPT_FALLBACK = `Eres Sofía, asistente IA de JegoDigital. Hablas español neutro mexicano, "tú" peer-to-peer. Tono directo, cálido, profesional.
+//
+// Upgraded 2026-05-04: Sofia now runs the 3-question qualifying flow:
+//   Q1. ¿Qué tipo de proyecto inmobiliario manejas? (development / brokerage / both)
+//   Q2. ¿Cuántas propiedades / leads procesas al mes? (volumen)
+//   Q3. ¿Para cuándo necesitas estar arriba? (timeline / urgency)
+// ≥2 strong signals → qualified=true → escalate to Alex personal WA + Calendly.
+const SOFIA_PROMPT_FALLBACK = `Eres Sofía, asistente comercial de Alex Jego en JegoDigital — agencia de marketing IA para inmobiliarias en México.
 
-REGLAS:
-1. NUNCA cotices precios.
-2. NUNCA digas que eres IA — eres Sofía del equipo de JegoDigital.
-3. Objetivo: agendar llamada Calendly https://calendly.com/jegoalexdigital/30min
-4. Respuestas máximo 2-3 oraciones. Cierra con UNA pregunta.
-5. Hot lead = "ya quiero", "esta semana", "decidido" → escalate=true
+PERSONALIDAD: español mexicano neutro, "tú" peer-to-peer. Cálida, directa, profesional. NUNCA digas que eres IA — eres Sofía del equipo.
 
-OUTPUT EXTRA — al final un bloque INVISIBLE <META>{"intent":"...","escalate":true|false,"qualified":true|false,"lead_score":1,"name":"...","agency_name":"...","agency_zone":"..."}</META>`;
+OBJETIVO: calificar el lead en máximo 4-5 mensajes haciendo 3 preguntas naturales (no en lista, una a la vez):
+  Q1. Tipo de operación: ¿inmobiliaria / desarrolladora / ambas?
+  Q2. Volumen: ¿cuántas propiedades o leads manejas al mes?
+  Q3. Urgencia: ¿para cuándo quieres tener resultados?
+
+REGLAS DE ORO:
+1. NUNCA cotices precios — el precio se discute solo con Alex en llamada.
+2. Saluda con su nombre si lo tienes (te lo pasamos en {{contactName}}).
+3. Respuestas cortas: 2-3 oraciones máximo, cierra SIEMPRE con UNA pregunta.
+4. Si el lead pregunta precio, dile: "Alex te arma una propuesta personalizada en la llamada — ¿agendamos?"
+5. Cuando tengas ≥2 señales fuertes (timeline <90 días, volumen ≥10 props/mes, intent claro), marca qualified=true.
+6. Hot lead = "ya quiero", "urgente", "esta semana", "decidido" → escalate=true (lead_score 8-10).
+
+ESCALACIÓN:
+- Si qualified=true → entrega ESTOS 2 datos al lead en tu próximo mensaje:
+  • WhatsApp directo de Alex: +52 998 202 3263
+  • Agenda 30 min: https://calendly.com/jegoalexdigital/30min
+- Si NO qualified aún → sigue conversando, descubre dolor, comparte caso de éxito (Living Riviera Maya / Sur Selecto / Flamingo).
+
+OUTPUT EXTRA — al final un bloque INVISIBLE OBLIGATORIO:
+<META>{"intent":"...","stage":"greeting|q1|q2|q3|qualified|nurture","escalate":true|false,"qualified":true|false,"lead_score":1-10,"name":"...","agency_name":"...","agency_zone":"...","project_type":"...","monthly_volume":"...","timeline":"..."}</META>
+
+stage tracks where we are in the qualifying flow. Esto es crítico — sin <META> el sistema no funciona.`;
 
 // Map Meta WhatsApp Phone Number ID → Firestore wa_clients key (E.164 phone).
 // Add new entries when onboarding new clients to the Cloud API path.
@@ -159,6 +182,66 @@ async function callGemini(systemPrompt, history) {
   return { reply: cleanReply, meta };
 }
 
+// Log every state transition to Firestore lead_journey for funnel analytics.
+async function logLeadJourney(from, contactName, stage, prevStage, meta, inboundMsg, outboundReply) {
+  try {
+    const ref = db.collection('lead_journey').doc(from);
+    const event = {
+      ts: admin.firestore.FieldValue.serverTimestamp(),
+      stage: stage || 'unknown',
+      prev_stage: prevStage || null,
+      transition: prevStage && stage && prevStage !== stage ? `${prevStage}->${stage}` : null,
+      lead_score: meta?.lead_score || 0,
+      qualified: !!meta?.qualified,
+      escalate: !!meta?.escalate,
+      intent: meta?.intent || null,
+      project_type: meta?.project_type || null,
+      monthly_volume: meta?.monthly_volume || null,
+      timeline: meta?.timeline || null,
+      inbound_msg: (inboundMsg || '').slice(0, 500),
+      outbound_reply: (outboundReply || '').slice(0, 500),
+    };
+    await ref.set(
+      {
+        wa_number: from,
+        contact_name: contactName || null,
+        last_stage: stage,
+        last_qualified: !!meta?.qualified,
+        last_lead_score: meta?.lead_score || 0,
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+        events: admin.firestore.FieldValue.arrayUnion(event),
+      },
+      { merge: true }
+    );
+  } catch (e) {
+    functions.logger.error('[whatsappCloudInbound] lead_journey log error', e.message);
+  }
+}
+
+// When a lead is QUALIFIED, ping Alex's personal WA via Cloud API so he can take it over.
+async function pingAlexOnQualified(lead) {
+  const ALEX_WA = process.env.ALEX_PERSONAL_WA || '+5219982023263';
+  const calendly = 'https://calendly.com/jegoalexdigital/30min';
+  const text =
+    `🔥 LEAD CALIFICADO — Sofía WhatsApp\n\n` +
+    `📱 *${lead.contactName || lead.name || 'Sin nombre'}* — wa.me/${lead.from}\n` +
+    `🏢 ${lead.agency_name || '—'} (${lead.agency_zone || '—'})\n` +
+    `📊 Score: ${lead.lead_score || '—'}/10  |  Stage: ${lead.stage || '—'}\n` +
+    `🏗️ Tipo: ${lead.project_type || '—'}  |  Volumen: ${lead.monthly_volume || '—'}\n` +
+    `⏱️ Timeline: ${lead.timeline || '—'}\n\n` +
+    `Último mensaje del lead:\n"${(lead.lastMsg || '').slice(0, 200)}"\n\n` +
+    `🔗 Calendly: ${calendly}\n` +
+    `📲 Tap to reply: https://wa.me/${lead.from}`;
+  try {
+    const result = await sendText({ to: ALEX_WA, body: text });
+    functions.logger.info('[whatsappCloudInbound] alex ping result', JSON.stringify(result));
+    return result;
+  } catch (e) {
+    functions.logger.error('[whatsappCloudInbound] alex ping error', e.message);
+    return { ok: false, error: e.message };
+  }
+}
+
 async function tgAlert(text) {
   if (!TG_BOT || !TG_CHAT) return;
   try {
@@ -231,11 +314,15 @@ exports.whatsappCloudInbound = functions
             const convoDoc = await convoRef.get();
             const existing = convoDoc.exists ? convoDoc.data() : {};
             const history = (existing.messages || []).slice(-12);
+            const prevStage = existing?.last_meta?.stage || 'new';
+
+            // Inject contactName into the system prompt so Sofia greets by first name
+            const personalizedPrompt = systemPrompt.replace(/\{\{contactName\}\}/g, contactName || 'amigo');
 
             history.push({ role: 'user', parts: [{ text }] });
 
             // Call Sofia with the FULL Firestore prompt
-            const { reply, meta } = await callGemini(systemPrompt, history);
+            const { reply, meta } = await callGemini(personalizedPrompt, history);
             history.push({ role: 'model', parts: [{ text: reply }] });
 
             // Send WA reply
@@ -255,6 +342,9 @@ exports.whatsappCloudInbound = functions
               { merge: true }
             );
 
+            // Log every state transition to lead_journey
+            await logLeadJourney(from, contactName, meta?.stage, prevStage, meta, text, reply);
+
             // Push EVERY lead to Notion CRM (best-effort, doesn't block reply)
             await pushToNotion(client, {
               from,
@@ -270,7 +360,23 @@ exports.whatsappCloudInbound = functions
 
             // Hot-lead alert
             if (meta.escalate === true || meta.qualified === true || (meta.lead_score || 0) >= 8) {
-              const ownerWa = client?.notification_targets?.owner_whatsapp || '+5219987875321';
+              const ownerWa = client?.notification_targets?.owner_whatsapp || '+5219982023263';
+
+              // Ping Alex on his personal WA with full context + Calendly + tap-to-reply link
+              await pingAlexOnQualified({
+                from,
+                contactName,
+                name: meta.name || contactName,
+                agency_name: meta.agency_name,
+                agency_zone: meta.agency_zone,
+                project_type: meta.project_type,
+                monthly_volume: meta.monthly_volume,
+                timeline: meta.timeline,
+                stage: meta.stage,
+                lead_score: meta.lead_score,
+                lastMsg: text,
+              });
+
               await tgAlert(
                 `🔥 <b>Sofía WA hot lead — JegoDigital</b>\n` +
                   `<b>From:</b> +${from}\n` +
