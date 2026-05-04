@@ -373,67 +373,349 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════ -->
-    <!-- ANIMATED PIPELINE (6 steps with flowing arrows) -->
+    <!-- ANIMATED 8-STAGE PIPELINE (with traveling lead dot) -->
     <!-- ═══════════════════════════════════════════════ -->
-    <section class="py-20 md:py-28 relative border-t border-white/5 bg-black/40">
+    <style>
+        .stage-card {
+            background: rgba(26,28,35,0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.5s ease;
+            position: relative;
+        }
+        .stage-card.lit {
+            border-color: #C5A059;
+            box-shadow: 0 12px 40px rgba(197,160,89,0.3), inset 0 0 0 1px rgba(197,160,89,0.4);
+            background: rgba(197,160,89,0.05);
+        }
+        .stage-card.lit .stage-icon { color: #C5A059 !important; }
+        .stage-num {
+            position: absolute; top: -14px; left: 18px;
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #1a1c23; border: 1.5px solid rgba(197,160,89,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; color: rgba(197,160,89,0.7);
+            transition: all 0.4s ease;
+        }
+        .stage-card.lit .stage-num {
+            background: #C5A059; color: #0f1115; border-color: #C5A059;
+        }
+        @keyframes leadPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.7; }
+        }
+        .lead-dot { animation: leadPulse 1.6s ease-in-out infinite; }
+    </style>
+
+    <section class="py-20 md:py-28 relative border-t border-white/5 bg-black/40 overflow-hidden">
         <div class="container mx-auto px-4">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block reveal">Cómo funciona</span>
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block reveal">Cómo funciona el sistema completo</span>
                 <h2 class="text-3xl md:text-5xl font-display font-bold mb-6 reveal reveal-delay-1">
-                    De mensaje a lead calificado<br>
-                    <span class="hero-gradient-text">sin que toques nada.</span>
+                    Del primer "Hola" hasta<br>
+                    <span class="hero-gradient-text">la venta cerrada.</span>
                 </h2>
-                <p class="text-white/60 text-lg reveal reveal-delay-2">El sistema completo opera en menos de 30 segundos por lead.</p>
+                <p class="text-white/60 text-lg reveal reveal-delay-2">8 etapas. Todas automáticas. Tú solo apareces para cerrar.</p>
             </div>
 
-            <div class="max-w-6xl mx-auto" id="pipelineRoot">
-                <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-3 relative">
-                    <div class="pipe-step rounded-2xl p-5 reveal" data-step="0">
-                        <div class="w-9 h-9 rounded-full bg-[#C5A059] text-black flex items-center justify-center font-bold text-sm mb-3">1</div>
-                        <i class="fab fa-whatsapp text-2xl text-[#25D366] mb-2 block"></i>
-                        <h3 class="font-bold text-sm mb-1">Lead manda WhatsApp</h3>
-                        <p class="text-white/60 text-xs leading-snug">Tu nuevo número Business recibe el mensaje (cualquier hora).</p>
+            <!-- Pipeline grid: 8 stages in 4-col x 2-row -->
+            <div class="max-w-7xl mx-auto" id="pipelineRoot8">
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 relative">
+
+                    <!-- Stage 1 -->
+                    <div class="stage-card rounded-2xl p-6 reveal" data-stage="0">
+                        <div class="stage-num">1</div>
+                        <i class="fab fa-whatsapp stage-icon text-3xl text-[#25D366] mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Lead llega a WhatsApp</h3>
+                        <p class="text-white/60 text-sm leading-snug">Comprador encuentra tu inmobiliaria por ad, IG, web o referido. Te escribe. Cualquier hora.</p>
                     </div>
-                    <div class="pipe-step rounded-2xl p-5 reveal reveal-delay-1" data-step="1">
-                        <div class="w-9 h-9 rounded-full bg-[#C5A059] text-black flex items-center justify-center font-bold text-sm mb-3">2</div>
-                        <i class="fas fa-bolt text-2xl text-[#C5A059] mb-2 block"></i>
-                        <h3 class="font-bold text-sm mb-1">Sofía responde 5s</h3>
-                        <p class="text-white/60 text-xs leading-snug">Conoce TU inventario completo. Español o inglés según el lead.</p>
+
+                    <!-- Stage 2 -->
+                    <div class="stage-card rounded-2xl p-6 reveal reveal-delay-1" data-stage="1">
+                        <div class="stage-num">2</div>
+                        <i class="fas fa-comment-dots stage-icon text-3xl text-white/50 mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Sofía responde 5 segundos</h3>
+                        <p class="text-white/60 text-sm leading-snug">Detecta idioma (ES/EN). Conoce tus 60+ proyectos. Tono cálido, no robótico. Maneja voz e imágenes.</p>
                     </div>
-                    <div class="pipe-step rounded-2xl p-5 reveal reveal-delay-2" data-step="2">
-                        <div class="w-9 h-9 rounded-full bg-[#C5A059] text-black flex items-center justify-center font-bold text-sm mb-3">3</div>
-                        <i class="fas fa-bullseye text-2xl text-[#C5A059] mb-2 block"></i>
-                        <h3 class="font-bold text-sm mb-1">Califica 1→10</h3>
-                        <p class="text-white/60 text-xs leading-snug">Captura intención, presupuesto, timeline, país. Score automático.</p>
+
+                    <!-- Stage 3 -->
+                    <div class="stage-card rounded-2xl p-6 reveal reveal-delay-2" data-stage="2">
+                        <div class="stage-num">3</div>
+                        <i class="fas fa-bullseye stage-icon text-3xl text-white/50 mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Califica del 1 al 10</h3>
+                        <p class="text-white/60 text-sm leading-snug">Pregunta intención, presupuesto, timeline, país de origen. Asigna score automático sin parecer interrogatorio.</p>
                     </div>
-                    <div class="pipe-step rounded-2xl p-5 reveal reveal-delay-3" data-step="3">
-                        <div class="w-9 h-9 rounded-full bg-[#C5A059] text-black flex items-center justify-center font-bold text-sm mb-3">4</div>
-                        <i class="fas fa-image text-2xl text-[#C5A059] mb-2 block"></i>
-                        <h3 class="font-bold text-sm mb-1">Manda fotos</h3>
-                        <p class="text-white/60 text-xs leading-snug">Brochures, fotos, videos del proyecto que pidió. MMS automático.</p>
+
+                    <!-- Stage 4 -->
+                    <div class="stage-card rounded-2xl p-6 reveal reveal-delay-3" data-stage="3">
+                        <div class="stage-num">4</div>
+                        <i class="fas fa-image stage-icon text-3xl text-white/50 mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Manda fotos + brochure</h3>
+                        <p class="text-white/60 text-sm leading-snug">Lead pide "fotos de Hacienda Tuk" → Sofía manda 3 fotos via MMS, brochure PDF y video tour.</p>
                     </div>
-                    <div class="pipe-step rounded-2xl p-5 reveal" data-step="4">
-                        <div class="w-9 h-9 rounded-full bg-[#C5A059] text-black flex items-center justify-center font-bold text-sm mb-3">5</div>
-                        <i class="fas fa-table text-2xl text-[#C5A059] mb-2 block"></i>
-                        <h3 class="font-bold text-sm mb-1">Push a Notion</h3>
-                        <p class="text-white/60 text-xs leading-snug">Cada conversación llega a tu CRM en tiempo real.</p>
+
+                    <!-- Stage 5 -->
+                    <div class="stage-card rounded-2xl p-6 reveal" data-stage="4">
+                        <div class="stage-num">5</div>
+                        <i class="fas fa-envelope stage-icon text-3xl text-white/50 mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Envía email con info</h3>
+                        <p class="text-white/60 text-sm leading-snug">Si lead da email → Sofía manda email branded con detalles, fotos, brochure y CTA al Calendly.</p>
                     </div>
-                    <div class="pipe-step rounded-2xl p-5 reveal reveal-delay-1" data-step="5">
-                        <div class="w-9 h-9 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-sm mb-3">6</div>
-                        <i class="fas fa-fire text-2xl text-red-400 mb-2 block"></i>
-                        <h3 class="font-bold text-sm mb-1">Ping al CEO</h3>
-                        <p class="text-white/60 text-xs leading-snug">Si es lead hot → ping inmediato a tu WhatsApp. Cierras la cita.</p>
+
+                    <!-- Stage 6 -->
+                    <div class="stage-card rounded-2xl p-6 reveal reveal-delay-1" data-stage="5">
+                        <div class="stage-num">6</div>
+                        <i class="fas fa-table stage-icon text-3xl text-white/50 mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Push al CRM en tiempo real</h3>
+                        <p class="text-white/60 text-sm leading-snug">Cada lead llega a tu CRM (Notion, Google Sheets o HubSpot) con score, país, presupuesto, etapa.</p>
+                    </div>
+
+                    <!-- Stage 7 -->
+                    <div class="stage-card rounded-2xl p-6 reveal reveal-delay-2" data-stage="6">
+                        <div class="stage-num">7</div>
+                        <i class="fas fa-fire stage-icon text-3xl text-white/50 mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Alerta hot al CEO</h3>
+                        <p class="text-white/60 text-sm leading-snug">Cash buyer, "esta semana" o score ≥8 → ping inmediato a tu WhatsApp con resumen + transcript completo.</p>
+                    </div>
+
+                    <!-- Stage 8 -->
+                    <div class="stage-card rounded-2xl p-6 reveal reveal-delay-3" data-stage="7">
+                        <div class="stage-num">8</div>
+                        <i class="fas fa-handshake stage-icon text-3xl text-white/50 mb-3 block"></i>
+                        <h3 class="font-bold text-base mb-2">Tú cierras la venta</h3>
+                        <p class="text-white/60 text-sm leading-snug">3 caminos: tomas el WhatsApp, agendas tour físico vía Calendly, o videollamada. Tu decides.</p>
                     </div>
                 </div>
 
-                <!-- Cycle indicator -->
+                <!-- Stats strip -->
                 <div class="text-center mt-12 reveal">
-                    <div class="inline-flex items-center gap-3 glass-panel rounded-full px-6 py-3 text-sm">
-                        <i class="fas fa-clock text-[#C5A059]"></i>
-                        <span class="text-white/70">Tiempo total del ciclo:</span>
-                        <span class="text-[#C5A059] font-bold">menos de 30 segundos</span>
+                    <div class="inline-flex flex-wrap justify-center items-center gap-x-8 gap-y-3 glass-panel rounded-full px-6 py-4 text-sm">
+                        <span class="flex items-center gap-2"><i class="fas fa-clock text-[#C5A059]"></i><span class="text-white/70">Etapas 1-7:</span><span class="text-[#C5A059] font-bold">&lt; 30 seg automático</span></span>
+                        <span class="hidden md:inline text-white/20">·</span>
+                        <span class="flex items-center gap-2"><i class="fas fa-handshake text-[#C5A059]"></i><span class="text-white/70">Etapa 8:</span><span class="text-[#C5A059] font-bold">tú cierras</span></span>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- CRM CHOICE — Notion / Google Sheets / HubSpot -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block reveal">Tus leads · tu CRM</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4 reveal reveal-delay-1">
+                    Cada lead llega a<br>
+                    <span class="hero-gradient-text">la herramienta que ya usas.</span>
+                </h2>
+                <p class="text-white/60 text-lg reveal reveal-delay-2">Conectamos Sofía con tu CRM favorito. Sin migrar nada. Sin nuevos logins para tu equipo.</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
+                <!-- Notion -->
+                <div class="glass-panel rounded-2xl p-7 hover:border-[#C5A059]/40 transition-all reveal">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center font-black text-2xl text-black">N</div>
+                        <div>
+                            <h3 class="font-bold text-lg">Notion</h3>
+                            <p class="text-xs text-[#C5A059] uppercase tracking-widest font-bold">Recomendado · Default</p>
+                        </div>
+                    </div>
+                    <p class="text-white/70 text-sm mb-4">Workspace privado para tu equipo. Tabla con filtros por hot/score/país. Funciona en celular y compu.</p>
+                    <ul class="space-y-2 text-xs text-white/60">
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Conversación completa por lead a 1 click</li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Vistas Kanban / Tabla / Calendar</li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Comentarios + asignaciones para tu equipo</li>
+                    </ul>
+                </div>
+
+                <!-- Google Sheets -->
+                <div class="glass-panel rounded-2xl p-7 hover:border-[#C5A059]/40 transition-all reveal reveal-delay-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-[#0f9d58] flex items-center justify-center text-2xl text-white"><i class="fas fa-table"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg">Google Sheets</h3>
+                            <p class="text-xs text-white/60 uppercase tracking-widest">Para equipos en Google Workspace</p>
+                        </div>
+                    </div>
+                    <p class="text-white/70 text-sm mb-4">Hoja en tu Google Drive. Cada lead = 1 fila. Compatible con tus reportes y fórmulas existentes.</p>
+                    <ul class="space-y-2 text-xs text-white/60">
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Conexión via Google Sheets API</li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Filtros y pivots nativos</li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Compartes con tu equipo en 1 click</li>
+                    </ul>
+                </div>
+
+                <!-- HubSpot / Custom -->
+                <div class="glass-panel rounded-2xl p-7 hover:border-[#C5A059]/40 transition-all reveal reveal-delay-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-[#ff7a59] flex items-center justify-center text-2xl text-white"><i class="fas fa-database"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg">HubSpot · Pipedrive · Custom</h3>
+                            <p class="text-xs text-white/60 uppercase tracking-widest">Para tu CRM existente</p>
+                        </div>
+                    </div>
+                    <p class="text-white/70 text-sm mb-4">¿Ya usas HubSpot, Pipedrive o un CRM propio? Sofía empuja leads via webhook o API directo.</p>
+                    <ul class="space-y-2 text-xs text-white/60">
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Integración custom incluida en setup</li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Mapeo de campos a tus etapas existentes</li>
+                        <li class="flex gap-2"><i class="fas fa-check text-[#C5A059] mt-0.5"></i>Tu equipo no aprende nada nuevo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="text-center text-white/50 text-sm mt-10 reveal">Eliges el CRM en la llamada de onboarding · Tu equipo nunca cambia de herramienta</p>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- AUTO-NURTURE TIMELINE — Day 0 / 1 / 3 / 7 -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <style>
+        .timeline-track {
+            position: relative;
+            background: linear-gradient(90deg, #C5A059 0%, #C5A059 50%, rgba(197,160,89,0.15) 100%);
+            height: 3px;
+            border-radius: 999px;
+        }
+        @keyframes pulse-marker {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(197,160,89,0.5); }
+            50% { box-shadow: 0 0 0 12px rgba(197,160,89,0); }
+        }
+        .timeline-marker { animation: pulse-marker 2.4s ease-in-out infinite; }
+        .timeline-marker:nth-child(2) { animation-delay: 0.6s; }
+        .timeline-marker:nth-child(3) { animation-delay: 1.2s; }
+        .timeline-marker:nth-child(4) { animation-delay: 1.8s; }
+    </style>
+    <section class="py-20 md:py-28 relative border-t border-white/5 bg-black/40">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block reveal">Sofía nunca olvida un lead</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4 reveal reveal-delay-1">
+                    Auto-seguimiento<br>
+                    <span class="hero-gradient-text">durante 7 días.</span>
+                </h2>
+                <p class="text-white/60 text-lg reveal reveal-delay-2">Si el lead no responde, Sofía lo despierta — sin parecer molesta. 4 puntos de contacto automáticos.</p>
+            </div>
+
+            <!-- Timeline -->
+            <div class="max-w-5xl mx-auto reveal">
+                <!-- Mobile: vertical -->
+                <div class="md:hidden space-y-5">
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]">
+                        <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 0 · Inicial</div>
+                        <p class="text-white text-sm">"¡Hola Pedro! Vi que te interesa Hacienda Tuk. Te paso 3 fotos + ROI + entrega. ¿Quieres video tour?"</p>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]/70">
+                        <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 1 · Check-in suave</div>
+                        <p class="text-white text-sm">"Hola Pedro! Te llegó la info que te mandé ayer? Cualquier duda con gusto."</p>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]/50">
+                        <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 3 · Alternativa</div>
+                        <p class="text-white text-sm">"Pedro — tengo 2 opciones más en Tulum que pueden encajarte mejor: Dalai y Aldea Zamá. ¿Te las mando?"</p>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-5 border-l-4 border-[#C5A059]/30">
+                        <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 7 · Urgencia suave</div>
+                        <p class="text-white text-sm">"Última pregunta — ¿sigues considerando Tulum? Hacienda Tuk va al 70% vendido, quería avisarte por si todavía te interesa."</p>
+                    </div>
+                </div>
+
+                <!-- Desktop: horizontal timeline -->
+                <div class="hidden md:block">
+                    <div class="relative pt-8 pb-16">
+                        <!-- Track -->
+                        <div class="timeline-track absolute top-1/2 left-0 right-0 -translate-y-1/2"></div>
+                        <!-- 4 markers -->
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex flex-col items-center w-1/4">
+                                <div class="timeline-marker w-5 h-5 rounded-full bg-[#C5A059] mb-3 z-10"></div>
+                                <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 0</div>
+                                <div class="text-xs font-bold text-white text-center mb-2">Conversación inicial</div>
+                                <div class="glass-panel rounded-xl p-3 text-xs text-white/70 max-w-[220px] text-center">"Hola Pedro! Te paso info de Hacienda Tuk con 3 fotos."</div>
+                            </div>
+                            <div class="flex flex-col items-center w-1/4">
+                                <div class="timeline-marker w-5 h-5 rounded-full bg-[#C5A059] mb-3 z-10"></div>
+                                <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 1</div>
+                                <div class="text-xs font-bold text-white text-center mb-2">Check-in suave</div>
+                                <div class="glass-panel rounded-xl p-3 text-xs text-white/70 max-w-[220px] text-center">"¿Te llegó la info? Cualquier duda con gusto."</div>
+                            </div>
+                            <div class="flex flex-col items-center w-1/4">
+                                <div class="timeline-marker w-5 h-5 rounded-full bg-[#C5A059] mb-3 z-10"></div>
+                                <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 3</div>
+                                <div class="text-xs font-bold text-white text-center mb-2">Alternativa</div>
+                                <div class="glass-panel rounded-xl p-3 text-xs text-white/70 max-w-[220px] text-center">"Tengo 2 opciones más en Tulum que encajan: Dalai y Aldea Zamá."</div>
+                            </div>
+                            <div class="flex flex-col items-center w-1/4">
+                                <div class="timeline-marker w-5 h-5 rounded-full bg-[#C5A059]/50 mb-3 z-10"></div>
+                                <div class="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest mb-2">DÍA 7</div>
+                                <div class="text-xs font-bold text-white text-center mb-2">Urgencia suave</div>
+                                <div class="glass-panel rounded-xl p-3 text-xs text-white/70 max-w-[220px] text-center">"Hacienda Tuk va al 70% vendido. ¿Sigue interesándote?"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-center text-white/50 text-sm mt-8 reveal">Si el lead responde en cualquier punto → vuelve al flujo activo · Si no → sale del nurture al día 7</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 3 CLOSING PATHS -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="py-20 md:py-28 relative border-t border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-[#C5A059] text-xs font-bold uppercase tracking-[0.2em] mb-3 block reveal">Tu cierras como prefieres</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold mb-4 reveal reveal-delay-1">
+                    3 caminos para<br>
+                    <span class="hero-gradient-text">cerrar la venta.</span>
+                </h2>
+                <p class="text-white/60 text-lg reveal reveal-delay-2">Sofía deja al lead listo para cerrar. Tú eliges cómo darle el último empujón.</p>
+            </div>
+
+            <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+                <!-- Path A: WhatsApp takeover -->
+                <div class="glass-panel rounded-2xl p-7 hover:border-[#25D366]/40 transition-all reveal">
+                    <div class="w-14 h-14 rounded-xl bg-[#25D366]/15 border border-[#25D366]/40 flex items-center justify-center mb-5">
+                        <i class="fab fa-whatsapp text-3xl text-[#25D366]"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">A · Tomas el WhatsApp</h3>
+                    <p class="text-white/60 text-sm mb-4 leading-relaxed">El lead está caliente y prefieres rematar tú mismo en WhatsApp. Le mandas un audio personal, fotos extra, propuesta firme.</p>
+                    <div class="bg-[#25D366]/5 border border-[#25D366]/20 rounded-xl p-3 text-xs text-white/70">
+                        <span class="text-[#25D366] font-bold">↳</span> "Hola Pedro, soy Rodrigo, CEO de Flamingo. Vi tu interés en Hacienda Tuk. Te marco en 5 min?"
+                    </div>
+                </div>
+
+                <!-- Path B: Property tour Calendly -->
+                <div class="glass-panel rounded-2xl p-7 hover:border-[#C5A059]/40 transition-all reveal reveal-delay-1">
+                    <div class="w-14 h-14 rounded-xl bg-[#C5A059]/15 border border-[#C5A059]/40 flex items-center justify-center mb-5">
+                        <i class="fas fa-map-marker-alt text-3xl text-[#C5A059]"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">B · Tour físico (Calendly)</h3>
+                    <p class="text-white/60 text-sm mb-4 leading-relaxed">El lead quiere ver la propiedad en persona. Sofía manda link Calendly específico para tour físico — el lead elige día/hora desde su celular.</p>
+                    <div class="bg-[#C5A059]/5 border border-[#C5A059]/20 rounded-xl p-3 text-xs text-white/70">
+                        <span class="text-[#C5A059] font-bold">↳</span> "Aquí agendas el tour: <span class="underline">calendly.com/.../property-tour</span> · Te confirmo en 1 hora."
+                    </div>
+                </div>
+
+                <!-- Path C: Discovery call -->
+                <div class="glass-panel rounded-2xl p-7 hover:border-blue-400/40 transition-all reveal reveal-delay-2">
+                    <div class="w-14 h-14 rounded-xl bg-blue-500/15 border border-blue-400/40 flex items-center justify-center mb-5">
+                        <i class="fas fa-video text-3xl text-blue-400"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">C · Videollamada (Calendly)</h3>
+                    <p class="text-white/60 text-sm mb-4 leading-relaxed">Lead extranjero que quiere conocerte por video antes de viajar. Sofía manda link de discovery call · 30 min con CEO o asesor senior.</p>
+                    <div class="bg-blue-500/5 border border-blue-400/20 rounded-xl p-3 text-xs text-white/70">
+                        <span class="text-blue-400 font-bold">↳</span> "Para videollamada: <span class="underline">calendly.com/.../30min</span> · Veámonos esta semana."
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-10 reveal">
+                <p class="text-white/50 text-sm">Sofía detecta el tipo de lead y manda el camino correcto · Tú confirmas en 5 minutos</p>
             </div>
         </div>
     </section>
@@ -770,20 +1052,33 @@
     }, { threshold: 0.15 });
     revealEls.forEach(el => revealObs.observe(el));
 
-    // ─── PIPELINE STEPS pulse-in sequentially when scrolled into view ───
-    const pipelineRoot = document.getElementById('pipelineRoot');
-    if (pipelineRoot) {
+    // ─── 8-STAGE PIPELINE — traveling "lit" stage cycles through ───
+    const pipelineRoot8 = document.getElementById('pipelineRoot8');
+    if (pipelineRoot8) {
+        const stages = pipelineRoot8.querySelectorAll('.stage-card');
+        let activeIdx = -1;
+        let cycleInterval = null;
+
+        function advanceStage() {
+            // Unlit previous
+            stages.forEach(s => s.classList.remove('lit'));
+            activeIdx = (activeIdx + 1) % stages.length;
+            stages[activeIdx].classList.add('lit');
+        }
+
         const pipeObs = new IntersectionObserver((entries) => {
             entries.forEach(e => {
-                if (e.isIntersecting) {
-                    document.querySelectorAll('.pipe-step').forEach((step, i) => {
-                        setTimeout(() => step.classList.add('active'), i * 250);
-                    });
-                    pipeObs.unobserve(e.target);
+                if (e.isIntersecting && !cycleInterval) {
+                    // Initial sequential reveal of all stages, then start the cycle
+                    advanceStage();
+                    cycleInterval = setInterval(advanceStage, 1400);
+                } else if (!e.isIntersecting && cycleInterval) {
+                    clearInterval(cycleInterval);
+                    cycleInterval = null;
                 }
             });
-        }, { threshold: 0.3 });
-        pipeObs.observe(pipelineRoot);
+        }, { threshold: 0.2 });
+        pipeObs.observe(pipelineRoot8);
     }
 
     // ─── 88% COUNTER animates on scroll ───
