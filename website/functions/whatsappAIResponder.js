@@ -60,8 +60,9 @@ async function callGemini(systemPrompt, history) {
   const body = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: history,
-    // 400 tokens ≈ 300 words ≈ 1500 chars. We split into 2 messages if needed.
-    generationConfig: { temperature: 0.65, maxOutputTokens: 400 },
+    // 800 tokens ≈ 600 words ≈ 3000 chars. Lets Sofia give complete, helpful
+    // answers. Reply splitter (below) handles >1500 char replies into 2-3 msgs.
+    generationConfig: { temperature: 0.65, maxOutputTokens: 800 },
   };
   const r = await fetch(url, {
     method: "POST",
@@ -107,44 +108,57 @@ async function callGemini(systemPrompt, history) {
   reply = reply.replace(/^\s*[-•]\s+/gm, "");      // bullets at line start
   reply = reply.replace(/^#{1,6}\s+/gm, "");       // headers
 
-  // SPLIT into 1-2 messages if too long.
-  // Rule: split at paragraph boundary (\n\n) if total > 700 chars; max 2 messages, each ≤ 700 chars.
+  // SPLIT messages — WhatsApp supports up to 4096 chars per message, but for
+  // mobile readability we keep replies natural. Rules (revised 2026-05-04):
+  //   - reply ≤ 1500 chars → ONE message (most replies fit here)
+  //   - reply > 1500 chars → split at paragraph boundary into up to 3 messages
+  //     each up to 1500 chars; NEVER cut mid-sentence
+  //   - Hard ceiling per message: 3500 chars (well under WA's 4096)
+  const SOFT_LIMIT = 1500;
+  const HARD_LIMIT = 3500;
   const replies = [];
-  if (reply.length <= 700) {
+
+  if (reply.length <= SOFT_LIMIT) {
     replies.push(reply);
   } else {
-    // Try paragraph split
+    // Split at paragraph boundary first, fall back to sentence
     const paragraphs = reply.split(/\n{2,}/).filter((p) => p.trim().length > 0);
     if (paragraphs.length >= 2) {
-      // First message = first paragraph(s) up to ~600 chars, second = rest
+      // Greedy pack paragraphs into chunks of ≤ SOFT_LIMIT each
       let acc = "";
-      let used = 0;
       for (const p of paragraphs) {
-        if (acc.length + p.length < 650) {
+        if (acc.length + p.length + 2 <= SOFT_LIMIT) {
           acc += (acc ? "\n\n" : "") + p;
-          used++;
-        } else break;
+        } else {
+          if (acc) replies.push(acc.trim());
+          acc = p;
+        }
       }
-      replies.push(acc.trim());
-      const rest = paragraphs.slice(used).join("\n\n").trim();
-      if (rest && rest.length <= 700) replies.push(rest);
-      else if (rest) replies.push(rest.substring(0, rest.lastIndexOf(".", 700) + 1 || 700).trim());
+      if (acc) replies.push(acc.trim());
     } else {
-      // No paragraph break — split at sentence boundary near 600
-      const cut = reply.lastIndexOf(".", 650);
-      if (cut > 200) {
-        replies.push(reply.substring(0, cut + 1).trim());
-        const tail = reply.substring(cut + 1).trim();
-        if (tail.length > 0 && tail.length <= 700) replies.push(tail);
-        else if (tail.length > 700) replies.push(tail.substring(0, 700).trim());
-      } else {
-        replies.push(reply.substring(0, 700).trim());
+      // No paragraph break — split at sentence boundary at the LATEST `.` before SOFT_LIMIT
+      let remaining = reply;
+      while (remaining.length > SOFT_LIMIT) {
+        const cut = remaining.lastIndexOf(".", SOFT_LIMIT);
+        const safeIdx = cut > Math.floor(SOFT_LIMIT * 0.4) ? cut + 1 : SOFT_LIMIT;
+        replies.push(remaining.substring(0, safeIdx).trim());
+        remaining = remaining.substring(safeIdx).trim();
+      }
+      if (remaining) replies.push(remaining);
+    }
+    // Cap to 3 messages (avoid spamming) — last message gets truncated softly
+    if (replies.length > 3) {
+      replies.splice(3);
+      const last = replies[2];
+      if (last.length > SOFT_LIMIT) {
+        const cut = last.lastIndexOf(".", SOFT_LIMIT);
+        replies[2] = last.substring(0, cut > 0 ? cut + 1 : SOFT_LIMIT).trim();
       }
     }
   }
 
-  // Final safety: each reply max 1400 chars (Twilio WA hard limit ~1600)
-  const safe = replies.map((r) => (r.length > 1400 ? r.substring(0, 1400).trim() : r));
+  // Final safety: hard ceiling 3500 chars per message (WA limit is 4096)
+  const safe = replies.map((r) => (r.length > HARD_LIMIT ? r.substring(0, HARD_LIMIT).trim() : r));
 
   return { replies: safe, meta, booking };
 }
