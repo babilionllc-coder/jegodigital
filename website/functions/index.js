@@ -1882,6 +1882,24 @@ exports.submitAuditRequest = functions.https.onRequest(async (req, res) => {
             });
         }
 
+        // ================================================================
+        // TEST-DOMAIN GUARD (added 2026-05-04) — block known E2E/smoke test
+        // emails from polluting production Brevo. Past leak: skill docs and
+        // pre-launch curls hardcoded `carlos.rivera@inmobiliariademo.mx` etc.
+        // The HR-5 guard above doesn't catch these (they have realistic names).
+        // ================================================================
+        const TEST_EMAIL_DOMAINS = /@(jegodigital-test\.com|inmobiliariademo\.mx|test-hr5-guard\.com|test\.invalid|example\.com|example\.org|test\.com|smoke-test\.[a-z]+|e2e\.[a-z]+)$/i;
+        const TEST_EMAIL_PATTERNS = /^(e2e-pipeline-test|smoke-\d+|postcutoff-\d+|claude-test|claude\+|test\+|jegoalexdigital\+(smoke|tier_test|delaytest|mockuptest|real_flamingo_test|v2test|e2e))/i;
+        if (TEST_EMAIL_DOMAINS.test(email) || TEST_EMAIL_PATTERNS.test(email)) {
+            functions.logger.warn(`🛑 submitAuditRequest rejected (TEST-DOMAIN guard): email="${email}" source=${source}`);
+            return res.status(400).json({
+                ok: false,
+                error: "test_email_rejected",
+                message: "Test/smoke email domains and aliases are blocked from production audit pipeline. Use a Brevo sub-account or Firestore mock for E2E tests.",
+                rejected_email: email
+            });
+        }
+
         // URL validation — reject obvious garbage so the ElevenLabs agent
         // retries and asks the lead for the real URL instead of generating a
         // broken audit report.
