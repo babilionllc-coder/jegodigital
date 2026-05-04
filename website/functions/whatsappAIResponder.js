@@ -82,11 +82,25 @@ async function callGemini(systemPrompt, history) {
     try { meta = JSON.parse(metaMatch[1]); } catch (e) { /* ignore */ }
   }
 
-  // ROBUST strip: remove ANYTHING from `<META` onwards
+  // Extract BOOKING JSON (TT&More + future clients with booking_endpoint configured)
+  let booking = null;
+  const bookingMatch = text.match(/<BOOKING>([\s\S]*?)<\/BOOKING>/);
+  if (bookingMatch) {
+    try {
+      booking = JSON.parse(bookingMatch[1]);
+    } catch (e) {
+      functions.logger.warn("Failed to parse <BOOKING> JSON", { err: e.message, raw: bookingMatch[1].slice(0, 300) });
+    }
+  }
+
+  // ROBUST strip: remove ANYTHING from `<META` or `<BOOKING` onwards
   let reply = text.replace(/<META>[\s\S]*?<\/META>/gi, "").trim();
-  const stripIdx = reply.indexOf("<META");
-  if (stripIdx >= 0) reply = reply.substring(0, stripIdx).trim();
-  reply = reply.replace(/<[A-Z]{1,4}\s*$/, "").trim();
+  reply = reply.replace(/<BOOKING>[\s\S]*?<\/BOOKING>/gi, "").trim();
+  const stripIdxMeta = reply.indexOf("<META");
+  if (stripIdxMeta >= 0) reply = reply.substring(0, stripIdxMeta).trim();
+  const stripIdxBooking = reply.indexOf("<BOOKING");
+  if (stripIdxBooking >= 0) reply = reply.substring(0, stripIdxBooking).trim();
+  reply = reply.replace(/<[A-Z]{1,7}\s*$/, "").trim();
 
   // Strip stray markdown that WhatsApp doesn't render
   reply = reply.replace(/\*\*([^*]+)\*\*/g, "$1"); // **bold** → bold
