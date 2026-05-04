@@ -1,4 +1,3 @@
-// META_LEAD_VERIFY_TOKEN rotated 2026-05-02 — fixes leadgen webhook
 /**
  * metaLeadFormWebhook.js
  * Receives Meta Instant Lead Form fills, fires audit pipeline + Brevo.
@@ -334,6 +333,59 @@ exports.metaLeadFormWebhook = functions
             console.error('[metaLeadFormWebhook] CAPI Lead event failed (non-fatal):', e.message);
           }
 
+          // 4a3. Sofia WA Cloud API auto-opener — fires immediately if the
+          //      lead provided a WhatsApp number. Outside the 24-hour window
+          //      so it MUST go through an approved template. The template
+          //      name is configurable via WA_LEAD_FORM_OPENER_TEMPLATE
+          //      (default 'sofia_lead_form_opener_es'). If no approved
+          //      template is set up yet on WABA 1520533496454283, this will
+          //      surface a clear error in logs + Telegram so Alex can submit
+          //      one for review in Meta UI.
+          let sofiaWaResult = null;
+          try {
+            const wa = (whatsapp || '').toString().replace(/[^\d]/g, '');
+            const TEMPLATE_NAME =
+              process.env.WA_LEAD_FORM_OPENER_TEMPLATE ||
+              'sofia_lead_form_opener_es';
+            const TEMPLATE_LANG =
+              process.env.WA_LEAD_FORM_OPENER_LANG || 'es_MX';
+            if (wa && wa.length >= 10) {
+              const { sendTemplate } = require('./whatsappCloudSend');
+              sofiaWaResult = await sendTemplate({
+                to: wa,
+                templateName: TEMPLATE_NAME,
+                languageCode: TEMPLATE_LANG,
+                components: [
+                  {
+                    type: 'body',
+                    parameters: [
+                      { type: 'text', text: firstName || 'Inmobiliaria' },
+                    ],
+                  },
+                ],
+              });
+              if (!sofiaWaResult.ok) {
+                console.warn(
+                  '[metaLeadFormWebhook] Sofia WA opener failed:',
+                  sofiaWaResult.error,
+                  sofiaWaResult.body
+                );
+              } else {
+                console.log(
+                  `[metaLeadFormWebhook] ✓ Sofia WA opener sent to +${wa} (msg_id=${sofiaWaResult.id})`
+                );
+              }
+            } else {
+              sofiaWaResult = { ok: false, error: 'no_wa_number_in_lead' };
+            }
+          } catch (e) {
+            console.error(
+              '[metaLeadFormWebhook] Sofia WA opener exception (non-fatal):',
+              e.message
+            );
+            sofiaWaResult = { ok: false, error: e.message };
+          }
+
           // 4b. Fire audit pipeline (gets the full audit emailed in <60min)
           //     submitAuditRequest expects website_url + name + email (NOT url + firstName).
           //     Pass qualification answers so audit narrative can reference them.
@@ -351,7 +403,7 @@ exports.metaLeadFormWebhook = functions
               `<b>Name:</b> ${firstName} ${lastName}\n` +
               `<b>Leads/mo:</b> ${leadsPerMonth || '—'} | <b>Frustration:</b> ${mainFrustration || '—'}\n` +
               `<b>Campaign:</b> hiring_intent_retarget\n` +
-              `<b>Brevo:</b> ${brevoResult?.status || 'skip'} | <b>Welcome:</b> ${welcomeResult?.status || 'skip'} | <b>Nurture:</b> ${nurtureResult?.queued || 0}/5 | <b>Audit:</b> ${auditResult?.status || 'skip'}`
+              `<b>Brevo:</b> ${brevoResult?.status || 'skip'} | <b>Welcome:</b> ${welcomeResult?.status || 'skip'} | <b>Nurture:</b> ${nurtureResult?.queued || 0}/5 | <b>Audit:</b> ${auditResult?.status || 'skip'} | <b>Sofia WA:</b> ${sofiaWaResult?.ok ? '✅ sent' : `❌ ${sofiaWaResult?.error || 'skip'}`}`
           );
 
           // 5b. Slack ping → #leads-hot channel (mobile push ON)
@@ -376,7 +428,7 @@ exports.metaLeadFormWebhook = functions
                   type: 'context',
                   elements: [{
                     type: 'mrkdwn',
-                    text: `Brevo: ${brevoResult?.status || 'skip'} • Welcome: ${welcomeResult?.status || 'skip'} • Nurture: ${nurtureResult?.queued || 0}/5 queued • Audit: ${auditResult?.status || 'skip'}`,
+                    text: `Brevo: ${brevoResult?.status || 'skip'} • Welcome: ${welcomeResult?.status || 'skip'} • Nurture: ${nurtureResult?.queued || 0}/5 queued • Audit: ${auditResult?.status || 'skip'} • Sofia WA: ${sofiaWaResult?.ok ? 'sent' : (sofiaWaResult?.error || 'skip')}`,
                   }],
                 },
               ],
