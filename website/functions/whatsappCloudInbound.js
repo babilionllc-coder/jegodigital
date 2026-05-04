@@ -34,6 +34,7 @@ const db = admin.firestore();
 const VERIFY_TOKEN =
   process.env.WA_CLOUD_VERIFY_TOKEN || 'jego_wa_cloud_verify_2026';
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
+const NOTION_KEY = process.env.NOTION_API_KEY;
 const TG_BOT =
   process.env.TELEGRAM_BOT_TOKEN ||
   '8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8';
@@ -41,17 +42,90 @@ const TG_CHAT = process.env.TELEGRAM_CHAT_ID || '6637626501';
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
 
-const SOFIA_PROMPT = `Eres Sofia, asistente IA de bienes raíces de JegoDigital. Hablas español neutro mexicano, registro "tú", peer-to-peer, NUNCA "usted". Tono: directo, breve, cálido, profesional.
+// Fallback prompt — only used if Firestore lookup fails. The REAL Sofia
+// prompt is loaded from wa_clients/{clientPhone}.systemPrompt (multi-tenant).
+const SOFIA_PROMPT_FALLBACK = `Eres Sofía, asistente IA de JegoDigital. Hablas español neutro mexicano, "tú" peer-to-peer. Tono directo, cálido, profesional.
 
-REGLAS DURAS:
+REGLAS:
 1. NUNCA cotices precios.
-2. NUNCA digas que eres IA. Eres Sofia del equipo de JegoDigital.
-3. Tu objetivo PRIMARIO: que la persona acepte una auditoría gratis de su sitio + AEO.
-4. Tu objetivo SECUNDARIO: agendar Calendly https://calendly.com/jegoalexdigital/30min
-5. Si dicen URGENTE → "Alex te contacta en los próximos 5 minutos."
-6. Respuestas máximo 2-3 oraciones. Cierra con UNA pregunta para avanzar.
+2. NUNCA digas que eres IA — eres Sofía del equipo de JegoDigital.
+3. Objetivo: agendar llamada Calendly https://calendly.com/jegoalexdigital/30min
+4. Respuestas máximo 2-3 oraciones. Cierra con UNA pregunta.
+5. Hot lead = "ya quiero", "esta semana", "decidido" → escalate=true
 
-OUTPUT EXTRA — al final agrega INVISIBLE para el usuario un bloque <META>{"intent":"...","escalate":true|false,"qualified":true|false}</META>. NO se muestra al usuario.`;
+OUTPUT EXTRA — al final un bloque INVISIBLE <META>{"intent":"...","escalate":true|false,"qualified":true|false,"lead_score":1,"name":"...","agency_name":"...","agency_zone":"..."}</META>`;
+
+// Map Meta WhatsApp Phone Number ID → Firestore wa_clients key (E.164 phone).
+// Add new entries when onboarding new clients to the Cloud API path.
+const PHONE_ID_TO_CLIENT_KEY = {
+  '1044375245434120': '+19783967234', // JegoDigital · Sofía (Alex's own agency)
+};
+
+async function loadClientConfig(phoneNumberId) {
+  try {
+    const clientKey = PHONE_ID_TO_CLIENT_KEY[phoneNumberId];
+    if (!clientKey) {
+      functions.logger.warn(
+        `[whatsappCloudInbound] no client key mapped for phone_number_id=${phoneNumberId} — using fallback`
+      );
+      return { systemPrompt: SOFIA_PROMPT_FALLBACK, client: null };
+    }
+    const snap = await db.collection('wa_clients').doc(clientKey).get();
+    if (!snap.exists) {
+      functions.logger.warn(
+        `[whatsappCloudInbound] wa_clients/${clientKey} not found — using fallback`
+      );
+      return { systemPrompt: SOFIA_PROMPT_FALLBACK, client: null };
+    }
+    const client = snap.data();
+    const prompt =
+      client.systemPrompt && client.systemPrompt.length > 200
+        ? client.systemPrompt
+        : SOFIA_PROMPT_FALLBACK;
+    return { systemPrompt: prompt, client };
+  } catch (e) {
+    functions.logger.error(
+      '[whatsappCloudInbound] loadClientConfig error',
+      e.message
+    );
+    return { systemPrompt: SOFIA_PROMPT_FALLBACK, client: null };
+  }
+}
+
+// Push lead to Notion CRM (best-effort, doesn't block reply)
+async function pushToNotion(client, lead) {
+  if (!NOTION_KEY || !client?.notion?.leads_database_id) return;
+  try {
+    const dbId = client.notion.leads_database_id;
+    const props = {
+      Nombre: { title: [{ text: { content: lead.name || lead.contactName || `+${lead.from}` } }] },
+      WhatsApp: { phone_number: `+${lead.from}` },
+      Score: { number: lead.lead_score || 1 },
+      'Hot 🔥': { checkbox: !!(lead.escalate || (lead.lead_score || 0) >= 8) },
+      Calificado: { checkbox: !!lead.qualified },
+      'Última conversación': { date: { start: new Date().toISOString().slice(0, 10) } },
+      'Lead ID': { rich_text: [{ text: { content: lead.from } }] },
+      Notas: { rich_text: [{ text: { content: (lead.lastMsg || '').slice(0, 1900) } }] },
+    };
+    if (lead.agency_name) props.Inmobiliaria = { rich_text: [{ text: { content: lead.agency_name } }] };
+    if (lead.agency_zone) {
+      const zoneMap = { Cancun: 'Cancún', Tulum: 'Tulum', 'Playa del Carmen': 'Playa del Carmen', CDMX: 'CDMX' };
+      const z = zoneMap[lead.agency_zone] || 'Otro MX';
+      props.Zona = { select: { name: z } };
+    }
+    await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${NOTION_KEY}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28',
+      },
+      body: JSON.stringify({ parent: { database_id: dbId }, properties: props }),
+    });
+  } catch (e) {
+    functions.logger.error('[whatsappCloudInbound] notion push error', e.message);
+  }
+}
 
 async function callGemini(systemPrompt, history) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
@@ -129,6 +203,10 @@ exports.whatsappCloudInbound = functions
         const messages = v.messages || [];
         const contacts = v.contacts || [];
         const contactName = contacts?.[0]?.profile?.name || '';
+        const phoneNumberId = v?.metadata?.phone_number_id || '';
+
+        // Load multi-tenant client config (Sofia prompt + Notion + alert routing)
+        const { systemPrompt, client } = await loadClientConfig(phoneNumberId);
 
         for (const msg of messages) {
           const from = msg.from; // E.164 digits
@@ -156,8 +234,8 @@ exports.whatsappCloudInbound = functions
 
             history.push({ role: 'user', parts: [{ text }] });
 
-            // Call Sofia
-            const { reply, meta } = await callGemini(SOFIA_PROMPT, history);
+            // Call Sofia with the FULL Firestore prompt
+            const { reply, meta } = await callGemini(systemPrompt, history);
             history.push({ role: 'model', parts: [{ text: reply }] });
 
             // Send WA reply
@@ -177,16 +255,34 @@ exports.whatsappCloudInbound = functions
               { merge: true }
             );
 
+            // Push EVERY lead to Notion CRM (best-effort, doesn't block reply)
+            await pushToNotion(client, {
+              from,
+              contactName,
+              name: meta.name || contactName,
+              agency_name: meta.agency_name,
+              agency_zone: meta.agency_zone,
+              lead_score: meta.lead_score,
+              escalate: meta.escalate,
+              qualified: meta.qualified,
+              lastMsg: text,
+            });
+
             // Hot-lead alert
-            if (meta.escalate === true || meta.qualified === true) {
+            if (meta.escalate === true || meta.qualified === true || (meta.lead_score || 0) >= 8) {
+              const ownerWa = client?.notification_targets?.owner_whatsapp || '+5219987875321';
               await tgAlert(
-                `🔥 <b>Sofía WA hot lead</b>\n` +
+                `🔥 <b>Sofía WA hot lead — JegoDigital</b>\n` +
                   `<b>From:</b> +${from}\n` +
-                  `<b>Name:</b> ${contactName || '—'}\n` +
+                  `<b>Name:</b> ${meta.name || contactName || '—'}\n` +
+                  `<b>Agency:</b> ${meta.agency_name || '—'} (${meta.agency_zone || '—'})\n` +
                   `<b>Intent:</b> ${meta.intent || '—'}\n` +
+                  `<b>Score:</b> ${meta.lead_score || '—'}/10\n` +
                   `<b>Escalate:</b> ${meta.escalate || false}\n` +
                   `<b>Qualified:</b> ${meta.qualified || false}\n` +
-                  `<b>Last msg:</b> ${text.slice(0, 200)}`
+                  `<b>Last msg:</b> ${text.slice(0, 250)}\n\n` +
+                  `📲 <b>Tap to reply from your phone:</b> https://wa.me/${from}\n` +
+                  `🔔 Owner WA: ${ownerWa}`
               );
 
               try {
