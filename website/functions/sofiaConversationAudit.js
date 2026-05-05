@@ -50,9 +50,10 @@ async function sendTelegram(text) {
     }
 }
 
-// ManyChat config
-const MANYCHAT_PAGE_ID = "4452446";
-const MANYCHAT_API_FALLBACK = "";  // optional; relies on env var normally
+// 2026-05-05 P0 FIX: ManyChat is no longer the WhatsApp source. Sofia now runs
+// on Twilio (whatsappAIResponder.js → wa_conversations) + Meta WhatsApp Cloud API
+// (whatsappCloudInbound.js → wa_cloud_conversations). The audit now reads
+// directly from both Firestore collections — no external API call needed.
 const MAX_SAMPLES = 20;
 const LOW_SCORE_FLAG = 7; // out of 11
 const MAX_SCORE = 11;
@@ -90,49 +91,48 @@ function gradeConversation(messages) {
     return { score, max: MAX_SCORE, checks };
 }
 
-// ---- ManyChat: pull recent WhatsApp/IG subscribers + their last messages ----
-async function fetchRecentConversations(apiKey) {
-    // ManyChat v2 endpoints:
-    //   GET /fb/subscriber/getInfoByCustomField — no "recent convos" endpoint exposed,
-    //   so we pull subscribers updated in last 24h and request their histories.
-    //
-    // API limitation: ManyChat public API is sparse on "all conversations in window".
-    // We use /subscriber/findBySystemField with last_interaction filter where available.
-    try {
-        const r = await axios.get("https://api.manychat.com/fb/subscriber/getByTag", {
-            headers: { Authorization: `Bearer ${apiKey}` },
-            params: { tag_name: "lead", limit: MAX_SAMPLES },
-            timeout: 20000,
-        });
-        const subs = r.data?.data || [];
-        // If tag "lead" doesn't exist or the endpoint returns empty, we degrade
-        // gracefully — sofiaConversationAudit logs "no samples" and waits for
-        // the operator to set up the tag. This is noted in SYSTEM.md §8.2.
-        return subs.slice(0, MAX_SAMPLES);
-    } catch (err) {
-        functions.logger.warn("ManyChat fetch failed:", err.response?.data || err.message);
-        return [];
-    }
-}
+// ---- Twilio + Meta Cloud: pull recent WhatsApp conversations from Firestore ----
+// 2026-05-05 P0 PIVOT: replaced ManyChat polling with direct Firestore reads.
+// Two collections to UNION:
+//   wa_conversations/{client_to}_{lead_phone}      — Twilio path (whatsappAIResponder)
+//   wa_cloud_conversations/{wa_number}             — Meta Cloud path (whatsappCloudInbound)
+// Both share the shape: { messages: [{from,text,...}], updated_at: Timestamp, ... }
+async function fetchRecentSofiaConversations(db, sinceTs, maxSamples) {
+    const samples = [];
+    const seen = new Set();
 
-async function fetchSubscriberConversation(apiKey, subscriberId) {
-    try {
-        // ManyChat doesn't expose a public "get full thread" endpoint — we read
-        // the mirror in our own Firestore if we've been capturing webhooks,
-        // else we can only score on the bot's logged intents. For now attempt
-        // the GET first; fallback handled by caller.
-        const r = await axios.get(
-            `https://api.manychat.com/fb/subscriber/getInfo`,
-            {
-                headers: { Authorization: `Bearer ${apiKey}` },
-                params: { subscriber_id: subscriberId },
-                timeout: 15000,
-            }
-        );
-        return r.data?.data || null;
-    } catch (err) {
-        return null;
+    async function readCollection(name, channelTag) {
+        try {
+            const snap = await db.collection(name)
+                .where("updated_at", ">=", sinceTs)
+                .orderBy("updated_at", "desc")
+                .limit(maxSamples)
+                .get();
+            snap.forEach((doc) => {
+                if (samples.length >= maxSamples) return;
+                if (seen.has(doc.id)) return;
+                seen.add(doc.id);
+                const d = doc.data();
+                if (Array.isArray(d.messages) && d.messages.length >= 2) {
+                    samples.push({
+                        id: doc.id,
+                        subscriber_id: d.lead_phone || d.wa_number || doc.id,
+                        channel: channelTag,
+                        messages: d.messages,
+                        updated_at: d.updated_at,
+                    });
+                }
+            });
+        } catch (err) {
+            functions.logger.warn(`${name} read failed:`, err.message);
+        }
     }
+
+    await readCollection("wa_conversations", "twilio");
+    if (samples.length < maxSamples) {
+        await readCollection("wa_cloud_conversations", "meta_cloud");
+    }
+    return samples;
 }
 
 // =====================================================================
@@ -146,68 +146,23 @@ exports.sofiaConversationAudit = functions
         const db = admin.firestore();
         const dateKey = cdmxKey();
 
-        const MC_KEY = process.env.MANYCHAT_API_KEY || MANYCHAT_API_FALLBACK;
-        if (!MC_KEY) {
-            functions.logger.warn("sofiaConversationAudit: MANYCHAT_API_KEY not set, skipping.");
-            return null;
-        }
-
-        // --- Primary source: our own sofia_conversations Firestore mirror ---
-        // ManyChat → ManyChat webhook → sofia_conversations is the cleanest pattern.
-        // Until that mirror is wired, we fall back to the thin ManyChat API fetch.
-        let samples = [];
-        try {
-            const since = admin.firestore.Timestamp.fromDate(
-                new Date(Date.now() - 24 * 60 * 60 * 1000)
-            );
-            const convSnap = await db.collection("sofia_conversations")
-                .where("last_interaction_at", ">=", since)
-                .limit(MAX_SAMPLES)
-                .get();
-            convSnap.forEach((doc) => {
-                const d = doc.data();
-                if (Array.isArray(d.messages) && d.messages.length >= 2) {
-                    samples.push({
-                        id: doc.id,
-                        subscriber_id: d.subscriber_id,
-                        channel: d.channel || "whatsapp",
-                        messages: d.messages,
-                    });
-                }
-            });
-        } catch (err) {
-            functions.logger.warn("sofia_conversations read failed:", err.message);
-        }
-
-        if (samples.length === 0) {
-            // Fallback: try ManyChat directly (works only if "lead" tag exists)
-            const subs = await fetchRecentConversations(MC_KEY);
-            for (const s of subs) {
-                const info = await fetchSubscriberConversation(MC_KEY, s.id);
-                if (info && info.last_input_text && info.last_sent) {
-                    samples.push({
-                        id: s.id,
-                        subscriber_id: s.id,
-                        channel: "manychat_api",
-                        messages: [
-                            { from: "user", text: info.last_input_text },
-                            { from: "bot", text: info.last_sent },
-                        ],
-                    });
-                }
-                if (samples.length >= MAX_SAMPLES) break;
-                await new Promise((r) => setTimeout(r, 500));
-            }
-        }
+        // 2026-05-05 P0 PIVOT: read directly from wa_conversations (Twilio path)
+        // and wa_cloud_conversations (Meta WhatsApp Cloud API path). No more
+        // ManyChat dependency.
+        const since = admin.firestore.Timestamp.fromDate(
+            new Date(Date.now() - 24 * 60 * 60 * 1000)
+        );
+        const samples = await fetchRecentSofiaConversations(db, since, MAX_SAMPLES);
 
         if (samples.length === 0) {
             await db.collection("sofia_audits").doc(dateKey).set({
                 date: dateKey,
                 samples: 0,
                 ran_at: admin.firestore.FieldValue.serverTimestamp(),
-                note: "No sofia_conversations mirror data and ManyChat API returned empty. Wire the ManyChat webhook mirror to get full thread coverage.",
+                note: "No wa_conversations or wa_cloud_conversations updated in last 24h.",
+                source: "twilio+meta_cloud",
             });
-            functions.logger.info("sofiaConversationAudit: no samples available");
+            functions.logger.info("sofiaConversationAudit: no samples available (Twilio + Cloud both quiet)");
             return null;
         }
 

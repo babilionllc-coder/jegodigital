@@ -233,13 +233,12 @@ exports.reverseLookupManual          = require('./dailySupersearchRefill').rever
 // 0-10 (drops <7), updates lead, moves passing leads to target campaign.
 exports.processSupersearchLists       = require('./processSupersearchLists').processSupersearchLists;
 
-// manychatWebhookMirror — fixes 10+ days of empty sofia_audits (added 2026-05-05 P0).
-// ManyChat /v2/subscriber/getInfo API has been returning empty for our workspace, so
-// sofiaConversationAudit had no data to grade. This webhook flips the data flow:
-// ManyChat External Request POSTs every Sofia message receipt + reply send to
-// /manychatWebhookMirror, which mirrors to sofia_conversations/{id} + wa_leads/{phone}.
-exports.manychatWebhookMirror       = require('./manychatWebhookMirror').manychatWebhookMirror;
-exports.manychatWebhookMirrorHealth = require('./manychatWebhookMirror').manychatWebhookMirrorHealth;
+// manychatWebhookMirror — DEPRECATED 2026-05-05 same-day. We do not run ManyChat
+// anymore; Sofia is on Twilio (whatsappAIResponder) + Meta WhatsApp Cloud API
+// (whatsappCloudInbound), and both already mirror to wa_conversations /
+// wa_cloud_conversations. sofiaConversationAudit was patched to read those
+// collections directly. The mirror file remains on disk as a no-op stub in case
+// we ever bring ManyChat back (unlikely) but is NOT exported / deployed.
 exports.processSupersearchListsManual = require('./processSupersearchLists').processSupersearchListsManual;
 
 // processRecoveryQueue — 6-touch Meta Lead Form recovery (added 2026-05-04).
