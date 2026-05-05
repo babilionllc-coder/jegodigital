@@ -343,9 +343,15 @@ async function processCohort(cohortKey, cohort) {
   // Stage 2: real pull (only when filters are real)
   try {
     log.count = await countLeads(cohort.search_filters);
-    if (log.count < 50) {
+    // 2026-05-05 P0 FIX: threshold was hardcoded 50 — both production-safe
+    // cohorts (mx_funding_preventa count=18, miami_luxury_post count=12)
+    // were rejected for being below 50, producing 0 fresh leads/day for
+    // 8+ days while pipeline starved. Now per-cohort override via
+    // cohort.min_count_to_pull (default still 50 for unverified cohorts).
+    const minCount = cohort.min_count_to_pull ?? 50;
+    if (log.count < minCount) {
       log.status = "INSUFFICIENT_COUNT";
-      log.note = `count=${log.count}, refusing to pull (<50 threshold)`;
+      log.note = `count=${log.count}, refusing to pull (<${minCount} threshold)`;
       return log;
     }
 
@@ -361,7 +367,11 @@ async function processCohort(cohortKey, cohort) {
     log.list_name = listName;
 
     // Stage 5: real enrichment INTO the list (per-cohort enrichment_options)
-    const limit = cohort.daily_pull_limit || 30;
+    // 2026-05-05 P0 FIX: clamp limit to actual available count so we never
+    // ask Instantly for 30 leads when only 18 exist (Instantly burns credits
+    // for the over-request even if it returns nothing).
+    const requestedLimit = cohort.daily_pull_limit || 30;
+    const limit = Math.min(requestedLimit, log.count);
     const enrich = await runEnrichment(
       cohort.search_filters,
       limit,

@@ -40,8 +40,13 @@ async function sendTelegram(text) {
 }
 
 // ---- Config ----
-const TARGET_POOL_SIZE = 150;   // healthy pool floor
-const HARD_FLOOR = 100;         // below this we alarm Alex
+// 2026-05-05 P0 FIX: pool=199 was sticking at "healthy" for 5+ days while the
+// cold-call cron consumed nothing fresh — same 199 leads recycled forever.
+// Raised TARGET_POOL_SIZE 150→250 so a topup ALWAYS fires when fresh inflow
+// hasn't outpaced consumption. Also raises HARD_FLOOR 100→160 (≈3 days
+// of 50-call batches before alarm).
+const TARGET_POOL_SIZE = 250;   // healthy pool floor (was 150)
+const HARD_FLOOR = 160;         // below this we alarm Alex (was 100)
 const LEADS_TO_FIND_PER_CITY = 30;
 // Rotation of target cities — 2 per day so the pool stays diverse.
 // Cancun/PdC are first priority (Flamingo vertical), CDMX/MTY/GDL next.
@@ -140,16 +145,23 @@ async function isInInstantly(domain) {
 }
 
 // ---- DataForSEO Maps discovery ----
+// 2026-05-05 P0 FIX: swapped broken endpoint
+//   business_data/google/my_business_info/live (single-business lookup, returned 0
+//   results for category keywords like "real estate agency") →
+//   serp/google/maps/live/advanced (proper multi-result Maps search by category +
+//   city, returns up to `depth` items). Apr 25-30 candidates_found=0 was caused
+//   by the wrong endpoint. The new endpoint returns places with phone, domain,
+//   rating, reviews_count.
 async function fetchAgenciesForCity(dfsLogin, dfsPass, city, limit) {
     const body = [{
         language_code: "es",
         location_name: city,
-        keyword: "real estate agency",
-        limit,
+        keyword: "inmobiliaria",
+        depth: Math.max(20, Math.min(100, limit * 2)),
     }];
     try {
         const r = await axios.post(
-            "https://api.dataforseo.com/v3/business_data/google/my_business_info/live",
+            "https://api.dataforseo.com/v3/serp/google/maps/live/advanced",
             body,
             {
                 auth: { username: dfsLogin, password: dfsPass },
@@ -158,7 +170,16 @@ async function fetchAgenciesForCity(dfsLogin, dfsPass, city, limit) {
             }
         );
         const items = r.data?.tasks?.[0]?.result?.[0]?.items || [];
-        return items.filter((it) => it.phone && it.domain && !isPortal(it.domain));
+        // Map serp/google/maps result shape → expected shape downstream.
+        // serp/maps fields: title, phone, url (website), rating.value, rating.votes_count
+        const mapped = items.map((it) => ({
+            title: it.title,
+            phone: it.phone,
+            domain: (it.url || it.website || "").replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0],
+            rating: it.rating?.value ?? null,
+            rating_count: it.rating?.votes_count ?? it.rating?.rating_count ?? null,
+        }));
+        return mapped.filter((it) => it.phone && it.domain && !isPortal(it.domain));
     } catch (err) {
         functions.logger.error(`DFS Maps failed for ${city}:`, err.response?.data || err.message);
         return [];

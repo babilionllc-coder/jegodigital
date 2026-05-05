@@ -77,6 +77,8 @@
       "monthly_credit_budget": 1575,
       "_safe_for_production": true,
       "_v2_3_unlock": "Switched from non-existent 'funding_round' signal to verified funding_type filter (separate top-level) — 42,600 leads in MX RE with any funding stage. Pivot opener pattern from 'just-raised' to 'raised at all' (tighter signal: signal_type narrowed by emp size).",
+      "min_count_to_pull": 5,
+      "_min_count_note": "2026-05-05 P0: live pool count=18 fresh after workspace dedup. Lowered from default 50 so the cohort actually pulls.",
       "search_filters": {
         "locations": [{"place_id": "ChIJU1NoiDs6BIQREZgJa760ZO0"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},
@@ -137,6 +139,8 @@
       "monthly_credit_budget": 225,
       "_safe_for_production": true,
       "_v2_3_unlock": "Verified key=linkedin_post_contact (NOT linkedin_post). Period_days widened from 7→90 because Miami RE on LinkedIn is small (only 12 leads at 90d after Owner/Founder/CEO/Director/Managing Broker/Principal Broker filter). Daily pull dropped from 20→5 to match real pool. Removed employeeCount because it killed all 12 hits.",
+      "min_count_to_pull": 5,
+      "_min_count_note": "2026-05-05 P0: live pool count=12. Lowered threshold from default 50 so this niche cohort actually fires.",
       "search_filters": {
         "locations": [{"place_id": "ChIJEcHIDqKw2YgRZU-t3XHylv8"}],
         "industry": {"include": ["Real Estate & Construction"], "exclude": []},

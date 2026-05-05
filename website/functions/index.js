@@ -232,6 +232,14 @@ exports.reverseLookupManual          = require('./dailySupersearchRefill').rever
 // list, builds {{personalization}} from cohort template + lead enrichment, scores
 // 0-10 (drops <7), updates lead, moves passing leads to target campaign.
 exports.processSupersearchLists       = require('./processSupersearchLists').processSupersearchLists;
+
+// manychatWebhookMirror — fixes 10+ days of empty sofia_audits (added 2026-05-05 P0).
+// ManyChat /v2/subscriber/getInfo API has been returning empty for our workspace, so
+// sofiaConversationAudit had no data to grade. This webhook flips the data flow:
+// ManyChat External Request POSTs every Sofia message receipt + reply send to
+// /manychatWebhookMirror, which mirrors to sofia_conversations/{id} + wa_leads/{phone}.
+exports.manychatWebhookMirror       = require('./manychatWebhookMirror').manychatWebhookMirror;
+exports.manychatWebhookMirrorHealth = require('./manychatWebhookMirror').manychatWebhookMirrorHealth;
 exports.processSupersearchListsManual = require('./processSupersearchLists').processSupersearchListsManual;
 
 // processRecoveryQueue — 6-touch Meta Lead Form recovery (added 2026-05-04).
