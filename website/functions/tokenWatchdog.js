@@ -64,6 +64,10 @@ const { slackPost } = require("./slackPost");
 const META_GRAPH_BASE = "https://graph.facebook.com/v22.0";
 const SNAPSHOT_COLLECTION = "token_health_daily";
 
+// 2026-05-05 PM v2 — force-redeploy after BATCH 2 kept stale bundle.
+// ENV_ALIASES extended (FB_APP_ID/FB_APP_SECRET/WA_CLOUD_WABA_ID/FB_AD_ACCOUNT_ID),
+// probeMetaToken now uses readEnvWithAliases.
+
 // ---------- Severity classification ----------
 
 function classifyTier({ isValid, daysToExpire }) {
