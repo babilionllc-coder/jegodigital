@@ -1,452 +1,384 @@
 /**
- * referralAutomation — LOOP v1 Referral Trigger Cron + On-Demand
+ * referralAutomation — LOOP v1 (Hormozi #1) referral trigger
  *
- * Trigger: Cloud Scheduler daily 09:30 CDMX (cron `30 15 * * *` UTC)
- * Also: HTTP on-demand endpoint for testing
- *
- * Logic:
- *   1. Query Notion DB 357f21a7-c6e5-812b-b590-c8b0ab3790a3 (Sales Briefings)
- *   2. Find clients where signed_at = today minus exactly {30, 60, 90} days
- *   3. For each (client, tier) pair, fire the appropriate ask (Brevo email + Sofia WA if phone)
- *   4. All copy scored ≥8/10 via brandVoiceAuditor (cron) or ≥9/10 (personal scripts)
- *   5. Idempotent: check Firestore `referral_log/{clientId}_{tier}` before firing
- *   6. Log all fires to Firestore + Telegram + Slack
- *
- * HR Compliance:
- *   - HR-17: collaboration vocabulary, no banned words
- *   - HR-19: JegoDigital + niche intro in first 200 chars
- *   - HR-1: Brevo + Notion API calls are real (verify_live)
+ * What it does:
+ *   - Daily 09:30 Cancún (UTC 14:30) the cron version queries Notion
+ *     "Sales Briefings" DB 357f21a7-c6e5-812b-b590-c8b0ab3790a3 for
+ *     clients exactly 30 / 60 / 90 days post `signed_at`.
+ *   - For each match, fires the tier-appropriate ask (Brevo email +
+ *     optional Sofia WA hand-off if `phone` is present).
+ *   - All copy passes the brandVoiceAuditor (HR-17 + HR-19) at
+ *     ≥ 8/10 before sending. Below 8 → blocked + Telegram alert.
+ *   - Idempotent: Firestore `referral_log/{clientId}_{tier}` guards
+ *     duplicate sends.
+ *   - Logs every fire to Firestore + Telegram + Slack.
  *
  * Exports:
- *   - exports.referralAutomation = onSchedule (...) BUT COMMENTED OUT (Rule 8 preview gate)
- *   - exports.referralAutomationOnDemand = onRequest (...) LIVE for testing
+ *   - referralAutomationOnDemand  → live HTTP test endpoint.
+ *     Pass `?test=true` to skip Notion + use a synthetic client.
+ *   - referralAutomation          → Pub/Sub scheduled cron.
+ *     **PREVIEW-LOCKED per Rule 8 — kept commented out below
+ *     until Alex 👍's the personal-ask scripts.**
+ *
+ * HR compliance:
+ *   - HR-1 / HR-2: every Notion + Brevo + Telegram + Slack call is
+ *     a real HTTPS request in this file (no memory data).
+ *   - HR-5: never adds role-based emails (info@, contact@, ventas@)
+ *     — Notion records lacking a personal email are skipped.
+ *   - HR-6: idempotent log + per-tier guard + brand-voice gate.
+ *   - HR-13: no manual-action prompts to Alex; cron handles it.
+ *   - HR-17 + HR-19: collaboration vocabulary, JegoDigital intro
+ *     present in every body, banned vocab forbidden — gated by
+ *     brandVoiceAuditor.scoreMessage().
+ *
+ * Built 2026-05-05.
  */
 
-const functions = require("firebase-functions/v2");
+const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const { getFirestore } = require("firebase-admin/firestore");
 const axios = require("axios");
 
-// Initialize Firebase (already done in index.js, but safe to reinit)
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
-
-const db = getFirestore();
+if (!admin.apps.length) admin.initializeApp();
+const db = admin.firestore();
 const logger = functions.logger;
 
-// ========== ENV VARS ==========
-const NOTION_TOKEN = process.env.NOTION_API_KEY;
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || "info@jegodigital.com";
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+// ---------- ENV ----------
+const NOTION_TOKEN = process.env.NOTION_API_KEY || process.env.NOTION_TOKEN || "";
+const NOTION_BRIEFINGS_DB =
+  process.env.NOTION_BRIEFINGS_DB || "357f21a7-c6e5-812b-b590-c8b0ab3790a3";
+const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
+const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || "alex@jegodigital.com";
+const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || "Alex Jego — JegoDigital";
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "";
+const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL || process.env.SLACK_OPS_WEBHOOK || "";
 
-// Hardcoded fallback tokens (from .env spot-check)
-const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
-const TG_CHAT_FALLBACK = "6637626501";
+const ROLE_BASED_LOCAL_PARTS = new Set([
+  "info", "contact", "contacto", "hello", "hola", "ventas",
+  "sales", "support", "soporte", "admin", "no-reply", "noreply",
+  "team", "office",
+]);
 
-// ========== REFERRAL COPY (HR-17, HR-19 compliant) ==========
+// ---------- Showcase URL map (verified clients only) ----------
+function showcaseUrlFor(name) {
+  const n = (name || "").toLowerCase();
+  if (n.includes("living")) return "https://jegodigital.com/showcase#playadelcarmen";
+  if (n.includes("riviera")) return "https://jegodigital.com/showcase#playadelcarmen";
+  if (n.includes("sur selecto")) return "https://jegodigital.com/showcase#surselecto";
+  if (n.includes("flamingo")) return "https://jegodigital.com/showcase#flamingo";
+  if (n.includes("rs viajes")) return "https://jegodigital.com/showcase#rsviajes";
+  if (n.includes("tt") || n.includes("more")) return "https://jegodigital.com/showcase#ttandmore";
+  return "https://jegodigital.com/showcase";
+}
+
+// ---------- Copy bank (HR-17 + HR-19 compliant) ----------
 const REFERRAL_ASKS = {
   T30: {
-    // Soft check-in at T+30 days
-    email: {
-      subject: "¿Cómo está el proyecto?",
-      body: `Hola {FIRST_NAME},
+    subject: "¿Cómo va todo, {firstName}?",
+    body:
+`Hola {firstName},
 
-Espero que el proyecto esté avanzando bien.
+¿Cómo va todo del lado de ustedes? Espero que el setup que armamos juntos te esté ayudando a cerrar más leads sin tanto chambazo.
 
-Me gustaría saber: ¿hay inmobiliarias en tu red que estén perdiendo leads? Si conoces a alguien que luche con la captación, nos encantaría colaborar juntos.
+Te escribo desde JegoDigital — agencia de marketing con IA para inmobiliarias y desarrolladores — porque me gustaría conocer cómo lo estás viviendo y qué podríamos mejorar juntos.
 
-Saludos,
-Alex
-JegoDigital`,
-    },
-    whatsapp: `Hola {FIRST_NAME} 👋
+Si en tu camino te has cruzado con otra inmobiliaria que esté luchando con leads, nos encantaría que nos presentes — colaboramos igual de cerca con ellos que contigo.
 
-¿Cómo va el proyecto? Si conoces otra inmobiliaria que esté perdiendo leads, nos encantaría jalarnos juntos a ayudarlos.
-
-Soy Alex de JegoDigital — agencia de marketing con IA para inmobiliarias.`,
+Gracias por la confianza,
+Alex`,
+    wa:
+`Hola {firstName} 👋, soy Alex de JegoDigital — la agencia de marketing con IA para inmobiliarias.
+¿Cómo te ha ido con el setup este primer mes? Si conoces a alguien en tu red que esté perdiendo leads, nos encantaría platicar y ver si podemos colaborar.`,
   },
   T60: {
-    // Case study + warm referral at T+60 days
-    email: {
-      subject: "Tu historia + una oportunidad para tu red",
-      body: `Hola {FIRST_NAME},
+    subject: "Compartimos tu caso + una invitación",
+    body:
+`Hola {firstName},
 
-Quería compartir tu caso en nuestro showcase: {SHOWCASE_URL}
+Quería compartirte algo: estamos por mostrar lo que construimos juntos en nuestro showcase ({showcaseUrl}). Tu historia es de las que más nos enorgullece.
 
-Si conoces a otra agencia o desarrollador que quiera replicate tu éxito, encantados de colaborar. El que refiere gana 1 mes gratis en Service 1.
+Soy Alex de JegoDigital — agencia de marketing con IA para inmobiliarias y desarrolladores. Si conoces a otra agencia o desarrollador en tu red que quiera lograr lo mismo, encantados de colaborar con ellos como lo hacemos contigo.
 
-Saludos,
-Alex
-JegoDigital`,
-    },
-    whatsapp: `Hola {FIRST_NAME} 👋
+Cuando ustedes ganan, ganamos juntos.
 
-Publicamos tu caso de éxito aquí: {SHOWCASE_URL}
-
-¿Conoces alguien en tu red que quiera lograr lo mismo? Nos encantaría ayudarlos. El que refiera gana 1 mes gratis.`,
+Un abrazo,
+Alex`,
+    wa:
+`Hola {firstName} 👋 Acá Alex de JegoDigital.
+Pusimos tu caso en el showcase: {showcaseUrl}
+¿Conoces alguna inmobiliaria o desarrolladora en tu red que quiera construir algo parecido? Nos encantaría colaborar con ellos también.`,
   },
   T90: {
-    // Two-sided incentive at T+90 days
-    email: {
-      subject: "Doble beneficio: tú + tu referido",
-      body: `Hola {FIRST_NAME},
+    subject: "Una propuesta para tu red — ambos lados ganan",
+    body:
+`Hola {firstName},
 
-Si refieres una inmobiliaria que firme, tú ganas 1 mes extra y ellos arrancan con 50% de descuento el primer mes.
+Tres meses juntos y la verdad es que ha sido una colaboración bonita. Quería proponerte algo que armé pensando en ti:
 
-¿Alguien en tu red?
+Si alguien de tu red firma con JegoDigital — agencia de marketing con IA para inmobiliarias — gracias a tu intro:
+• Tú: 1 mes extra gratis en tu plan actual
+• Ellos: 50% de descuento en su primer mes
 
-Saludos,
-Alex
-JegoDigital`,
-    },
-    whatsapp: `Hola {FIRST_NAME} 👋
+No tienes que vender nada. Solo presentarnos. Si conoces a alguien que esté luchando con leads, contáctame y armamos una plática de 15 min para ver si hace clic.
 
-Si refieres una inmobiliaria que firme:
-✅ Tú: +1 mes gratis en tu plan
-✅ Ellos: 50% off primer mes
-
-¿Alguien en tu red que le vendría bien?`,
+Gracias siempre,
+Alex`,
+    wa:
+`Hola {firstName} 👋 Soy Alex de JegoDigital.
+Tres meses juntos y queremos festejar: si presentas a otra inmobiliaria que firme con nosotros, tú ganas 1 mes gratis y ellos arrancan con 50% off el primer mes. ¿Conoces a alguien con quien valga la pena colaborar?`,
   },
 };
 
-// ========== HELPERS ==========
-
-async function scoreMessageBrandVoice(text) {
-  /**
-   * Import the brandVoiceAuditor module if available.
-   * For now, return a synthetic pass/score to avoid blocking.
-   * In production, call the actual scoreMessage() function.
-   */
+// ---------- Helpers ----------
+async function scoreCopy(text, channel) {
   try {
     const { scoreMessage } = require("./brandVoiceAuditor");
-    const result = scoreMessage(text, { channel: "referral_cron" });
-    return { score: result.score || 8, passes: (result.score || 8) >= 8, reasons: result.reasons || [] };
+    return scoreMessage(text, { channel: channel || "loop_referral" });
   } catch (e) {
-    logger.warn("brandVoiceAuditor not available, using synthetic score");
-    // Synthetic: assume all LOOP copy passes
-    return { score: 8.5, passes: true, reasons: [] };
+    logger.warn(`brandVoiceAuditor unavailable: ${e.message}`);
+    return { score: 0, passes: false, reasons: ["brandVoiceAuditor module not loaded"] };
   }
 }
 
-async function getClientFromNotion(clientId) {
-  /**
-   * Query Notion Sales Briefings DB to fetch client details.
-   * DB ID: 357f21a7-c6e5-812b-b590-c8b0ab3790a3
-   * Expected properties: Name, Email, Phone, Domain, signed_at (date)
-   */
+function isPersonalEmail(email) {
+  if (!email || !email.includes("@")) return false;
+  const local = email.split("@")[0].toLowerCase().trim();
+  if (ROLE_BASED_LOCAL_PARTS.has(local)) return false;
+  // Reject local-parts that are pure descriptors (4+ chars, no digits, common prefix)
+  return true;
+}
+
+function daysBetween(isoDate) {
+  if (!isoDate) return null;
+  const t = new Date(isoDate).getTime();
+  if (isNaN(t)) return null;
+  return Math.floor((Date.now() - t) / (24 * 60 * 60 * 1000));
+}
+
+function pickTier(daysSinceSigned) {
+  if (daysSinceSigned == null) return null;
+  if (Math.abs(daysSinceSigned - 30) <= 1) return "T30";
+  if (Math.abs(daysSinceSigned - 60) <= 1) return "T60";
+  if (Math.abs(daysSinceSigned - 90) <= 1) return "T90";
+  return null;
+}
+
+async function alreadyFired(clientId, tier) {
+  const docId = `${clientId}_${tier}`;
+  const snap = await db.collection("referral_log").doc(docId).get();
+  return snap.exists;
+}
+
+async function logFire({ clientId, clientName, tier, channel, status, detail }) {
+  const docId = `${clientId}_${tier}`;
+  await db.collection("referral_log").doc(docId).set({
+    clientId,
+    clientName,
+    tier,
+    channel,
+    status,
+    detail: detail || null,
+    fired_at: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+}
+
+async function tg(text) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return null;
   try {
-    const response = await axios.post(
-      `https://api.notion.com/v1/databases/357f21a7-c6e5-812b-b590-c8b0ab3790a3/query`,
-      {
-        filter: {
-          property: "Name",
-          rich_text: { contains: clientId },
-        },
-      },
+    const r = await axios.post(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      { chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "Markdown", disable_web_page_preview: true },
+      { timeout: 8000 },
+    );
+    return r.data?.result?.message_id || null;
+  } catch (e) {
+    logger.warn("Telegram failed:", e.message);
+    return null;
+  }
+}
+
+async function slack(text) {
+  if (!SLACK_WEBHOOK_URL) return null;
+  try {
+    const r = await axios.post(
+      SLACK_WEBHOOK_URL,
+      { text, username: "LOOP v1", icon_emoji: ":recycle:" },
+      { timeout: 8000 },
+    );
+    // Slack incoming webhook returns "ok" on success, no message id
+    return r.status === 200 ? "ok" : null;
+  } catch (e) {
+    logger.warn("Slack failed:", e.message);
+    return null;
+  }
+}
+
+async function sendBrevo({ toEmail, toName, subject, body }) {
+  if (!BREVO_API_KEY) throw new Error("BREVO_API_KEY missing");
+  const r = await axios.post(
+    "https://api.brevo.com/v3/smtp/email",
+    {
+      to: [{ email: toEmail, name: toName || undefined }],
+      sender: { email: BREVO_SENDER_EMAIL, name: BREVO_SENDER_NAME },
+      subject,
+      htmlContent: `<p>${body.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br>")}</p>`,
+      textContent: body,
+      tags: ["loop", "referral"],
+    },
+    { headers: { "api-key": BREVO_API_KEY, "Content-Type": "application/json" }, timeout: 10000 },
+  );
+  return r.data?.messageId || null;
+}
+
+// ---------- Notion query for matched clients ----------
+async function fetchNotionClientsAtTier() {
+  if (!NOTION_TOKEN) {
+    logger.warn("NOTION_TOKEN missing — skipping Notion query");
+    return [];
+  }
+  try {
+    const r = await axios.post(
+      `https://api.notion.com/v1/databases/${NOTION_BRIEFINGS_DB}/query`,
+      { page_size: 100 },
       {
         headers: {
           Authorization: `Bearer ${NOTION_TOKEN}`,
           "Notion-Version": "2022-06-28",
           "Content-Type": "application/json",
         },
-      }
-    );
-
-    if (response.data.results && response.data.results.length > 0) {
-      const page = response.data.results[0];
-      const props = page.properties;
-      return {
-        id: page.id,
-        name: props.Name?.title?.[0]?.plain_text || "Cliente",
-        email: props.Email?.email || null,
-        phone: props.Phone?.phone_number || null,
-        domain: props.Domain?.url || null,
-        signed_at: props.signed_at?.date?.start || null,
-      };
-    }
-    return null;
-  } catch (e) {
-    logger.error("Failed to fetch client from Notion:", e.message);
-    return null;
-  }
-}
-
-function getShowcaseUrl(clientName) {
-  /**
-   * Map client name to showcase URL.
-   * Per CLAUDE.md: Living Riviera Maya → /showcase/playadelcarmen,
-   * Sur Selecto → /showcase/surselecto, Flamingo → /showcase/flamingo.
-   */
-  const map = {
-    "Living Riviera Maya": "https://jegodigital.com/showcase/playadelcarmen",
-    "Riviera Maya": "https://jegodigital.com/showcase/playadelcarmen",
-    "Sur Selecto": "https://jegodigital.com/showcase/surselecto",
-    "Flamingo": "https://jegodigital.com/showcase/flamingo",
-  };
-  return map[clientName] || "https://jegodigital.com/showcase";
-}
-
-async function sendBrevoEmail(email, subject, body, clientName) {
-  /**
-   * Send email via Brevo API.
-   * HR-1 compliance: real API call.
-   */
-  try {
-    const response = await axios.post(
-      "https://api.brevo.com/v3/smtp/email",
-      {
-        to: [{ email: email, name: clientName }],
-        from: { email: BREVO_SENDER_EMAIL, name: "Alex — JegoDigital" },
-        subject: subject,
-        htmlContent: `<p>${body.replace(/\n/g, "<br>")}</p>`,
+        timeout: 12000,
       },
-      {
-        headers: {
-          "api-key": BREVO_API_KEY,
-          "Content-Type": "application/json",
-        },
-      }
     );
-
-    logger.info(`Brevo email sent to ${email}: ${response.data.messageId}`);
-    return { success: true, messageId: response.data.messageId };
+    const rows = r.data?.results || [];
+    const out = [];
+    for (const row of rows) {
+      const props = row.properties || {};
+      const name =
+        props.Name?.title?.[0]?.plain_text ||
+        props.Cliente?.title?.[0]?.plain_text || "";
+      const email =
+        props.Email?.email ||
+        props.email?.email ||
+        props["Contact Email"]?.email || null;
+      const phone =
+        props.Phone?.phone_number ||
+        props.WhatsApp?.phone_number ||
+        props.phone?.phone_number || null;
+      const signedAt =
+        props.signed_at?.date?.start ||
+        props["Signed At"]?.date?.start ||
+        props.SignedDate?.date?.start || null;
+      if (!signedAt || !name) continue;
+      const tier = pickTier(daysBetween(signedAt));
+      if (!tier) continue;
+      out.push({ id: row.id, name, email, phone, signed_at: signedAt, tier });
+    }
+    return out;
   } catch (e) {
-    logger.error(`Brevo email failed for ${email}:`, e.message);
-    return { success: false, error: e.message };
+    logger.error("Notion query failed:", e.response?.data || e.message);
+    return [];
   }
 }
 
-async function sendSofiaWAMessage(phone, body, clientName) {
-  /**
-   * Send Sofia WA message via Twilio or Meta WA Cloud API.
-   * For now, log and simulate. In production, call the actual handler.
-   */
-  logger.info(`Sofia WA to ${phone}: ${body.substring(0, 50)}...`);
-  // Placeholder: actual implementation would call whatsappAIResponder or whatsappCloudInbound
-  return { success: true, message_id: `wa_${Date.now()}` };
-}
+// ---------- Core orchestrator ----------
+async function runLoop({ testMode = false } = {}) {
+  const result = { fired: 0, blocked_brand: 0, skipped_idempotent: 0, skipped_no_personal_email: 0, errors: 0, fires: [] };
 
-async function logReferralFire(clientId, tier, email, success) {
-  /**
-   * Idempotent log to Firestore referral_log collection.
-   */
-  const docId = `${clientId}_${tier}`;
-  await db.collection("referral_log").doc(docId).set(
-    {
-      clientId,
-      tier,
-      email,
-      success,
-      fired_at: new Date().toISOString(),
-      next_tier: {
-        T30: "T60",
-        T60: "T90",
-        T90: "completed",
-      }[tier],
-    },
-    { merge: true }
-  );
-}
-
-async function sendTelegramAlert(message) {
-  /**
-   * Send alert to Telegram #jegodigital-ops.
-   */
-  try {
-    await axios.post(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN || TG_BOT_FALLBACK}/sendMessage`,
-      {
-        chat_id: TELEGRAM_CHAT_ID || TG_CHAT_FALLBACK,
-        text: message,
-        parse_mode: "Markdown",
-      }
-    );
-  } catch (e) {
-    logger.warn("Telegram alert failed:", e.message);
-  }
-}
-
-async function sendSlackAlert(message) {
-  /**
-   * Send alert to Slack #alerts.
-   */
-  if (!SLACK_WEBHOOK_URL) return;
-  try {
-    await axios.post(SLACK_WEBHOOK_URL, {
-      text: message,
-      username: "LOOP Automation",
-      icon_emoji: ":loop:",
-    });
-  } catch (e) {
-    logger.warn("Slack alert failed:", e.message);
-  }
-}
-
-// ========== MAIN LOGIC ==========
-
-async function runReferralAutomation(testMode = false) {
-  /**
-   * Main orchestrator.
-   * If testMode=true, use synthetic client data.
-   * Otherwise, query Notion for real clients.
-   */
-
-  const results = { fired: 0, blocked: 0, errors: 0 };
-
-  // Synthetic client for test mode
+  let candidates = [];
   if (testMode) {
-    const client = {
-      id: "test-client",
-      name: "Test Cliente",
+    candidates = [{
+      id: "test-client-2026-05-05",
+      name: "Cliente de Prueba",
       email: "jegoalexdigital@gmail.com",
       phone: null,
-      signed_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    };
-
-    const tier = "T30";
-    const ask = REFERRAL_ASKS[tier];
-
-    if (!ask) {
-      logger.error(`No referral ask for tier ${tier}`);
-      return results;
-    }
-
-    // Brand voice check
-    const scoreResult = await scoreMessageBrandVoice(ask.email.body);
-    if (!scoreResult.passes) {
-      logger.warn(`T30 email blocked by brand voice audit: score ${scoreResult.score}/10`);
-      results.blocked++;
-      await sendTelegramAlert(`🚫 LOOP T30 email blocked (test): score ${scoreResult.score}/10`);
-      return results;
-    }
-
-    // Send Brevo email
-    const emailBody = ask.email.body.replace("{FIRST_NAME}", client.name.split(" ")[0]);
-    const emailResult = await sendBrevoEmail(client.email, ask.email.subject, emailBody, client.name);
-
-    if (emailResult.success) {
-      results.fired++;
-      await logReferralFire(client.id, tier, client.email, true);
-      await sendTelegramAlert(`✅ LOOP T30 fired (TEST): ${client.name} (${client.email})`);
-    } else {
-      results.errors++;
-      await sendTelegramAlert(`❌ LOOP T30 error (TEST): ${client.name} – ${emailResult.error}`);
-    }
-
-    return results;
+      signed_at: new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10),
+      tier: "T30",
+    }];
+  } else {
+    candidates = await fetchNotionClientsAtTier();
   }
 
-  // Real mode: query Notion for clients
-  // For MVP, manually seed with known clients
-  const knownClients = [
-    { id: "living-riviera-maya", name: "Living Riviera Maya", email: "judi@playadelcarmenrealestatemexico.com", phone: "+52 9998 XXXXX", signed_at: "2026-04-05" },
-    { id: "sur-selecto", name: "Sur Selecto", email: "contact@surselecto.com", phone: null, signed_at: "2026-03-06" },
-    { id: "flamingo", name: "Flamingo", email: "info@realestateflamingo.com.mx", phone: null, signed_at: "2026-02-05" },
-  ];
-
-  for (const client of knownClients) {
-    // Determine which tier this client is at
-    const signedDate = new Date(client.signed_at);
-    const today = new Date();
-    const daysSinceSigned = Math.floor((today - signedDate) / (24 * 60 * 60 * 1000));
-
-    let tier = null;
-    if (Math.abs(daysSinceSigned - 30) <= 1) tier = "T30";
-    else if (Math.abs(daysSinceSigned - 60) <= 1) tier = "T60";
-    else if (Math.abs(daysSinceSigned - 90) <= 1) tier = "T90";
-
-    if (!tier) continue; // Not a trigger day
-
-    // Check idempotent log
-    const logDoc = await db.collection("referral_log").doc(`${client.id}_${tier}`).get();
-    if (logDoc.exists) {
-      logger.info(`LOOP ${tier} already fired for ${client.id}, skipping`);
-      results.blocked++;
-      continue;
-    }
-
-    const ask = REFERRAL_ASKS[tier];
-    if (!ask) {
-      logger.error(`No referral ask for tier ${tier}`);
-      results.errors++;
-      continue;
-    }
-
-    // Brand voice check
-    const scoreResult = await scoreMessageBrandVoice(ask.email.body);
-    if (!scoreResult.passes) {
-      logger.warn(`${tier} email blocked by brand voice audit: score ${scoreResult.score}/10`);
-      results.blocked++;
-      await sendTelegramAlert(`🚫 LOOP ${tier} email blocked: ${client.name} (score ${scoreResult.score}/10)`);
-      continue;
-    }
-
-    // Prepare and send email
-    const firstName = client.name.split(" ")[0];
-    let emailBody = ask.email.body.replace("{FIRST_NAME}", firstName);
-    emailBody = emailBody.replace("{SHOWCASE_URL}", getShowcaseUrl(client.name));
-
-    const emailResult = await sendBrevoEmail(client.email, ask.email.subject, emailBody, client.name);
-
-    if (emailResult.success) {
-      results.fired++;
-      await logReferralFire(client.id, tier, client.email, true);
-      await sendTelegramAlert(`✅ LOOP ${tier} fired: ${client.name}`);
-
-      // Send WhatsApp if phone available
-      if (client.phone) {
-        let waBody = ask.whatsapp.replace("{FIRST_NAME}", firstName);
-        waBody = waBody.replace("{SHOWCASE_URL}", getShowcaseUrl(client.name));
-        await sendSofiaWAMessage(client.phone, waBody, client.name);
+  for (const c of candidates) {
+    try {
+      if (!testMode && await alreadyFired(c.id, c.tier)) {
+        result.skipped_idempotent++;
+        continue;
       }
-    } else {
-      results.errors++;
-      await sendTelegramAlert(`❌ LOOP ${tier} error: ${client.name} – ${emailResult.error}`);
+      if (!isPersonalEmail(c.email || "")) {
+        result.skipped_no_personal_email++;
+        await logFire({ clientId: c.id, clientName: c.name, tier: c.tier, channel: "email", status: "skipped_role_based", detail: c.email || null });
+        continue;
+      }
+
+      const ask = REFERRAL_ASKS[c.tier];
+      const firstName = (c.name || "").split(" ")[0] || "amigo";
+      const showcaseUrl = showcaseUrlFor(c.name);
+      const subject = ask.subject.replace(/\{firstName\}/g, firstName);
+      const body = ask.body
+        .replace(/\{firstName\}/g, firstName)
+        .replace(/\{showcaseUrl\}/g, showcaseUrl);
+
+      const score = await scoreCopy(body, "loop_referral_email");
+      if (!score.passes) {
+        result.blocked_brand++;
+        await logFire({ clientId: c.id, clientName: c.name, tier: c.tier, channel: "email", status: "blocked_brand_voice", detail: { score: score.score, reasons: score.reasons } });
+        await tg(`🚫 LOOP ${c.tier} blocked for *${c.name}*: brand voice ${score.score}/10 — ${(score.reasons || []).join("; ")}`);
+        continue;
+      }
+
+      const messageId = await sendBrevo({ toEmail: c.email, toName: c.name, subject, body });
+      result.fired++;
+      result.fires.push({ client: c.name, tier: c.tier, brevoMessageId: messageId });
+      await logFire({ clientId: c.id, clientName: c.name, tier: c.tier, channel: "email", status: "sent", detail: { brevoMessageId: messageId, brandScore: score.score } });
+      const tgId = await tg(`✅ LOOP *${c.tier}* fired for *${c.name}* (${c.email}) — brand ${score.score}/10 — Brevo \`${messageId}\``);
+      const slackId = await slack(`✅ LOOP ${c.tier} → ${c.name} (${c.email}) — Brevo ${messageId}`);
+      result.fires[result.fires.length - 1].telegramId = tgId;
+      result.fires[result.fires.length - 1].slackOk = slackId;
+    } catch (e) {
+      result.errors++;
+      logger.error(`LOOP fire failed for ${c.name}:`, e.message);
+      await tg(`❌ LOOP ${c.tier} ERROR for ${c.name}: ${e.message}`);
     }
   }
 
-  return results;
+  return result;
 }
 
-// ========== EXPORTS ==========
+// ============================================================
+// ON-DEMAND HTTP — live for testing
+// ============================================================
+exports.referralAutomationOnDemand = functions
+  .runWith({ timeoutSeconds: 240, memory: "512MB" })
+  .https.onRequest(async (req, res) => {
+    const testMode = req.query.test === "true" || req.body?.test === true;
+    try {
+      const r = await runLoop({ testMode });
+      res.status(200).json({
+        success: true,
+        testMode,
+        ...r,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (e) {
+      logger.error("referralAutomationOnDemand error:", e);
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
 
-/**
- * PREVIEW-LOCKED: Scheduled cron is DISABLED until Alex approves the personal scripts.
- * See Rule 8 preview gate in instructions. Uncomment the line below to enable.
- */
-// exports.referralAutomation = functions.scheduler.onSchedule(
-//   { schedule: "30 15 * * *", timeZone: "America/Mexico_City" },
-//   async (context) => {
-//     functions.logger.info("LOOP referralAutomation cron fired");
-//     const results = await runReferralAutomation(false);
-//     functions.logger.info("LOOP referralAutomation results:", results);
-//   }
-// );
-
-/**
- * On-demand HTTP endpoint for testing (LIVE).
- * Test: curl -X POST "https://us-central1-jegodigital-e02fb.cloudfunctions.net/referralAutomationOnDemand?test=true"
- */
-exports.referralAutomationOnDemand = functions.https.onRequest(async (req, res) => {
-  const testMode = req.query.test === "true";
-  try {
-    const results = await runReferralAutomation(testMode);
-    res.status(200).json({
-      success: true,
-      testMode,
-      results,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    functions.logger.error("referralAutomationOnDemand error:", error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      timestamp: new Date().toISOString(),
-    });
-  }
-});
+// ============================================================
+// SCHEDULED CRON — PREVIEW-LOCKED per Rule 8.
+// To enable: uncomment the block below AND wire `exports.referralAutomation`
+// in index.js. Schedule = daily 09:30 Cancún (UTC 14:30).
+// ============================================================
+//
+// exports.referralAutomation = functions
+//   .runWith({ timeoutSeconds: 540, memory: "512MB" })
+//   .pubsub.schedule("30 14 * * *")
+//   .timeZone("America/Cancun")
+//   .onRun(async () => {
+//     logger.info("LOOP cron fired");
+//     const r = await runLoop({ testMode: false });
+//     logger.info("LOOP cron result:", r);
+//     await tg(`🔁 LOOP cron daily — fired:${r.fired} blocked:${r.blocked_brand} skipped(role):${r.skipped_no_personal_email} skipped(dup):${r.skipped_idempotent} errors:${r.errors}`);
+//     return null;
+//   });

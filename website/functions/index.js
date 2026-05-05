@@ -3215,3 +3215,18 @@ exports.personaDriftDetectorOnDemand = personaDriftDetectorMod.personaDriftDetec
 const outboundMetricsDashboardMod = require('./outboundMetricsDashboard');
 exports.outboundMetricsDashboard         = outboundMetricsDashboardMod.outboundMetricsDashboard;
 exports.outboundMetricsDashboardOnDemand = outboundMetricsDashboardMod.outboundMetricsDashboardOnDemand;
+
+// ============================================================
+// LOOP v1 (Hormozi #1) — referral retention engine. Built 2026-05-05.
+// referralAutomationOnDemand   → HTTP test endpoint (LIVE)
+// referralAutomation (cron)    → PREVIEW-LOCKED in referralAutomation.js
+//                                 per Rule 8 until Alex 👍's the personal scripts
+// generateReferralCodeOnSignup → Firestore onCreate trigger (LIVE)
+// generateReferralCodeBackfill → HTTP backfill (LIVE)
+// ============================================================
+const referralAutomationMod = require('./referralAutomation');
+exports.referralAutomationOnDemand = referralAutomationMod.referralAutomationOnDemand;
+// exports.referralAutomation       = referralAutomationMod.referralAutomation;  // PREVIEW-LOCKED — uncomment + uncomment block in referralAutomation.js to enable
+const generateReferralCodeMod = require('./generateReferralCode');
+exports.generateReferralCodeOnSignup = generateReferralCodeMod.generateReferralCodeOnSignup;
+exports.generateReferralCodeBackfill = generateReferralCodeMod.generateReferralCodeBackfill;
