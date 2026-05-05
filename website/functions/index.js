@@ -2989,9 +2989,14 @@ const gapCloserMod = require('./gapCloser');
 exports.gapCloser         = gapCloserMod.gapCloser;
 exports.gapCloserOnDemand = gapCloserMod.gapCloserOnDemand;
 
-const brevoToFacebookCASyncMod = require('./brevoToFacebookCASync');
-exports.brevoToFacebookCASync         = brevoToFacebookCASyncMod.brevoToFacebookCASync;
-exports.brevoToFacebookCASyncOnDemand = brevoToFacebookCASyncMod.brevoToFacebookCASyncOnDemand;
+// brevoToFacebookCASync was DEPRECATED 2026-05-05 PM — superseded by
+// Wave 2's syncBrevoToFbCustomAudiences (full-mirror, 4-tier CA resolution,
+// no hardcoded Telegram tokens). The v1 file remains as a tombstone that
+// throws on require to prevent silent fall-through. Exports are commented
+// out below so the deprecated require never fires at deploy time.
+// const brevoToFacebookCASyncMod = require('./brevoToFacebookCASync');
+// exports.brevoToFacebookCASync         = brevoToFacebookCASyncMod.brevoToFacebookCASync;
+// exports.brevoToFacebookCASyncOnDemand = brevoToFacebookCASyncMod.brevoToFacebookCASyncOnDemand;
 
 // =====================================================================
 // 2026-05-05 PM — Wave 2 high-leverage agents (Cowork build)

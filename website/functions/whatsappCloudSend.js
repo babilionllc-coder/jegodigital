@@ -100,7 +100,7 @@ function componentsToContentVariables(components) {
 /**
  * Send a free-form text message (only valid inside the 24h conversation window).
  */
-async function sendText({ to, body }) {
+async function sendText({ to, body, leadId, userInitiated = true, firstTouch = false }) {
   const auth = twilioAuthHeader();
   if (!auth)
     return {
@@ -111,6 +111,35 @@ async function sendText({ to, body }) {
   if (!to) return { ok: false, status: 0, error: 'invalid_to_number' };
   if (!body || typeof body !== 'string')
     return { ok: false, status: 0, error: 'empty_body' };
+
+  // ---------- Compliance gate (sofia_wa channel) ----------
+  // Free-form text only valid inside the 24h window — userInitiated defaults
+  // TRUE (lead messaged us first). Gates 1-3 honor that. Gates 4-7 always run.
+  // Kill switch: env COMPLIANCE_GATE_ENFORCE=false to log-only mode.
+  try {
+    const { complianceGate } = require('./complianceGate');
+    const gate = await complianceGate(
+      {
+        to,
+        body,
+        sender: TWILIO_FROM_RAW,
+        leadId: leadId || null,
+        userInitiated,
+        firstTouch,
+      },
+      'sofia_wa'
+    );
+    if (!gate.pass) {
+      return {
+        ok: false,
+        status: 0,
+        error: `compliance_block:${gate.reason}`,
+        compliance: gate,
+      };
+    }
+  } catch (e) {
+    // Gate errors must not break valid user-initiated work — log but proceed.
+  }
 
   const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`;
   const params = new URLSearchParams();
@@ -169,7 +198,7 @@ async function sendTemplate({
 /**
  * Direct path: send a Twilio template by ContentSid (skips the name-mapping step).
  */
-async function sendTemplateBySid({ to, contentSid, contentVariables = {} }) {
+async function sendTemplateBySid({ to, contentSid, contentVariables = {}, leadId, userInitiated = false, firstTouch = true, bodyForCompliance = '' }) {
   const auth = twilioAuthHeader();
   if (!auth)
     return {
@@ -180,6 +209,34 @@ async function sendTemplateBySid({ to, contentSid, contentVariables = {} }) {
   if (!to) return { ok: false, status: 0, error: 'invalid_to_number' };
   if (!contentSid)
     return { ok: false, status: 0, error: 'content_sid_required' };
+
+  // ---------- Compliance gate (sofia_wa channel) ----------
+  // Templates send OUTSIDE the 24h window — outbound-initiated. userInitiated
+  // defaults FALSE, firstTouch defaults TRUE (HR-19 intro check on bodyForCompliance).
+  try {
+    const { complianceGate } = require('./complianceGate');
+    const gate = await complianceGate(
+      {
+        to,
+        body: bodyForCompliance || `[twilio_template:${contentSid}]`,
+        sender: TWILIO_FROM_RAW,
+        leadId: leadId || null,
+        userInitiated,
+        firstTouch,
+      },
+      'sofia_wa'
+    );
+    if (!gate.pass) {
+      return {
+        ok: false,
+        status: 0,
+        error: `compliance_block:${gate.reason}`,
+        compliance: gate,
+      };
+    }
+  } catch (e) {
+    // Soft fail
+  }
 
   const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`;
   const params = new URLSearchParams();

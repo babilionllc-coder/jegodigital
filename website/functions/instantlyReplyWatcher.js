@@ -379,19 +379,42 @@ exports.instantlyReplyWatcher = functions
             // Start Brevo nurture Track A — fires on clean positive OR
             // positive_with_objection (objection handling is part of nurture).
             // Idempotent — startTrackA skips if already enrolled.
+            //
+            // Compliance gate (added 2026-05-05): route through complianceGate
+            // (cold_email channel) before enrolling. Blocks opt-outs, closed-window
+            // enrollments, disallowed countries, unhealthy senders. firstTouch=false
+            // + userInitiated=true (lead replied to us first).
             let nurtureStarted = false;
+            let nurtureBlocked = null;
             if ((outcome === "positive" || outcome === "positive_with_objection") && ctx.email) {
                 try {
-                    const n = await brevoNurture.startTrackA({
-                        email: ctx.email,
-                        firstName: ctx.firstName || "",
-                        company: ctx.company || "",
-                        campaignId: em.campaign || em.campaign_id || null,
-                        replyId,
-                        replyBody: body,
-                        replyDate: em.timestamp_email || em.timestamp || em.created_at || null,
-                    });
-                    if (n.ok && !n.skipped) nurtureStarted = true;
+                    const { complianceGate } = require("./complianceGate");
+                    const gate = await complianceGate(
+                        {
+                            to: ctx.email,
+                            body: `[brevo_nurture_track_a_enroll] reply: ${(body || "").slice(0, 200)}`,
+                            sender: "ariana@zennoenigmawire.com",
+                            leadId: ctx.email,
+                            userInitiated: true,
+                            firstTouch: false,
+                        },
+                        "cold_email"
+                    );
+                    if (!gate.pass) {
+                        nurtureBlocked = gate.reason;
+                        functions.logger.warn(`brevo nurture BLOCKED for ${replyId} (${ctx.email}): ${gate.reason}`);
+                    } else {
+                        const n = await brevoNurture.startTrackA({
+                            email: ctx.email,
+                            firstName: ctx.firstName || "",
+                            company: ctx.company || "",
+                            campaignId: em.campaign || em.campaign_id || null,
+                            replyId,
+                            replyBody: body,
+                            replyDate: em.timestamp_email || em.timestamp || em.created_at || null,
+                        });
+                        if (n.ok && !n.skipped) nurtureStarted = true;
+                    }
                 } catch (err) {
                     functions.logger.warn(`brevo nurture start failed for ${replyId}:`, err.message);
                 }
