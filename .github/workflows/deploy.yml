@@ -118,6 +118,17 @@ jobs:
           BREVO_HIRING_INTENT_FB_LIST_ID=${{ secrets.BREVO_HIRING_INTENT_FB_LIST_ID }}
           BREVO_FB_WELCOME_TEMPLATE_ID=${{ secrets.BREVO_FB_WELCOME_TEMPLATE_ID }}
           AUDIT_INTERNAL_ENDPOINT=${{ secrets.AUDIT_INTERNAL_ENDPOINT }}
+          # 2026-05-05 — tokenWatchdog needs these to call /debug_token and
+          # verify Meta token scope binding. FB_APP_SECRET pairs with the
+          # already-injected FB_APP_ID to build the Graph app-token. The two
+          # WA_CLOUD_* values let probeMetaToken confirm the WhatsApp Cloud
+          # token is bound to the right WABA + phone number.
+          FB_APP_SECRET=${{ secrets.FB_APP_SECRET }}
+          WA_CLOUD_ACCESS_TOKEN=${{ secrets.WA_CLOUD_ACCESS_TOKEN }}
+          WA_CLOUD_WABA_ID=${{ secrets.WA_CLOUD_WABA_ID }}
+          WA_CLOUD_VERIFY_TOKEN=${{ secrets.WA_CLOUD_VERIFY_TOKEN }}
+          WA_CLOUD_PHONE_NUMBER_ID=${{ secrets.WA_CLOUD_PHONE_NUMBER_ID }}
+          WHATSAPP_CLOUD_API_TOKEN=${{ secrets.WHATSAPP_CLOUD_API_TOKEN }}
           ENVEOF
           # Clean leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env

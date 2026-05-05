@@ -97,6 +97,15 @@ const ENV_ALIASES = {
     // a repo Secret. Functions runtime needs a PAT — Alex stores his at
     // .secrets/github_token locally; in prod we read from GH_PAT secret.
     GITHUB_TOKEN: ["GITHUB_TOKEN", "GH_PAT", "GH_TOKEN"],
+    // 2026-05-05 PM extension: the Meta /debug_token endpoint requires an
+    // app-token built from app-id + app-secret, and target_id binding checks
+    // need the WABA / ad-account ids. We use FB_* secrets as the source of
+    // truth (those are what Alex maintains in GitHub Secrets), and alias
+    // them into the canonical META_* names that this watchdog asks for.
+    META_APP_ID:                  ["META_APP_ID", "FB_APP_ID"],
+    META_APP_SECRET:              ["META_APP_SECRET", "FB_APP_SECRET"],
+    WHATSAPP_BUSINESS_ACCOUNT_ID: ["WHATSAPP_BUSINESS_ACCOUNT_ID", "WA_CLOUD_WABA_ID"],
+    META_AD_ACCOUNT_ID:           ["META_AD_ACCOUNT_ID", "FB_AD_ACCOUNT_ID"],
 };
 
 function readEnvWithAliases(canonicalName) {
@@ -112,10 +121,10 @@ async function probeMetaToken(name, tokenEnv, expectedScope, expectedTargetEnv) 
     const tok = readEnvWithAliases(tokenEnv);
     if (!tok) return { name, ok: false, reason: `${tokenEnv} not set (aliases: ${(ENV_ALIASES[tokenEnv] || [tokenEnv]).join(", ")})`, isValid: false };
 
-    const appId = process.env.META_APP_ID;
-    const appSec = process.env.META_APP_SECRET;
+    const appId = readEnvWithAliases("META_APP_ID");
+    const appSec = readEnvWithAliases("META_APP_SECRET");
     if (!appId || !appSec) {
-        return { name, ok: false, reason: "META_APP_ID or META_APP_SECRET missing — can't call /debug_token", isValid: false };
+        return { name, ok: false, reason: "META_APP_ID or META_APP_SECRET missing (aliases: FB_APP_ID, FB_APP_SECRET) — can't call /debug_token", isValid: false };
     }
     const appToken = `${appId}|${appSec}`;
     try {
@@ -129,7 +138,7 @@ async function probeMetaToken(name, tokenEnv, expectedScope, expectedTargetEnv) 
         const isValid = !!d.is_valid;
         const scopes = d.scopes || [];
         const granular = d.granular_scopes || [];
-        const expectedTarget = expectedTargetEnv ? process.env[expectedTargetEnv] : null;
+        const expectedTarget = expectedTargetEnv ? (readEnvWithAliases(expectedTargetEnv) || process.env[expectedTargetEnv]) : null;
         let scopeOk = true;
         const scopeNotes = [];
         if (expectedScope) {
