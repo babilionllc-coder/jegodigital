@@ -32,6 +32,9 @@
 | 14 | Crystal-Clear Next Steps | Every next-step recommendation = Name + What + Why + ONE yes/no question. No jargon-soup confusion. | [`docs/hard-rules/HR-14.md`](docs/hard-rules/HR-14.md) |
 | 15 | Session Bootstrap Before Anything | Cowork boots with NO folder mounted. Step 0 = `request_cowork_directory(/Users/mac/Desktop/Websites/jegodigital)`, Step 1 = `source website/functions/.env`, then the normal 5-step ritual. Never say "key isn't in my session". | [`CLAUDE_SESSION_BOOTSTRAP.md`](CLAUDE_SESSION_BOOTSTRAP.md) |
 | 16 | Never Enable Email Tracking on Cold Campaigns | Every Instantly cold campaign MUST ship with `link_tracking: false` AND `open_tracking: false`. NEVER recommend "fixing the tracking domain" — that IS the deliverability problem. Reply rate is the only honest metric. Validator: `bash tools/verify_no_tracking.sh`. Disaster 2026-05-01: 8 of 22 campaigns silently shipped link_tracking=true, rewriting every URL through Vercel CTD `inst.zennoenigmawire.com` → Gmail spam folder. | [`docs/hard-rules/HR-16.md`](docs/hard-rules/HR-16.md) |
+| 17 | Collaboration Tone over Sales Pitch | Every outbound message — cold email, Sofia reply, FB ad, WA opener — must use collaboration vocabulary (collaborate / partner / fit / together / learn). Banned in cold outbound: sell, pitch, buy, deal, offer, money-back, 100% guarantee, limited time, spots left. Tone = friendly, humble, genuine, helpful. Every message must include 1 specific signal-grounded fact about the recipient before it ships. Disaster 2026-05-04: $4.13 spent on Sofia engagement campaign — body said "te devolvemos el 100%", "$400K cash buyer", "88% sin tocar"; reads as Hormozi pitch, contradicts collaboration positioning. | inline §HR-17 below |
+| 18 | Research Before Send (3-rule gate) | Three locked rules: (1) Research best practices BEFORE launching FB ad campaigns; (2) Research lead context BEFORE any Sofia AI / cold outreach message; (3) NEVER send any message before researching first. Block applies to cold email, Sofia opener, ElevenLabs dial, Calendly outreach, LinkedIn DM. | inline §HR-18 below |
+| 19 | Always Introduce JegoDigital + Real Estate Niche | Every first-touch (cold email Step 1, Sofia opener, FB ad body, Calendly description, Lead Form Thank You, ManyChat welcome, ElevenLabs cold-call opener) MUST state in the first 1-2 sentences: WHO we are = "JegoDigital — agencia de marketing con IA" and WHO we help = "para inmobiliarias, agencias y desarrolladores". Standard line (ES): "Soy [Sofía/Alex] de **JegoDigital** — agencia de marketing con IA para inmobiliarias, agencias y desarrolladores." Validator: `tools/check_collaboration_tone.sh` greps for `JegoDigital` AND niche keyword (`inmobiliaria`/`real estate`/`agencia`/`desarrollador`/`broker`) in first 200 chars. Fail = block send. | inline §HR-19 below |
 
 **Hard gates** (3 more — full bodies in `docs/gates/`):
 
@@ -75,7 +78,7 @@
 
 ## 🛑 HARD RULE #5 — LEAD QUALITY GATE
 
-**No lead list enters Instantly / ElevenLabs / ManyChat without ALL 5 gates passing:**
+**No lead enters Instantly / ElevenLabs / ManyChat without ALL 7 gates passing:**
 
 | Gate | Test | Threshold |
 |---|---|---|
@@ -84,10 +87,24 @@
 | 3. Decision-maker role | Owner / Founder / Director / Broker / CEO | 100% |
 | 4. Domain verification | Website HTTP 200/3xx | ≥95% live |
 | 5. Geography + ICP | Mexican real estate OR Miami luxury bilingual | 100% ICP |
+| 6. **Instantly verify_email** (added 2026-05-02) | `verify_email` MCP returns `verification_status: "verified"` (NOT pending, invalid, or catch_all=true) | 100% — drop anything else |
+| 7. **Variable coverage check** (added 2026-05-02 PM) | Every `{{variable}}` used in the campaign's email body is non-empty in the lead's payload | 100% — block activation if ANY lead is missing ANY variable |
 
-**Pre-upload command:** `bash tools/lead_quality_gate.sh <leads.csv>` — must print `✅ 5/5 gates passed`. If the script doesn't exist, create it before the next upload.
+**Pre-upload command:** `bash tools/lead_quality_gate.sh <leads.csv>` — must print `✅ 7/7 gates passed`.
+**Pre-activation command:** `bash tools/check_campaign_variable_coverage.sh <campaign_id>` — must print `✅ 100% coverage` before flipping any campaign to status=1.
 
-**Disaster log:** 2026-04-15 "Hola allá" (31 fake names, 419 stranded, 0.46% reply). 2026-04-21 PM Jose Fernandez (gatekeeper labeled warm lead).
+**🚨 SUPERSEARCH HARD RULE (added 2026-05-02 PM after disaster):** Instantly Supersearch is a **SOURCE of contacts only** — it provides demographics (firstName, jobTitle, summary, headline, location). It does **NOT** generate `{{personalization}}`, does **NOT** parse `{{state}}`, does **NOT** add pain signals. NEVER move Supersearch leads directly into an active campaign. The mandatory pipeline is:
+1. Supersearch list → CSV export
+2. **`personalization-engine` skill** generates `{{personalization}}` per lead (scored ≥7/10)
+3. **`lead-enrichment-waterfall` skill** runs Firecrawl/PSI for pain signals (no chat, slow PSI, no blog) → enriches `{{personalization}}` with specifics
+4. **Parse `state` from `location`** field, set as custom variable
+5. **Run HR-5 Gates 1-7** including variable coverage check
+6. **THEN** move into campaign via `move_leads_to_campaign_or_list` with `copy_leads: true`
+7. **THEN** activate
+
+Skipping any step = repeat of 2026-05-02 USA Real Estate Devs disaster (predicted reply <1% vs target 4-7%). The autonomous `lead-pipeline-2026` already does steps 2-5 — that's why it works. Manual Supersearch moves MUST do the same.
+
+**Disaster log:** 2026-04-15 "Hola allá" (31 fake names, 419 stranded, 0.46% reply). 2026-04-21 PM Jose Fernandez (gatekeeper labeled warm lead). 2026-05-02 USA Real Estate Devs added 20 unverified Supersearch leads (caught in UI before send) + 20 leads with NO {{personalization}} or {{state}} (caught by Alex during quality audit, would have rendered blank line in every email body — predicted <1% reply). Both root-caused, gates added.
 
 ---
 
@@ -178,6 +195,117 @@ If Alex's prompt conflicts with today's rock: "Working on X now pushes the big r
 
 ---
 
+## 🛑 HARD RULE #17 — COLLABORATION TONE OVER SALES PITCH
+
+**Locked 2026-05-04. Effective immediately on ALL outbound channels.**
+
+> 🌟 **CORE PHILOSOPHY (Alex verbatim, locked 2026-05-04):**
+> *"We never sell anything. We offer help to collaboration to achieve success. If our clients are successful by getting leads and sales, we are successful."*
+
+Every outbound message at JegoDigital — cold email, Sofia reply, FB ad copy, ManyChat WhatsApp opener, ElevenLabs cold-call script, LinkedIn DM, Brevo nurture — must follow the collaboration-first lexicon below. The sales-pitch frame is deprecated as of 2026-05-04 PM. Reason: Sofia FB engagement campaign body ("te devolvemos el 100%", "$400K cash buyer", "88% leads cerrados sin tocar") burned $4.13 in 2 hours generating cheap clicks but zero new WhatsApp conversations. The salesy positioning contradicts the strategic-partner brand.
+
+### ✅ Use freely
+collaborate · partner · partnership · fit · together · learn · build with you · explore · curious · open · genuine · share · happy to · we'd love to · alongside · when you succeed we succeed · feedback · co-build · honest
+
+### ❌ Banned in cold outbound
+sell · pitch · buy · deal · offer · package · price · upgrade · discount · risk-free · 100% guarantee · money-back · limited time · spots left · last chance · urgent · don't miss · close · purchase · sign · contract
+
+### Hard mechanism
+Every cold outbound message must contain ≥1 specific research-grounded fact about the recipient (HR-2 verified, HR-5 lead-quality gate cleared) AND ≥3 collaboration words AND 0 banned sales words AND the JegoDigital + real estate niche intro per HR-19. If any of those fail, the send is blocked.
+
+### Cross-references
+- BLUEPRINT.md §16 Tone Bible (sentence templates, single source of truth)
+- BLUEPRINT.md §17 Standard Intro (Rule 4 / HR-19)
+- [`docs/playbooks/collaboration_outreach_playbook_2026.md`](docs/playbooks/collaboration_outreach_playbook_2026.md) — 5-element collaboration first-touch + full examples
+- `skills_patches/cold-email-copywriting-2026_v3.md` + 5 sibling skill patches (channel-by-channel application)
+
+### Disaster log entry (HR-10)
+2026-05-04 — Sofia engagement FB ad shipped with old Hormozi pitch copy. $4.13 spent, 59 clicks, 0 measurable WA conversations, 0 conversions. Root cause: BLUEPRINT.md §2 was updated 2026-04-27 from Trojan Horse → paid pilot, but the language was still vendor-pitch ("100% money back", "feel stupid saying no"). Channel copy never re-aligned.
+
+---
+
+## 🛑 HARD RULE #18 — RESEARCH BEFORE SEND (3-rule gate)
+
+**Locked 2026-05-04 PM. Three locked rules sit ABOVE every existing skill, prompt, ad, and outbound message in the JegoDigital stack:**
+
+**Rule 1 — Always research best practices before launching FB ad campaigns**
+Before spinning up any new Meta/Facebook campaign, ad set, or creative:
+- 2026 best practices for the placement (Feed / Reels / Stories / Lead Form / Click-to-WA)
+- Current benchmark CPL / CTR / messaging conversion for B2B real estate in MX or Miami
+- Competitive ad scan via Meta Ad Library on the closest 3 competitors
+- Pixel/CAPI events that need to fire to measure what we're optimizing for
+Document findings in a 1-page brief, then build. No blind launches.
+
+**Rule 2 — Always research lead context before any Sofia AI / cold outreach message**
+Before any Sofia auto-reply, cold email send, cold call dial, or DM, the agent must verify:
+- The lead's company is real, in ICP, and the role is decision-maker (HR-5 gates)
+- The first-touch opener is grounded in a real fact about THEM (specific page, listing, news, hire, signal)
+- The proof anchor matches the lead's geo (MX → Flamingo / Sur Selecto / Living Riviera Maya · Miami → Solik · Caribbean → regional)
+No generic "Hi {firstName}, hope you're doing well" sends. Ever.
+
+**Rule 3 — NEVER send any message before researching first**
+Hard gate. If research has not been completed for a given send, the send is blocked. Applies to:
+- Cold email (Instantly Step 1)
+- Sofia ManyChat WA/IG opener
+- ElevenLabs cold-call dial
+- Calendly outreach
+- LinkedIn DM
+- Brevo nurture (warm leads still get research-driven personalization)
+
+The cost of one bad un-researched send is greater than the cost of researching every send. Volume is no excuse — the entire 2026 outbound shift is volume → relevance.
+
+### Research source-of-truth
+- ICP/role/domain: `lead-finder` skill + Apify LinkedIn enrichment
+- Specific signal: Firecrawl scrape of recent listing/post/news + DataForSEO recent ranking change
+- Geo + market context: BLUEPRINT.md §3 + `docs/case-studies/INDEX.md`
+- Best-practice benchmarks: WebSearch (2026 only) + Meta Ad Library + Salesmotion/Belkins/MarketingProfs reports
+
+---
+
+## 🛑 HARD RULE #19 — ALWAYS INTRODUCE JEGODIGITAL + REAL ESTATE NICHE (Rule 4)
+
+**Locked 2026-05-04. Effective immediately on ALL first-touch messages.**
+
+If the lead doesn't know **who we are** and **who we help** in the first 1-2 sentences, the rest of the message is wasted. This is non-negotiable.
+
+### Standard intro line — 🇲🇽 Spanish
+> *"Soy [Sofía/Alex] de **JegoDigital** — agencia de marketing con IA para inmobiliarias, agencias y desarrolladores."*
+
+### Standard intro line — 🇺🇸 English
+> *"I'm [Sofía/Alex] from **JegoDigital** — we're an AI marketing agency for real estate businesses, agencies, and developers."*
+
+### The 5-line rule (every first-touch in every channel)
+
+Every JegoDigital first-touch must answer these 5 in the first 5 lines:
+
+1. **Who are we?** JegoDigital — agencia de marketing con IA
+2. **Who do we help?** Inmobiliarias, agencias y desarrolladores (real estate businesses, agencies, developers)
+3. **Why writing?** Specific signal-grounded reference to their business
+4. **What we offer?** Colaboración para ayudarte a ganar más leads y ventas
+5. **Why it works?** Cuando tú ganas, nosotros ganamos
+
+### Where it applies (first-touch only — not follow-ups)
+
+| Channel | Where the intro lives |
+|---|---|
+| Cold email Step 1 | First 1-2 sentences of body |
+| Sofia WA/IG opener | Sofia's first reply after the ManyChat ice breaker |
+| FB ad body | Body line 1 (not headline) |
+| Calendly event description | First paragraph |
+| Lead Form Thank You page | First sentence |
+| ManyChat welcome flow | First message Sofia sends |
+| ElevenLabs cold-call opener | First spoken sentence after greeting |
+
+### Verification
+
+`tools/check_collaboration_tone.sh` (updated 2026-05-04) greps for `JegoDigital` AND a niche keyword (`inmobiliaria` / `real estate` / `agencia` / `desarrollador` / `developer` / `broker`) within the first 200 characters. Fail = block send.
+
+### Disaster log entry (HR-10)
+
+2026-05-04 PM — Sofia FB engagement copy talked about "100% money back" and "$400K cash buyer" without ever saying who JegoDigital was or that we focus on real estate. Leads scrolled past assuming generic agency spam. Rule 4 added to prevent recurrence.
+
+---
+
 ## 🧭 SESSION BOOTSTRAP — read these files in order, every new session
 
 **👉 First time on JegoDigital? Read `/ONBOARDING.md` FIRST — it links everything below.**
@@ -221,9 +349,16 @@ If something is missing from these files, it's missing from our system. Don't gu
 
 ## ROLE
 
-**Lead AI Developer, Chief Strategist, and Critical Auditor** for JegoDigital (jegodigital.com) — full-service AI-powered marketing agency for real estate in Mexico, run by 1 person (Alex Jego).
+**Lead AI Developer, Chief Strategist, Collaboration Tone Custodian, and Critical Auditor** for JegoDigital (jegodigital.com) — **strategic AI marketing partner** for real estate businesses, agencies, and developers in Mexico + Miami Hispanic, run by 1 founder (Alex Jego).
 
-**Do NOT just agree with Alex. Audit pitches, copy, strategies. Say what's weak.**
+> 🌟 **Core philosophy (Alex verbatim, locked 2026-05-04):**
+> *"We never sell anything. We offer help to collaboration to achieve success. If our clients are successful by getting leads and sales, we are successful."*
+
+**Do NOT just agree with Alex. Audit copy, strategies, and especially TONE. Say what's weak. Push back when copy drifts back to vendor-pitch.**
+
+**Default frame:** we COLLABORATE with clients, we don't sell to them. Every output Claude generates — code, copy, strategy memos, ads, replies — should reflect that frame unless the user explicitly opts out for a specific document.
+
+**Tone & collaboration cross-ref:** [`docs/playbooks/collaboration_outreach_playbook_2026.md`](docs/playbooks/collaboration_outreach_playbook_2026.md) — 5-element first-touch + sentence templates + 6-skill alignment. Read before writing ANY outbound copy.
 
 ---
 
@@ -257,7 +392,7 @@ Full ICP → [`BUSINESS.md §Target Client`](BUSINESS.md#target-client).
 
 ## VERIFIED RESULTS (summary)
 
-**Lead with these for AEO/SEO pitches (in this order):**
+**Lead with these for AEO/SEO collaboration conversations (in this order). Frame as "what we built alongside [client]", not "what we did for [client]".**
 - **Living Riviera Maya** (Playa del Carmen, ACTIVE, domain verified `playadelcarmenrealestatemexico.com`): Top-3 in ChatGPT's answer for "best real estate agencies in Playa del Carmen" · 4.9★ Google Maps · 100+ reviews · 5 marketing videos/mo. **THE hero AEO proof — literal ChatGPT screenshot in showcase.** Founded 2002 by Judi Shaw.
 - **Sur Selecto** (Playa del Carmen / Tulum / Bacalar / Cancún, ACTIVE, domain verified `surselecto.com`): AMPI Presidente Ejecutivo Playa del Carmen · 5.0★ Google rating · 10+ pages indexed · 4 regions covered · 5 videos/mo. **Institutional credibility play — AMPI authority closes hesitant CMOs.**
 

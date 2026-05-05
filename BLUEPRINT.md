@@ -1,7 +1,22 @@
 # JegoDigital — Master Business Blueprint
-**Version:** 2026-04-27 v1.1 · **Owner:** Alex Jego · **Maintained by:** Claude AI sessions
+**Version:** 2026-05-04 v1.2 · **Owner:** Alex Jego · **Maintained by:** Claude AI sessions
 **Read time:** ~14 min · **Status:** AUTHORITATIVE — single source of truth for any AI agent or human picking up this project
+**v1.2 changes (2026-05-04):** tone shift selling → collaboration. Replaced Hormozi 4-pillar pitch with 5-element collaboration first-touch (§2). Reframed funnel from "close" to "fit + collaboration" (§3). Renamed Cell-B from "Paid pilot test" to "Collaboration test" (§5). Added Acceleration Move 8 (tone propagation across 6 skills + 4 docs) to §13. New §16 Tone Bible. New §17 Standard Intro (Rule 4 — always introduce who we are + who we help). Source: Alex 2026-05-04 directive + 2026 B2B outreach research (Salesmotion, Belkins, MarketingProfs).
 **v1.1 changes:** added §2.5 Acceleration Layer (7 moves to pull $1M ARR forward 6-9 months), updated §8 trajectory with compressed timeline, added §13 acceleration priorities, v1.1 entry in §15.
+
+> 🌟 **CORE PHILOSOPHY (locked 2026-05-04 by Alex — verbatim):**
+> *"We never sell anything. We offer help to collaboration to achieve success. If our clients are successful by getting leads and sales, we are successful."*
+>
+> JegoDigital is an **AI marketing collaboration partner** for real estate businesses, agencies, and developers. Our success is TIED to client success — when they get more leads and sales, we win. We NEVER SELL — we offer help to collaborate.
+>
+> **The 5-line rule** — every first-touch must answer in the first 5 lines:
+> 1. **Who are we?** JegoDigital — agencia de marketing con IA
+> 2. **Who do we help?** Inmobiliarias, agencias y desarrolladores
+> 3. **Why writing?** (specific signal-grounded reference to their business)
+> 4. **What we offer?** Colaboración para ayudarte a ganar más leads y ventas
+> 5. **Why it works?** Cuando tú ganas, nosotros ganamos
+>
+> ---
 
 > **Read this first.** This blueprint consolidates business strategy, validated offer, dual-market plan, all 8 channel playbooks, KPIs, decision rules, and the 30-day controlled experiment. Every claim cites a research dossier. Every number is HR-0 compliant (live API or marked `[needs primary research]`).
 >
@@ -17,7 +32,11 @@
 
 **Who:** JegoDigital — 1-person AI marketing agency run by Alex Jego (jegoalexdigital@gmail.com, +52 998 202 3263, Cancún Mexico).
 
-**What:** Productized AI marketing for real estate agencies, brokers, and developers. 9 services delivered by an AI stack that lets one person operate like a 10-person agency. Client never knows it's AI-powered.
+**What:** JegoDigital is the **strategic AI marketing partner** for real estate agencies, brokers, and developers in Mexico + Miami Hispanic. We **collaborate** — not sell. 9 services delivered by an AI stack that lets one founder + one collaborator (the client) operate together like a 10-person agency. Clients see the human relationship; the AI stack stays behind the scenes.
+
+**Standard intro (Rule 4 — must appear in every first-touch):**
+- 🇲🇽 *"Soy [Sofía/Alex] de **JegoDigital** — agencia de marketing con IA para inmobiliarias, agencias y desarrolladores."*
+- 🇺🇸 *"I'm [Sofía/Alex] from **JegoDigital** — we're an AI marketing agency for real estate businesses, agencies, and developers."*
 
 **Who buys:**
 - 🇲🇽 **Mexican real estate agencies** (CDMX, Cancún, GDL, MTY, Playa, Tulum) — owners/directors, $40-150K MXN/mo agency revenue
@@ -30,23 +49,30 @@
 
 ---
 
-## §2. The validated offer (replaces deprecated Trojan Horse)
+## §2. The collaboration invitation (replaces deprecated Trojan Horse and salesy "paid pilot" framing)
 
-> ⚠️ **The "FREE setup" Trojan Horse model is DEPRECATED as of 2026-04-27.** Atlanta Ventures + 7 sources confirm paid pilots out-convert free pilots **4-6× in B2B services**. Hormozi $100M Offers requires anchored pricing + risk-reversal guarantee. Mexican broker income ($87-348K MXN/mo top tier) supports raised pricing in the value tier — but pricing tests must validate per-market response.
+> ⚠️ **Two prior frames are deprecated:**
+> 1. **The "FREE setup" Trojan Horse** (2026-04-27) — free filters tire-kickers; doesn't.
+> 2. **The Hormozi 100% money-back paid pilot pitch** (deprecated 2026-05-04) — too transactional. Reverses positioning to vendor-with-a-guarantee instead of strategic partner. Research (2026 Salesmotion + Belkins benchmarks) shows top-quartile B2B outreach now wins on **partnership framing and signal-grounded specificity**, not on offer mechanics.
+>
+> The new frame is a **collaboration invitation**: we partner with a small number of real estate companies each quarter to learn what works in their market and ship the AI stack alongside them. When they grow, we grow.
 
-### The pitch (every channel uses this):
+### The collaboration invitation (every channel uses this):
 
 **Spanish (MX):**
-> "Activamos un Pilot de 14 días. Si en 14 días no captura un lead real, devolvemos el 100% — y le dejamos el sistema instalado para siempre. Cero riesgo."
+> "Soy Alex de **JegoDigital** — agencia de marketing con IA para inmobiliarias, agencias y desarrolladores. Estamos colaborando con 5 inmobiliarias en Cancún este trimestre. La idea no es venderte — es trabajar 14 días contigo para ver si hay fit. Si lo que armamos te suma, seguimos. Si no, te queda el setup y aprendemos los dos. Cuando tú creces, nosotros crecemos. ¿Platicamos por WhatsApp?"
 
 **English (Miami):**
-> "We activate a 14-day pilot. If it doesn't capture a real lead in 14 days, we refund 100% — and the system stays installed forever. Zero risk."
+> "I'm Alex from **JegoDigital** — we're an AI marketing agency for real estate businesses, agencies, and developers. We're collaborating with 5 bilingual brokers this quarter. We're not pitching anything — we'd just like to work alongside you for 14 days to see if there's a fit. If what we build helps, we keep going. If not, the setup is yours and we both learn. When you succeed, we succeed. Open to a WhatsApp chat?"
 
-### The 4 Hormozi Grand Slam pillars (all present):
-1. **Skin in the game** — paid upfront filters tire-kickers
-2. **Concrete deliverable** — a real lead in 14 days (measurable, undeniable)
-3. **Zero downside** — full refund if it fails
-4. **"Feel stupid saying no"** — free system stays even if pilot fails
+### The 5 collaboration first-touch elements (every channel embeds these):
+1. **Acknowledge them** — reference something specific about their company (a listing, a region, a recent hire, a value they preach publicly). No "Hi {firstName}" generics.
+2. **Express interest** — say WHY their business is interesting to us in 1 sentence; not flattery, observation.
+3. **Mention partnership** — "we collaborate with 5 inmobiliarias / brokers each quarter."
+4. **Offer value** — explicit, small, no-strings: a 60-second audit, a Sofia walkthrough, a market scan, a Loom we recorded for THEM.
+5. **Soft CTA** — "open to chatting?" not "book a call now". WhatsApp first; Calendly fallback.
+
+> 🆕 **Rule 4 — Always introduce who we are + who we help.** Every first-touch leads with `JegoDigital — agencia de marketing con IA para inmobiliarias, agencias y desarrolladores` (or English equivalent). Lead doesn't know who we are or what we do = the pitch fails. See §17 below.
 
 ### The proof anchor (every channel mentions Flamingo):
 > Flamingo Real Estate (Cancún) — **+320% organic traffic, #1 Google Maps Cancún, 88% leads automated in <30 seconds, 4.4× search visibility, 3× citas booked, all in 90 days**
@@ -132,6 +158,11 @@ The validated paid-pilot offer (§2) closes the agency-retainer ladder. These 7 
 - **Display (anonymized aggregates only, refresh every 60s):** Sofia conversations handled today · average response time across all clients · leads qualified this week · audits delivered this week · live LLM citation count for client portfolio · current Google Maps positions for active clients (anonymized to "Cliente A / B / C")
 - **Backstops:** zero client-identifying data on the public page · aggregate counts only · all numbers HR-0 compliant (live Firestore + DataForSEO + ElevenLabs API reads, never cached or estimated). Built as a single Cloud Function + static HTML page.
 
+### Move 8 — Propagate collaboration tone across the entire stack (P0 this week, added 2026-05-04)
+- **Why:** the offer in BLUEPRINT changed but the channels still talk like salespeople. The discord burns trust on first contact. Disaster 2026-05-04: Sofia FB engagement campaign body shipped with "te devolvemos el 100%", "$400K cash buyer", "88% leads cerrados sin tocar" → $4.13 spent, 0 measurable WhatsApp conversations, salesy tone contradicted strategic-partner positioning.
+- **Action:** patch 6 skills + 4 docs in one pass to align tone end-to-end (`cold-email-copywriting-2026` v3, `instantly-cold-outreach` v4, `manychat-sofia` v2, `meta-ads-jegodigital` v2, `brevo-email-marketing` v2, `calendly-follow-up` v2 · BLUEPRINT.md, SYSTEM.md, CLAUDE.md, plus new playbook `docs/playbooks/collaboration_outreach_playbook_2026.md`).
+- **Verify:** spot-check 5 random outbound messages from the next 48h — each must use ≥3 collaboration words, 0 banned sales words (see §16 tone bible), AND include the standard JegoDigital intro per Rule 4 (§17).
+
 ### 30-60-90 day sequencing for the acceleration layer
 
 | Window | Ship |
@@ -165,6 +196,9 @@ Compression source: (a) developer contracts at $200K MXN avg × 6/yr = $1.2M MXN
 | **Sales cycle** | 30-90 days | 14-45 days |
 | **Y1 client target** | 25-30 | 8-12 |
 | **Y1 ARR contribution** | $80-150K USD | $200-360K USD |
+
+**Funnel framing (collaboration-first):**
+Lead → discovery (Sofia learns what they care about) → collaboration invitation (Alex on WhatsApp) → 14-day partnership pilot → ongoing collaboration. Words to avoid: "close", "sale", "deal". Words to use: "fit", "work together", "build alongside", "learn from".
 
 **Never mix the funnels.** Spanish-only for MX prospects. English-primary or bilingual for Miami. Different campaigns, different time zones, different pricing tiers.
 
@@ -376,15 +410,15 @@ Run 4 cells in parallel, **2 per market**, on the existing 5 Instantly campaigns
 
 | Cell | Channel | Offer | Target audience |
 |---|---|---|---|
-| **MX-A — Control** | Instantly + cold call | Free setup (deprecated copy still on some legacy campaigns) | 200 leads |
-| **MX-B — Paid pilot test** | Instantly + cold call | Paid pilot 14d + 100% money-back — NO PRICE in email | 200 leads |
+| **MX-A — Sales control** | Instantly + cold call | Old paid-pilot pitch ("100% money back if no lead in 14 days") | 200 leads |
+| **MX-B — Collaboration test** | Instantly + cold call | "We collaborate with 5 inmobiliarias / quarter — open to a fit chat?" | 200 leads |
 
 ### Miami cells
 
 | Cell | Channel | Offer | Target audience |
 |---|---|---|---|
-| **MIA-A — Control** | Instantly bilingual | Free 60s audit | 50 leads |
-| **MIA-B — Paid pilot test** | Instantly bilingual | 14-day pilot + 100% money-back — NO PRICE in email | 50 leads |
+| **MIA-A — Sales control** | Instantly bilingual | Old paid-pilot pitch ("14-day pilot + 100% money-back") | 50 leads |
+| **MIA-B — Collaboration test** | Instantly bilingual | "We collaborate with 5 bilingual brokers / quarter — open to a fit chat?" | 50 leads |
 
 ### 3 KPIs to track per cell
 
@@ -669,12 +703,77 @@ When budget grows to MX$15K/mo, add Display retargeting ($50/day) + scale Demand
 
 ---
 
+## §16. Tone Bible — collaboration-first lexicon
+
+**Locked 2026-05-04. Applies to ALL outbound channels and ALL future copy.**
+
+### ✅ Use freely
+collaborate · partner · partnership · fit · together · learn · build with you · explore · curious · open · genuine · share · happy to · we'd love to · alongside · when you succeed we succeed · feedback · co-build · honest
+
+### ❌ Banned in cold outbound (allowed only on explicit Calendly call)
+sell · pitch · buy · deal · offer · package · price · upgrade · discount · risk-free · 100% guarantee · money-back · limited time · spots left · last chance · urgent · don't miss · close · purchase · sign · contract
+
+### Sentence templates
+
+| Old (sales) | New (collaboration) |
+|---|---|
+| "Buy our service" | "Partner with us this quarter" |
+| "We close 88% of leads" | "Last quarter we collaborated with Flamingo and they automated 88% of inbound" |
+| "Limited time — 5 spots" | "We work with 5 companies per quarter; this is one of them" |
+| "Risk-free 100% money back" | "If it's not a fit, no contract holds you" |
+| "Sales demo" | "15-min collaboration chat" |
+| "Get a quote" | "Let's see if there's a fit" |
+| "Convert leads into closings" | "Help your team focus on the leads that matter" |
+
+### Hard rule
+Every outbound message gets one **research-grounded specific** about the recipient before it ships (HR-2 + HR-18 compliant). No specifics → don't send.
+
+---
+
+## §17. Standard intro — "Always introduce who we are + who we help" (Rule 4)
+
+**Locked 2026-05-04. Effective immediately on ALL first-touch messages.**
+
+Every first-touch (cold email Step 1, Sofia WA opener, FB ad copy, Calendly invite, Lead Form Thank You, ManyChat WA welcome) MUST clearly state two things in the first 1-2 sentences:
+
+1. ✅ **WHO we are:** "JegoDigital — agencia de marketing con IA" / "JegoDigital — AI marketing agency"
+2. ✅ **WHO we help:** "para inmobiliarias, agencias y desarrolladores" / "for real estate businesses, agencies, and developers"
+
+### Standard intro line — 🇲🇽 Spanish
+> "Soy [Sofía/Alex] de **JegoDigital** — agencia de marketing con IA para inmobiliarias, agencias y desarrolladores."
+
+### Standard intro line — 🇺🇸 English
+> "I'm [Sofía/Alex] from **JegoDigital** — we're an AI marketing agency for real estate businesses, agencies, and developers."
+
+### Why this rule
+
+If the lead doesn't know who we are or what niche we serve in the first sentence, the rest of the message is wasted. Disaster log entry 2026-05-04 PM: Sofia FB engagement copy talked about "100% money back" and "$400K cash buyer" without ever saying who JegoDigital was or that we focus on real estate — leads scrolled past assuming generic agency spam.
+
+### Application
+
+| Channel | Where the intro lives |
+|---|---|
+| Cold email Step 1 | First 1-2 sentences of body, before the personalization line |
+| Sofia WA/IG opener | Sofia's first reply (after the ManyChat ice breaker fires) |
+| FB ad headline + body | Body line 1; not headline (saves headline for hook) |
+| Calendly event description | First paragraph of event description |
+| ManyChat welcome flow | First message Sofia sends |
+| Lead Form Thank You page | First sentence of thank-you copy |
+| ElevenLabs cold-call opener | First spoken sentence after greeting |
+
+### Verification
+
+Tone-audit script (`tools/check_collaboration_tone.sh`) updated 2026-05-04 to also grep for `JegoDigital` AND (`inmobiliaria` OR `real estate` OR `agencia` OR `desarrollador` OR `developer` OR `broker`) within the first 200 characters. Fail = block send.
+
+---
+
 ## §15. Document version control
 
 | Version | Date | Author | Major changes |
 |---|---|---|---|
 | 1.0 | 2026-04-27 | Claude (this session) | Initial consolidation of validated offer + dual-market + 8 channels + experiment plan + roadmap |
 | 1.1 | 2026-04-27 PM | Claude (acceleration session) | Added §2.5 Acceleration Layer (7 moves: Lanzamiento Preventa · vs-Trichter counter-position · AEO citation moat · Garantía 60s · Reporte AEO 2026 rebrand · public Performance Tier SKUs · /observatorio dashboard). Added compressed roadmap math to §8 (12-15 mo vs 24 mo). Added 18-item §13 acceleration priority queue (P0/P1/P2 across 30/60/90 days). Source: 2026-04-27 PM strategic research synthesis (Trichter Consulting + Digital Piloto teardown + AEO 2026 statistics + LATAM WhatsApp conversion data + Riviera Maya preventa pipeline scan). |
+| 1.2 | 2026-05-04 PM | Claude (collaboration session) | **Tone shift: selling → collaboration.** Replaced Hormozi 4-pillar pitch with 5-element collaboration first-touch (§2). Reframed funnel from "close" to "fit + collaboration" (§3). Renamed cells in §5 experiment from "Paid pilot test" to "Collaboration test". Added Acceleration Move 8 to §13 (tone propagation across 6 skills + 4 docs). Added new §16 Tone Bible with use/avoid lexicon and sentence templates. Added new §17 Standard Intro (Rule 4 — every first-touch states WHO we are: JegoDigital AI marketing agency, and WHO we help: real estate businesses/agencies/developers). Source: Alex 2026-05-04 directive + 2026 B2B outreach research (Salesmotion, Belkins, MarketingProfs) + disaster log entry on Sofia FB engagement campaign salesy copy ($4.13 spent / 0 conversions). |
 
 **Update cycle:** Quarterly minimum. Sooner if any P0 / Hard-pivot trigger fires (see §10).
 

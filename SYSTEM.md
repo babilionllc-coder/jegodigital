@@ -9,7 +9,83 @@ dependency that keeps the business running without Alex touching a laptop.**
 > When anything ships, changes, breaks, or gets deprecated — update this file first,
 > commit, then touch code.
 
-**Last updated:** 2026-04-22 PM · **Owner:** Alex Jego + Claude · **Project:** jegodigital-e02fb
+**Last updated:** 2026-05-04 PM · **Owner:** Alex Jego + Claude · **Project:** jegodigital-e02fb
+
+---
+
+## §0 — Three locked operating rules + Rule 4 (Hard Gate, 2026-05-04)
+
+> 🌟 **CORE PHILOSOPHY (Alex verbatim, locked 2026-05-04):**
+> *"We never sell anything. We offer help to collaboration to achieve success. If our clients are successful by getting leads and sales, we are successful."*
+
+These rules sit ABOVE every other automation, skill, prompt, and message in the JegoDigital stack:
+
+1. **Always research best practices before launching FB ad campaigns.** No blind ad spend. 1-page research brief required.
+2. **Always research lead context before any Sofia AI / cold outreach message.** No "Hi {firstName}" generics. Specific signal required.
+3. **NEVER send any message before researching first.** Hard block on un-researched outbound.
+4. **Always introduce JegoDigital + real estate niche.** Every first-touch states "JegoDigital — agencia de marketing con IA para inmobiliarias, agencias y desarrolladores" in first 1-2 sentences. (CLAUDE.md HR-19)
+
+If a workflow tries to send without research OR without the JegoDigital + niche intro, it must error and route to Alex.
+
+---
+
+## §0.1 — Tone of every system output (collaboration-first)
+
+JegoDigital is a strategic partner, not a vendor. Every system output (logs, errors, alerts, dashboards, automated emails) reflects this where externally visible:
+
+- **Internal dev logs:** technical tone is fine
+- **Client-facing automated comms** (Brevo, Calendly reminders, Sofia replies, FB ad copy): must use collaboration vocabulary per CLAUDE.md HR-17 AND include the JegoDigital + niche intro per HR-19
+
+**Tone-audit script** (`tools/check_collaboration_tone.sh`) is gate-blocking on:
+- ≥3 collaboration words from the lexicon
+- 0 banned sales words (sell, pitch, buy, deal, money-back, 100% guarantee, limited time, spots left)
+- ≥1 research-grounded specific about the recipient
+- `JegoDigital` + niche keyword in first 200 characters (Rule 4 / HR-19)
+
+---
+
+## §0.2 — Logging conventions for client-facing messages
+
+All client-facing automated messages must log to Firestore `messages_audit/<channel>/<YYYY-MM-DD>/` with:
+- `tone_score`: 0-10 (auto-computed: count collaboration words / banned words)
+- `research_grounded`: bool (was a specific recipient signal included?)
+- `intro_present`: bool (JegoDigital + niche keyword in first 200 chars — HR-19 / Rule 4)
+- `language`: ES/EN/auto
+- `sender`: human/sofia/instantly_agent
+- `triggered_by`: campaign_id / flow_id / manual
+
+If `tone_score < 6` OR `research_grounded == false` OR `intro_present == false` → block + alert Alex.
+
+---
+
+## §0.3 — Honesty contract
+
+System never:
+- Sends a message claiming the system is human when asked directly (Sofia transparency rule)
+- Quotes price in writing (HR-0 + pricing rule)
+- Fabricates numbers (HR-0)
+- Marks a deploy/done without proof (HR-6)
+- Skips research before send (HR-18)
+- Ships a first-touch missing the JegoDigital + niche intro (HR-19 / Rule 4)
+- Uses banned sales words in cold outbound (HR-17)
+
+System always:
+- Cites live API for any number
+- Includes the recipient's specific signal in cold outbound
+- Uses collaboration vocabulary in client-facing copy
+- Introduces JegoDigital + real estate niche in every first-touch (Rule 4)
+- Logs to Firestore for audit
+- Surfaces blockers + alternatives, never says "we can't" (HR-11)
+
+---
+
+## §0.4 — New cron jobs (added 2026-05-04)
+
+| Job | Schedule | What | Owner |
+|---|---|---|---|
+| `sofiaResponseTimeMonitor` | Continuous | Logs every Sofia first-touch for HR-9 / Garantía 60s SLA proof | `manychat-sofia` skill v2 |
+| `collaborationHealthMonthly` | 1st of month 09:00 | Pulls 4 collaboration health KPIs (NPS pulse + co-build velocity + reciprocal references + tone-audit pass rate) | new Cloud Function |
+| `toneAuditDailyDigest` | Daily 22:00 CDMX | Runs `check_collaboration_tone.sh` across last 24h of cold-email + Sofia + FB sends, posts Slack digest with pass/fail count | GH Actions |
 
 ---
 
