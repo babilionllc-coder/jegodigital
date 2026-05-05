@@ -1,7 +1,12 @@
 # JegoDigital — ACCESS Registry (source of truth for ALL credentials)
 
-**Last updated:** 2026-04-23 PM (added NOTION_* secrets 41-42) | **Maintained by:** Claude AI + Alex Jego
-**GitHub Secrets total:** 42 (live-verified via `GET /actions/secrets?per_page=100` on 2026-04-23 PM — every row in the registry below maps 1:1 to a secret that actually exists in `babilionllc-coder/jegodigital`) | **Repo:** `babilionllc-coder/jegodigital`
+**Last updated:** 2026-05-05 PM (re-verified count after Meta-tokens disaster) | **Maintained by:** Claude AI + Alex Jego
+**GitHub Secrets total:** **88** (live-verified via `GET /actions/secrets?per_page=100` on 2026-05-05 PM — registry below dates from 2026-04-23 and lists only 42; **the table is stale by 46 entries**. The 46 newer secrets are enumerated in [`agent/memory/access_truth_jegodigital.md`](agent/memory/access_truth_jegodigital.md) until a full rewrite of this table lands. **For current ground truth always trust the GH Secrets API over this file.**)
+**GitHub Variables total:** 0 (Repository Variables endpoint returns total_count=0 — everything is a Secret) | **Repo:** `babilionllc-coder/jegodigital`
+
+> ⚠️ **2026-05-05 STALE NOTICE.** The registry below was accurate at 42 secrets on 2026-04-23. Since then 46 more were added (Meta/WA/Slack channels/TikTok/Apify/HeyGen/Sync/Reddit/Notion/Google Ads/Brevo extensions). The full 88-name list and the canonical→actual name-translation table (`META_WA_CLOUD_TOKEN` ↔ `WA_CLOUD_ACCESS_TOKEN` etc.) are in `agent/memory/access_truth_jegodigital.md`. **Read that file FIRST when investigating any "credential missing" claim** (HR-2 / Rule 16). The 4-step investigation algorithm is documented there. Asking Alex to confirm a credential's existence without first checking ACCESS.md AND the GH Secrets API = Rule 16 violation.
+
+> 🔴 **Disaster 2026-05-05 PM that triggered this notice.** Claude reported "META_WA_CLOUD_TOKEN + META_GRAPH_TOKEN are unset" based purely on `tokenWatchdog`'s daily critical alarm. Alex corrected — both tokens have been in GH Secrets for weeks under names `WA_CLOUD_ACCESS_TOKEN` and `META_PAGE_ACCESS_TOKEN`. Fixed structurally in the same session: tokenWatchdog ENV_ALIASES extended (commit `06bdf0f9`), deploy.yml heredoc adds FB_APP_SECRET + WA_CLOUD_*, calendlyBriefingPack.js pushed to fix codebase-load failure (commit `12dbca3a`), agent/memory/access_truth_jegodigital.md locked, mistakes_ledger.md updated.
 
 > This file is the CONTRACT that `envAudit` Cloud Function enforces every morning at 6am UTC.
 > Every credential used anywhere in JegoDigital lives in GitHub Secrets AND is documented here.
@@ -129,6 +134,11 @@ These are referenced in code but NOT required. The code handles missing values g
 
 ## 📝 CHANGELOG
 
+- **2026-05-05 PM** — **GH Secrets re-counted: 42 → 88** (live-verified via `GET /actions/secrets?per_page=100`). The 42 documented below are correct; the 46 newer entries are enumerated in [`agent/memory/access_truth_jegodigital.md`](agent/memory/access_truth_jegodigital.md) (broken out by service). Full ACCESS.md table rewrite is on the next session's queue. Triggering event: Claude claimed META_WA_CLOUD_TOKEN + META_GRAPH_TOKEN were "unset" without first checking either ACCESS.md or the GH Secrets API; Alex pushed back. **Structural fixes shipped this session:**
+  - **commit `06bdf0f9`** — `tokenWatchdog.js` ENV_ALIASES extended for `META_APP_ID`→`FB_APP_ID`, `META_APP_SECRET`→`FB_APP_SECRET`, `WHATSAPP_BUSINESS_ACCOUNT_ID`→`WA_CLOUD_WABA_ID`, `META_AD_ACCOUNT_ID`→`FB_AD_ACCOUNT_ID`. `deploy.yml` heredoc now injects `FB_APP_SECRET`, `WA_CLOUD_ACCESS_TOKEN`, `WA_CLOUD_WABA_ID`, `WA_CLOUD_VERIFY_TOKEN`, `WA_CLOUD_PHONE_NUMBER_ID`, `WHATSAPP_CLOUD_API_TOKEN`.
+  - **commit `12dbca3a`** — pushed `website/functions/calendlyBriefingPack.js` (existed locally, missing from origin/main). Diagnosed via deploy log showing `MODULE_NOT_FOUND` at `index.js:2386` — codebase failed to load on every deploy since the require was added, silently masked by `|| echo` in the workflow's batch retry steps. **This means many recent commits to main never actually deployed.** All future deploys are unblocked.
+  - `agent/memory/access_truth_jegodigital.md` — new permanent reference enumerating all 88 secrets + 4-step investigation algorithm + canonical→actual name translation table. Indexed in `MEMORY.md`.
+  - `agent/memory/mistakes_ledger.md` — 2026-05-05 PM entry documenting the Rule 16 violation pattern + permanent prevention.
 - **2026-04-20** — Full audit + reconciliation complete. GH Secrets total 28→37.
   - Pushed 6 previously-stranded secrets: `IG_GRAPH_TOKEN`, `MANYCHAT_API_KEY`, `ALEX_PERSONAL_PHONE`, `SEED_SECRET`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
   - Pushed 3 newly-backed-up secrets: `OPENAI_API_KEY`, `PEXELS_API_KEY`, `FIREBASE_ADMIN_SA_JSON`
