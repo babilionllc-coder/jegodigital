@@ -40,13 +40,42 @@ function normalizeWa(num) {
   return String(num).replace(/[^\d]/g, '');
 }
 
-async function sendText({ to, body }) {
+async function sendText({ to, body, leadId, userInitiated = true, firstTouch = false }) {
   if (!TOKEN)
     return { ok: false, status: 0, error: 'WA_CLOUD_ACCESS_TOKEN missing' };
   const phone = normalizeWa(to);
   if (!phone) return { ok: false, status: 0, error: 'invalid_to_number' };
   if (!body || typeof body !== 'string')
     return { ok: false, status: 0, error: 'empty_body' };
+
+  // ---------- Compliance gate (sofia_wa channel) ----------
+  // Free-form text only valid inside the 24h conversation window — userInitiated
+  // defaults to TRUE (lead messaged us first). Gates 1-3 honor that. Gates 4-7
+  // always run. Kill switch: env COMPLIANCE_GATE_ENFORCE=false.
+  try {
+    const { complianceGate } = require('./complianceGate');
+    const gate = await complianceGate(
+      {
+        to,
+        body,
+        sender: PHONE_NUMBER_ID || '+19783967234',
+        leadId: leadId || null,
+        userInitiated,
+        firstTouch,
+      },
+      'sofia_wa'
+    );
+    if (!gate.pass) {
+      return {
+        ok: false,
+        status: 0,
+        error: `compliance_block:${gate.reason}`,
+        compliance: gate,
+      };
+    }
+  } catch (e) {
+    // Gate errors must not break valid user-initiated work — log but proceed.
+  }
 
   const url = `https://graph.facebook.com/${GRAPH_VERSION}/${PHONE_NUMBER_ID}/messages`;
   const payload = {

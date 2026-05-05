@@ -2893,3 +2893,27 @@ exports.flamingoDailyDigest    = flamingoCRMOpsMod.flamingoDailyDigest;
 exports.flamingoHotLeadAlert   = flamingoCRMOpsMod.flamingoHotLeadAlert;
 exports.flamingoFollowUpCron   = flamingoCRMOpsMod.flamingoFollowUpCron;
 exports.flamingoCRMOpsOnDemand = flamingoCRMOpsMod.flamingoCRMOpsOnDemand;
+
+// =====================================================================
+// 2026-05-05 — Infra/Safety AI agents (Cowork build, Claude)
+//   - complianceGate: 7-gate enforcer + daily 8am digest cron
+//   - gapCloser:      every-6h funnel scan
+//   - brevoToFacebookCASync: daily 03:00 UTC Brevo -> FB CA mirror
+// All three honor HR-6 (proof) and HR-24 (Telegram + Slack).
+// Wired into:
+//   * whatsappCloudSend.sendText (Sofia WA replies — sofia_wa channel)
+//   * instantlyReplyWatcher (Brevo nurture Track A enroll — cold_email channel)
+//   * metaCreateAd module (any future FB ad creation — fb_ad channel)
+// =====================================================================
+const complianceGateMod = require('./complianceGate');
+exports.complianceGateDailyDigest         = complianceGateMod.complianceGateDailyDigest;
+exports.complianceGateDailyDigestOnDemand = complianceGateMod.complianceGateDailyDigestOnDemand;
+
+const gapCloserMod = require('./gapCloser');
+exports.gapCloser         = gapCloserMod.gapCloser;
+exports.gapCloserOnDemand = gapCloserMod.gapCloserOnDemand;
+
+const brevoToFacebookCASyncMod = require('./brevoToFacebookCASync');
+exports.brevoToFacebookCASync         = brevoToFacebookCASyncMod.brevoToFacebookCASync;
+exports.brevoToFacebookCASyncOnDemand = brevoToFacebookCASyncMod.brevoToFacebookCASyncOnDemand;
+
