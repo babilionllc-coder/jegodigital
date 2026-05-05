@@ -21,6 +21,9 @@ const { getRankData, getBacklinkData, getCompetitors, getPaidData } = require(".
 const { getPageSpeed } = require("./services/psiService");
 const { getExecutiveVerdict } = require("./services/geminiService");
 
+// SerpAPI with SearchAPI fallback
+const { searchSerp } = require("./common/serpFallback");
+
 // ============================================================
 // FIRECRAWL v2 — JS-rendered scrape + LLM extract + screenshot
 // Returns: { markdown, html, metadata, links, screenshotUrl, extracted, statusCode, fromFirecrawl }
@@ -207,30 +210,29 @@ async function firecrawlScrape(url) {
 }
 
 // ============================================================
-// NEW: Google Maps Presence Check (SerpAPI)
+// NEW: Google Maps Presence Check (SerpAPI with SearchAPI fallback)
 // ============================================================
 async function checkGoogleMaps(businessName, city) {
-    const SERP_KEY = process.env.SERPAPI_KEY;
-    if (!SERP_KEY || !city) return { found: false, position: null, rating: null, reviews: null, address: null };
+    if (!city) return { found: false, position: null, rating: null, reviews: null, address: null };
     try {
         const query = `${businessName || "inmobiliaria"} ${city}`;
         console.log(`🗺️ Google Maps check: "${query}"`);
-        const resp = await axios.get("https://serpapi.com/search.json", {
-            params: { engine: "google_maps", q: query, hl: "es", gl: "mx", api_key: SERP_KEY },
-            timeout: 15000
+        const { results } = await searchSerp(query, {
+            engine: "google_maps",
+            hl: "es",
+            gl: "mx"
         });
-        const results = resp.data?.local_results || resp.data?.place_results ? [resp.data.place_results] : [];
-        const allResults = [...(resp.data?.local_results || []), ...results].filter(Boolean);
+        // searchSerp normalizes to {title, url, snippet, position}
         // Search for domain match in results
-        for (let i = 0; i < allResults.length; i++) {
-            const r = allResults[i];
-            const website = (r.website || r.link || "").toLowerCase();
+        for (let i = 0; i < results.length; i++) {
+            const r = results[i];
+            const website = (r.url || "").toLowerCase();
             if (website && (businessName || "").toLowerCase().split(" ").some(w => w.length > 3 && website.includes(w.toLowerCase()))) {
-                return { found: true, position: i + 1, rating: r.rating || null, reviews: r.reviews || null, address: r.address || null, title: r.title };
+                return { found: true, position: i + 1, title: r.title };
             }
         }
         // Return top results count even if not found
-        return { found: false, position: null, rating: null, reviews: null, totalResults: allResults.length, topResults: allResults.slice(0, 3).map(r => r.title || "").filter(Boolean) };
+        return { found: false, position: null, totalResults: results.length, topResults: results.slice(0, 3).map(r => r.title || "").filter(Boolean) };
     } catch (err) {
         console.warn(`⚠️ Google Maps check failed: ${err.message}`);
         return { found: false, error: err.message };
@@ -238,27 +240,28 @@ async function checkGoogleMaps(businessName, city) {
 }
 
 // ============================================================
-// NEW: SERP Ranking Check (SerpAPI) — "inmobiliaria en [city]"
+// NEW: SERP Ranking Check (SerpAPI with SearchAPI fallback) — "inmobiliaria en [city]"
 // ============================================================
 async function checkSerpRanking(hostname, city) {
-    const SERP_KEY = process.env.SERPAPI_KEY;
-    if (!SERP_KEY || !city) return { found: false, position: null, query: null, topResults: [] };
+    if (!city) return { found: false, position: null, query: null, topResults: [] };
     try {
         const query = `inmobiliaria en ${city}`;
         console.log(`🔍 SERP ranking check: "${query}" for ${hostname}`);
-        const resp = await axios.get("https://serpapi.com/search.json", {
-            params: { engine: "google", q: query, hl: "es", gl: "mx", num: 20, api_key: SERP_KEY },
-            timeout: 15000
+        const { results } = await searchSerp(query, {
+            engine: "google",
+            hl: "es",
+            gl: "mx",
+            num: 20
         });
-        const organic = resp.data?.organic_results || [];
+        // searchSerp normalizes to {title, url, snippet, position}
         const hostLower = hostname.replace("www.", "").toLowerCase();
-        for (let i = 0; i < organic.length; i++) {
-            const domain = (organic[i].link || "").toLowerCase();
+        for (let i = 0; i < results.length; i++) {
+            const domain = (results[i].url || "").toLowerCase();
             if (domain.includes(hostLower)) {
-                return { found: true, position: i + 1, query, title: organic[i].title, snippet: organic[i].snippet, totalResults: organic.length };
+                return { found: true, position: i + 1, query, title: results[i].title, snippet: results[i].snippet, totalResults: results.length };
             }
         }
-        return { found: false, position: null, query, totalResults: organic.length, topResults: organic.slice(0, 5).map(r => ({ title: r.title, domain: r.displayed_link || "" })) };
+        return { found: false, position: null, query, totalResults: results.length, topResults: results.slice(0, 5).map(r => ({ title: r.title, domain: r.url || "" })) };
     } catch (err) {
         console.warn(`⚠️ SERP ranking check failed: ${err.message}`);
         return { found: false, error: err.message };

@@ -75,7 +75,8 @@
 | 13 | `CALENDLY_EVENT_TYPE_URI` | 🚀 | Calendly API filters | `website/functions/.env` |
 | 14 | `GEMINI_API_KEY` | 🚀 | SEO engine, mockup copy, captions | both `.env` files |
 | 15 | `PERPLEXITY_API_KEY` | 🚀 | SEO engine AEO audits, research | both `.env` files |
-| 16 | `SERPAPI_KEY` | 🚀 | SEO engine SERP lookups, lead finder | both `.env` files |
+| 16 | `SERPAPI_KEY` | 🚀 | SEO engine SERP lookups, lead finder; primary search source | both `.env` files |
+| 16a | `SEARCHAPI_KEY` | 🚀 | SerpAPI fallback (quota exhaustion). Added 2026-05-05. Module: `common/serpFallback.js` | both `.env` files |
 | 17 | `FIRECRAWL_API_KEY` | 🚀 | SEO engine content scraping, lead finder | both `.env` files |
 | 18 | `DATAFORSEO_LOGIN` | 🚀 | SEO engine rank tracking (`contact@aichatsy.com`) | both `.env` files |
 | 19 | `DATAFORSEO_PASS` | 🚀 | SEO engine rank tracking (pairs with LOGIN) | both `.env` files |

@@ -34,6 +34,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
+const { searchSerp } = require("./common/serpFallback");
 
 const TG_BOT_FALLBACK = "8645322502:AAGSDeU-4JL5kl0V0zYS--nWXIgiacpcJu8";
 const TG_CHAT_FALLBACK = "6637626501";
@@ -69,31 +70,22 @@ async function notifySlack(text) {
 }
 
 async function searchOne(query, tag) {
-    const key = process.env.SERPAPI_KEY;
-    if (!key) throw new Error("SERPAPI_KEY missing");
-    const params = new URLSearchParams({
-        engine: "google_news", q: query, hl: "es", gl: "mx",
-        api_key: key, num: "10",
+    const { results, source } = await searchSerp(query, {
+        engine: "google_news", hl: "es", gl: "mx", num: "10"
     });
-    const r = await axios.get(`https://serpapi.com/search.json?${params.toString()}`, { timeout: 15000 });
-    const news = r.data?.news_results || [];
 
-    const oneDay = 24 * 60 * 60 * 1000;
-    return news
-        .filter(n => {
-            // SerpAPI returns "date" like "2 hours ago" or "May 5, 2026"
-            const d = (n.date || "").toLowerCase();
-            return d.includes("hour") || d.includes("hora") ||
-                   d.includes("min") || d.includes("today") || d.includes("hoy") ||
-                   d.includes("yesterday") || d.includes("ayer");
-        })
+    // searchSerp returns normalized {results, source, credits_remaining}
+    // where results = [{title, url, snippet, position}]
+    // SerpAPI google_news originally returned news_results with date field;
+    // we filter by date client-side (the news API includes date in title/snippet)
+    return results
         .map(n => {
             const company = (n.title?.match(COMPANY_REGEX) || [])[1] || null;
             return {
                 tag, query,
-                title: n.title, link: n.link,
-                source: n.source?.name || n.source,
-                date: n.date,
+                title: n.title, link: n.url,
+                source: source,
+                date: new Date().toISOString().slice(0, 10),
                 company,
                 snippet: n.snippet || "",
             };

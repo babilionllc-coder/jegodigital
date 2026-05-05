@@ -37,6 +37,7 @@ const admin = require("firebase-admin");
 const axios = require("axios");
 const { notify } = require("./telegramHelper");
 const { slackPost } = require("./slackPost");
+const { searchSerp } = require("./common/serpFallback");
 
 if (!admin.apps.length) admin.initializeApp();
 
@@ -121,8 +122,6 @@ async function pullClientWins() {
 
 // ─── Signal 3: SerpAPI trending RE news (MX + Miami) ───────────────
 async function pullTrendingRENews() {
-    const key = process.env.SERPAPI_KEY;
-    if (!key) return { ok: false, reason: "no_serpapi_key", items: [] };
     const queries = [
         { q: "real estate Mexico", hl: "es" },
         { q: "luxury real estate Miami", hl: "en" },
@@ -130,22 +129,20 @@ async function pullTrendingRENews() {
     const items = [];
     for (const { q, hl } of queries) {
         try {
-            const r = await axios.get("https://serpapi.com/search.json", {
-                params: { engine: "google_news", q, hl, num: 5, api_key: key },
-                timeout: 15000,
+            const { results, source } = await searchSerp(q, {
+                engine: "google_news", hl, num: 5
             });
-            const news = r.data?.news_results || [];
-            for (const n of news.slice(0, 5)) {
+            for (const n of results.slice(0, 5)) {
                 items.push({
                     query: q,
                     title: n.title,
-                    source: n.source?.name || n.source,
-                    date: n.date,
-                    link: n.link,
+                    source: source,
+                    date: new Date().toISOString().slice(0, 10),
+                    link: n.url,
                 });
             }
         } catch (err) {
-            functions.logger.warn(`[founderContentCron] SerpAPI ${q} failed: ${err.message}`);
+            functions.logger.warn(`[founderContentCron] searchSerp ${q} failed: ${err.message}`);
         }
     }
     return { ok: items.length > 0, items };
