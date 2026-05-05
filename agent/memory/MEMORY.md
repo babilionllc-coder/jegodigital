@@ -55,6 +55,31 @@ The new permanent skill at `skills_patches/jegodigital-strategist/` is the maste
 
 ---
 
+## 🎯 Pointer — fb-ads-master (THE expert skill for ALL FB/IG paid-ad work, added 2026-05-05 PM)
+
+**Locked 2026-05-05 by Alex's directive.** Any agent touching Meta/FB paid ads reads this skill's `boot_sequence` FIRST — no exceptions.
+
+**Path:** `/skills_patches/fb-ads-master/`
+
+**Boot sequence (read in this order):**
+1. `SKILL.md` — identity + workflow map
+2. `JEGODIGITAL_LOCKS.md` — brand colors, logo, social URLs, 4 anchor proofs, banned phrases
+3. `FAILURES_TO_AVOID.md` — dormir / Sofia engagement / v3 0/18 patterns + 13-point checklist
+4. `RESEARCH.md` — 2026 cited research (34 verified sources)
+5. `SCORECARD.md` — 7-axis 10/10-floor rubric
+6. `BUILD_CHECKLIST.md` — 8-phase gate workflow
+7. `VALIDATORS.md` — 5 hard validators
+8. `PROMPT_TEMPLATES.md` — spawn-agent templates with full context baked in
+
+**Sub-modules (not replacements):**
+- `fb-ad-creative-builder` — Phase 3 render mechanics
+- `ad-creative-scorer` — Phase 5 independent scoring (HR-14.1)
+- `meta-ads-jegodigital` (plugin skill) — Phase 8 activation runbook
+
+**HR-20 (locked 2026-05-05):** any FB ad work starts with this skill. No exceptions. The dormir + v3 0/18 disasters happened because spawned agents flew without context — never again.
+
+---
+
 ## 🛡️ Pointer — the 2 prevention skills (added 2026-05-05)
 
 Two sister meta-skills that gate the orchestrator's own behavior. Born from Mistake #8 (claimed v3 took 80 min, real ~15 min, no receipt). External systems, not self-discipline.
@@ -243,3 +268,27 @@ curl -sS "https://us-central1-jegodigital-e02fb.cloudfunctions.net/performanceMo
 ---
 
 **End of MEMORY.md.** Read this first. Then run the bootstrap sequence. Then start work.
+
+---
+
+## 2026-05-05 — LOOP v1 LIVE (Hormozi #1, biggest weak spot 2/10 → 5/10)
+
+**What shipped:**
+- `website/functions/referralAutomation.js` — daily 09:30 Cancún cron + on-demand HTTP test endpoint
+- `website/functions/generateReferralCode.js` — Firestore onCreate + HTTP backfill, code format `JD-{first3}{4digits}`
+- `website/referidos.html` — public Spanish landing page, two-sided incentive (1 mes extra / 50% off primer mes)
+- `website/sitemap.xml` — added `/referidos` entry
+- `website/index.html` — footer link to `/referidos.html`
+- `outputs/loop_v1_personal_asks_2026-05-05.md` — 6 personal scripts (3 clients × WA/email), all 10/10 on real brandVoiceAuditor
+
+**HR enforcement:**
+- HR-17 + HR-19 + HR-5 + HR-6 all verified by build
+- Cron stays preview-locked per Rule 8 — Alex 👍 required before first real fire
+- Notion DB queried directly — no fabricated client lists
+
+**Activation flow:**
+1. Alex reviews `outputs/loop_v1_personal_asks_2026-05-05.md` and 👍s
+2. Alex sends the 3 personal scripts manually via WA/email (high-touch only, no automation)
+3. Alex 👍s the cron → uncomment block in `referralAutomation.js` + uncomment export in `index.js` → next push activates
+
+**Hormozi LOOP pillar:** 2/10 → 5/10. Next priority = Hormozi #2 CLOSER instrumentation.
