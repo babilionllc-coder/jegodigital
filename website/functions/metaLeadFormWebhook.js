@@ -386,6 +386,28 @@ exports.metaLeadFormWebhook = functions
             sofiaWaResult = { ok: false, error: e.message };
           }
 
+          // 4a4. ENQUEUE 6-touch recovery sequence (T+60min Twilio WA + T+10d cold-mark).
+          //      The other touches (T+1d/3d/7d/14d/21d) are already covered by enqueueFBNurture above.
+          //      Twilio templates 'recovery_followup_es' (HX9670…) + '_en' (HXaf21…) submitted
+          //      to Meta on 2026-05-04 — T+60min sends activate when Meta approves (24-48h).
+          let recoveryQueueResult = null;
+          try {
+            const { enqueueRecoveryTouches } = require('./leadRecoveryQueue');
+            recoveryQueueResult = await enqueueRecoveryTouches({
+              leadgenId,
+              email,
+              firstName,
+              company: lead.field_data?.find(f => f.name === 'company_name')?.values?.[0] || '',
+              websiteUrl: url,
+              whatsapp,
+            });
+            console.log(
+              `[metaLeadFormWebhook] ✓ recovery touches queued: ${recoveryQueueResult.touches.join(', ')}`
+            );
+          } catch (e) {
+            console.error('[metaLeadFormWebhook] enqueueRecoveryTouches failed (non-fatal):', e.message);
+          }
+
           // 4b. Fire audit pipeline (gets the full audit emailed in <60min)
           //     submitAuditRequest expects website_url + name + email (NOT url + firstName).
           //     Pass qualification answers so audit narrative can reference them.

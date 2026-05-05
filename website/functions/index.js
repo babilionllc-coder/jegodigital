@@ -234,6 +234,13 @@ exports.reverseLookupManual          = require('./dailySupersearchRefill').rever
 exports.processSupersearchLists       = require('./processSupersearchLists').processSupersearchLists;
 exports.processSupersearchListsManual = require('./processSupersearchLists').processSupersearchListsManual;
 
+// processRecoveryQueue — 6-touch Meta Lead Form recovery (added 2026-05-04).
+// Every 10 min cron drains lead_recovery_queue: T+60min Twilio WA recovery
+// follow-up + T+10d cold-mark / move to long-term nurture list.
+// Templates 'recovery_followup_es/en' submitted to Meta 2026-05-04 — sends
+// activate when approved (24-48h). Pending sends auto-retry +24h.
+exports.processRecoveryQueue = require('./leadRecoveryQueue').processRecoveryQueue;
+
 // Sync Function (Replaces Python Script)
 exports.uploadCampaignLogs = functions.https.onRequest(async (req, res) => {
     try {
