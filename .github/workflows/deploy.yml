@@ -268,20 +268,33 @@ jobs:
       # IAM on what IS deployed. Otherwise the new HTTP-callable functions
       # stay 403 because of unrelated broken pre-existing functions.
       # --------------------------------------------------------------
+      # 2026-05-05: switched outcome→conclusion in the IF condition. With
+      # continue-on-error: true on the batch steps, `outcome` reports the actual
+      # exit code (failure on any partial deploy quirk) while `conclusion`
+      # reports the masked result (success). The previous `outcome == success`
+      # gate kept skipping IAM grant whenever firebase CLI exited non-zero on
+      # one transient single-function flake, leaving every newly-deployed gen1
+      # HTTPS function privately 403'd. The retry step (id: retry) is also
+      # continue-on-error so its conclusion is the cleanest signal of "did we
+      # ship anything?". Disaster 2026-05-05 PM: 4 new insight+content agents
+      # (redditResearchSynthNow, founderContentCronNow, aeoVisibilityMonitorNow,
+      # referralTriggerNow) deployed but stayed 403 because IAM step skipped
+      # under the old outcome-based gate even when both batches had
+      # conclusion=success.
       - name: Auth gcloud for IAM fix
-        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
+        if: always() && (steps.batch1.conclusion == 'success' || steps.batch2.conclusion == 'success' || steps.retry.conclusion == 'success')
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Install gcloud CLI
-        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
+        if: always() && (steps.batch1.conclusion == 'success' || steps.batch2.conclusion == 'success' || steps.retry.conclusion == 'success')
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: jegodigital-e02fb
 
       - name: Grant allUsers invoker on all Cloud Run services (gen2 public fix)
-        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
+        if: always() && (steps.batch1.conclusion == 'success' || steps.batch2.conclusion == 'success' || steps.retry.conclusion == 'success')
         continue-on-error: true
         run: |
           echo "=== Listing all Cloud Run services in us-central1 ==="
@@ -306,7 +319,7 @@ jobs:
       # creditWatchdogsOnDemand, contentEveningWrapNow all returned 403.
       # Fix: also grant public invoker on every gen1 HTTPS function.
       - name: Grant allUsers invoker on all Cloud Functions Gen1 services (public fix)
-        if: always() && (steps.batch1.outcome == 'success' || steps.batch2.outcome == 'success')
+        if: always() && (steps.batch1.conclusion == 'success' || steps.batch2.conclusion == 'success' || steps.retry.conclusion == 'success')
         continue-on-error: true
         run: |
           echo "=== Listing all Cloud Functions Gen1 in us-central1 ==="
