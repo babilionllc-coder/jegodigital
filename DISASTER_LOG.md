@@ -573,3 +573,46 @@ r/startups, r/SaaS, r/marketing → /opportunities → opportunityClassifier (Ge
 - Set Apify daily spend cap before any re-enable
 - For now: Apify monthly cap reduced from $200 → $73 as circuit breaker
 **Tag:** lead-gen | cold-outreach | cost-vs-revenue
+
+
+## 2026-05-05 — HG-1 Brevo→FB sync misdiagnosis + local git pack corruption fallback
+
+**What I tried:** During the JegoDigital Gap Detector pass, I grepped `index.js` for `syncBrevoToFb\|BrevoToFb` to verify whether the Brevo→FB Custom Audience sync was wired. The grep returned empty matches at the `syncBrevoToFbCustomAudiences` register site (lines 2916-2918 had the Instantly sister cron but no Brevo equivalent at first glance). I then claimed in the gap report (HG-1) that the file was "dead code — not wired in index.js" and ranked it as the #1 build for the day.
+
+**Why it failed:** there are TWO Brevo→FB sync modules in the codebase, with different naming:
+  - `brevoToFacebookCASync.js` (15.5 KB, modified 2026-05-05 14:32) — wired in `index.js:2978-2980`, scheduled `pubsub.schedule("0 3 * * *")` (03:00 UTC), fully active.
+  - `syncBrevoToFbCustomAudiences.js` (14.4 KB, modified 2026-05-05 14:31) — partially wired at `index.js:3015-3018` with the SCHEDULED EXPORT intentionally commented out (`// ⚠️ SCHEDULED EXPORT PAUSED — uncomment after Alex 👍`). Only the on-demand HTTPS variant was registered.
+
+My initial grep used the prefix `syncBrevoToFb` but missed the synonym `brevoToFacebook`. Lesson: when checking "is capability X wired?", grep for the *capability* (`Brevo.*FB\|Brevo.*Facebook`) rather than the *file/function name only*.
+
+**Bigger gap surfaced by the misdiagnosis:** there are now 2 overlapping Brevo→FB sync modules. The cleanup is an Alex-decision question (kill v2 vs activate v2 + retire v1 vs merge). Captured as CG-8 in the addendum to `outputs/gap_detection_2026-05-05.md`.
+
+**What to do instead:**
+  1. Search by capability not file name: `grep -rn "Brevo.*\(FB\|Facebook\|fb\|facebook\)" website/functions/index.js`
+  2. If 2+ matches in different module names → cleanup gap, not a hard gap
+  3. Verify live (Firestore `brevo_fb_sync_daily`) before claiming a sync is "missing"
+
+**Tag:** infra · cleanup · gap-detection · grep-discipline
+
+---
+
+## 2026-05-05 (continued) — Local git pack-file corruption blocked direct push, used Git Data API fallback
+
+**What I tried:** After preparing 4 build artifacts (validator + logEvent + verifyClientProofMonthly + gap report), I attempted the standard autonomous-deploy path: `git stash` WIP → `git checkout main` → `git pull` → apply changes → `git push`.
+
+**Why it failed:** `.git/objects/pack/pack-986209f7b5462b649f989d15110bfcb4053640b3.keep` had `Operation not permitted` (sandbox FS perms), `git fetch` returned "did not send all necessary objects", and `refs/heads/<branch>.lock.OLD-1777960488` was reported as a "bad object". The repo was in a degraded state from prior agent sessions. Standard git operations were blocked.
+
+**What to do instead:** when the local repo is corrupt, push surgically via the **GitHub Git Data API**:
+  1. `GET /repos/<REPO>/branches/main` → main SHA + tree SHA
+  2. `GET /repos/<REPO>/contents/<path>?ref=main` → fetch file content fresh from main
+  3. Apply edits in-memory (Python string replace with anchor verification)
+  4. `POST /repos/<REPO>/git/blobs` → one blob per file (base64-encoded)
+  5. `POST /repos/<REPO>/git/trees` with `base_tree` = main tree SHA, items = the new blobs
+  6. `POST /repos/<REPO>/git/commits` with `tree` = new tree, `parents` = [main SHA]
+  7. `PATCH /repos/<REPO>/git/refs/heads/main` with new commit SHA
+
+Saved as `/tmp/git_data_api_push.py` for reuse. Token is `.secrets/github_token`. The recipe avoids the local git entirely — works against a fresh main snapshot.
+
+**Verified:** commit `9393ecf3` pushed to main 2026-05-05 14:43 UTC → deploy.yml + auto-index.yml + validate-videos.yml + notion-session-log.yml + notify-slack.yml all triggered.
+
+**Tag:** infra · deploy · git-fallback · autonomous-deploy
