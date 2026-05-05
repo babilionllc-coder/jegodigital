@@ -2375,6 +2375,33 @@ exports.instantlyReplyWatcher = require("./instantlyReplyWatcher").instantlyRepl
 exports.instantlyNotionBackfill = require("./instantlyNotionBackfill").instantlyNotionBackfill;
 
 // ============================================================
+// SALES CLOSER BRIEFING PACK (wired 2026-05-05 — Cowork build)
+// Triggered by Calendly invitee.created (chained via calendlyWebhook).
+// Fans out: Hunter.io → Firecrawl → DataForSEO Maps+SERP → seo-engine
+// → Claude Sonnet 4.6 briefing prose → Notion CRM page → Telegram +
+// Slack #leads-hot digest. Goal: 3x Calendly close rate (10% → 30%).
+// On-demand endpoint for synthetic tests + manual rebuilds.
+// Source: website/functions/calendlyBriefingPack.js
+// ============================================================
+exports.calendlyBriefingPack = require("./calendlyBriefingPack").calendlyBriefingPack;
+exports.calendlyBriefingPackOnDemand = require("./calendlyBriefingPack").calendlyBriefingPackOnDemand;
+
+// ============================================================
+// AUTONOMOUS DEMO WEBSITE BUILDER (wired 2026-05-05 — Cowork build)
+// Trojan-Horse <60min auto-builder. Fires from instantlyReplyWatcher
+// when a positive reply contains a demo-request keyword. Pipeline:
+// keyword gate → Instantly lead pull → Firecrawl scrape →
+// Claude HTML+reply composition → compliance gate (Rule 18+20) →
+// hero PNG via Cloud Run mockup-renderer → Firestore persist →
+// Instantly reply send → Sofia WA +60min schedule → Telegram+Slack.
+// serveDemo renders persisted HTML at /demo/<slug>.
+// Source: website/functions/buildDemoWebsite.js
+// ============================================================
+exports.buildDemoWebsite = require("./buildDemoWebsite").buildDemoWebsite;
+exports.buildDemoWebsiteOnDemand = require("./buildDemoWebsite").buildDemoWebsiteOnDemand;
+exports.serveDemo = require("./buildDemoWebsite").serveDemo;
+
+// ============================================================
 // BREVO NURTURE QUEUE PROCESSOR (added 2026-04-22)
 // Every 30 min — picks up due touches from brevo_nurture_queue
 // (Day 0/2/5/10 Spanish sequence triggered on Instantly positive
@@ -2932,3 +2959,114 @@ exports.tokenWatchdogOnDemand  = tokenWatchdogMod.tokenWatchdogOnDemand;
 const performanceMonitorMod = require('./performanceMonitor');
 exports.performanceMonitor          = performanceMonitorMod.performanceMonitor;
 exports.performanceMonitorOnDemand  = performanceMonitorMod.performanceMonitorOnDemand;
+
+// =====================================================================
+// 2026-05-05 — Infra/Safety AI agents (Cowork build)
+//   - complianceGate: 7-gate enforcer + daily 8am digest cron
+//   - gapCloser:      every-6h funnel scan
+//   - brevoToFacebookCASync: daily 03:00 UTC Brevo → FB CA mirror
+// All three honor HR-6 (proof) and HR-24 (Telegram + Slack).
+// =====================================================================
+const complianceGateMod = require('./complianceGate');
+exports.complianceGateDailyDigest         = complianceGateMod.complianceGateDailyDigest;
+exports.complianceGateDailyDigestOnDemand = complianceGateMod.complianceGateDailyDigestOnDemand;
+
+const gapCloserMod = require('./gapCloser');
+exports.gapCloser         = gapCloserMod.gapCloser;
+exports.gapCloserOnDemand = gapCloserMod.gapCloserOnDemand;
+
+const brevoToFacebookCASyncMod = require('./brevoToFacebookCASync');
+exports.brevoToFacebookCASync         = brevoToFacebookCASyncMod.brevoToFacebookCASync;
+exports.brevoToFacebookCASyncOnDemand = brevoToFacebookCASyncMod.brevoToFacebookCASyncOnDemand;
+
+// =====================================================================
+// 2026-05-05 PM — Wave 2 high-leverage agents (Cowork build)
+//
+// 1. calendlyBriefingPack       — pre-call sales briefing pack (3x close goal)
+//                                 HTTPS webhook (Calendly invitee.created).
+//                                 SAFE to register: only fires when Calendly POSTs.
+//                                 Activation: add the function URL to Calendly webhook.
+//
+// 2. syncBrevoToFbCustomAudiences — daily 9am CDMX warm-CA push.
+//                                  ⚠️ NOTE: a sibling module `brevoToFacebookCASync`
+//                                  (registered above, 2026-05-05 AM) covers similar
+//                                  ground via a different cron schedule (03:00 UTC).
+//                                  Differences in this v2 build:
+//                                    - lazy CA-id Firestore cache (avoids re-lookup)
+//                                    - push-vs-eligible discrepancy alert
+//                                    - critical Firestore-snapshot-fail alert
+//                                    - stat schema matches sister `syncInstantlyToFbCA`
+//                                  ⚠️ SCHEDULED EXPORT IS COMMENTED OUT until Alex 👍 —
+//                                  on-demand HTTPS is safe to register for testing.
+//
+// 3. buildDemoWebsite + serveDemo — Trojan-Horse autonomous demo deploy.
+//                                  HTTPS webhook (Instantly reply). Includes the
+//                                  serveDemo public renderer for /demo/<slug>.
+//                                  SAFE to register: only fires when Instantly POSTs.
+//                                  Activation: configure Instantly reply webhook URL.
+//
+// All three honor Rule 1 (verify-live), Rule 7 (proof), Rule 18+19+20 (compliance gates),
+// Rule 24 (Telegram + Slack on success AND failure), Rule 25 (no Alex re-asks).
+// =====================================================================
+const calendlyBriefingPackMod = require('./calendlyBriefingPack');
+exports.calendlyBriefingPack          = calendlyBriefingPackMod.calendlyBriefingPack;
+exports.calendlyBriefingPackOnDemand  = calendlyBriefingPackMod.calendlyBriefingPackOnDemand;
+
+const syncBrevoToFbCAMod = require('./syncBrevoToFbCustomAudiences');
+// ⚠️ SCHEDULED EXPORT PAUSED — uncomment after Alex 👍 to activate the 9am CDMX cron.
+// exports.syncBrevoToFbCustomAudiences          = syncBrevoToFbCAMod.syncBrevoToFbCustomAudiences;
+exports.syncBrevoToFbCustomAudiencesOnDemand  = syncBrevoToFbCAMod.syncBrevoToFbCustomAudiencesOnDemand;
+
+const buildDemoWebsiteMod = require('./buildDemoWebsite');
+exports.buildDemoWebsite          = buildDemoWebsiteMod.buildDemoWebsite;
+exports.buildDemoWebsiteOnDemand  = buildDemoWebsiteMod.buildDemoWebsiteOnDemand;
+exports.serveDemo                 = buildDemoWebsiteMod.serveDemo;
+
+// =====================================================================
+// 2026-05-05 — Insight + Content AI agents (Cowork build, Dispatch task)
+//
+// 1. redditResearchSynth     — Fri 18:00 CDMX (Sat 00:00 UTC).
+//                              Pulls top 50 weekly threads from
+//                              r/realestate + r/RealEstateMexico + r/Miami
+//                              + r/RealEstateInvesting via Apify, synthesizes
+//                              via Anthropic, posts memo to Telegram + Slack
+//                              + commits to research/ via GitHub Contents API.
+//
+// 2. founderContentCron      — Daily 09:00 CDMX (15:00 UTC).
+//                              Reads latest Reddit synth + 7d Notion CRM wins
+//                              + SerpAPI trending RE news → 90s founder script
+//                              per alex-founder-video skill (HOOK·BEATS·CTA·LOOP)
+//                              + b-roll + thumbnail text → Telegram + Slack #content.
+//
+// 3. aeoVisibilityMonitor    — Mon 08:00 CDMX (14:00 UTC).
+//                              Queries ChatGPT + Perplexity + Gemini with the 10
+//                              priority prompts (canonical at /docs/aeo-prompts.md),
+//                              tracks client mentions vs competitors, posts
+//                              Firestore + Telegram + Slack #daily-ops digest with
+//                              week-over-week delta.
+//
+// 4. referralTrigger         — Daily 09:00 UTC.
+//                              Scans Notion CRM for clients exactly 30d post
+//                              Closed-Won → Brevo email + Twilio WA + Telegram +
+//                              Slack #revenue with talk-track. Idempotent via
+//                              Firestore /referral_triggers/{key}_{YYYY-MM-DD}.
+//
+// All four honor Rules 2 (verify-live), 7 (proof), 17 (collaboration tone),
+// 19 (research before send), 20 (JegoDigital + RE niche intro), 24 (Telegram +
+// Slack on success and failure).
+// =====================================================================
+const redditResearchSynthMod = require('./redditResearchSynth');
+exports.redditResearchSynth     = redditResearchSynthMod.redditResearchSynth;
+exports.redditResearchSynthNow  = redditResearchSynthMod.redditResearchSynthNow;
+
+const founderContentCronMod = require('./founderContentCron');
+exports.founderContentCron     = founderContentCronMod.founderContentCron;
+exports.founderContentCronNow  = founderContentCronMod.founderContentCronNow;
+
+const aeoVisibilityMonitorMod = require('./aeoVisibilityMonitor');
+exports.aeoVisibilityMonitor     = aeoVisibilityMonitorMod.aeoVisibilityMonitor;
+exports.aeoVisibilityMonitorNow  = aeoVisibilityMonitorMod.aeoVisibilityMonitorNow;
+
+const referralTriggerMod = require('./referralTrigger');
+exports.referralTrigger     = referralTriggerMod.referralTrigger;
+exports.referralTriggerNow  = referralTriggerMod.referralTriggerNow;
