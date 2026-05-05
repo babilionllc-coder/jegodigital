@@ -2918,6 +2918,20 @@ exports.syncInstantlyToFbCustomAudiences = syncInstantlyToFbCAMod.syncInstantlyT
 exports.syncInstantlyToFbCustomAudiencesOnDemand = syncInstantlyToFbCAMod.syncInstantlyToFbCustomAudiencesOnDemand;
 
 // ============================================================
+// verifyClientProofMonthly — Rule 10 enforcement cron
+// (built 2026-05-05 by Claude Gap Detector — was HG-3 in
+//  outputs/gap_detection_2026-05-05.md, the third top-3 build).
+// Schedule: 1st of month, 09:00 UTC. Verifies cited social-proof numbers
+// (Living Riviera Maya Top-3 ChatGPT, Sur Selecto AMPI, Flamingo 88%, etc.)
+// against live DataForSEO Maps + domain liveness. Critical alert if any
+// metric drops >20% — removes claim from cold-email copy until reverified.
+// On-demand: /verifyClientProofMonthlyOnDemand for Rule 7 deploy proof.
+// ============================================================
+const verifyClientProofMonthlyMod = require("./verifyClientProofMonthly");
+exports.verifyClientProofMonthly = verifyClientProofMonthlyMod.verifyClientProofMonthly;
+exports.verifyClientProofMonthlyOnDemand = verifyClientProofMonthlyMod.verifyClientProofMonthlyOnDemand;
+
+// ============================================================
 // WhatsApp AI Responder (Twilio + Gemini 2.5 Flash)
 // (added 2026-05-03 — Sofia AI brain on client WhatsApp numbers)
 // Webhook: https://us-central1-jegodigital-e02fb.cloudfunctions.net/whatsappAIResponder
