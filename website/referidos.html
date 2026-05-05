@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Referidos — JegoDigital</title>
+  <meta name="description" content="Gana 1 mes gratis refiriendo inmobiliarias a JegoDigital. El referido gana 50% off primer mes.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Referidos — JegoDigital">
+  <meta property="og:description" content="Doble beneficio: tú + tu referido ganan juntos.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jegodigital.com/referidos">
+  <meta property="og:image" content="https://jegodigital.com/og-referidos.png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+
+  <!-- Schema.org Markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Programa de Referidos — JegoDigital",
+    "description": "Doble incentivo: referidor gana 1 mes gratis, referido gana 50% off primer mes.",
+    "provider": {
+      "@type": "Organization",
+      "name": "JegoDigital",
+      "url": "https://jegodigital.com",
+      "logo": "https://jegodigital.com/images/logo/jegodigitallogo.png"
+    },
+    "areaServed": "MX",
+    "offers": {
+      "@type": "Offer",
+      "description": "Referral incentive program",
+      "priceCurrency": "MXN"
+    }
+  }
+  </script>
+
+  <!-- Service + Offer Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Offer",
+    "name": "1 mes gratis + 50% primer mes",
+    "description": "Doble beneficio para referidor y referido",
+    "availability": "https://schema.org/InStock",
+    "offeredBy": {
+      "@type": "Organization",
+      "name": "JegoDigital",
+      "url": "https://jegodigital.com"
+    }
+  }
+  </script>
+
+  <style>
+    * {
+      --color-bg: #0f1115;
+      --color-accent: #C5A059;
+      --color-text: #ffffff;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--color-bg) 0%, #1a1f2e 100%);
+      color: var(--color-text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary {
+      background: var(--color-accent);
+      color: var(--color-bg);
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(197, 160, 89, 0.3);
+    }
+
+    .accent-text {
+      color: var(--color-accent);
+    }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- Navigation -->
+  <nav class="border-b border-white/10 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <img src="images/logo/jegodigitallogo.png" alt="JegoDigital" class="h-8 w-auto">
+      <div class="hidden sm:flex gap-8 text-sm text-gray-300">
+        <a href="https://jegodigital.com" class="hover:text-white transition">Inicio</a>
+        <a href="https://jegodigital.com/showcase" class="hover:text-white transition">Casos de Éxito</a>
+        <a href="https://calendly.com/jegoalexdigital/30min" class="text-accent-text hover:text-accent-text/80 transition">Agendar Llamada</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <h1 class="text-5xl sm:text-6xl font-bold mb-6 leading-tight">
+      Refiere y Gana <br>
+      <span class="accent-text">Juntos</span>
+    </h1>
+    <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+      Doble incentivo. Tú ganas 1 mes gratis en tu plan. El referido gana 50% off primer mes.
+    </p>
+    <div class="flex gap-4 justify-center flex-wrap">
+      <a href="#form" class="btn-primary px-8 py-3 rounded-lg">Refiere Ahora</a>
+      <a href="#how-it-works" class="glass px-8 py-3 rounded-lg hover:bg-white/10 transition">Ver Cómo Funciona</a>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Así Funciona</h2>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Step 1 -->
+      <div class="glass p-8 rounded-lg text-center">
+        <div class="flex justify-center mb-4">
+          <svg class="w-12 h-12 accent-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2L7 7l12-10 6 15z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2">1. Refiere</h3>
+        <p class="text-gray-300 text-sm">
+          Comparte tu código de referencia con una inmobiliaria que sepas que lucha con leads.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="glass p-8 rounded-lg text-center">
+        <div class="flex justify-center mb-4">
+          <svg class="w-12 h-12 accent-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2">2. Colaboramos</h3>
+        <p class="text-gray-300 text-sm">
+          Ellos agendan con Alex (50% primer mes). Tú ganas 1 mes gratis en cuanto firman.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="glass p-8 rounded-lg text-center">
+        <div class="flex justify-center mb-4">
+          <svg class="w-12 h-12 accent-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2">3. Gana</h3>
+        <p class="text-gray-300 text-sm">
+          Tu beneficio se activa automáticamente en tu próximo ciclo de facturación.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What Both Sides Get -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Qué Ganan Ambos</h2>
+
+    <div class="grid md:grid-cols-2 gap-12">
+      <!-- Referidor -->
+      <div class="glass p-8 rounded-lg">
+        <h3 class="text-2xl font-bold mb-6 accent-text">Tú (Referidor)</h3>
+        <ul class="space-y-4 text-gray-300">
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 accent-text mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span><strong>1 mes gratis</strong> en tu plan actual</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 accent-text mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span>Sin límite de referidos (gana 1+ meses extra)</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 accent-text mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span>Construir relaciones con otras inmobiliarias</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Referido -->
+      <div class="glass p-8 rounded-lg">
+        <h3 class="text-2xl font-bold mb-6 accent-text">El Referido (Nueva Inmobiliaria)</h3>
+        <ul class="space-y-4 text-gray-300">
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 accent-text mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span><strong>50% off primer mes</strong> en Service 1</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 accent-text mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span>Diagnóstico gratuito de 60 minutos</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 accent-text mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span>Presentación personal de Alex (no robot)</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Preguntas Frecuentes</h2>
+
+    <div class="space-y-6">
+      <details class="glass p-6 rounded-lg cursor-pointer group">
+        <summary class="flex items-center justify-between font-bold text-lg">
+          ¿Cómo comparto mi código?
+          <svg class="w-5 h-5 group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </summary>
+        <p class="mt-4 text-gray-300">
+          Tu código está en el form abajo. Cópialo y comparte por WhatsApp, email o directamente en una llamada con otra inmobiliaria que conozcas.
+        </p>
+      </details>
+
+      <details class="glass p-6 rounded-lg cursor-pointer group">
+        <summary class="flex items-center justify-between font-bold text-lg">
+          ¿Cuándo recibo el beneficio?
+          <svg class="w-5 h-5 group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </summary>
+        <p class="mt-4 text-gray-300">
+          Tu mes gratis se activa en tu próxima facturación (dentro de 30 días máximo) después de que el referido firme contrato.
+        </p>
+      </details>
+
+      <details class="glass p-6 rounded-lg cursor-pointer group">
+        <summary class="flex items-center justify-between font-bold text-lg">
+          ¿Cuántos puedo refierir?
+          <svg class="w-5 h-5 group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </summary>
+        <p class="mt-4 text-gray-300">
+          No hay límite. Cada referido que firme = 1 mes gratis extra. Algunos clientes ya ganan 3+ meses al año solo por referir.
+        </p>
+      </details>
+
+      <details class="glass p-6 rounded-lg cursor-pointer group">
+        <summary class="flex items-center justify-between font-bold text-lg">
+          ¿Se lo decimos al referido que es un descuento por referencia?
+          <svg class="w-5 h-5 group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </summary>
+        <p class="mt-4 text-gray-300">
+          Sí. El referido sabe que tú lo refiriste y por eso gana 50% off. De hecho, refuerzas tu relación — "mira, te conseguí un descuento."
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Referral Form -->
+  <section id="form" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="glass p-12 rounded-lg">
+      <h2 class="text-3xl font-bold mb-8 text-center">Refiere a Alguien</h2>
+
+      <form class="space-y-6" action="/referralIntake" method="POST">
+
+        <!-- Your Referral Code -->
+        <div>
+          <label class="block text-sm font-bold mb-2">Tu Código de Referencia</label>
+          <input
+            type="text"
+            name="referrer_code"
+            placeholder="Ej. JD-LIV1234"
+            required
+            class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-accent-text transition"
+          >
+          <p class="text-xs text-gray-400 mt-2">Si no tienes código, aún puedes refierir. Contacta a Alex directamente.</p>
+        </div>
+
+        <!-- Referral Email -->
+        <div>
+          <label class="block text-sm font-bold mb-2">Email del Referido</label>
+          <input
+            type="email"
+            name="referral_email"
+            placeholder="contacto@inmobiliaria.com"
+            required
+            class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-accent-text transition"
+          >
+        </div>
+
+        <!-- Referral Company -->
+        <div>
+          <label class="block text-sm font-bold mb-2">Nombre de la Inmobiliaria</label>
+          <input
+            type="text"
+            name="referral_company"
+            placeholder="Ej. Inmobiliaria XYZ"
+            required
+            class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-accent-text transition"
+          >
+        </div>
+
+        <!-- Message (optional) -->
+        <div>
+          <label class="block text-sm font-bold mb-2">Mensaje (Opcional)</label>
+          <textarea
+            name="message"
+            placeholder="Cuéntanos un poco sobre por qué crees que esta inmobiliaria sería un buen fit..."
+            rows="4"
+            class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-accent-text transition resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn-primary w-full py-3 rounded-lg font-bold text-lg hover:shadow-lg transition"
+        >
+          Enviar Referencia
+        </button>
+
+        <p class="text-xs text-gray-400 text-center">
+          Al enviar, aceptas que contactemos al referido con tu nombre como referencia.
+        </p>
+
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer Social -->
+  <footer class="border-t border-white/10 mt-20 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="grid md:grid-cols-2 gap-12 mb-12">
+        <div>
+          <h3 class="text-lg font-bold mb-4">Redes Sociales</h3>
+          <ul class="space-y-2 text-gray-300">
+            <li><a href="https://www.youtube.com/@JegoDigitalchannel" class="hover:accent-text transition">YouTube @JegoDigitalchannel</a></li>
+            <li><a href="https://www.instagram.com/jegodigital/" class="hover:accent-text transition">Instagram @jegodigital</a></li>
+            <li><a href="https://www.tiktok.com/@jegodigital" class="hover:accent-text transition">TikTok @jegodigital</a></li>
+            <li><a href="https://wa.me/529982023263" class="hover:accent-text transition">WhatsApp +52 998 202 3263</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold mb-4">Más</h3>
+          <ul class="space-y-2 text-gray-300">
+            <li><a href="https://jegodigital.com" class="hover:accent-text transition">Inicio</a></li>
+            <li><a href="https://jegodigital.com/showcase" class="hover:accent-text transition">Casos de Éxito</a></li>
+            <li><a href="https://calendly.com/jegoalexdigital/30min" class="hover:accent-text transition">Agendar Llamada</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-white/10 pt-8 text-center text-gray-400 text-sm">
+        <p>© 2026 JegoDigital. Agencia de Marketing con IA para Inmobiliarias.</p>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>
