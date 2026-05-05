@@ -283,6 +283,24 @@ async function runColdCallPrepCore({ trigger = "cron" } = {}) {
         const EMAIL_GATE = 0.60;
         if (namePct < NAME_GATE || emailPct < EMAIL_GATE) {
             const reason = namePct < NAME_GATE ? "name_pct_too_low" : "email_pct_too_low";
+
+            // Severity escalation (added 2026-05-05): count consecutive prior block days
+            // Day 1-2 = INFO, Day 3-6 = WARN, Day 7+ = CRITICAL
+            let consecutiveBlockDays = 0;
+            try {
+                const recentSummaries = await db.collection("call_queue_summaries")
+                    .orderBy("date", "desc").limit(10).get();
+                for (const doc of recentSummaries.docs) {
+                    if (doc.id === dateKey) continue;
+                    if (doc.data().coverage_gate_blocked === true) consecutiveBlockDays++;
+                    else break;
+                }
+            } catch (e) { functions.logger.warn("severity calc failed:", e.message); }
+
+            const severity = consecutiveBlockDays >= 7 ? "CRITICAL" :
+                             consecutiveBlockDays >= 3 ? "WARN" : "INFO";
+            const sevEmoji = severity === "CRITICAL" ? "🆘" : severity === "WARN" ? "⚠️" : "🚨";
+
             await db.collection("cold_call_alerts").add({
                 type: "coverage_gate_block",
                 date: dateKey,
@@ -290,6 +308,8 @@ async function runColdCallPrepCore({ trigger = "cron" } = {}) {
                 real_name_pct: namePct,
                 has_email_pct: emailPct,
                 reason,
+                severity,
+                consecutive_block_days: consecutiveBlockDays,
                 name_gate: NAME_GATE,
                 email_gate: EMAIL_GATE,
                 created_at: admin.firestore.FieldValue.serverTimestamp(),
@@ -301,17 +321,23 @@ async function runColdCallPrepCore({ trigger = "cron" } = {}) {
                 real_name_pct: namePct,
                 has_email_pct: emailPct,
                 gate_reason: reason,
+                consecutive_block_days: consecutiveBlockDays,
+                severity,
                 total: 0,
             }, { merge: true });
             await sendTelegram([
-                `🚨 *coldCallPrep ${dateKey}* — BATCH BLOCKED by coverage gate`,
+                `${sevEmoji} *${severity} — coldCallPrep ${dateKey}* — BATCH BLOCKED (day ${consecutiveBlockDays + 1} of streak)`,
                 `   Planned: ${batch.length} leads`,
                 `   Real-name %: *${(namePct * 100).toFixed(0)}%* (need ≥${(NAME_GATE * 100).toFixed(0)}%)`,
                 `   Has-email %: *${(emailPct * 100).toFixed(0)}%* (need ≥${(EMAIL_GATE * 100).toFixed(0)}%)`,
                 `   Reason: ${reason}`,
-                `   Action: leadFinderAutoTopUp will re-run tomorrow 08:00; manual fire: \`gcloud scheduler jobs run firebase-schedule-leadFinderAutoTopUp-us-central1 --location=us-central1\``,
+                severity === "CRITICAL"
+                    ? `   🆘 *Action required:* nightly enrichment sweep is failing. Check phoneLeadsEnrichmentSweep logs OR manually trigger lead-finder for fresh leads.`
+                    : severity === "WARN"
+                    ? `   ⚠️ *Heads-up:* gate has been blocking 3+ days. phoneLeadsEnrichmentSweep should self-heal nightly.`
+                    : `   Action: phoneLeadsEnrichmentSweep runs nightly @ 02:00 CDMX; leadFinderAutoTopUp re-runs tomorrow 08:00.`,
             ].join("\n"));
-            functions.logger.warn(`coldCallPrep ${dateKey}: BLOCKED — name=${(namePct * 100).toFixed(0)}% email=${(emailPct * 100).toFixed(0)}%`);
+            functions.logger.warn(`coldCallPrep ${dateKey}: ${severity} BLOCKED day=${consecutiveBlockDays + 1} — name=${(namePct * 100).toFixed(0)}% email=${(emailPct * 100).toFixed(0)}%`);
             return null;
         }
         functions.logger.info(`coldCallPrep ${dateKey}: coverage gate PASS — name=${(namePct * 100).toFixed(0)}% email=${(emailPct * 100).toFixed(0)}%`);

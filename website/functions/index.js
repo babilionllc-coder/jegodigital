@@ -2482,6 +2482,12 @@ exports.seedPhoneLeadsOnce = require("./seedPhoneLeadsOnce").seedPhoneLeadsOnce;
 exports.seedLinkedInLeads = require("./seedLinkedInLeads").seedLinkedInLeads;
 exports.coldCallDiagnose = require("./seedLinkedInLeads").coldCallDiagnose;
 
+// 2026-05-05: Nightly back-fill of empty-email phone_leads — closes the
+// 2026-04-29 LinkedIn-batch coverage-gate regression. See cold_call_dialer_diagnosis_2026-05-05.md.
+const phoneLeadsEnrichmentMod = require("./phoneLeadsEnrichmentSweep");
+exports.phoneLeadsEnrichmentSweep         = phoneLeadsEnrichmentMod.phoneLeadsEnrichmentSweep;
+exports.phoneLeadsEnrichmentSweepOnDemand = phoneLeadsEnrichmentMod.phoneLeadsEnrichmentSweepOnDemand;
+
 // ============================================================
 // DAILY ROLLUP SLACK (added 2026-04-20)
 // 18:00 CDMX — close-of-business Slack brief covering cold
@@ -2900,3 +2906,29 @@ exports.flamingoDailyDigest    = flamingoCRMOpsMod.flamingoDailyDigest;
 exports.flamingoHotLeadAlert   = flamingoCRMOpsMod.flamingoHotLeadAlert;
 exports.flamingoFollowUpCron   = flamingoCRMOpsMod.flamingoFollowUpCron;
 exports.flamingoCRMOpsOnDemand = flamingoCRMOpsMod.flamingoCRMOpsOnDemand;
+
+// ============================================================
+// Tier-A autonomous monitoring stack (added 2026-05-05 overnight)
+// 3 sister crons that observe the JegoDigital fleet, alert via
+// Telegram + Slack, and snapshot to Firestore. READ-ONLY by design.
+//
+//   05:00 CDMX  →  cronHealthMonitor   (silent-cron detector)
+//   06:00 CDMX  →  tokenWatchdog       (credential expiry + scope binding)
+//   07:00 CDMX  →  performanceMonitor  (KPI anomaly detection)
+//
+// Skills:
+//   skills_patches/cron-health-monitor/
+//   skills_patches/token-watchdog/
+//   skills_patches/performance-monitor/
+// ============================================================
+const cronHealthMod = require('./cronHealthMonitor');
+exports.cronHealthMonitor         = cronHealthMod.cronHealthMonitor;
+exports.cronHealthMonitorOnDemand = cronHealthMod.cronHealthMonitorOnDemand;
+
+const tokenWatchdogMod = require('./tokenWatchdog');
+exports.tokenWatchdog          = tokenWatchdogMod.tokenWatchdog;
+exports.tokenWatchdogOnDemand  = tokenWatchdogMod.tokenWatchdogOnDemand;
+
+const performanceMonitorMod = require('./performanceMonitor');
+exports.performanceMonitor          = performanceMonitorMod.performanceMonitor;
+exports.performanceMonitorOnDemand  = performanceMonitorMod.performanceMonitorOnDemand;

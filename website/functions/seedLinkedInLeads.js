@@ -64,19 +64,29 @@ exports.seedLinkedInLeads = functions
         }
 
         let upserts = 0;
+        let skippedNoEmail = 0;
         const errors = [];
+        // HR-5 GUARD (added 2026-05-05 after coverage-gate disaster): refuse to write
+        // any lead with empty email — these dropped pool email_pct from 62% → 35-53%
+        // and silently blocked the cron for 7+ weekdays. Use ?allowEmptyEmail=true to override.
+        const allowEmptyEmail = req.query.allowEmptyEmail === "true";
         // Firestore batch cap = 500. We have 79, single batch is fine.
         const batch = db.batch();
         for (const r of LINKEDIN_LEADS) {
             const docId = (r.phone || "").replace(/[^\d]/g, "");
             if (!docId) continue;
+            const email = (r.email || "").trim();
+            if (!email && !allowEmptyEmail) {
+                skippedNoEmail++;
+                continue;
+            }
             const ref = db.collection("phone_leads").doc(docId);
             batch.set(ref, {
                 phone: r.phone,
                 first_name: r.first_name || "",
                 last_name: r.last_name || "",
                 name: r.name || `${r.first_name || ""} ${r.last_name || ""}`.trim() || "allá",
-                email: r.email || "",
+                email: email,
                 company: r.company || "",
                 company_name: r.company || "",
                 website: "",
@@ -114,14 +124,16 @@ exports.seedLinkedInLeads = functions
             functions.logger.warn("seedLinkedInLeads: post-count failed:", err.message);
         }
 
-        functions.logger.info(`seedLinkedInLeads: upserts=${upserts}, pre=${preCount}, post=${postCount}`);
+        functions.logger.info(`seedLinkedInLeads: upserts=${upserts}, skippedNoEmail=${skippedNoEmail}, pre=${preCount}, post=${postCount}`);
         return res.status(200).json({
             ok: true,
             upserts,
+            skipped_no_email: skippedNoEmail,
             pre_count: preCount,
             post_count: postCount,
             delta: postCount - preCount,
             source_file: "_phone_leads_linkedin_2026-04-29.js",
+            note: skippedNoEmail > 0 ? `Refused ${skippedNoEmail} leads with empty email per HR-5 guard. Run lead-enrichment-waterfall first or use ?allowEmptyEmail=true to override.` : undefined,
             errors,
         });
     });
