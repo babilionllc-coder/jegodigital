@@ -535,6 +535,10 @@
         "function": "tiktokOauthCallback"
       },
       {
+        "source": "/demo/**",
+        "function": "serveDemo"
+      },
+      {
         "source": "/landing/index.html",
         "destination": "/index.html"
       },

@@ -96,6 +96,9 @@ jobs:
           NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}
           NOTION_LEADS_CRM_ID=${{ secrets.NOTION_LEADS_CRM_ID }}
           NOTION_SESSION_LOG_PAGE_ID=${{ secrets.NOTION_SESSION_LOG_PAGE_ID }}
+          NOTION_BRIEFINGS_DB=${{ secrets.NOTION_BRIEFINGS_DB }}
+          MOCKUP_RENDERER_URL=${{ secrets.MOCKUP_RENDERER_URL }}
+          FIREBASE_HOSTING_DEMO_BASE_URL=${{ secrets.FIREBASE_HOSTING_DEMO_BASE_URL }}
           ADMIN_TRIGGER_TOKEN=${{ secrets.ADMIN_TRIGGER_TOKEN }}
           GH_PAT=${{ secrets.GH_PAT }}
           SLACK_CHANNEL_ALERTS=${{ secrets.SLACK_CHANNEL_ALERTS }}
@@ -118,17 +121,13 @@ jobs:
           BREVO_HIRING_INTENT_FB_LIST_ID=${{ secrets.BREVO_HIRING_INTENT_FB_LIST_ID }}
           BREVO_FB_WELCOME_TEMPLATE_ID=${{ secrets.BREVO_FB_WELCOME_TEMPLATE_ID }}
           AUDIT_INTERNAL_ENDPOINT=${{ secrets.AUDIT_INTERNAL_ENDPOINT }}
-          # 2026-05-05 — tokenWatchdog needs these to call /debug_token and
-          # verify Meta token scope binding. FB_APP_SECRET pairs with the
-          # already-injected FB_APP_ID to build the Graph app-token. The two
-          # WA_CLOUD_* values let probeMetaToken confirm the WhatsApp Cloud
-          # token is bound to the right WABA + phone number.
-          FB_APP_SECRET=${{ secrets.FB_APP_SECRET }}
-          WA_CLOUD_ACCESS_TOKEN=${{ secrets.WA_CLOUD_ACCESS_TOKEN }}
-          WA_CLOUD_WABA_ID=${{ secrets.WA_CLOUD_WABA_ID }}
-          WA_CLOUD_VERIFY_TOKEN=${{ secrets.WA_CLOUD_VERIFY_TOKEN }}
+          # Sofia WhatsApp Cloud API (added 2026-05-03 — wires +1 978-396-7234
+          # phone_number_id 1044375245434120 on WABA 1520533496454283).
           WA_CLOUD_PHONE_NUMBER_ID=${{ secrets.WA_CLOUD_PHONE_NUMBER_ID }}
-          WHATSAPP_CLOUD_API_TOKEN=${{ secrets.WHATSAPP_CLOUD_API_TOKEN }}
+          WA_CLOUD_ACCESS_TOKEN=${{ secrets.WA_CLOUD_ACCESS_TOKEN }}
+          WA_CLOUD_VERIFY_TOKEN=${{ secrets.WA_CLOUD_VERIFY_TOKEN }}
+          WA_LEAD_FORM_OPENER_TEMPLATE=${{ secrets.WA_LEAD_FORM_OPENER_TEMPLATE }}
+          WA_LEAD_FORM_OPENER_LANG=${{ secrets.WA_LEAD_FORM_OPENER_LANG }}
           ENVEOF
           # Clean leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env

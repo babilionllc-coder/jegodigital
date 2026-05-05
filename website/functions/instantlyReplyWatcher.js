@@ -151,6 +151,20 @@ function buildSlackReplyCard(ctx, outcome, body, subject, auditQueued, nurtureSt
 //
 // We deliberately err toward NEUTRAL when in doubt — autofire only on the
 // clearest positives. Alex can promote a neutral to positive manually.
+//
+// 2026-04-30 amendment: closed 4 specific gaps after audit found 4/8 hot leads
+// in Apr 2-29 window were misclassified (Andrea, Susan, Cambria caught — but
+// Jorge×2, Felix, Eric missed). Changes:
+//   1. Added short-positive detector — ≤25-char replies of "si", "yes",
+//      "ok", "dale" etc. now match (previously needed "si me interesa").
+//   2. Added new strong-positive variants: "please send the", "send the
+//      [video|info|offer]", "yes, please", "please explain".
+//   3. Added REFERRAL detector — "te paso/comparto el contacto",
+//      "directora comercial", "i'm not in charge", "not the right person",
+//      "habla con", "contact [name]@". Returns outcome="referral" so the
+//      hot-alert path can flag for Alex to spawn a follow-up lead.
+//   4. Made "question" outcome trigger Slack hot-alert when body shows
+//      tech-curiosity intent (chatbot, AI, technology, cómo funciona).
 function classifyReply(bodyRaw) {
     if (!bodyRaw) return "neutral";
     const body = bodyRaw.toLowerCase().replace(/\s+/g, " ").trim();
@@ -204,10 +218,13 @@ function classifyReply(bodyRaw) {
     ];
     const strong = strongPositive.some((m) => body.includes(m));
 
-    // Short-positive detector — one or two-word affirmatives. Audit 2026-04-30
-    // found "si" (Jorge mihome) + "Adelante" (Álvaro trustreal) buried as
-    // neutral because previous classifier needed longer phrases. \b doesn't
-    // reliably anchor before non-ASCII (í) so we use explicit end-anchor.
+    // Short-positive detector — one or two-word affirmatives. Examples
+    // caught by audit 2026-04-30: "si" (Jorge mihome), "Adelante" (Álvaro
+    // trustreal). Previously these needed longer phrases like "si me interesa".
+    // Strict: only fires on bodies ≤25 chars to avoid catching "si"/"yes"
+    // inside longer rejection text. Strips quote/sig prefix to handle "> sí".
+    // Note: \b doesn't reliably match before non-ASCII (í) so we use an
+    // explicit (?:[\s.,!?]|$) end-anchor.
     const shortBody = body.replace(/^[>\s]+/, "").trim();
     const END = "(?:[\\s.,!?]|$)";
     const shortAffirmatives = [
@@ -229,9 +246,10 @@ function classifyReply(bodyRaw) {
     if ((strong || isShortAffirmative) && hasObjection) return "positive_with_objection";
     if (strong || isShortAffirmative) return "positive";
 
-    // Soft-positive (ask but not commit) — neutral by default. tech_question
-    // is a separate high-intent signal (chatbot/AI/cómo funciona) so the
-    // hot-alert path can ping Alex directly.
+    // Soft-positive (ask but not commit) — neutral by default. We also flag
+    // tech-curious questions (chatbot, AI, cómo funciona) as a separate
+    // "tech_question" so the hot-alert path can ping Alex (these are usually
+    // qualified prospects evaluating us, not random spam).
     if (/\?/.test(body) && /(info|qué|que|cómo|como|cuánto|cuanto|dónde|donde)/.test(body)) {
         const techCurious = /(chatbot|ai|inteligencia artificial|tecnologia|tecnología|how does it work|cómo funciona|como funciona|capacidad de respuesta|how deep|qué tan profunda)/.test(body);
         return techCurious ? "tech_question" : "question";
@@ -380,10 +398,10 @@ exports.instantlyReplyWatcher = functions
             // positive_with_objection (objection handling is part of nurture).
             // Idempotent — startTrackA skips if already enrolled.
             //
-            // Compliance gate (added 2026-05-05): route through complianceGate
-            // (cold_email channel) before enrolling. Blocks opt-outs, closed-window
-            // enrollments, disallowed countries, unhealthy senders. firstTouch=false
-            // + userInitiated=true (lead replied to us first).
+            // Compliance gate: route through complianceGate (cold_email channel)
+            // before enrolling. Blocks opt-outs, closed-window enrollments,
+            // disallowed countries, and unhealthy senders. firstTouch=false +
+            // userInitiated=true (lead replied to us first).
             let nurtureStarted = false;
             let nurtureBlocked = null;
             if ((outcome === "positive" || outcome === "positive_with_objection") && ctx.email) {
@@ -393,7 +411,7 @@ exports.instantlyReplyWatcher = functions
                         {
                             to: ctx.email,
                             body: `[brevo_nurture_track_a_enroll] reply: ${(body || "").slice(0, 200)}`,
-                            sender: "ariana@zennoenigmawire.com",
+                            sender: "ariana@zennoenigmawire.com", // any approved mailbox satisfies sender gate
                             leadId: ctx.email,
                             userInitiated: true,
                             firstTouch: false,
@@ -417,6 +435,66 @@ exports.instantlyReplyWatcher = functions
                     }
                 } catch (err) {
                     functions.logger.warn(`brevo nurture start failed for ${replyId}:`, err.message);
+                }
+            }
+
+            // ====================================================================
+            // AUTONOMOUS DEMO BUILDER (chained 2026-05-05 — Cowork build)
+            //
+            // When a positive reply contains a "envía el demo" / "send the demo"
+            // keyword, fire the buildDemoWebsite pipeline. Compresses the old
+            // 3-day async demo flow to <60 minutes:
+            //   keyword → Firecrawl → Claude → mockup-renderer → /demo/<slug>
+            //   → Instantly auto-reply with live URL → Sofia WA +60min ping.
+            //
+            // Rule 8 PREVIEW GATE: gated behind Firestore feature flag
+            //   `feature_flags/demo_builder_autopilot` { enabled: true }
+            // Default OFF until Alex 👍 — keeps replies hitting only Instantly's
+            // native AI Reply Agent until the demo flow is approved live.
+            // When OFF, we still PERSIST the trigger detection to a "would-have"
+            // collection so Alex can see what would have shipped.
+            //
+            // Idempotent: buildAndShipDemo writes demo_builds/<slug>; re-runs
+            // are safe because slug is deterministic per lead.
+            // ====================================================================
+            if ((outcome === "positive" || outcome === "positive_with_objection") && ctx.email) {
+                try {
+                    const demoBuilder = require("./buildDemoWebsite");
+                    const triggerHit = demoBuilder.__internal.detectTriggerHit(body);
+                    if (triggerHit) {
+                        // Check the feature flag gate
+                        const flagDoc = await db.collection("feature_flags").doc("demo_builder_autopilot").get();
+                        const enabled = flagDoc.exists && flagDoc.data()?.enabled === true;
+
+                        if (enabled) {
+                            // Fire-and-forget — pipeline writes demo_builds/<slug>
+                            demoBuilder.__internal.buildAndShipDemo({
+                                replyEvent: {
+                                    lead_email: ctx.email,
+                                    reply_body: body,
+                                    thread_id: em.thread_id || null,
+                                },
+                            })
+                                .then((r) => functions.logger.info(`demo builder shipped: ${r.slug}`))
+                                .catch((e) => functions.logger.error(`demo builder fail for ${ctx.email}:`, e.message));
+                        } else {
+                            // Preview gate: just log what would have happened
+                            await db.collection("demo_builds_would_have").add({
+                                reply_id: replyId,
+                                lead_email: ctx.email,
+                                first_name: ctx.firstName || "",
+                                company: ctx.company || "",
+                                website: ctx.website || "",
+                                trigger_pattern: triggerHit.pattern,
+                                trigger_snippet: triggerHit.snippet,
+                                reply_body_preview: body.slice(0, 500),
+                                created_at: admin.firestore.FieldValue.serverTimestamp(),
+                            });
+                            functions.logger.info(`demo trigger detected (gate OFF) for ${ctx.email}`);
+                        }
+                    }
+                } catch (demoErr) {
+                    functions.logger.warn(`demo builder chain failed for ${replyId} (non-fatal):`, demoErr.message);
                 }
             }
 
@@ -452,10 +530,13 @@ exports.instantlyReplyWatcher = functions
             const routedGeo = null;
 
             // Hot-alert criteria — 2026-04-30 expanded after audit found Felix
-            // (Mudafy, asking tech depth) + Eric (Evoke referral) buried as
-            // neutrals. Now alerts on positive + positive_with_objection +
-            // referral (Alex spawns fresh outreach to forwarded contact) +
-            // tech_question (qualified prospect evaluating us).
+            // (Mudafy, asking tech depth) + Eric (Evoke referral) buried in
+            // neutrals. Now alerts on:
+            //   - positive / positive_with_objection (existing)
+            //   - referral (new — Alex needs to spawn fresh outreach to the
+            //     forwarded contact ASAP, time-decay matters here)
+            //   - tech_question (new — qualified-prospect signal, e.g. "are
+            //     you a chatbot? how deep is the tech?" — buying-mode questions)
             const HOT_OUTCOMES = new Set([
                 "positive", "positive_with_objection", "referral", "tech_question",
             ]);

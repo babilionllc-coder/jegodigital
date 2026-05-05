@@ -3122,3 +3122,77 @@ exports.duplicateLeadGuardOnDemand  = duplicateLeadGuardMod.duplicateLeadGuardOn
 const toneAuditDailyDigestMod = require('./toneAuditDailyDigest');
 exports.toneAuditDailyDigest          = toneAuditDailyDigestMod.toneAuditDailyDigest;
 exports.toneAuditDailyDigestOnDemand  = toneAuditDailyDigestMod.toneAuditDailyDigestOnDemand;
+
+// =====================================================================
+// Wave 4 Growth Engine — 12 high-impact crons + functions (2026-05-05).
+// Independent score (Rule 14.1) + scoring detail in
+// /memories/wave_4_growth_engine_2026-05-05.md.
+// SCHEDULES.md §1 has the wall-clock map for these 12 alongside the
+// existing 75 + 8-from-Schedule-Architect = 95 total scheduled fns.
+// =====================================================================
+
+// 1) speedToLeadBot — 5 Firestore onCreate triggers (leads, calendly_events,
+//    meta_lead_form_leads, instantly_positive_replies, ig_dm_leads). Default
+//    OFF behind config/feature_flags.speed_to_lead_enabled — Alex 👍 to flip.
+const speedToLeadBotMod = require('./speedToLeadBot');
+exports.speedToLeadBotOnLead           = speedToLeadBotMod.speedToLeadBotOnLead;
+exports.speedToLeadBotOnCalendly       = speedToLeadBotMod.speedToLeadBotOnCalendly;
+exports.speedToLeadBotOnFbLead         = speedToLeadBotMod.speedToLeadBotOnFbLead;
+exports.speedToLeadBotOnPositiveReply  = speedToLeadBotMod.speedToLeadBotOnPositiveReply;
+exports.speedToLeadBotOnIgDm           = speedToLeadBotMod.speedToLeadBotOnIgDm;
+exports.speedToLeadBotStatus           = speedToLeadBotMod.speedToLeadBotStatus;
+
+// 2) multiChannelOrchestrator — daily 14:00 UTC (08:00 Cancún) state machine.
+const multiChannelOrchestratorMod = require('./multiChannelOrchestrator');
+exports.multiChannelOrchestrator         = multiChannelOrchestratorMod.multiChannelOrchestrator;
+exports.multiChannelOrchestratorOnDemand = multiChannelOrchestratorMod.multiChannelOrchestratorOnDemand;
+
+// 3) lostDealRecovery — daily 12:00 UTC. T+30/+60/+90 re-engagement.
+const lostDealRecoveryMod = require('./lostDealRecovery');
+exports.lostDealRecovery         = lostDealRecoveryMod.lostDealRecovery;
+exports.lostDealRecoveryOnDemand = lostDealRecoveryMod.lostDealRecoveryOnDemand;
+
+// 4) apifyHiringIntentHarvester — Mon/Wed/Fri 12:30 UTC (06:30 Cancún).
+const apifyHiringIntentHarvesterMod = require('./apifyHiringIntentHarvester');
+exports.apifyHiringIntentHarvester         = apifyHiringIntentHarvesterMod.apifyHiringIntentHarvester;
+exports.apifyHiringIntentHarvesterOnDemand = apifyHiringIntentHarvesterMod.apifyHiringIntentHarvesterOnDemand;
+
+// 5) recentNewsHarvester — daily 11:30 UTC (05:30 Cancún, runs before refill).
+const recentNewsHarvesterMod = require('./recentNewsHarvester');
+exports.recentNewsHarvester         = recentNewsHarvesterMod.recentNewsHarvester;
+exports.recentNewsHarvesterOnDemand = recentNewsHarvesterMod.recentNewsHarvesterOnDemand;
+
+// 6) monthlyClientWinReport — 1st of month 10:00 UTC (04:00 Cancún).
+const monthlyClientWinReportMod = require('./monthlyClientWinReport');
+exports.monthlyClientWinReport         = monthlyClientWinReportMod.monthlyClientWinReport;
+exports.monthlyClientWinReportOnDemand = monthlyClientWinReportMod.monthlyClientWinReportOnDemand;
+
+// 7) reputationMonitor — daily 18:00 UTC (12:00 Cancún).
+const reputationMonitorMod = require('./reputationMonitor');
+exports.reputationMonitor         = reputationMonitorMod.reputationMonitor;
+exports.reputationMonitorOnDemand = reputationMonitorMod.reputationMonitorOnDemand;
+
+// 8) coreWebVitalsAutoRemediator — daily 02:00 UTC.
+const coreWebVitalsAutoRemediatorMod = require('./coreWebVitalsAutoRemediator');
+exports.coreWebVitalsAutoRemediator         = coreWebVitalsAutoRemediatorMod.coreWebVitalsAutoRemediator;
+exports.coreWebVitalsAutoRemediatorOnDemand = coreWebVitalsAutoRemediatorMod.coreWebVitalsAutoRemediatorOnDemand;
+
+// 9) apiQuotaMonitor — every 6h UTC (00/06/12/18).
+const apiQuotaMonitorMod = require('./apiQuotaMonitor');
+exports.apiQuotaMonitor         = apiQuotaMonitorMod.apiQuotaMonitor;
+exports.apiQuotaMonitorOnDemand = apiQuotaMonitorMod.apiQuotaMonitorOnDemand;
+
+// 10) brandVoiceAuditor — daily 04:00 UTC + library export `scoreMessage`.
+const brandVoiceAuditorMod = require('./brandVoiceAuditor');
+exports.brandVoiceAuditor         = brandVoiceAuditorMod.brandVoiceAuditor;
+exports.brandVoiceAuditorOnDemand = brandVoiceAuditorMod.brandVoiceAuditorOnDemand;
+
+// 11) personaDriftDetector — Friday 23:00 UTC (17:00 Cancún).
+const personaDriftDetectorMod = require('./personaDriftDetector');
+exports.personaDriftDetector         = personaDriftDetectorMod.personaDriftDetector;
+exports.personaDriftDetectorOnDemand = personaDriftDetectorMod.personaDriftDetectorOnDemand;
+
+// 12) outboundMetricsDashboard — daily 04:00 UTC (23:00 Cancún previous day).
+const outboundMetricsDashboardMod = require('./outboundMetricsDashboard');
+exports.outboundMetricsDashboard         = outboundMetricsDashboardMod.outboundMetricsDashboard;
+exports.outboundMetricsDashboardOnDemand = outboundMetricsDashboardMod.outboundMetricsDashboardOnDemand;

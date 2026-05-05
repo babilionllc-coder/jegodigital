@@ -564,6 +564,30 @@ exports.calendlyWebhook = functions.https.onRequest(async (req, res) => {
                 functions.logger.warn("nurture cancel on booking failed:", cancelErr.message);
             }
 
+            // ──────────────────────────────────────────────────────────────
+            // Sales Closer Briefing Pack (chained 2026-05-05 — Cowork build)
+            // Why: Alex shows up to Calendly calls with whatever he can
+            // scrape in 90 seconds. Briefing-pack builder shows up with a
+            // research dossier in <60 seconds. Goal: 3x close rate.
+            // Fire-and-forget — webhook still returns 200 immediately. The
+            // pack lands in Notion + Telegram + Slack #leads-hot
+            // independently. NEVER blocks the existing booking flow.
+            // ──────────────────────────────────────────────────────────────
+            let briefingPackTriggered = false;
+            try {
+                const { __internal: briefingInternal } = require("./calendlyBriefingPack");
+                if (briefingInternal && briefingInternal.buildBriefing) {
+                    // Pass the already-parsed payload through directly.
+                    // Don't await — we let it run async after we ack to Calendly.
+                    briefingInternal.buildBriefing({ payload: body.payload || {}, eventType })
+                        .then((r) => functions.logger.info("calendlyBriefingPack chained ok:", r?.elapsed_ms))
+                        .catch((e) => functions.logger.warn("calendlyBriefingPack chain failed:", e.message));
+                    briefingPackTriggered = true;
+                }
+            } catch (briefingErr) {
+                functions.logger.warn("[calendlyWebhook] briefing pack chain failed (non-fatal):", briefingErr.message);
+            }
+
             return res.status(200).json({
                 success: true, event: eventType,
                 telegram: tgResult.ok,
@@ -571,6 +595,7 @@ exports.calendlyWebhook = functions.https.onRequest(async (req, res) => {
                 lead_email: leadEmailResult.ok,
                 briefing_email: briefingResult.ok,
                 nurture_canceled: nurtureCanceled,
+                briefing_pack_triggered: briefingPackTriggered,
             });
         }
 

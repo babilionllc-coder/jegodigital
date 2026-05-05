@@ -91,21 +91,20 @@ function daysBetween(unixSec) {
 // META_GRAPH_TOKEN, GITHUB_TOKEN) even though the underlying tokens are valid.
 // The aliases are checked in order; the first non-empty wins.
 const ENV_ALIASES = {
-    META_GRAPH_TOKEN: ["META_GRAPH_TOKEN", "META_PAGE_ACCESS_TOKEN", "FB_PAGE_ACCESS_TOKEN"],
-    META_WA_CLOUD_TOKEN: ["META_WA_CLOUD_TOKEN", "WA_CLOUD_ACCESS_TOKEN"],
+    META_GRAPH_TOKEN: ["META_GRAPH_TOKEN", "META_PAGE_ACCESS_TOKEN", "FB_PAGE_ACCESS_TOKEN", "FB_USER_TOKEN"],
+    META_WA_CLOUD_TOKEN: ["META_WA_CLOUD_TOKEN", "WA_CLOUD_ACCESS_TOKEN", "WHATSAPP_CLOUD_API_TOKEN"],
     // GITHUB_TOKEN is reserved by GitHub Actions runtime and cannot be set as
     // a repo Secret. Functions runtime needs a PAT — Alex stores his at
     // .secrets/github_token locally; in prod we read from GH_PAT secret.
     GITHUB_TOKEN: ["GITHUB_TOKEN", "GH_PAT", "GH_TOKEN"],
-    // 2026-05-05 PM extension: the Meta /debug_token endpoint requires an
-    // app-token built from app-id + app-secret, and target_id binding checks
-    // need the WABA / ad-account ids. We use FB_* secrets as the source of
-    // truth (those are what Alex maintains in GitHub Secrets), and alias
-    // them into the canonical META_* names that this watchdog asks for.
-    META_APP_ID:                  ["META_APP_ID", "FB_APP_ID"],
-    META_APP_SECRET:              ["META_APP_SECRET", "FB_APP_SECRET"],
+    // 2026-05-05 PM Wave 2 ship-it — close the false-positive Meta alarm.
+    // ACCESS.md ground truth: GH Secrets use FB_* names; the watchdog code
+    // was originally written against META_APP_*. Aliases below let either
+    // naming win without rewriting every callsite.
+    META_APP_ID: ["META_APP_ID", "FB_APP_ID"],
+    META_APP_SECRET: ["META_APP_SECRET", "FB_APP_SECRET"],
+    META_AD_ACCOUNT_ID: ["META_AD_ACCOUNT_ID", "FB_AD_ACCOUNT_ID"],
     WHATSAPP_BUSINESS_ACCOUNT_ID: ["WHATSAPP_BUSINESS_ACCOUNT_ID", "WA_CLOUD_WABA_ID"],
-    META_AD_ACCOUNT_ID:           ["META_AD_ACCOUNT_ID", "FB_AD_ACCOUNT_ID"],
 };
 
 function readEnvWithAliases(canonicalName) {
@@ -124,7 +123,7 @@ async function probeMetaToken(name, tokenEnv, expectedScope, expectedTargetEnv) 
     const appId = readEnvWithAliases("META_APP_ID");
     const appSec = readEnvWithAliases("META_APP_SECRET");
     if (!appId || !appSec) {
-        return { name, ok: false, reason: "META_APP_ID or META_APP_SECRET missing (aliases: FB_APP_ID, FB_APP_SECRET) — can't call /debug_token", isValid: false };
+        return { name, ok: false, reason: "META_APP_ID/FB_APP_ID or META_APP_SECRET/FB_APP_SECRET missing — can't call /debug_token", isValid: false };
     }
     const appToken = `${appId}|${appSec}`;
     try {
@@ -138,7 +137,7 @@ async function probeMetaToken(name, tokenEnv, expectedScope, expectedTargetEnv) 
         const isValid = !!d.is_valid;
         const scopes = d.scopes || [];
         const granular = d.granular_scopes || [];
-        const expectedTarget = expectedTargetEnv ? (readEnvWithAliases(expectedTargetEnv) || process.env[expectedTargetEnv]) : null;
+        const expectedTarget = expectedTargetEnv ? readEnvWithAliases(expectedTargetEnv) : null;
         let scopeOk = true;
         const scopeNotes = [];
         if (expectedScope) {
