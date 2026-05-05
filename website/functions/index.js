@@ -2978,8 +2978,9 @@ exports.performanceMonitorOnDemand  = performanceMonitorMod.performanceMonitorOn
 // 2026-05-05 — Infra/Safety AI agents (Cowork build)
 //   - complianceGate: 7-gate enforcer + daily 8am digest cron
 //   - gapCloser:      every-6h funnel scan
-//   - brevoToFacebookCASync: daily 03:00 UTC Brevo → FB CA mirror
-// All three honor HR-6 (proof) and HR-24 (Telegram + Slack).
+//   - (brevoToFacebookCASync DEPRECATED 2026-05-05 PM — superseded by
+//      syncBrevoToFbCustomAudiences in the Wave 2 block below)
+// All honor HR-6 (proof) and HR-24 (Telegram + Slack).
 // =====================================================================
 const complianceGateMod = require('./complianceGate');
 exports.complianceGateDailyDigest         = complianceGateMod.complianceGateDailyDigest;
@@ -2989,14 +2990,9 @@ const gapCloserMod = require('./gapCloser');
 exports.gapCloser         = gapCloserMod.gapCloser;
 exports.gapCloserOnDemand = gapCloserMod.gapCloserOnDemand;
 
-// brevoToFacebookCASync was DEPRECATED 2026-05-05 PM — superseded by
-// Wave 2's syncBrevoToFbCustomAudiences (full-mirror, 4-tier CA resolution,
-// no hardcoded Telegram tokens). The v1 file remains as a tombstone that
-// throws on require to prevent silent fall-through. Exports are commented
-// out below so the deprecated require never fires at deploy time.
-// const brevoToFacebookCASyncMod = require('./brevoToFacebookCASync');
-// exports.brevoToFacebookCASync         = brevoToFacebookCASyncMod.brevoToFacebookCASync;
-// exports.brevoToFacebookCASyncOnDemand = brevoToFacebookCASyncMod.brevoToFacebookCASyncOnDemand;
+// brevoToFacebookCASync v1 DELETED in same-day Wave 2 dedupe — see header
+// docstring of website/functions/brevoToFacebookCASync.js for scoring detail.
+// v2 (syncBrevoToFbCustomAudiences) is registered in the Wave 2 block below.
 
 // =====================================================================
 // 2026-05-05 PM — Wave 2 high-leverage agents (Cowork build)
@@ -3006,17 +3002,17 @@ exports.gapCloserOnDemand = gapCloserMod.gapCloserOnDemand;
 //                                 SAFE to register: only fires when Calendly POSTs.
 //                                 Activation: add the function URL to Calendly webhook.
 //
-// 2. syncBrevoToFbCustomAudiences — daily 9am CDMX warm-CA push.
-//                                  ⚠️ NOTE: a sibling module `brevoToFacebookCASync`
-//                                  (registered above, 2026-05-05 AM) covers similar
-//                                  ground via a different cron schedule (03:00 UTC).
-//                                  Differences in this v2 build:
-//                                    - lazy CA-id Firestore cache (avoids re-lookup)
-//                                    - push-vs-eligible discrepancy alert
-//                                    - critical Firestore-snapshot-fail alert
-//                                    - stat schema matches sister `syncInstantlyToFbCA`
-//                                  ⚠️ SCHEDULED EXPORT IS COMMENTED OUT until Alex 👍 —
-//                                  on-demand HTTPS is safe to register for testing.
+// 2. syncBrevoToFbCustomAudiences — daily 9am CDMX warm-CA push (FULL MIRROR).
+//                                  Supersedes the v1 `brevoToFacebookCASync` that
+//                                  shipped 2026-05-05 AM (DELETED in same-day dedupe).
+//                                  v2 carries:
+//                                    - 4-tier CA resolution (env / Firestore-cache /
+//                                      Meta-lookup / lazy-create) — Rule 25 robust.
+//                                    - push-vs-eligible discrepancy alert (Rule 7).
+//                                    - critical Firestore-snapshot-fail alert.
+//                                    - Block Kit Slack digest.
+//                                    - stat schema matches sister `syncInstantlyToFbCA`.
+//                                  Scheduled export ACTIVE — fires daily 9am CDMX.
 //
 // 3. buildDemoWebsite + serveDemo — Trojan-Horse autonomous demo deploy.
 //                                  HTTPS webhook (Instantly reply). Includes the
@@ -3032,8 +3028,9 @@ exports.calendlyBriefingPack          = calendlyBriefingPackMod.calendlyBriefing
 exports.calendlyBriefingPackOnDemand  = calendlyBriefingPackMod.calendlyBriefingPackOnDemand;
 
 const syncBrevoToFbCAMod = require('./syncBrevoToFbCustomAudiences');
-// ⚠️ SCHEDULED EXPORT PAUSED — uncomment after Alex 👍 to activate the 9am CDMX cron.
-// exports.syncBrevoToFbCustomAudiences          = syncBrevoToFbCAMod.syncBrevoToFbCustomAudiences;
+// ACTIVATED 2026-05-05 PM (Wave 2 ship-it) — replaces deleted v1 brevoToFacebookCASync.
+// Daily 9am CDMX full-mirror push of opted-in Brevo contacts to FB CA `JD_Brevo_Subscribers_2026`.
+exports.syncBrevoToFbCustomAudiences          = syncBrevoToFbCAMod.syncBrevoToFbCustomAudiences;
 exports.syncBrevoToFbCustomAudiencesOnDemand  = syncBrevoToFbCAMod.syncBrevoToFbCustomAudiencesOnDemand;
 
 const buildDemoWebsiteMod = require('./buildDemoWebsite');
@@ -3089,3 +3086,39 @@ exports.aeoVisibilityMonitorNow  = aeoVisibilityMonitorMod.aeoVisibilityMonitorN
 const referralTriggerMod = require('./referralTrigger');
 exports.referralTrigger     = referralTriggerMod.referralTrigger;
 exports.referralTriggerNow  = referralTriggerMod.referralTriggerNow;
+
+// =====================================================================
+// Schedule Architect — 8 cron-gap fillers shipped 2026-05-05.
+// See SCHEDULES.md §5 for what each one structurally enforces.
+// =====================================================================
+const monthlyRulebookReviewMod = require('./monthlyRulebookReview');
+exports.monthlyRulebookReview         = monthlyRulebookReviewMod.monthlyRulebookReview;
+exports.monthlyRulebookReviewOnDemand = monthlyRulebookReviewMod.monthlyRulebookReviewOnDemand;
+
+const mistakesLedgerReviewMod = require('./mistakesLedgerReview');
+exports.mistakesLedgerReview          = mistakesLedgerReviewMod.mistakesLedgerReview;
+exports.mistakesLedgerReviewOnDemand  = mistakesLedgerReviewMod.mistakesLedgerReviewOnDemand;
+
+const midMonthRevenueGoalReviewMod = require('./midMonthRevenueGoalReview');
+exports.midMonthRevenueGoalReview         = midMonthRevenueGoalReviewMod.midMonthRevenueGoalReview;
+exports.midMonthRevenueGoalReviewOnDemand = midMonthRevenueGoalReviewMod.midMonthRevenueGoalReviewOnDemand;
+
+const cleanupWatcherMod = require('./cleanupWatcher');
+exports.cleanupWatcher          = cleanupWatcherMod.cleanupWatcher;
+exports.cleanupWatcherOnDemand  = cleanupWatcherMod.cleanupWatcherOnDemand;
+
+const weeklyDocConsolidatorMod = require('./weeklyDocConsolidator');
+exports.weeklyDocConsolidator          = weeklyDocConsolidatorMod.weeklyDocConsolidator;
+exports.weeklyDocConsolidatorOnDemand  = weeklyDocConsolidatorMod.weeklyDocConsolidatorOnDemand;
+
+const quarterlyToolStackAuditMod = require('./quarterlyToolStackAudit');
+exports.quarterlyToolStackAudit         = quarterlyToolStackAuditMod.quarterlyToolStackAudit;
+exports.quarterlyToolStackAuditOnDemand = quarterlyToolStackAuditMod.quarterlyToolStackAuditOnDemand;
+
+const duplicateLeadGuardMod = require('./duplicateLeadGuard');
+exports.duplicateLeadGuard          = duplicateLeadGuardMod.duplicateLeadGuard;
+exports.duplicateLeadGuardOnDemand  = duplicateLeadGuardMod.duplicateLeadGuardOnDemand;
+
+const toneAuditDailyDigestMod = require('./toneAuditDailyDigest');
+exports.toneAuditDailyDigest          = toneAuditDailyDigestMod.toneAuditDailyDigest;
+exports.toneAuditDailyDigestOnDemand  = toneAuditDailyDigestMod.toneAuditDailyDigestOnDemand;
