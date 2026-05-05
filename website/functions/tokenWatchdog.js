@@ -84,9 +84,33 @@ function daysBetween(unixSec) {
 
 // ---------- Per-token probes ----------
 
+// 2026-05-05 triage: env-name aliases. The canonical names below are the ones
+// the watchdog originally probed, but the deploy.yml secret-injection block
+// (and Alex's local .env) use slightly different names. Without these aliases,
+// tokenWatchdog fires 3 daily false-positive criticals (META_WA_CLOUD_TOKEN,
+// META_GRAPH_TOKEN, GITHUB_TOKEN) even though the underlying tokens are valid.
+// The aliases are checked in order; the first non-empty wins.
+const ENV_ALIASES = {
+    META_GRAPH_TOKEN: ["META_GRAPH_TOKEN", "META_PAGE_ACCESS_TOKEN", "FB_PAGE_ACCESS_TOKEN"],
+    META_WA_CLOUD_TOKEN: ["META_WA_CLOUD_TOKEN", "WA_CLOUD_ACCESS_TOKEN"],
+    // GITHUB_TOKEN is reserved by GitHub Actions runtime and cannot be set as
+    // a repo Secret. Functions runtime needs a PAT — Alex stores his at
+    // .secrets/github_token locally; in prod we read from GH_PAT secret.
+    GITHUB_TOKEN: ["GITHUB_TOKEN", "GH_PAT", "GH_TOKEN"],
+};
+
+function readEnvWithAliases(canonicalName) {
+    const candidates = ENV_ALIASES[canonicalName] || [canonicalName];
+    for (const k of candidates) {
+        const v = process.env[k];
+        if (v) return v;
+    }
+    return null;
+}
+
 async function probeMetaToken(name, tokenEnv, expectedScope, expectedTargetEnv) {
-    const tok = process.env[tokenEnv];
-    if (!tok) return { name, ok: false, reason: `${tokenEnv} not set`, isValid: false };
+    const tok = readEnvWithAliases(tokenEnv);
+    if (!tok) return { name, ok: false, reason: `${tokenEnv} not set (aliases: ${(ENV_ALIASES[tokenEnv] || [tokenEnv]).join(", ")})`, isValid: false };
 
     const appId = process.env.META_APP_ID;
     const appSec = process.env.META_APP_SECRET;
@@ -264,8 +288,8 @@ async function probeTwilio() {
 }
 
 async function probeGithubPat() {
-    const tok = process.env.GITHUB_TOKEN;
-    if (!tok) return { name: "GITHUB_TOKEN", ok: false, reason: "not set", isValid: false };
+    const tok = readEnvWithAliases("GITHUB_TOKEN");
+    if (!tok) return { name: "GITHUB_TOKEN", ok: false, reason: "not set (aliases: GITHUB_TOKEN, GH_PAT, GH_TOKEN)", isValid: false };
     try {
         const r = await axios.get("https://api.github.com/user", {
             headers: {
