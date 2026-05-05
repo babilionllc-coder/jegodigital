@@ -43,10 +43,22 @@ async function sendTelegram(text) {
 // 2026-05-05 P0 FIX: pool=199 was sticking at "healthy" for 5+ days while the
 // cold-call cron consumed nothing fresh — same 199 leads recycled forever.
 // Raised TARGET_POOL_SIZE 150→250 so a topup ALWAYS fires when fresh inflow
-// hasn't outpaced consumption. Also raises HARD_FLOOR 100→160 (≈3 days
-// of 50-call batches before alarm).
+// hasn't outpaced consumption.
+//
+// 2026-05-05 P0 FOLLOW-UP: Alex's Funnel Verify caught that pool=199 reads
+// EXACTLY 199 every day for 5 days while cold-call cron dialed leads —
+// impossible if the count were live. Root cause: the .limit(500) cap on the
+// phone_leads query (Step 1 below) returns the SAME 500 docs by document-ID
+// order each run. Once the eligible-set within those 500 stabilizes, the
+// count never drops because newer leads (LinkedIn-seeded with high docIDs)
+// fall outside the slice. Fix: remove .limit(500), use .select() so we
+// only fetch the last_called_at field across the full collection.
+//
+// HARD_FLOOR temporarily bumped to 250 (matches TARGET) as a forcing
+// function — alarm fires every day until we see 1 successful discovery
+// cycle prove the new live counter works. Revert to 160 after verification.
 const TARGET_POOL_SIZE = 250;   // healthy pool floor (was 150)
-const HARD_FLOOR = 160;         // below this we alarm Alex (was 100)
+const HARD_FLOOR = 250;         // TEMP forcing alarm — revert to 160 after 1 successful cycle
 const LEADS_TO_FIND_PER_CITY = 30;
 // Rotation of target cities — 2 per day so the pool stays diverse.
 // Cancun/PdC are first priority (Flamingo vertical), CDMX/MTY/GDL next.
@@ -325,16 +337,22 @@ exports.leadFinderAutoTopUp = functions
     .onRun(async () => {
         const db = admin.firestore();
 
-        // ---- Step 1: count eligible pool ----
+        // ---- Step 1: count eligible pool (LIVE — no .limit cap) ----
+        // 2026-05-05 P0 FOLLOW-UP: removed .limit(500) cap that froze pool=199
+        // for 5 days. Now reads ALL phone_leads where phone_verified+do_not_call
+        // qualify, fetching only the last_called_at column via .select() to
+        // keep memory bounded. Total collection is ~200-2000 docs — well within
+        // a single query.
         const fourteenDaysAgo = admin.firestore.Timestamp.fromDate(
             new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
         );
+        const fourteenDaysAgoDate = fourteenDaysAgo.toDate();
         let poolSnap;
         try {
             poolSnap = await db.collection("phone_leads")
                 .where("phone_verified", "==", true)
                 .where("do_not_call", "==", false)
-                .limit(500)
+                .select("last_called_at")
                 .get();
         } catch (err) {
             functions.logger.error("leadFinderAutoTopUp: phone_leads query failed:", err.message);
@@ -343,13 +361,15 @@ exports.leadFinderAutoTopUp = functions
         }
 
         let eligibleCount = 0;
+        let totalQualified = 0;
         poolSnap.forEach((doc) => {
+            totalQualified++;
             const d = doc.data();
             const lastCalled = d.last_called_at?.toDate?.() || null;
-            if (!lastCalled || lastCalled < fourteenDaysAgo.toDate()) eligibleCount++;
+            if (!lastCalled || lastCalled < fourteenDaysAgoDate) eligibleCount++;
         });
 
-        functions.logger.info(`leadFinderAutoTopUp: eligible pool=${eligibleCount} target=${TARGET_POOL_SIZE}`);
+        functions.logger.info(`leadFinderAutoTopUp: pool live count — eligible=${eligibleCount}/${totalQualified} qualified — target=${TARGET_POOL_SIZE}`);
 
         if (eligibleCount >= TARGET_POOL_SIZE) {
             functions.logger.info(`leadFinderAutoTopUp: pool healthy (${eligibleCount}), skipping top-up.`);
@@ -495,28 +515,33 @@ exports.leadFinderAutoTopUp = functions
         }
 
         // ---- Step 6: post-check + alarm if still under floor ----
+        // 2026-05-05 P0 FOLLOW-UP: same .limit(500) removal as Step 1.
         let recountSnap;
         try {
             recountSnap = await db.collection("phone_leads")
                 .where("phone_verified", "==", true)
                 .where("do_not_call", "==", false)
-                .limit(500)
+                .select("last_called_at")
                 .get();
         } catch (err) {
             recountSnap = null;
         }
         let postCount = 0;
+        let postTotalQualified = 0;
         recountSnap?.forEach((doc) => {
+            postTotalQualified++;
             const d = doc.data();
             const lastCalled = d.last_called_at?.toDate?.() || null;
-            if (!lastCalled || lastCalled < fourteenDaysAgo.toDate()) postCount++;
+            if (!lastCalled || lastCalled < fourteenDaysAgoDate) postCount++;
         });
 
         const todayKey = new Date().toISOString().slice(0, 10);
         await db.collection("lead_topup_summaries").doc(todayKey).set({
             date: todayKey,
             pool_before: eligibleCount,
+            pool_before_total_qualified: totalQualified,
             pool_after: postCount,
+            pool_after_total_qualified: postTotalQualified,
             cities,
             candidates_found: candidates.length,
             fresh_after_dedup: fresh.length,
@@ -525,6 +550,7 @@ exports.leadFinderAutoTopUp = functions
             skipped_no_owner: skippedNoOwner,
             written: written,
             topup_fired: true,
+            counter_source: "live_select_no_limit",  // observability: confirm new path
             ran_at: admin.firestore.FieldValue.serverTimestamp(),
         });
 
