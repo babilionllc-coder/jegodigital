@@ -2,47 +2,112 @@
 
 > **HR#4 + HR#8:** position #1 = TODAY's ONE big rock. Max 1 + 3 supporting per day.
 > **Update at session end:** mark complete, promote next, archive old big-rocks to `/archive/`.
-> **Last session update:** 2026-04-27 (live-API audit + MASTER_PROMPT + AUDIT_DELTA shipped)
-> **Archive of pre-2026-04-27 content:** [`archive/2026-04/NEXT_STEP_2026-04-26_archive.md`](archive/2026-04/NEXT_STEP_2026-04-26_archive.md)
+> **Timezone:** America/Cancun (UTC-5, no DST) — Alex lives in Cancún, not CDMX. All cron times in this file are Cancun local unless noted.
+> **Last session update:** 2026-05-05 PM Cancún — Wave 4 Growth Engine (12 new crons + functions) shipped to repo + node-checked + wired into index.js. Awaits commit-and-push to land via `deploy.yml`. Single feature flag (`speed_to_lead_enabled`) gate-locked behind Alex 👍.
 
 ---
 
-## 🎯 TODAY'S BIG ROCK — 2026-04-27 (Mon CDMX)
+## 🌊 WAVE 4 GROWTH ENGINE — Status (2026-05-05 PM)
 
-> **HR#7 Monday Weekly Revenue Review + ship 3 critical doc/data fixes surfaced by 2026-04-27 live audit.**
+> Built autonomously per Alex's directive ("Be the expert. No questions. Pick the 12. Ship.").
+
+**12 of 12 functions:** code shipped to repo, `node --check` clean, wired into `index.js`. See `SCHEDULES.md §1.W4` for the full table + `memories/wave_4_growth_engine_2026-05-05.md` for the score + risk receipt.
+
+**Pending Alex actions (1 only):**
+1. 👍 the **speedToLeadBot** feature flag — flip `config/feature_flags.speed_to_lead_enabled = true` in Firestore when ready to let the bot send WA templates (today: alert-only, no prospect contact).
+
+**Pending technical step Claude will drive in the next session:**
+- Commit + push the 12 new files via Git Data API
+- Wait for `deploy.yml` workflow run to go green
+- Curl every `*OnDemand` endpoint for HTTP-200 + Telegram + Slack proof
+- Promote Wave 4 status from "🟢 code shipped" to "🟢 LIVE in prod"
+
+**Wave 5 — promised next:**
+- Video pipeline activation (founder + property)
+- AEO content engine activation (mx_press_aeo cohort)
+- White-label client dashboard
+- Referral-tracker (extends `referralTrigger` to a full 30/60/90 cadence)
+- Multi-language scaffolding (Spanish ↔ English bidirectional)
+
+---
+
+## 🎯 TODAY'S BIG ROCK — 2026-05-06 (Wed Cancún)
+
+> **Review v4 creative batch + give 👍 → Claude stages 6 AdSets paused in campaign `120241459253630662`.**
 >
-> **Bucket:** D (unblock future revenue) — required infrastructure for the week ahead.
-> **Why today:** Monday is HR#7 mandate AND the 2026-04-27 live-API audit surfaced 2 silent bugs costing real prospects right now.
+> **Bucket:** B (qualified leads pipeline) — paid Meta campaign cannot run without these creatives. Every minute of delay = $0 paid pipeline.
+> **Why today:** Claude rebuilt 18 creatives overnight per the v3 score doc rebuild prompts. All Rule 18 banned words gone, all em-dashes swept, all CTAs full-width WA green, all stats have ✅ tags. Awaits 5-min visual review by Alex before Meta API push.
 
-### 1. HR#7 Weekly Revenue Review (mandatory Monday)
-- Pull live numbers from 8 platforms via `tools/verify_access.sh` + per-platform curls
-- Score: new MRR · qualified leads · Calendly booked · cold-reply→Calendly conv % · CPC closed · pipeline broken/fixed top-3
-- Post Block-Kit summary to `#all-jegodigital` Slack + Telegram
-- Write `/BUSINESS_REVIEW/2026-W18.md` entry
+### 1. Morning briefing review (Bucket B — P0)
+- Read `outputs/morning_briefing_creative_section_2026-05-05.md` (8 KB, 5-min read)
+- Quick-Look the 18 assets in `/Users/mac/Desktop/Websites/jegodigital/website/img/sofia-collaboration-v4/`
+- Pick one of three options:
+  - (A) "ship the v4 batch to AdSet staging" — Claude runs Meta API recipe paused in 15 min
+  - (B) "run round 4 score on #02, #08, #10, #13" — fresh subagent re-scores those 4 first
+  - (C) "queue for organic IG only" — skip paid, post #03/#05/#16/#17 to @jegodigital
 
-### 2. 🚨 Fix Calendly→Brevo bridge (silent revenue leak)
-- **Bug:** list 30 ("Calendly Booked") shows only 2 contacts, both self-tests. Real bookings (Adrián Apr 15, John Luna Apr 20) never landed in Brevo.
-- **Action:** audit `website/functions/calendlyWebhook.js` `invitee.created` handler. Confirm Brevo `/v3/contacts` upsert with FIRSTNAME/LASTNAME/COMPANY/SOURCE=calendly/STAGE=booked.
-- **Proof:** make a test booking on the real Calendly URL, verify contact appears in list 30 within 60s with correct attributes.
+### 2. After 👍: Claude stages 6 AdSets paused (Bucket B — supporting)
+- Campaign: `120241459253630662` (paused, no live ads)
+- AdSets A-F (3 creatives each, 1 video on F): Flamingo / Sur Selecto / GoodLife / Goza / Solik / Multi-client+video
+- Per-AdSet config: `OUTCOME_LEADS` or `OUTCOME_MESSAGES`, $5-10/day, MX RE + Miami Hispanic luxury audience
+- Verify all 6 show `status=PAUSED` after creation
+- Post Telegram + Slack confirmation per Rule 24
 
-### 3. 🚨 Verify Brevo nurture cron is firing (or document why not)
-- **Symptom:** last 7d Brevo transactional events = 10, ALL to Alex's own gmail (self-tests). No real prospects emailed.
-- **Action:** check `processBrevoNurtureQueue` cron logs (every 30 min). Read Firestore `brevo_nurture_queue` for rows where `sendAt <= now AND sent != true`. If queue empty → confirm zero positive Instantly replies + zero audits this week (also valid). If queue has unsent rows → fix the cron.
-- **Proof:** either (a) cron log shows real send + Brevo events show non-self-test deliveries, OR (b) documented "no leads triggered nurture this week" with reply/audit counts to back it up.
+### 3. ~~Build morningBriefCron~~ — ROLLED FORWARD from 2026-04-29
+- The Apr 29 big rock is still pending. After today's creative ship, this becomes tomorrow's big rock.
 
-### 4. Doc cleanup wave 1 (already in progress this session)
-- ✅ MASTER_PROMPT.md shipped
-- ✅ AUDIT_DELTA_2026-04-27.md shipped
-- ✅ NEXT_STEP.md cleaned (this file)
-- ⏳ CLAUDE.md update (5 EL agents, 10 active campaigns)
-- ⏳ SYSTEM.md auto-regen (174 functions live)
-- ⏳ Move 16 historical .md to archive/
+---
 
-**Success criteria EOD Monday:**
-- HR#7 review posted to `#all-jegodigital`
-- Calendly→Brevo bridge proven working with one real test booking
-- Brevo nurture cron status documented
-- All 4 doc fixes shipped to main, all GH workflows green
+## 🗂️ Previously the big rock (2026-04-29) — ROLLED FORWARD
+
+## 🎯 TODAY'S BIG ROCK — 2026-04-29 (Wed Cancún)
+
+> **Build & deploy `morningBriefCron` — the missing "phone command center" piece.**
+>
+> **Bucket:** D (unblock future revenue) — but this is the ONE infra task that immediately upgrades every other bucket: Alex runs JegoDigital from Slack on his phone.
+> **Why today:** 15 platforms, 4 dashboards, scattered context. ONE 8am-Cancún Slack message that pulls live from all 8 platforms = coffee-in-hand triage. Once shipped, autonomous forever.
+
+### 1. Build `morningBriefCron` (Bucket D — infra that unlocks A/B/C)
+- **Schedule:** every weekday at 08:00 America/Cancun = `0 13 * * 1-5` UTC (Mon-Fri).
+- **Pulls live from 8 platforms** (re-uses `tools/verify_access.sh` API patterns):
+  1. **Instantly** — last-24h sent / opens / replies / positive replies (per active campaign)
+  2. **Brevo** — last-24h email events (sent/opens/clicks) + new contacts + nurture queue depth
+  3. **Calendly** — bookings created in last 24h + upcoming next 48h (with invitee email + UTM source)
+  4. **ElevenLabs** — last-24h calls (success / fail / positive transcripts) + which agent fired
+  5. **Meta Ads** — yesterday's spend / leads / CPL per campaign
+  6. **Google Ads** — same shape (once Demand Gen kicks)
+  7. **GSC** — last-7d clicks / impressions / top movers vs prior week
+  8. **GA4** — yesterday's sessions / form submits on `jegodigital.com`
+- **Output:** ONE Block-Kit Slack message to `#all-jegodigital` with:
+  - 🔥 Hot leads needing action (positive replies + new bookings) — TOP of message
+  - 📊 24h pipeline numbers (sent / replies / bookings / calls / ad spend)
+  - 🚨 Anything broken (campaign 0-opens, function errors, ad disapprovals)
+  - 🎯 Today's recommended next 3 actions (deterministic, based on data)
+- **Proof:** function deployed via `deploy.yml` → first run lands in `#all-jegodigital` 08:00 Cancún Thu Apr 30 → screenshot in DEPLOY_LOG + commit hash logged here.
+
+### 2. ~~Adrián Vera follow-up~~ — REMOVED 2026-04-29
+- Per Alex 2026-04-29: Adrián is an **old lead, no longer active**. Do NOT cite or reference in any future priority recommendation.
+- Historical record only: backfilled to Brevo list 30 on 2026-04-28 (visible in `completed` section below). No further outreach planned.
+
+### 3. Ship Calendly polling safety-net cron (Bucket D — supporting)
+- **Why:** the Apr 17 booking never hit our function despite subscription `state: active` — webhook delivery is unreliable. Polling is the belt-and-suspenders so no future booking can go missing silently.
+- **Pattern:** every 30 min poll Calendly `/scheduled_events?min_start_time=24h_ago` → diff vs Firestore `calendly_events` → replay missing ones through the same handler chain.
+- **Bonus:** `morningBriefCron` will surface any new bookings the polling cron rescues — closes the loop.
+
+**Success criteria EOD Wed:**
+- `morningBriefCron` deployed, all 8 platform calls return live data, first scheduled run green Thu 08:00 Cancún
+- Calendly polling cron deployed (no future booking can go missing silently)
+- 0-open Instantly diagnosis surfaced inside the morningBrief (auto-included now)
+
+---
+
+## ✅ COMPLETED 2026-04-28 (Tue)
+
+- ✅ HR#7 W18 review posted to `#all-jegodigital` (1 day late) — `BUSINESS_REVIEW/2026-W18.md`
+- ✅ Adrián Vera backfilled into Brevo list 30 with full attributes (PAIN_POINTS, WEBSITE_URL, LEAD_TEMPERATURE=Hot)
+- ✅ Confirmed `calendlyWebhook` Cloud Function works (diagnostic POST → Brevo upsert OK, function returned `success:true`)
+- ✅ Confirmed Brevo nurture IS firing (558 events / 259 opens 7d — prior audit was wrong)
+- ✅ Identified HR#0 violation: prior audit fabricated "John (Luna Real Estate)" — does not exist in Calendly
 
 ---
 
