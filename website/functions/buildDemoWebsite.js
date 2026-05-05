@@ -54,8 +54,14 @@
  *   FIRECRAWL_API_KEY
  *   ANTHROPIC_API_KEY                — Claude generates the demo copy
  *   MOCKUP_RENDERER_URL              — Cloud Run HTML→PNG endpoint
- *   FIREBASE_HOSTING_DEMO_BASE_URL   — base URL for served demos
+ *   HOSTING_DEMO_BASE_URL            — base URL for served demos
  *                                       (default: https://jegodigital.com/demo)
+ *                                       Renamed 2026-05-05 PM: Firebase Functions reserves
+ *                                       the FIREBASE_ prefix and rejects .env at build time
+ *                                       (X_GOOGLE_/FIREBASE_/EXT_ are all reserved).
+ *                                       Reads HOSTING_DEMO_BASE_URL first, falls back to
+ *                                       legacy FIREBASE_HOSTING_DEMO_BASE_URL for safety
+ *                                       in any local-only test envs.
  *   TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID
  *   SLACK_BOT_TOKEN
  *
@@ -78,7 +84,7 @@ const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const FIRECRAWL_API = "https://api.firecrawl.dev/v1/scrape";
 const INSTANTLY_API = "https://api.instantly.ai/api/v2";
-const DEMO_BASE_URL = (process.env.FIREBASE_HOSTING_DEMO_BASE_URL || "https://jegodigital.com/demo").replace(/\/$/, "");
+const DEMO_BASE_URL = (process.env.HOSTING_DEMO_BASE_URL || process.env.FIREBASE_HOSTING_DEMO_BASE_URL || "https://jegodigital.com/demo").replace(/\/$/, "");
 const MOCKUP_RENDERER = (process.env.MOCKUP_RENDERER_URL || "https://mockup-renderer-wfmydylowa-uc.a.run.app/render");
 
 // Keyword detection — Spanish + English. Word-boundary tolerant.
