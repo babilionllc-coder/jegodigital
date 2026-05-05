@@ -4,6 +4,52 @@ Pattern catalog of what went wrong, why, and how to never repeat it. Read before
 
 ---
 
+## 2026-05-05 PM — Repeated ManyChat reference because CLAUDE.md was stale (doc-drift class)
+
+**Pattern:** Told the Lead Supply Recovery agent to "build the missing ManyChat webhook mirror" because CLAUDE.md still described a ManyChat funnel as Sofia's WhatsApp architecture. The Lead Supply Recovery agent caught it — pointed out that the live code (`whatsappAIResponder.js` for Twilio + `whatsappCloudInbound.js` for Meta WhatsApp Cloud API) hadn't depended on ManyChat for weeks. ManyChat was effectively dead in the codebase but alive in the docs.
+
+**What happened:**
+
+1. Claude read `CLAUDE.md §WhatsApp + IG Funnel` which said *"Sofia on WhatsApp + IG via ManyChat"*
+2. Claude asked the agent to build a "ManyChat webhook mirror" Cloud Function based on that doc-described architecture
+3. Lead Supply Recovery agent inspected the live code and pushed back: there is no ManyChat path; reality is Twilio + Meta WA Cloud writing to `wa_conversations` and `wa_cloud_conversations` Firestore collections, with `sofiaConversationAudit.js` UNIONing both
+4. Verification: live code at `website/functions/whatsappAIResponder.js` lines 8-30, `website/functions/whatsappCloudInbound.js` lines 1-26, `website/functions/sofiaConversationAudit.js` line 53 (P0 fix comment from commit `dcd68b73`)
+
+**Why it failed (root cause = doc drift, not technical mistake):**
+
+1. **Live code refactored, docs never followed.** Architecture moved from ManyChat → direct webhooks at some point pre-2026-05-05, but CLAUDE.md, BUSINESS.md, PLAYBOOKS.md, ACCESS.md, the `manychat-sofia` skill description, and the agent memory files all kept saying "ManyChat".
+2. **Skill description was the worst offender.** The `manychat-sofia` skill at `/var/folders/.../skills/manychat-sofia/SKILL.md` framed itself as the canonical Sofia architecture skill. Future sessions reading that skill description would inherit the same lie.
+3. **Class of mistake = doc-drift.** Same shape as the Meta-tokens mistake earlier today (trusted alarm text instead of ground truth) but inverted: trusted DOCS instead of LIVE CODE.
+
+**What to do instead — the doc-vs-code precedence rule (locked 2026-05-05):**
+
+When a task involves WhatsApp, Sofia, or any system where docs and code might disagree:
+
+```
+1. Read the live Cloud Function code FIRST
+   → website/functions/<function>.js header comment block
+2. Cross-check against agent/memory/<system>_truth_<date>.md
+3. ONLY THEN read CLAUDE.md / BUSINESS.md / skill description
+4. If 3 contradicts 1 — DOCS ARE WRONG, fix them in same session
+```
+
+**Structural fix shipped 2026-05-05 PM (this same session):**
+- `CLAUDE.md` — replaced ManyChat funnel description with Twilio + Meta WA Cloud architecture; added §Deprecated: ManyChat block
+- `BUSINESS.md` — replaced WhatsApp + Instagram Funnel section with the real two-path architecture
+- `PLAYBOOKS.md` — Key Technical References swapped ManyChat URL for Sofia WA Twilio + Meta WA Cloud webhook URLs
+- `ACCESS.md` — `MANYCHAT_API_KEY` row marked deprecated 2026-05-05; added stale-doc warning at top
+- `DEPRECATED.md` — added "ManyChat funnel" entry as the first deprecated tool
+- `skills_patches/manychat-sofia_v2.md` — added DEPRECATED 2026-05-05 header explaining the platform shift while preserving valid Sofia behavioral rules
+- `agent/memory/sofia_ai_whatsapp.md` — created with canonical Sofia architecture
+- `agent/memory/wa_architecture_truth_2026-05-05.md` — created as authoritative successor to 2026-05-04 archived version
+- This ledger entry
+
+**Rule going forward:** any future session that greps `ManyChat` in JegoDigital docs MUST hit a 🪦 DEPRECATED tag, not a "Sofia on WhatsApp via ManyChat" sentence. If you see a stale ManyChat-as-architecture sentence, fix it on sight.
+
+**Tag:** doc-drift · architecture · sofia · whatsapp · manychat-deprecated
+
+---
+
 ## 2026-05-05 PM — Claimed Meta tokens were "unset" without investigating (Rule 16 violation)
 
 **Pattern:** Trusted `tokenWatchdog`'s daily critical alarm at face value and reported to Alex that `META_WA_CLOUD_TOKEN`, `META_GRAPH_TOKEN`, and `GITHUB_TOKEN` were "not set" — implicitly pushing the work of fixing it onto Alex. Alex corrected me: those tokens (plus a third "Meta Claude" token) have been in GitHub Secrets for weeks, under different names. I had never read `ACCESS.md` and never hit the GH Secrets API before reporting.
@@ -391,3 +437,35 @@ This file is **append-only**. Old mistakes are never deleted; they accumulate as
 **Tag:** doc-consolidation · file-hygiene · archive-discipline · index-maintenance
 
 **Prevention status:** ✅ permanent — `INDEX.md` shipped at root, mv-only rule documented, post-move verification block standardized in this skill's workflow. Future doc consolidations must `mv` (not `cp`) and verify both ends before claiming done.
+
+---
+
+## 2026-05-05 PM — Mistake #11: Reserved-prefix env-var name killed Wave 2 deploy silently
+
+**Pattern:** Wave 2 ship-it commit (`402cef3`) added a new GH Secret + deploy.yml pass-through named `FIREBASE_HOSTING_DEMO_BASE_URL`. Firebase Functions reserves the `FIREBASE_` prefix (along with `X_GOOGLE_` and `EXT_`) for runtime config — the deploy step rejects ANY `.env` line whose key starts with one of those prefixes. The deploy.yml has `|| echo "...continuing"` after each batch, which masks the failure into a green workflow conclusion. Result: zero new functions deployed in run #323, but the GH Actions UI showed "✅ Deploy to Firebase". I claimed "deploy succeeded" before testing the new endpoints, then the curl returned HTTP 404 (function doesn't exist) and HTTP 200 with stale code (token watchdog returning the OLD bundle). HR-6 violation — claimed complete without same-session verification.
+
+**What happened:**
+
+1. Wave 2 build added `FIREBASE_HOSTING_DEMO_BASE_URL` for `buildDemoWebsite.js` to know its public base URL.
+2. The name was added to GH Secrets (HTTP 201) and to `.github/workflows/deploy.yml` env heredoc (line 101).
+3. Push went green: GH Actions concluded "success" for both `Deploy Cloud Functions` and `Deploy Hosting`.
+4. Phase 6 verification: `curl /syncBrevoToFbCustomAudiencesOnDemand` → **HTTP 404**. `curl /tokenWatchdogOnDemand` → **HTTP 200 with old code** (no alias suffix in error message).
+5. Pulled the deploy log: every batch failed on `Error: Failed to load environment variables from .env.: Key FIREBASE_HOSTING_DEMO_BASE_URL starts with a reserved prefix (X_GOOGLE_ FIREBASE_ EXT_)`. Both batches, both retries, all failed. The `|| echo` masked the exit code and the workflow shipped green.
+6. Existing functions kept running on the old bundle (Cloud Functions doesn't roll back, it just keeps the previous deploy). New functions never landed.
+
+**Why it failed:**
+
+1. **Reserved prefix not on my radar.** I didn't know `FIREBASE_*` was a reserved env-var prefix in Cloud Functions. Should have grepped Firebase docs before naming.
+2. **`|| echo` mask in deploy.yml.** The retry block has `|| echo "...continuing"` which silently turns a non-zero exit into success. The conclusion of the GH Actions workflow does NOT reflect actual deploy state.
+3. **HR-6 violation: I trusted the "success" badge.** I did not curl the new endpoint to confirm it existed before saying Phase 4 was done.
+
+**What to do instead:**
+
+1. **Validator.** Add a pre-deploy step in deploy.yml that greps the env heredoc for `^[[:space:]]*(X_GOOGLE_|FIREBASE_|EXT_)[A-Z0-9_]*=` and FAILS the build if any match. (`FIREBASE_TOKEN` at job-level is fine — it's an env var for the firebase CLI itself, not a function-runtime env.)
+2. **Remove the `|| echo` mask.** Replace with explicit retry logic that propagates failure when both retries fail. Today the workflow lies "success" when it shouldn't.
+3. **Always curl new endpoints in same session as Phase 6.** A 404 from a function I just claimed deployed = deploy didn't happen. No exceptions.
+4. **Naming convention:** prefix env vars with `JEGODIGITAL_` or `JD_` to avoid all 3 reserved prefixes for life.
+
+**Tag:** deploy · firebase-functions · env-vars · reserved-prefix · ci-mask · hr-6
+
+**Prevention status:** 🟡 partial — the bad name has been corrected (`FIREBASE_HOSTING_DEMO_BASE_URL` → `HOSTING_DEMO_BASE_URL`, both in GH Secrets and deploy.yml, fix commit `68e4e4e`). The validator step + `|| echo` removal are filed as TODO follow-ups.

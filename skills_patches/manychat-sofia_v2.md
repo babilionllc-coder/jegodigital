@@ -1,8 +1,28 @@
 # manychat-sofia — Patch v2 (Sofia Collaboration Persona + Rule 4)
 
-**Date:** 2026-05-04
-**Authority:** Alex directive 2026-05-04 PM · CLAUDE.md HR-17 + HR-18 + HR-19
-**Status:** 🟢 APPROVED 2026-05-04 PM — awaiting plugin owner sync to push + Alex UI update for ManyChat ice breakers
+> # 🪦 SKILL DEPRECATED 2026-05-05 — READ THIS FIRST
+>
+> **The `manychat-sofia` skill description is STALE.** ManyChat is no longer the WhatsApp/Instagram architecture. As of 2026-05-05, Sofia runs on:
+>
+> - **Twilio path** — `website/functions/whatsappAIResponder.js` → Firestore `wa_conversations/{toNumber}_{leadPhone}` (multi-tenant via `wa_clients/{toNumber}`)
+> - **Meta WhatsApp Cloud API path** — `website/functions/whatsappCloudInbound.js` on `+1 978 396 7234` (PNID `1044375245434120`, WABA `1520533496454283`) → Firestore `wa_cloud_conversations/{from}`
+>
+> Both paths call Gemini 2.5 Flash with Firestore-backed system prompts. `sofiaConversationAudit.js` UNIONs both collections nightly (commit `dcd68b73`).
+>
+> **The behavioral rules in this patch (Sofia persona, qualifying flow, Rule 4 intro line, collaboration tone) ARE STILL VALID** and apply to BOTH Twilio and Meta WA Cloud paths — those rules describe Sofia's voice, not the platform.
+>
+> **What changed:** any references in the body below to "ManyChat ice breakers", "ManyChat UI step", "ManyChat flow", "ManyChat API custom fields" are now historical. The equivalent in the new architecture is:
+> - "ManyChat ice breaker" → first inbound WhatsApp message via Twilio or Meta WA Cloud (Sofia replies with the standard intro)
+> - "ManyChat UI step (Alex manual)" → update the system prompt in Firestore `wa_clients/{toNumber}.systemPrompt` (Twilio) or `wa_clients/+19783967234.systemPrompt` (Meta WA Cloud)
+> - "ManyChat custom field" → Firestore document fields on `wa_conversations` / `wa_cloud_conversations` / `leads`
+>
+> See [`CLAUDE.md §Deprecated: ManyChat`](../CLAUDE.md) and [`DEPRECATED.md §ManyChat funnel`](../DEPRECATED.md) for the full kill record.
+
+---
+
+**Date:** 2026-05-04 (skill content), 2026-05-05 (deprecation header added)
+**Authority:** Alex directive 2026-05-04 PM · CLAUDE.md HR-17 + HR-18 + HR-19 · Lead Supply Recovery agent 2026-05-05
+**Status:** 🪦 PLATFORM-DEPRECATED — Sofia behavioral rules still valid, ManyChat platform layer dead
 
 ---
 
@@ -161,3 +181,17 @@ Why: cleaner transparency + reframes Sofia's role from "I sell, then transfer" t
 ---
 
 🟡 Awaiting Alex approval before plugin push + ManyChat UI updates (the 4 ice breakers must be updated manually in ManyChat — no API).
+
+---
+
+## §strategist — Cross-reference to `jegodigital-strategist` (added 2026-05-05)
+
+For "audit Sofia" / "why aren't bookings happening" / "score Sofia's reply" / "what's the right move on the WA funnel?" / "is the Sofia mirror working?" — **delegate to `jegodigital-strategist`**. The strategist:
+- Runs `workflows/audit_workflow_X.md` keyed to "Sofia / WhatsApp" — verifies `wa_cloud_conversations` last `last_sent_status` is 200 (anti-pattern 3 prevention), `sofia_audits` samples > 0
+- Scores any Sofia reply via `workflows/score_copy.md` (6-axis ≥ 9/10)
+- Returns ROI-ranked next moves
+- NEVER claims Sofia "live" without same-session 200 status proof (anti-pattern 3)
+
+**Where the strategist lives:** `skills_patches/jegodigital-strategist/SKILL.md`
+
+This skill owns Sofia's persona, the ManyChat flow, the ice breakers, and the audit funnel. The strategist owns the cross-channel "what's the right move here?" decision and the score gate.

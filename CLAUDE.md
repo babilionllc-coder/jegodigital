@@ -20,7 +20,7 @@
 | 2 | Universal Verify-Live | Same as HR-1 but across ALL 8 platforms: ElevenLabs, Instantly, Brevo, Calendly, Firestore, Meta Graph, GSC, GA4. No metric from memory/docs. | [`docs/hard-rules/HR-2.md`](docs/hard-rules/HR-2.md) |
 | 3 | Revenue-First Prioritization | Every task must trace to "this gets us closer to a paying client this month" — 5-bucket filter (A close / B leads / C convert / D infra / E cleanup). | inline §HR-3 below |
 | 4 | Read NEXT_STEP.md First (and CONFIRM with Alex) | Every session reads `/NEXT_STEP.md`. **HR#4 amended 2026-04-29:** treat the file as DRAFT. Before citing any lead by name or recommending a priority, confirm-or-update with Alex in the same response. NEVER cite a lead from the file without a same-session validation pulse. Adrián disaster 2026-04-29: stale entry quoted 4× before Alex flagged it. | inline §HR-4 below |
-| 5 | Lead Quality Gate | 5 gates before any lead list enters Instantly/ElevenLabs/ManyChat: role-reject / real-name / decision-maker / live-domain / ICP-match. | inline §HR-5 below |
+| 5 | Lead Quality Gate | 5 gates before any lead list enters Instantly/ElevenLabs/Sofia WA: role-reject / real-name / decision-maker / live-domain / ICP-match. | inline §HR-5 below |
 | 6 | Never Mark Complete Without Proof | Every "done" claim needs live verification in the same tool-call sequence (workflow green + curl 200 + diff + etc.). | inline §HR-6 below |
 | 7 | Weekly Revenue Review Every Monday | Autonomous weekly pull from all 8 platforms → scored → posted to Telegram/Slack. | inline §HR-7 below |
 | 8 | One Big Rock Per Day | Max 1 big rock + 3 supporting. No 7-parallel-tracks days. | inline §HR-8 below |
@@ -78,7 +78,7 @@
 
 ## 🛑 HARD RULE #5 — LEAD QUALITY GATE
 
-**No lead enters Instantly / ElevenLabs / ManyChat without ALL 7 gates passing:**
+**No lead enters Instantly / ElevenLabs / Sofia WA (Twilio or Meta WA Cloud) without ALL 7 gates passing:**
 
 | Gate | Test | Threshold |
 |---|---|---|
@@ -246,7 +246,7 @@ No generic "Hi {firstName}, hope you're doing well" sends. Ever.
 **Rule 3 — NEVER send any message before researching first**
 Hard gate. If research has not been completed for a given send, the send is blocked. Applies to:
 - Cold email (Instantly Step 1)
-- Sofia ManyChat WA/IG opener
+- Sofia WA/IG opener (Twilio `whatsappAIResponder.js` or Meta WA Cloud `whatsappCloudInbound.js`)
 - ElevenLabs cold-call dial
 - Calendly outreach
 - LinkedIn DM
@@ -289,11 +289,11 @@ Every JegoDigital first-touch must answer these 5 in the first 5 lines:
 | Channel | Where the intro lives |
 |---|---|
 | Cold email Step 1 | First 1-2 sentences of body |
-| Sofia WA/IG opener | Sofia's first reply after the ManyChat ice breaker |
+| Sofia WA/IG opener | Sofia's first reply on Twilio (`wa_conversations`) or Meta WA Cloud (`wa_cloud_conversations`) |
 | FB ad body | Body line 1 (not headline) |
 | Calendly event description | First paragraph |
 | Lead Form Thank You page | First sentence |
-| ManyChat welcome flow | First message Sofia sends |
+| Sofia welcome message | First message Sofia sends after the lead's first inbound |
 | ElevenLabs cold-call opener | First spoken sentence after greeting |
 
 ### Verification
@@ -366,7 +366,7 @@ If something is missing from these files, it's missing from our system. Don't gu
 
 Alex + full AI stack = 1 person delivering like a 10-person agency. Client **never knows it's AI-powered** — we position as premium full-service.
 
-**AI Stack (NEVER mention to clients):** Claude (strategy/code/content), Instantly.ai (ONLY cold email tool), ManyChat/Sofia (WhatsApp + IG), Brevo (nurture for existing leads only, NOT cold), Firebase/GCP (hosting/DB/functions), DataForSEO + Perplexity (SEO data), Hunter.io (email finder), ElevenLabs (voiceovers + cold-call AI + Twilio), Cloud Run mockup-renderer (HTML→PNG at `mockup-renderer-wfmydylowa-uc.a.run.app`), SEO Antigravity (custom SEO/AEO tool).
+**AI Stack (NEVER mention to clients):** Claude (strategy/code/content), Instantly.ai (ONLY cold email tool), Sofia on Twilio + Meta WA Cloud API (WhatsApp — see §WhatsApp + IG Funnel — **NOT ManyChat, deprecated 2026-05-05**), Brevo (nurture for existing leads only, NOT cold), Firebase/GCP (hosting/DB/functions), DataForSEO + Perplexity (SEO data), Hunter.io (email finder), ElevenLabs (voiceovers + cold-call AI + Twilio), Cloud Run mockup-renderer (HTML→PNG at `mockup-renderer-wfmydylowa-uc.a.run.app`), SEO Antigravity (custom SEO/AEO tool).
 
 **Dead tools — never use** (full list in [`DEPRECATED.md`](DEPRECATED.md)): Postiz (expired), n8n public API (blocked), Meta Business Suite via Chrome (native picker), instagram.com web login (bot detection), Firebase Storage as IG host (404s), Apollo/Clay (DIY-stack policy), OpenClaw for outreach (deliverability).
 
@@ -430,11 +430,27 @@ AI reply agent = **Instantly's built-in AI Reply Agent** ("JegoDigital Agent" �
 
 ## WHATSAPP + IG FUNNEL (summary)
 
-Sofia on WhatsApp + IG via ManyChat. Priority 1: lead agrees to free digital audit (60-min delivery via `submitAuditRequest` Cloud Function). Priority 2: Calendly. Sofia NEVER collects name/email — ManyChat has them.
+**🟥 ARCHITECTURE UPDATE 2026-05-05 — ManyChat is DEPRECATED.** Sofia now runs on TWO live Cloud Function paths:
 
-3 ice breakers live. Calendly: `calendly.com/jegoalexdigital/30min`. Alex WA: `+52 998 202 3263`.
+1. **Twilio path** — `whatsappAIResponder.js` receives Twilio WhatsApp webhooks (multi-tenant: JegoDigital + clients on shared Twilio account). Loads client-specific Sofia prompt from Firestore `wa_clients/{toNumber}`, calls Gemini 2.5 Flash, replies via Twilio. Writes conversation history to **`wa_conversations/{toNumber}_{leadPhone}`** with `messages: [...]` + `updated_at`.
+2. **Meta WA Cloud API path** — `whatsappCloudInbound.js` receives Meta WhatsApp Cloud API webhooks on JegoDigital's own number **+1 978 396 7234** (Phone Number ID `1044375245434120`, WABA `1520533496454283`). Same Sofia logic, replies via `whatsappCloudSend.sendText`. Writes to **`wa_cloud_conversations/{from}`**.
+
+`sofiaConversationAudit.js` (nightly 23:00 CDMX) UNIONs both Firestore collections for the 24h audit — no external API call needed (per commit `dcd68b73`, 2026-05-05).
+
+Priority 1: lead agrees to free digital audit (60-min delivery via `submitAuditRequest` Cloud Function). Priority 2: Calendly hand-off → `calendly.com/jegoalexdigital/30min`. Alex WA: `+52 998 202 3263`. Sofia escalates qualified leads (≥2 strong signals) directly to Alex's personal WA + Calendly link.
 
 Full flow → [`BUSINESS.md §WhatsApp + Instagram Funnel`](BUSINESS.md#whatsapp--instagram-funnel).
+
+### 🪦 Deprecated: ManyChat (killed 2026-05-05)
+
+| What | When | Why |
+|---|---|---|
+| ManyChat funnel `app.manychat.com/fb4452446` | killed 2026-05-05 | Replaced by Twilio + Meta WA Cloud API direct webhooks; Sofia runs on Gemini 2.5 Flash with Firestore-backed memory, no third-party flow builder needed |
+| `MANYCHAT_API_KEY` GH Secret | deprecated 2026-05-05 | No live code path consumes it (`calendlyWebhook.js` ManyChat blocks are dormant — see DEPRECATED.md) |
+| `tools/manychat-mcp/` | dormant | Kept on disk for historical reference, not invoked |
+| `manychat-sofia` skill | DEPRECATED — see `skills_patches/manychat-sofia_v2.md` | Architecture description was stale; do NOT use as source of truth for Sofia funnel work |
+
+**Rule:** when ANY agent or future session mentions "ManyChat" as the WhatsApp architecture, push back immediately and point to this section. Real architecture = Twilio (`whatsappAIResponder.js` → `wa_conversations`) + Meta WA Cloud API (`whatsappCloudInbound.js` → `wa_cloud_conversations`). The Lead Supply Recovery agent caught this mistake on 2026-05-05 — don't repeat it.
 
 ---
 
@@ -545,7 +561,7 @@ Full spec, canonical template, pipeline decision table → [`PLAYBOOKS.md §Mock
 
 ## KEY TECHNICAL REFERENCES
 
-Quick-reference table of website, tool folders, Cloud Run endpoints, ManyChat/Calendly URLs → [`PLAYBOOKS.md §Key Technical References`](PLAYBOOKS.md#key-technical-references).
+Quick-reference table of website, tool folders, Cloud Run endpoints, Sofia WhatsApp endpoints (Twilio + Meta WA Cloud — NOT ManyChat), Calendly URLs → [`PLAYBOOKS.md §Key Technical References`](PLAYBOOKS.md#key-technical-references).
 
 ---
 

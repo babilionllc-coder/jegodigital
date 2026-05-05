@@ -1,7 +1,7 @@
 # JegoDigital — Deprecated Tools & Dead-End Approaches
 
 > **Purpose:** Permanent record of tools, platforms, campaigns, and integration approaches that have been deprecated, killed, or proven to fail. Grep this file BEFORE trying something that looks similar to an old approach.
-> **Last updated:** 2026-04-21
+> **Last updated:** 2026-05-05 (added ManyChat funnel deprecation)
 > **Owner:** Claude + Alex — append new deprecations as they happen; never delete entries.
 
 ---
@@ -13,6 +13,21 @@ Every entry below was tried and failed or was intentionally retired. Re-trying a
 ---
 
 ## ❌ DEPRECATED TOOLS
+
+### ManyChat funnel (Sofia WhatsApp + IG)
+- **Deprecated:** 2026-05-05
+- **Why:** Architecture moved to direct webhooks. Sofia now runs on TWO live Cloud Function paths — Twilio (`whatsappAIResponder.js` for Twilio WA inbound, multi-tenant client routing via `wa_clients/{toNumber}`) and Meta WhatsApp Cloud API (`whatsappCloudInbound.js` for `+1 978 396 7234`, PNID `1044375245434120`, WABA `1520533496454283`). Both call Gemini 2.5 Flash with Firestore-backed multi-tenant prompts. ManyChat became a redundant flow-builder layer.
+- **Trigger event:** Lead Supply Recovery agent (2026-05-05) caught Claude proposing to "build the missing ManyChat webhook mirror" because CLAUDE.md still described a ManyChat funnel. Architecture had drifted from docs for weeks; this cleanup pass aligned them.
+- **Replaced by:**
+  - Twilio path → `website/functions/whatsappAIResponder.js` writes `wa_conversations/{toNumber}_{leadPhone}`
+  - Meta WA Cloud path → `website/functions/whatsappCloudInbound.js` writes `wa_cloud_conversations/{from}`
+  - Audit cron → `website/functions/sofiaConversationAudit.js` UNIONs both collections nightly 23:00 CDMX (commit `dcd68b73`)
+- **Dormant artifacts (do NOT resurrect or call):**
+  - `MANYCHAT_API_KEY` GH Secret (ACCESS.md row 26 — kept for now, remove at next rotation)
+  - `tools/manychat-mcp/` folder (kept on disk, not invoked)
+  - `manychat-sofia` skill description in `/var/folders/.../skills/manychat-sofia/SKILL.md` (skill is read-only at the OS level — see `skills_patches/manychat-sofia_v2.md` for the live deprecation patch)
+  - ManyChat blocks inside `calendlyWebhook.js`, `calendly.js`, `eveningOpsReport.js`, `sofiaConversationAudit.js` (legacy code paths — Lead Supply Recovery agent already corrected `sofiaConversationAudit.js` per the comment block at line 53; remaining files have dead branches that never fire)
+- **Rule:** when ANY future agent proposes "ManyChat webhook mirror", "ManyChat flow update", "ManyChat custom field", or any new code that imports the ManyChat API, BLOCK and point them here. Real Sofia architecture = Twilio + Meta WA Cloud API only.
 
 ### Postiz (social media scheduler)
 - **Deprecated:** 2026-04-12

@@ -101,7 +101,7 @@ Same as single image but `media_type=STORIES` + 1080×1920 vertical.
 
 ### Caption rules
 - **Always Spanish** unless explicit override
-- **NEVER** include pricing or AI tool names (Claude, ManyChat, n8n, ChatGPT)
+- **NEVER** include pricing or AI tool names (Claude, Twilio, Gemini, n8n, ChatGPT — and never resurrect ManyChat which was killed 2026-05-05)
 - **NEVER** "AI-powered" / "automatización con IA"
 - One CTA: WhatsApp `+52 998 202 3263` OR `calendly.com/jegoalexdigital/30min`
 - 5–8 hashtags from: `#inmobiliaria #InmobiliariaCancún #InmobiliariasMéxico #RivieraMaya #BienesRaicesCancún #MarketingInmobiliario #SEOInmobiliario #RealEstateCancún #JegoDigital #Cancun #PlayaDelCarmen #Tulum`
@@ -257,9 +257,12 @@ def inject_fonts(html): return html.replace("<head>", "<head>" + FONT_LINKS, 1)
 | Mockup Template (canonical) | /carousels/_templates/before-after/build.py |
 | Master Knowledge Base | /knowledge_base/JEGDIGITAL_MASTER_KNOWLEDGE_BASE.md |
 | Config & API keys | /_JEGODIGITAL_CONFIG.md |
-| ManyChat | https://app.manychat.com/fb4452446 |
+| Sofia WA — Twilio webhook | https://us-central1-jegodigital-e02fb.cloudfunctions.net/whatsappAIResponder |
+| Sofia WA — Meta WA Cloud webhook (`+1 978 396 7234`) | https://us-central1-jegodigital-e02fb.cloudfunctions.net/whatsappCloudInbound |
+| Sofia conversation audit (cron 23:00 CDMX) | website/functions/sofiaConversationAudit.js |
 | Calendly | https://calendly.com/jegoalexdigital/30min |
-| n8n | https://jegodigitalnew.app.n8n.cloud |
+| ~~ManyChat (DEPRECATED 2026-05-05)~~ | ~~https://app.manychat.com/fb4452446~~ |
+| ~~n8n (deprecated)~~ | ~~https://jegodigitalnew.app.n8n.cloud~~ |
 
 ---
 

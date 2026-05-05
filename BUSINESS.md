@@ -16,7 +16,7 @@
 5. [Sales Strategy — Validated Offer](#sales-strategy--validated-offer-2026-04-27)
 6. [Accelerator Products (2026-04-27 PM)](#accelerator-products-2026-04-27-pm)
 7. [Outreach Pipeline — Instantly.ai](#outreach-pipeline--instantlyai)
-8. [WhatsApp + Instagram Funnel — ManyChat + Sofia](#whatsapp--instagram-funnel)
+8. [WhatsApp + Instagram Funnel — Twilio + Meta WA Cloud + Sofia](#whatsapp--instagram-funnel)
 9. [Key Constraints](#key-constraints)
 10. [Revenue Goal & 5 Revenue Streams](#revenue-goal--5-revenue-streams)
 
@@ -200,14 +200,14 @@ Full experimental spec + decision rules + implementation checklist in [`docs/str
 
 **Public guarantee:** *"Si Sofia no responde en 60 segundos, este mes va por nuestra cuenta."*
 
-**Why this is a closing lever no competitor can copy:** sub-1-min response = 7× more likely to convert; sub-30-min = 21× higher than slower competitors. Sofia already does this with current ManyChat + ElevenLabs setup. Putting it in writing as a public guarantee is structural — Trichter (consultancy with humans) literally cannot match it.
+**Why this is a closing lever no competitor can copy:** sub-1-min response = 7× more likely to convert; sub-30-min = 21× higher than slower competitors. Sofia already does this with the live Twilio + Meta WA Cloud API + ElevenLabs setup (Gemini 2.5 Flash, ~3-5s reply latency end-to-end). Putting it in writing as a public guarantee is structural — Trichter (consultancy with humans) literally cannot match it.
 
 **Where to deploy:**
 - Homepage hero (Spanish + English)
 - Every Pack Crecimiento + Pack Dominación deliverables list (signed contracts include the guarantee clause)
 - Calendly call closing line — Alex must say it verbatim
 - Cold email step 4 social-proof slot
-- Sofia ManyChat ice-breaker copy
+- Sofia WhatsApp opener copy (Twilio inbound `whatsappAIResponder.js` + Meta WA Cloud `whatsappCloudInbound.js`)
 
 **Measurement Cloud Function:** `sofiaResponseTimeMonitor` logs every Sofia first-touch (WA + IG + web chat) → Firestore `response_times` collection → monthly client report includes "Tiempo promedio de respuesta: Xs" as proof of guarantee fulfillment. If a single client month shows >60s avg, that month's invoice is auto-credited.
 
@@ -232,7 +232,7 @@ Each prompt scored on (a) appears in answer (yes/no), (b) appears in cited sourc
 - Extend `submitAuditRequest` Cloud Function with `citationScoreModule`
 - Update `audit-funnel` skill SKILL.md to document new module
 - Update Brevo audit-delivery email template to lead with the citation score
-- Update Sofia ManyChat audit-offer copy to say "Reporte AEO 2026" instead of "auditoría gratis"
+- Update Sofia WhatsApp audit-offer copy (Twilio + Meta WA Cloud paths) to say "Reporte AEO 2026" instead of "auditoría gratis"
 
 ### Accelerator 4 — Public Performance Tier SKUs (`/precios`)
 
@@ -308,7 +308,7 @@ Each prompt scored on (a) appears in answer (yes/no), (b) appears in cited sourc
 >
 > 5. **If the lead specifically asks for a demo video instead of an audit**, send the matching demo URL (see Demo Video URL Map) AND still offer the audit as a follow-up ("también te puedo mandar una auditoría gratis de {{website}} en 45 minutos, te muestra exactamente dónde perder leads").
 >
-> Keep the full reply to 6-8 lines. Never mention pricing. Never reveal any automation tools or software names (no "Claude", no "ManyChat", no "Firecrawl", no "DataForSEO").
+> Keep the full reply to 6-8 lines. Never mention pricing. Never reveal any automation tools or software names (no "Claude", no "Twilio", no "Gemini", no "Firecrawl", no "DataForSEO").
 >
 > If the reply is negative, respond briefly and professionally, thank them for their time, and remove them from the sequence.
 
@@ -453,35 +453,38 @@ JegoDigital
 
 ## WHATSAPP + INSTAGRAM FUNNEL
 
-**ManyChat flow:** https://app.manychat.com/fb4452446/cms/files/wa_default/edit
+**🟥 ARCHITECTURE — Twilio + Meta WhatsApp Cloud API (NOT ManyChat — deprecated 2026-05-05)**
 
-**3 buttons → all route to AI Step (Sofia):**
-- Ver Servicios → AI Step ✅
-- Quiero mas leads → AI Step ✅
-- Hablar con Alex → AI Step ✅
+Sofia runs on **two live Cloud Function paths**, both calling Gemini 2.5 Flash with Firestore-backed multi-tenant prompts:
 
-**Sofia handles:** qualification, audit offer, Calendly push. Alex steps in manually when lead is hot.
+| Path | Cloud Function | Webhook Source | Firestore collection | Prompt source |
+|---|---|---|---|---|
+| **Twilio** | `whatsappAIResponder.js` | Twilio WhatsApp inbound (multi-tenant: JegoDigital + Flamingo + clients) | `wa_conversations/{toNumber}_{leadPhone}` | `wa_clients/{toNumber}.systemPrompt` |
+| **Meta WA Cloud** | `whatsappCloudInbound.js` | Meta WA Cloud API on `+1 978 396 7234` (PNID `1044375245434120`, WABA `1520533496454283`) | `wa_cloud_conversations/{from}` | `wa_clients/{wa_number}.systemPrompt` (same prompt store) |
 
-**Sofia's End Goals (Updated April 17, 2026 ~00:20 CST):**
-- **Primary:** Get lead to AGREE to free digital audit → confirm we have name/email → ask ONLY for website URL → audit delivered to email in 60 min
-- **Secondary:** Book Calendly call to review audit results with Alex
-- Sofia does NOT collect name or email — ManyChat already has them
+Both write `messages: [...]` array + `updated_at`. `sofiaConversationAudit.js` (nightly 23:00 CDMX) UNIONs both collections for the 24-hour quality audit (commit `dcd68b73`, 2026-05-05).
 
-**Ice Breakers (live, published — 3 total, updated April 16, 2026):**
-1. Quiero generar mas leads para mi agencia → WhatsApp Default Reply
-2. Auditoría gratis de mi sitio web → WhatsApp Default Reply
-3. Agendar consultoría gratuita de 30 min → WhatsApp Default Reply
+**Sofia handles:** qualification (3-question flow: project type → volume → timeline), audit offer, Calendly + Alex personal WhatsApp escalation. Alex steps in manually when lead is hot. NEVER quotes price.
+
+**Sofia's End Goals (Updated 2026-05-04 — qualifying flow upgrade):**
+- **Primary:** lead clears the 3-question qualifying flow → ≥2 strong signals → `qualified=true` → Sofia hands over Alex's WhatsApp `+52 998 202 3263` + Calendly link in next message
+- **Secondary:** if not yet qualified, Sofia offers free digital audit (60-min delivery via `submitAuditRequest` Cloud Function) and continues nurturing
+- Sofia does NOT collect name or email when the inbound channel already has them (Twilio passes the `from` number; Meta WA Cloud API passes the contact name in the webhook payload)
 
 **Calendly:** calendly.com/jegoalexdigital/30min
 **Alex WhatsApp:** +52 998 202 3263
 
-### Audit Funnel — In-Chat (LIVE — April 17, 2026 ~00:20 CST)
+### Audit Funnel — In-Chat (LIVE)
 
-**IG flow (fully automated):** Lead says "AUDITORIA" → collects email → collects website URL → fires `submitAuditRequest` API → audit report generated (~37s) → emailed to lead → Calendly upsell
-**WA flow:** Sofia offers audit → confirms info → asks for URL → sends to jegodigital.com/auditoria-gratis (Phase 2: direct API call TODO)
+**Direct conversation paths (Twilio + Meta WA Cloud):** lead asks Sofia for an audit → Sofia confirms email + website URL inside the chat → fires `submitAuditRequest` API → audit report generated (~37s) → emailed to lead → Calendly upsell.
+**Web form fallback:** lead lands on `jegodigital.com/auditoria-gratis` → form posts directly to `submitAuditRequest`.
 **Cloud Function:** `https://us-central1-jegodigital-e02fb.cloudfunctions.net/submitAuditRequest`
 
-**DEPLOY NEEDED:** Run `firebase deploy --only functions:submitAuditRequest` to enable `source` tracking (manychat_instagram vs auditoria-gratis).
+The `source` field on `audit_requests` differentiates `wa_twilio` / `wa_cloud` / `auditoria-gratis` / `instantly_autofire` / `cold_call`.
+
+### 🪦 Deprecated: ManyChat funnel
+
+The old ManyChat flow (`app.manychat.com/fb4452446`) and its 3 ice breakers were retired 2026-05-05. The Twilio + Meta WA Cloud architecture above is the only live truth. The `manychat-sofia` skill description, `MANYCHAT_API_KEY` GH Secret, and `tools/manychat-mcp/` folder are all dormant — see [`CLAUDE.md §Deprecated: ManyChat`](CLAUDE.md) and [`DEPRECATED.md`](DEPRECATED.md) for the kill record.
 
 ---
 
