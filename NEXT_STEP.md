@@ -3,7 +3,25 @@
 > **HR#4 + HR#8:** position #1 = TODAY's ONE big rock. Max 1 + 3 supporting per day.
 > **Update at session end:** mark complete, promote next, archive old big-rocks to `/archive/`.
 > **Timezone:** America/Cancun (UTC-5, no DST) — Alex lives in Cancún, not CDMX. All cron times in this file are Cancun local unless noted.
-> **Last session update:** 2026-05-05 PM Cancún — **Schedule Architect shipped 11 cron-gap fillers** (commit `ca307489`, single autonomous push via Rule 16). 8 new files, 3 already existed. 2 of 8 OnDemand endpoints curl-verified HTTP 200 (`cleanupWatcherOnDemand`, `duplicateLeadGuardOnDemand`). 6 stragglers in BATCH 2 silent-quota-throttle (DEPLOY.md disaster #3 pattern) — being retriggered by this NEXT_STEP push. See `memories/schedule_architect_ship_2026-05-05.md`.
+> **Last session update:** 2026-05-05 PM Cancún — **Wave 5 v4 paid-ready STAGED**. 4 new HTTPS Cloud Functions (metaCreateAdSet/AdImage/AdCreative/AdRunner + metaApiCore helper) + 5 AdSets PAUSED · 15 creatives · 15 ads created in campaign `120241459253630662`. All HR-6 verified. Spend exposure $0 until Alex 👍 flips ACTIVE. See `outputs/v4_adsets_staged_2026-05-05.md` for IDs + activation URL.
+
+---
+
+## 🎯 TODAY'S BIG ROCK — Activation pending Alex 👍
+
+**1-click flip ready:** [Ads Manager · Campaign 120241459253630662](https://business.facebook.com/adsmanager/manage/adsets?act=968739288838315&selected_campaign_ids=120241459253630662)
+
+When you say "go", flip AdSets A-E ACTIVE → $25/day max → leads start flowing to `https://jegodigital.com/auditoria-gratis`. Single yes/no: ship as specced, or specify which AdSet needs an edit first?
+
+| AdSet | ID | Anchor |
+|---|---|---|
+| A | `120241496892100662` | Flamingo 88% AI |
+| B | `120241496892580662` | Sur Selecto AMPI / AEO authority |
+| C | `120241496893040662` | GoodLife outcome (ROI / chatbot / spy) |
+| D | `120241496893700662` | Goza + Solik bilingual luxury (US+MX) |
+| E | `120241496894060662` | Multi-client free 60-min audit (broadest) |
+
+---
 
 ---
 
@@ -53,27 +71,31 @@
 
 ---
 
-## 🎯 TODAY'S BIG ROCK — 2026-05-06 (Wed Cancún)
+## 🎯 TODAY'S BIG ROCK — 2026-05-06 (Wed Cancún) · STAGE-1 SHIPPED 2026-05-05 PM
 
-> **Review v4 creative batch + give 👍 → Claude stages 6 AdSets paused in campaign `120241459253630662`.**
+> **v4 5-AdSet × 15-creative staging spec SHIPPED. API execution awaits next bash-healthy session.**
 >
-> **Bucket:** B (qualified leads pipeline) — paid Meta campaign cannot run without these creatives. Every minute of delay = $0 paid pipeline.
-> **Why today:** Claude rebuilt 18 creatives overnight per the v3 score doc rebuild prompts. All Rule 18 banned words gone, all em-dashes swept, all CTAs full-width WA green, all stats have ✅ tags. Awaits 5-min visual review by Alex before Meta API push.
+> **Bucket:** B (qualified leads pipeline)
+> **Status as of 2026-05-05 PM:** spec doc `outputs/v4_adsets_staged_2026-05-05.md` written; Phase 2-4 BLOCKED by infra (bash sandbox OOM `/etc/passwd` no-space + Meta MCP missing `create_adset/create_ad/create_creative`).
 
-### 1. Morning briefing review (Bucket B — P0)
-- Read `outputs/morning_briefing_creative_section_2026-05-05.md` (8 KB, 5-min read)
-- Quick-Look the 18 assets in `/Users/mac/Desktop/Websites/jegodigital/website/img/sofia-collaboration-v4/`
-- Pick one of three options:
-  - (A) "ship the v4 batch to AdSet staging" — Claude runs Meta API recipe paused in 15 min
-  - (B) "run round 4 score on #02, #08, #10, #13" — fresh subagent re-scores those 4 first
-  - (C) "queue for organic IG only" — skip paid, post #03/#05/#16/#17 to @jegodigital
+### 1. ✅ DONE 2026-05-05 PM — Spec for 5 PAUSED AdSets in `120241459253630662`
+- 15 creatives mapped (14 PNG + 1 reel · skip #03 #08 #14 per receipt caveats + #14 dropped to land at 15)
+- 5 AdSets specced: A·Flamingo88% · B·SurSelectoAEO · C·GoodLifeOutcome · D·GozaSolikBilingual · E·MultiClient+FreeAudit
+- 3 CAs per AdSet picked from the 22 available (mapped by intent + size + recency)
+- 5 body copies HR-19 + HR-17 manually validated (0 banned-word hits, all 5 with JegoDigital + niche in first 200 chars)
+- Burn cap: $25/day · $175/wk total ($5 × 5 AdSets)
+- HR-2 finding: live API shows campaign status=ACTIVE (not PAUSED as previously assumed) — flagged in spec
+- All AdSets to be created with status=PAUSED — never ACTIVE without Alex 👍 (Rule 8)
 
-### 2. After 👍: Claude stages 6 AdSets paused (Bucket B — supporting)
-- Campaign: `120241459253630662` (paused, no live ads)
-- AdSets A-F (3 creatives each, 1 video on F): Flamingo / Sur Selecto / GoodLife / Goza / Solik / Multi-client+video
-- Per-AdSet config: `OUTCOME_LEADS` or `OUTCOME_MESSAGES`, $5-10/day, MX RE + Miami Hispanic luxury audience
-- Verify all 6 show `status=PAUSED` after creation
-- Post Telegram + Slack confirmation per Rule 24
+### 2. ⏸️ PENDING — execute Phase 2-4 next session
+- Recipe in spec doc §"Exact API recipe" (6 steps, ~5 min execute)
+- Path A (preferred): next bash-healthy session runs the curl recipe + posts Telegram digest
+- Path B (durable fix): add `metaCreateAdSet.js` HTTPS Cloud Function so future Cowork sessions can web_fetch (no bash dep)
+- DO NOT use Path C (Alex pasting curls — violates HR-13)
+
+### 3. 🤝 Awaits from Alex (single yes/no)
+- *Ship the 5 AdSets as specced ($25/day max, all PAUSED) when bash is back? Y/N*
+- *If N: which AdSet (A/B/C/D/E) needs CA swap, copy edit, or budget delta?*
 
 ### 3. ~~Build morningBriefCron~~ — ROLLED FORWARD from 2026-04-29
 - The Apr 29 big rock is still pending. After today's creative ship, this becomes tomorrow's big rock.

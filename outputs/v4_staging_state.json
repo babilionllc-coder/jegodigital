@@ -1,0 +1,63 @@
+{
+  "images": {
+    "01_flamingo_pain_88pct.png": "df45996b6862c496451a8d3a4389c795",
+    "02_flamingo_outcome_dashboard.png": "dd589bc33d3fe7e96402ab1d90660da7",
+    "04_surselecto_chatgpt_authority.png": "70c7e089f405cac6d633798c9db47a9b",
+    "05_surselecto_4zones.png": "3654883b2c6c36f06539e1f6987d01c4",
+    "06_surselecto_ampi_story.png": "caee122e82035fe14e406c9a7a17d0e8",
+    "07_goodlife_roi_calculator.png": "42f7adfbdc059aaf2be8769e01916cff",
+    "09_goodlife_competitor_spy_story.png": "3bac0e1c42d270a9e28237bc8d1e45e5",
+    "10_goza_98_pagespeed.png": "2ed1a6191cece64cd7cc22a123de0008",
+    "11_goza_24_7_ai_chatbot.png": "b2ea2d84891cc6cc8262ecee42aea670",
+    "12_goza_speed_design_ai_story.png": "1b8f0b1054de2766e5f51ee431c6b3d8",
+    "13_solik_95_qualify_bilingual.png": "95cd1ce0f546b0636b0d94d1516700b9",
+    "15_solik_bilingual_luxury_story.png": "8190ca488da590278109849d789f15ee",
+    "16_multiclient_5_numbers_grid.png": "bc9a3fe5068ceb640c8ce20988db4ba5",
+    "17_multiclient_5_zones_map.png": "1b2dbf8fc6782b5dbf5c7da1bdd107cd"
+  },
+  "videos": {
+    "18_video_v4_with_vo.mp4": "1496504412227989"
+  },
+  "adsets": {
+    "AS_A_FlamingoAI_88pct": "120241496892100662",
+    "AS_B_AEOAuthority_SurSelecto": "120241496892580662",
+    "AS_C_GoodLife_Outcome": "120241496893040662",
+    "AS_D_GozaSolik_BilingualLuxury": "120241496893700662",
+    "AS_E_MultiClient_FreeAudit60min": "120241496894060662"
+  },
+  "creatives": {
+    "v4_A_01": "1302969461786290",
+    "v4_A_02": "995450826244268",
+    "v4_B_04": "1995879804348077",
+    "v4_B_05": "1158025926457471",
+    "v4_B_06": "2198367077576875",
+    "v4_C_07": "1183984677094328",
+    "v4_C_09": "2135582460615684",
+    "v4_C_11": "2807452359594618",
+    "v4_D_10": "1294757842087623",
+    "v4_D_12": "972965435686397",
+    "v4_D_15": "1698924884622923",
+    "v4_E_16": "26578862925142433",
+    "v4_E_17": "1726521651842586",
+    "v4_E_13": "3913264292301227",
+    "v4_A_18v": "1640037230378477"
+  },
+  "ads": {
+    "v4_ad_A_01": "120241496908150662",
+    "v4_ad_A_02": "120241496908670662",
+    "v4_ad_A_18v": "120241496909200662",
+    "v4_ad_B_04": "120241496909930662",
+    "v4_ad_B_05": "120241496910670662",
+    "v4_ad_B_06": "120241496912190662",
+    "v4_ad_C_07": "120241496914510662",
+    "v4_ad_C_09": "120241496917620662",
+    "v4_ad_C_11": "120241496920680662",
+    "v4_ad_D_10": "120241496923330662",
+    "v4_ad_D_12": "120241496926870662",
+    "v4_ad_D_15": "120241496930120662",
+    "v4_ad_E_16": "120241496932250662",
+    "v4_ad_E_17": "120241496935040662",
+    "v4_ad_E_13": "120241496938050662"
+  },
+  "video_thumb": "https://scontent.fcjs3-1.fna.fbcdn.net/v/t15.5256-10/689003594_997365116153298_3940293443927569515_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=e3495b&_nc_ohc=fMLR4g_rONoQ7kNvwH9bc1e&_nc_oc=AdpMZVgeN9iLU4oVozHwFVcjkWPMff-qTrZsdXoHc8pB2HSVISnXR_zD_C2MPgL5MYA&_nc_zt=23&_nc_ht=scontent.fcjs3-1.fna&edm=AF0wKlEEAAAA&_nc_gid=635zDUzg5coVfaxqKrr00A&_nc_tpa=Q5bMBQEPOJKeLbWEmJRqnATMutwqgF609BtzTsjepD7EiqouwSEHYCBSMBqLTRG_9BL13Ch6ERvT6w4B1w&oh=00_Af7EpMhGJwCXvLtYQ7N0H1wNCnOxzdzBi88MguUKrs6HDg&oe=6A002077"
+}

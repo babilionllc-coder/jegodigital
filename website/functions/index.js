@@ -248,6 +248,18 @@ exports.processSupersearchListsManual = require('./processSupersearchLists').pro
 // activate when approved (24-48h). Pending sends auto-retry +24h.
 exports.processRecoveryQueue = require('./leadRecoveryQueue').processRecoveryQueue;
 
+// --- META MARKETING API HTTPS ENDPOINTS (Wave 5, added 2026-05-05) ---
+// Auth-gated (Bearer INTERNAL_API_TOKEN) HTTPS endpoints that wrap the Meta
+// Graph API for AdSet/AdImage/AdCreative/Ad creation. Lets future Cowork
+// sessions stage Meta ads without local bash. All idempotent (skip-if-exists
+// by name). Telegram + Slack notify on success + failure. Used by the v4
+// paid-ready staging flow and any future autonomous ad pipelines.
+// Companion module: metaApiCore.js (shared auth + graphPost + idempotency).
+exports.metaCreateAdSet      = require('./metaCreateAdSet').metaCreateAdSet;
+exports.metaCreateAdImage    = require('./metaCreateAdImage').metaCreateAdImage;
+exports.metaCreateAdCreative = require('./metaCreateAdCreative').metaCreateAdCreative;
+exports.metaCreateAdRunner   = require('./metaCreateAdRunner').metaCreateAdRunner;
+
 // Sync Function (Replaces Python Script)
 exports.uploadCampaignLogs = functions.https.onRequest(async (req, res) => {
     try {
